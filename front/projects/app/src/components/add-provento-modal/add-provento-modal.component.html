@@ -1,0 +1,60 @@
+<div class="proventos-modal-backdrop" *ngIf="isOpen" (click)="handleBackdropClick()">
+  <div class="proventos-modal" (click)="$event.stopPropagation()">
+    <h3>Novo provento</h3>
+
+    <div class="proventos-modal__form">
+      <label>
+        Código
+        <app-simple-input [value]="codigo()" (valueChange)="handleCodigoChange($event)"></app-simple-input>
+      </label>
+
+      <label>
+        Tipo
+        <app-simple-select [value]="tipo()" [options]="tipoOptions" (valueChange)="handleTipoChange($event)">
+        </app-simple-select>
+      </label>
+
+      <label>
+        Instituição
+        <input type="text" [value]="instituicao()" (input)="handleInstituicaoChange($any($event.target).value)" />
+      </label>
+
+      <label>
+        Quantidade
+        <app-simple-input-number [allowDecimal]="false" [allowNegative]="false"
+          [value]="(quantidade() ?? '').toString()"
+          (valueChange)="handleQuantidadeChange($event)"></app-simple-input-number>
+      </label>
+
+      <label>
+        Preço Unitário
+        <app-simple-input-number [allowDecimal]="true" [allowNegative]="false"
+          [value]="(precoUnitario() ?? '').toString()"
+          (valueChange)="handlePrecoUnitarioChange($event)"></app-simple-input-number>
+      </label>
+
+      <label>
+        Valor Líquido
+        <app-simple-input-number [allowDecimal]="true" [allowNegative]="false"
+          [value]="(valorLiquido() ?? '').toString()"
+          (valueChange)="handleValorLiquidoChange($event)"></app-simple-input-number>
+      </label>
+
+      <label class="proventos-modal__date">
+        Data
+        <app-date-picker [value]="data()" [disableFutureDates]="true" (dateChange)="handleDataChange($event)"></app-date-picker>
+      </label>
+    </div>
+
+    <p class="proventos-modal__validation" *ngIf="validationMessage()">{{ validationMessage() }}</p>
+
+    <div class="proventos-modal__actions">
+      <app-simple-button variant="cancelar" [disabled]="isSaving" (btnClick)="close()">
+        Cancelar
+      </app-simple-button>
+      <app-simple-button [disabled]="isSaving" (btnClick)="submit()">
+        {{ isSaving ? 'Salvando...' : 'Salvar' }}
+      </app-simple-button>
+    </div>
+  </div>
+</div>

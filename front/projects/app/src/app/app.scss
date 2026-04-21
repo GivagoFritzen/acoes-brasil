@@ -1,0 +1,43 @@
+.layout {
+    display: flex;
+    min-height: 100vh;
+    width: 100%;
+}
+
+.content {
+    background: rgba(246, 247, 249);
+    flex: 1;
+    margin-left: 50px;
+    min-height: 100vh;
+    min-width: 0;
+    overflow-x: hidden;
+
+    @media (max-width: 768px) {
+        margin-left: 0;
+    }
+}
+
+@media (max-width: 768px) {
+    .layout {
+        display: block;
+    }
+
+    .content {
+        width: 100%;
+    }
+}
+
+@media print {
+    app-sidebar {
+        display: none !important;
+    }
+
+    .layout,
+    .content {
+        display: block !important;
+        margin: 0 !important;
+        width: 100% !important;
+        min-height: auto !important;
+        background: white !important;
+    }
+}

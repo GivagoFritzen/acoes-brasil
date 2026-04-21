@@ -1,0 +1,39 @@
+<div class="chart-container" *ngIf="slices.length > 0; else noData">
+    <svg class="pie-chart" viewBox="-105 -105 210 210">
+        <g *ngFor="let slice of slices; let i = index"
+           (mouseenter)="setHighlightedSlice(i)"
+           (mouseleave)="setHighlightedSlice(null)">
+            <path [attr.d]="slice.path"
+                  [attr.fill]="slice.color"
+                  [class.highlighted]="i === highlightedIndex"
+                  class="slice-path"></path>
+            <text *ngIf="slice.percentage > 5"
+                  [attr.x]="slice.labelX"
+                  [attr.y]="slice.labelY"
+                  class="slice-label"
+                  text-anchor="middle"
+                  dominant-baseline="middle">
+                {{ slice.label }}
+            </text>
+        </g>
+    </svg>
+
+    <div class="legend-container">
+        <div class="legend-item"
+             *ngFor="let slice of slices; let i = index"
+             (mouseenter)="setHighlightedSlice(i)"
+             (mouseleave)="setHighlightedSlice(null)"
+             [class.highlighted]="i === highlightedIndex">
+            <div class="legend-color" [style.backgroundColor]="slice.color"></div>
+            <div class="legend-label">{{ slice.label }}</div>
+            <div class="legend-percentage">{{ slice.percentage | number:'1.1-2' }}%</div>
+            <div class="legend-value">{{ slice.value | currency:'BRL':'symbol':'1.2-2' }}</div>
+        </div>
+    </div>
+</div>
+
+<ng-template #noData>
+    <div class="no-data">
+        <span>Sem dados suficientes para exibir o gráfico.</span>
+    </div>
+</ng-template>

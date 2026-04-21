@@ -1,0 +1,111 @@
+<section class="proventos">
+  <app-alerts [alerts]="alerts()" (dismissed)="handleAlertDismiss($event)"></app-alerts>
+
+  <header class="proventos__header">
+    <h2>Proventos</h2>
+    <app-simple-button (btnClick)="openCreateModal()">
+      Adicionar provento
+    </app-simple-button>
+  </header>
+
+  <div class="proventos__filters">
+    <label>
+      Código
+      <app-simple-input [value]="filtroCodigo()" (valueChange)="handleFilterCodeChange($event)" />
+    </label>
+
+    <label>
+      Tipo
+      <app-simple-select [value]="filtroTipo()" [options]="tipoOptions" [placeholder]="'Todos'"
+        (valueChange)="handleFilterTypeChange($event)">
+      </app-simple-select>
+    </label>
+
+    <label>
+      Data inicial
+      <app-date-picker [value]="filtroData()" (dateChange)="handleFilterStartChange($event)">
+      </app-date-picker>
+    </label>
+
+    <label>
+      Data final
+      <app-date-picker [value]="filtroDataFinal()" (dateChange)="handleFilterEndChange($event)">
+      </app-date-picker>
+    </label>
+
+    <label>
+      Juntar
+      <app-simple-checkbox [checked]="juntarPorCodigo()" (checkedChange)="handleJuntarPorCodigoChange($event)">
+      </app-simple-checkbox>
+    </label>
+
+    <div class="proventos__buttons">
+      <app-simple-button (btnClick)="applyFilter()">
+        Filtrar
+      </app-simple-button>
+
+      <app-simple-button variant="cancelar" (btnClick)="clearFilter()">
+        Limpar
+      </app-simple-button>
+    </div>
+  </div>
+
+  <div class="proventos__table">
+    <div class="proventos__row proventos__row--head">
+      <span>Código</span>
+      <span>Tipo</span>
+      <span>Instituição</span>
+      <span>Quantidade</span>
+      <span>Preço Unit.</span>
+      <span>Valor Líquido</span>
+      <span>Data</span>
+      <span>Ações</span>
+    </div>
+
+    <div *ngIf="isLoading() && !errorMessage() && proventos().length === 0" class="proventos__row">
+      <span>Carregando proventos...</span>
+    </div>
+
+    <article class="proventos__row" *ngFor="let item of proventos(); trackBy: trackByProventoId">
+      <span class="proventos__code" data-label="Código">{{ item.codigo }}</span>
+      <span data-label="Tipo">{{ formatTipo(item.tipo) }}</span>
+      <span data-label="Instituição">{{ item.instituicao }}</span>
+      <span data-label="Quantidade">{{ item.quantidade }}</span>
+      <span data-label="Preço Unit.">{{ item.precoUnitario | currency:'BRL' }}</span>
+      <span data-label="Valor Líquido">{{ item.valorLiquido | currency:'BRL' }}</span>
+      <span data-label="Data">{{ formatDisplayDate(item.data) }}</span>
+      <span class="proventos__actions" data-label="Ações">
+        <app-action-button title="Deletar provento" (actionClick)="openDeleteModal(item)"></app-action-button>
+      </span>
+    </article>
+  </div>
+
+  <footer class="proventos__pagination">
+    <app-pagination [page]="page()" [totalPages]="totalPages()" align="right" (previous)="previousPage()"
+      (next)="nextPage()"></app-pagination>
+  </footer>
+
+  <div class="proventos__modal-backdrop" *ngIf="isDeleteModalOpen()" (click)="closeDeleteModal()">
+    <div class="proventos__modal" (click)="$event.stopPropagation()">
+      <h3>Confirmar exclusão</h3>
+      <p>
+        Deseja realmente deletar o provento
+        <strong>{{ proventoToDelete()?.codigo }}</strong>?
+      </p>
+
+      <div class="proventos__modal-actions">
+        <button type="button" class="proventos__modal-btn" [disabled]="isDeleting()" (click)="closeDeleteModal()">
+          Cancelar
+        </button>
+        <button type="button" class="proventos__modal-btn proventos__modal-btn--danger" [disabled]="isDeleting()"
+          (click)="confirmDeleteProvento()">
+          {{ isDeleting() ? 'Deletando...' : 'Deletar' }}
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <app-add-provento-modal [isOpen]="isCreateModalOpen()" [isSaving]="isCreating()" [tipoOptions]="tipoOptions"
+    (closed)="closeCreateModal()" (saved)="confirmCreateProvento($event)">
+  </app-add-provento-modal>
+</section>

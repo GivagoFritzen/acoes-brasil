@@ -1,0 +1,110 @@
+<section class="orders">
+  <app-alerts [alerts]="alerts()" (dismissed)="handleAlertDismiss($event)"></app-alerts>
+
+  <header class="orders__header">
+    <h2>Ordens</h2>
+    <app-simple-button (btnClick)="openCreateModal()">
+      Adicionar ordem
+    </app-simple-button>
+  </header>
+
+  <div class="orders__filters">
+    <label>
+      Código
+      <app-simple-input [value]="filtroCodigo()" (valueChange)="handleFilterCodeChange($event)" />
+    </label>
+
+    <label>
+      Operação
+      <app-simple-select [value]="filtroOperacao()" [options]="operacaoOptions" [placeholder]="'Todas'"
+        (valueChange)="handleFilterOperacaoChange($event)">
+      </app-simple-select>
+    </label>
+
+    <label>
+      Data inicial
+      <app-date-picker [value]="filtroData()" (dateChange)="handleFilterStartChange($event)">
+      </app-date-picker>
+    </label>
+
+    <label>
+      Data final
+      <app-date-picker [value]="filtroDataFinal()" (dateChange)="handleFilterEndChange($event)">
+      </app-date-picker>
+    </label>
+
+    <div class="orders__buttons">
+      <app-simple-button (btnClick)="applyFilter()">
+        Filtrar
+      </app-simple-button>
+
+      <app-simple-button variant="cancelar" (btnClick)="clearFilter()">
+        Limpar
+      </app-simple-button>
+    </div>
+  </div>
+
+  <div class="orders__table">
+    <div class="orders__row orders__row--head">
+      <span>Código</span>
+      <span>Operação</span>
+      <span>Tipo</span>
+      <span>Quantidade</span>
+      <span>Valor</span>
+      <span>Soma</span>
+      <span>Data</span>
+      <span>Ações</span>
+    </div>
+
+    <div *ngIf="isLoading() && !errorMessage() && orders().length === 0" class="orders__row">
+      <span>Carregando ordens...</span>
+    </div>
+
+    <article class="orders__row" [ngClass]="getOrderClass(item)" *ngFor="let item of orders(); trackBy: trackByOrderId">
+      <span class="orders__code" data-label="Código">{{ item.codigo }}</span>
+      <span data-label="Operação">{{ item.operacao }}</span>
+      <span data-label="Tipo">{{ item.tipo }}</span>
+      <span data-label="Quantidade">{{ item.quantidade }}</span>
+      <span data-label="Valor">{{ item.valor | currency:'BRL' }}</span>
+      <span data-label="Soma">{{ (item.quantidade * item.valor) | currency:'BRL' }}</span>
+      <span data-label="Data">{{ formatDisplayDate(item.data) }}</span>
+      <span class="orders__actions" data-label="Ações">
+        <app-action-button title="Deletar ordem" (actionClick)="openDeleteModal(item)"></app-action-button>
+      </span>
+    </article>
+  </div>
+
+  <footer class="orders__pagination">
+    <app-pagination [page]="page()" [totalPages]="totalPages()" align="right" (previous)="previousPage()"
+      (next)="nextPage()">
+    </app-pagination>
+  </footer>
+
+  <div class="orders__modal-backdrop" *ngIf="isDeleteModalOpen()" (click)="closeDeleteModal()">
+    <div class="orders__modal" (click)="$event.stopPropagation()">
+      <h3>Confirmar exclusão</h3>
+      <p>
+        Deseja realmente deletar a ordem
+        <strong>{{ orderToDelete()?.codigo }}</strong>?
+      </p>
+
+      <div class="orders__modal-actions">
+        <button type="button" class="orders__modal-btn" [disabled]="isDeleting()" (click)="closeDeleteModal()">
+          Cancelar
+        </button>
+        <button
+          type="button"
+          class="orders__modal-btn orders__modal-btn--danger"
+          [disabled]="isDeleting()"
+          (click)="confirmDeleteOrder()"
+        >
+          {{ isDeleting() ? 'Deletando...' : 'Deletar' }}
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <app-add-order-modal [isOpen]="isCreateModalOpen()" [isSaving]="isCreating()" [operacaoOptions]="operacaoOptions"
+    (closed)="closeCreateModal()" (saved)="confirmCreateOrder($event)">
+  </app-add-order-modal>
+</section>

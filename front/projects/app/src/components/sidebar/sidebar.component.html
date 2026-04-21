@@ -1,0 +1,37 @@
+<aside class="sidebar" [class.sidebar--collapsed]="!showSidebar">
+    <button class="sidebar__toggle" type="button" (click)="toggleSidebar()">
+        <span class="sidebar__toggle-icon">{{ showSidebar ? '‹' : '›' }}</span>
+    </button>
+
+    <nav class="sidebar__menu">
+        <a class="menu-item" routerLink="/acoes" routerLinkActive="active">
+            <span class="icon icon--wallet" aria-hidden="true"></span>
+            <span class="menu-label" *ngIf="showSidebar">Ações</span>
+        </a>
+
+        <a class="menu-item" routerLink="/ordens" routerLinkActive="active">
+            <span class="icon icon--receipt" aria-hidden="true"></span>
+            <span class="menu-label" *ngIf="showSidebar">Ordens</span>
+        </a>
+
+        <a class="menu-item" routerLink="/proventos" routerLinkActive="active">
+            <span class="icon icon--hand-coins" aria-hidden="true"></span>
+            <span class="menu-label" *ngIf="showSidebar">Proventos</span>
+        </a>
+
+        <a class="menu-item" routerLink="/importacao" routerLinkActive="active">
+            <span class="icon icon--coin-vertical" aria-hidden="true"></span>
+            <span class="menu-label" *ngIf="showSidebar">Importação</span>
+        </a>
+
+        <a class="menu-item" routerLink="/exportacao" routerLinkActive="active">
+            <span class="icon icon--chart-bar" aria-hidden="true"></span>
+            <span class="menu-label" *ngIf="showSidebar">Exportação</span>
+        </a>
+    </nav>
+
+    <div class="sidebar__status">
+        <span class="dot" [class.dot--open]="isMarketOpen" [class.dot--closed]="!isMarketOpen"></span>
+        <span class="status-label" *ngIf="showSidebar">{{ isMarketOpen ? 'Market Open' : 'Market Close' }}</span>
+    </div>
+</aside>

@@ -1,0 +1,65 @@
+<div class="bar-chart-container" *ngIf="chartItems$ | async as items">
+  <svg *ngIf="items.length > 0; else noData"
+       class="bar-chart-svg"
+       [class.bar-chart-svg--mobile]="isMobileLayout"
+       [attr.width]="isMobileLayout ? chartWidth : null"
+       [attr.viewBox]="'0 0 ' + chartWidth + ' ' + chartHeight"
+       [attr.preserveAspectRatio]="'xMidYMid meet'">
+
+    <!-- Axis Line -->
+    <line
+      *ngIf="!isMobileLayout"
+      class="axis"
+      [attr.x1]="yAxisX"
+      [attr.y1]="0"
+      [attr.x2]="yAxisX"
+      [attr.y2]="chartHeight" />
+
+    <line
+      *ngIf="isMobileLayout"
+      class="axis"
+      [attr.x1]="0"
+      [attr.y1]="mobileXAxisY"
+      [attr.x2]="chartWidth"
+      [attr.y2]="mobileXAxisY" />
+
+    <g *ngFor="let item of items" class="bar-group">
+      <!-- Bar Label (Asset Name) -->
+      <text
+        class="bar-label"
+        [attr.x]="item.labelX"
+        [attr.y]="item.labelY"
+        [attr.text-anchor]="item.labelAnchor"
+        dominant-baseline="middle">
+        {{ item.name }}
+      </text>
+
+      <!-- Bar Rectangle -->
+      <rect
+        class="bar"
+        [attr.x]="item.x"
+        [attr.y]="item.y"
+        [attr.width]="item.width"
+        [attr.height]="item.height"
+        [attr.fill]="item.color">
+      </rect>
+
+      <!-- Value Label (Percentage) -->
+      <text
+        class="value-label"
+        [attr.x]="item.valueX"
+        [attr.y]="item.valueY"
+        [attr.text-anchor]="item.valueAnchor"
+        dominant-baseline="middle"
+        [style.fill]="item.color">
+        {{ valueFormatting(item.value) }}
+      </text>
+    </g>
+  </svg>
+
+  <ng-template #noData>
+    <div class="no-data">
+      <span>Sem dados para exibir o gráfico.</span>
+    </div>
+  </ng-template>
+</div>

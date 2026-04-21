@@ -1,0 +1,58 @@
+<section class="importacao">
+  <app-alerts [alerts]="alerts()" (dismissed)="handleAlertDismiss($event)"></app-alerts>
+
+  <header class="importacao__header">
+    <h2>Importação de Planilhas</h2>
+    <p>Envie arquivos Excel (.xlsx/.xls) para importar Negociações e Proventos.</p>
+  </header>
+
+  <div class="importacao__grid">
+    <article class="importacao__card">
+      <h3>Negociação → Orders</h3>
+      <p class="importacao__hint">
+        Cabeçalhos esperados: Data do Negócio, Tipo de Movimentação, Mercado, Código de Negociação,
+        Quantidade, Preço, Valor.
+      </p>
+
+      <app-file-input
+        label="Arquivo de negociação"
+        buttonText="Browse file"
+        placeholder="Nenhum arquivo selecionado"
+        accept=".xlsx,.xls"
+        [fileName]="negociacaoFile()?.name ?? ''"
+        [disabled]="isImportingNegociacao()"
+        (fileSelected)="handleNegociacaoFileChange($event)"
+      ></app-file-input>
+
+      <div class="importacao__actions">
+        <app-simple-button [disabled]="isImportingNegociacao()" (btnClick)="importarNegociacao()">
+          {{ isImportingNegociacao() ? 'Importando...' : 'Importar negociação' }}
+        </app-simple-button>
+      </div>
+    </article>
+
+    <article class="importacao__card">
+      <h3>Eventos → Proventos</h3>
+      <p class="importacao__hint">
+        Cabeçalhos esperados: Produto, Pagamento, Tipo de Evento, Instituição, Quantidade, Preço unitário,
+        Valor líquido.
+      </p>
+
+      <app-file-input
+        label="Arquivo de proventos"
+        buttonText="Browse file"
+        placeholder="Nenhum arquivo selecionado"
+        accept=".xlsx,.xls"
+        [fileName]="proventoFile()?.name ?? ''"
+        [disabled]="isImportingProvento()"
+        (fileSelected)="handleProventoFileChange($event)"
+      ></app-file-input>
+
+      <div class="importacao__actions">
+        <app-simple-button [disabled]="isImportingProvento()" (btnClick)="importarProventos()">
+          {{ isImportingProvento() ? 'Importando...' : 'Importar proventos' }}
+        </app-simple-button>
+      </div>
+    </article>
+  </div>
+</section>

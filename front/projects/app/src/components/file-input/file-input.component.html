@@ -1,0 +1,56 @@
+<div class="file-input" [class.is-disabled]="disabled">
+  <label class="file-input__label">{{ label }}</label>
+
+  <div
+    class="file-input__desktop"
+    [class.is-drag-active]="isDragActive"
+    [class.is-drop-success]="isDropSuccess"
+    [class.is-drop-error]="isDropError"
+    (click)="openFileDialog()"
+    (dragover)="handleDragOver($event)"
+    (dragleave)="handleDragLeave($event)"
+    (drop)="handleDrop($event)"
+  >
+    <div class="file-input__icon" aria-hidden="true">
+      <svg viewBox="0 0 24 24" fill="none">
+        <path
+          d="M12 16V7M12 7L8.5 10.5M12 7L15.5 10.5M5 16.5V18a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-1.5"
+          stroke="currentColor"
+          stroke-width="1.8"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        />
+      </svg>
+    </div>
+
+    <p class="file-input__text">Click the button below to upload</p>
+    <p class="file-input__size">Max. File Size: <strong>30MB</strong></p>
+    <p class="file-input__feedback">{{ feedbackMessage }}</p>
+
+    <button type="button" class="file-input__browse" [disabled]="disabled" (click)="$event.stopPropagation(); openFileDialog()">
+      <span class="file-input__search" aria-hidden="true">⌕</span>
+      {{ buttonText }}
+    </button>
+
+    <p class="file-input__name">{{ fileName || placeholder }}</p>
+  </div>
+
+  <div class="file-input__mobile">
+    <input
+      class="file-input__native"
+      type="file"
+      [attr.accept]="accept"
+      [disabled]="disabled"
+      (change)="handleFileChange($event)"
+    />
+  </div>
+
+  <input
+    #desktopInput
+    class="file-input__hidden"
+    type="file"
+    [attr.accept]="accept"
+    [disabled]="disabled"
+    (change)="handleFileChange($event)"
+  />
+</div>

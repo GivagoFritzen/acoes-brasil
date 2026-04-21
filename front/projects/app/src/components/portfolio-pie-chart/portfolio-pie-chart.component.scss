@@ -1,0 +1,93 @@
+:host {
+    display: block;
+    font-family: sans-serif;
+}
+
+.chart-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    gap: 2rem;
+    padding: 1rem;
+}
+
+.pie-chart {
+    width: 250px;
+    height: 250px;
+    flex-shrink: 0;
+}
+
+.slice-path {
+    stroke: #fff;
+    stroke-width: 1;
+    transition: transform 0.2s ease-out;
+    transform-origin: center center;
+
+    &.highlighted {
+        transform: scale(1.05);
+    }
+}
+
+.slice-label {
+    font-size: 10px;
+    font-weight: bold;
+    fill: #fff;
+    pointer-events: none;
+    text-shadow: 0 0 2px rgba(0,0,0,0.7);
+}
+
+.legend-container {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    min-width: 250px;
+}
+
+.legend-item {
+    display: grid;
+    grid-template-columns: auto 1fr auto auto;
+    gap: 0.75rem;
+    align-items: center;
+    padding: 0.5rem;
+    border-radius: 4px;
+    cursor: default;
+    transition: background-color 0.2s;
+
+    &.highlighted {
+        background-color: #f0f0f0;
+    }
+}
+
+.legend-color {
+    width: 14px;
+    height: 14px;
+    border-radius: 2px;
+}
+
+.legend-label {
+    font-weight: 500;
+}
+
+.legend-percentage {
+    font-size: 0.9em;
+    color: #555;
+    justify-self: end;
+}
+
+.legend-value {
+    font-size: 0.9em;
+    font-weight: bold;
+    color: #333;
+    justify-self: end;
+    min-width: 80px;
+    text-align: right;
+}
+
+.no-data {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 200px;
+    color: #888;
+}

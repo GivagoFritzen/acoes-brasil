@@ -1,0 +1,1 @@
+type AlertVariant = 'info' | 'warning' | 'error';

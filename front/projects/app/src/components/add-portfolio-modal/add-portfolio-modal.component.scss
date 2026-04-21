@@ -1,0 +1,92 @@
+:host ::ng-deep input {
+  width: 100% !important;
+}
+
+
+.add-portfolio-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 50;
+  padding: 16px;
+}
+
+.add-portfolio-modal {
+  width: min(100%, 720px);
+  max-height: calc(100vh - 32px);
+  overflow-y: auto;
+  background: #fff;
+  border-radius: 14px;
+  padding: 20px;
+  box-shadow: 0 20px 45px rgba(15, 23, 42, 0.2);
+
+  h3 {
+    margin: 0;
+    font-size: 18px;
+  }
+}
+
+.add-portfolio-modal__form {
+  margin-top: 16px;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+
+  label {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    font-size: 13px;
+    color: rgba(15, 23, 42, 0.7);
+  }
+
+  input {
+    border: 1px solid rgba(15, 23, 42, 0.2);
+    border-radius: 8px;
+    padding: 6px 10px;
+    font-size: 14px;
+    min-height: 38px;
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  app-simple-input {
+    display: block;
+    width: 100%;
+    min-width: 0;
+  }
+
+  :host ::ng-deep .simple-input {
+    width: 100%;
+    min-width: 0;
+  }
+}
+
+.add-portfolio-modal__validation {
+  margin: 12px 0 0;
+  color: #b45309;
+  font-size: 13px;
+}
+
+.add-portfolio-modal__actions {
+  margin-top: 18px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+@media (max-width: 768px) {
+  .add-portfolio-modal__form {
+    grid-template-columns: 1fr;
+  }
+
+  .add-portfolio-modal__actions {
+    app-simple-button {
+      flex: 1 1 100%;
+    }
+  }
+}

@@ -1,0 +1,29 @@
+<nav
+  class="pagination"
+  [class.pagination--left]="align === 'left'"
+  [class.pagination--center]="align === 'center'"
+  [class.pagination--right]="align === 'right'"
+  aria-label="Paginação"
+>
+  <button
+    type="button"
+    class="pagination__button pagination__previous"
+    (click)="emitPrevious()"
+    [disabled]="page <= 1"
+  >
+    <span class="pagination__previous-icon" aria-hidden="true">‹</span>
+    <span class="pagination__previous-label">Anterior</span>
+  </button>
+
+  <span class="pagination__info">Página {{ page }} de {{ totalPages }}</span>
+
+  <button
+    type="button"
+    class="pagination__button pagination__next"
+    (click)="emitNext()"
+    [disabled]="page >= totalPages"
+  >
+    <span class="pagination__next-label">Próximo</span>
+    <span class="pagination__next-icon" aria-hidden="true">›</span>
+  </button>
+</nav>

@@ -1,0 +1,48 @@
+<div class="add-order-modal-backdrop" *ngIf="isOpen" (click)="handleBackdropClick()">
+  <div class="add-order-modal" (click)="$event.stopPropagation()">
+    <h3>Nova ordem</h3>
+
+    <div class="add-order-modal__form">
+      <label>
+        Código
+        <app-simple-input [value]="codigo()" (valueChange)="handleCodigoChange($event)"></app-simple-input>
+      </label>
+
+      <label>
+        Operação
+        <app-simple-select [value]="operacao()" [options]="operacaoOptions" (valueChange)="handleOperacaoChange($event)">
+        </app-simple-select>
+      </label>
+
+      <label>
+        Tipo
+        <app-simple-select [value]="tipo()" [options]="tipoOptions" (valueChange)="handleTipoChange($event)">
+        </app-simple-select>
+      </label>
+
+      <label>
+        Quantidade
+        <app-simple-input-number [allowDecimal]="false" [allowNegative]="false" [value]="(quantidade() ?? '').toString()"
+          (valueChange)="handleQuantidadeChange($event)"></app-simple-input-number>
+      </label>
+
+      <label>
+        Valor
+        <app-simple-input-number [allowDecimal]="true" [allowNegative]="false" [value]="(valor() ?? '').toString()"
+          (valueChange)="handleValorChange($event)"></app-simple-input-number>
+      </label>
+
+      <label class="add-order-modal__date">
+        Data
+        <app-date-picker [value]="data()" [disableFutureDates]="true" (dateChange)="handleDataChange($event)"></app-date-picker>
+      </label>
+    </div>
+
+    <p class="add-order-modal__validation" *ngIf="validationMessage()">{{ validationMessage() }}</p>
+
+    <div class="add-order-modal__actions">
+      <app-simple-button variant="cancelar" [disabled]="isSaving" (btnClick)="close()">Cancelar</app-simple-button>
+      <app-simple-button [disabled]="isSaving" (btnClick)="submit()">{{ isSaving ? 'Salvando...' : 'Salvar' }}</app-simple-button>
+    </div>
+  </div>
+</div>

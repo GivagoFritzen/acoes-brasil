@@ -1,0 +1,29 @@
+{
+  "name": "acoes",
+  "version": "1.0.0",
+  "main": "dist-electron/main.js",
+  "scripts": {
+    "build:back": "npm --prefix back run build",
+    "build:front": "npm --prefix front run build",
+    "build:electron": "tsc -p electron/tsconfig.json",
+    "build:desktop": "npm run build:back && npm run build:front && npm run build:electron",
+    "dev:back": "npm --prefix back run dev",
+    "dev:back:sqlite": "set DB_DIALECT=sqlite&& set DB_STORAGE=back\\data\\app-dev.sqlite&& npm --prefix back run dev",
+    "dev:front": "npm --prefix front run start",
+    "dev:electron": "npm run build:electron && electron .",
+    "dev:desktop": "concurrently -k \"npm run dev:back\" \"npm run dev:front\" \"npm run dev:electron\"",
+    "dev:desktop:app": "concurrently -k \"npm run dev:back:sqlite\" \"npm run dev:front\" \"npm run dev:electron\"",
+    "start:desktop": "npm run build:desktop && electron ."
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "devDependencies": {
+    "@types/node": "^25.5.0",
+    "concurrently": "^9.2.1",
+    "electron": "^41.0.4",
+    "ts-node": "^10.9.2",
+    "typescript": "^6.0.2"
+  }
+}

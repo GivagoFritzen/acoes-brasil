@@ -1,0 +1,87 @@
+<section class="acoes">
+    <section class="portfolios">
+        <app-alerts [alerts]="alerts()" (dismissed)="handleAlertDismiss($event)"></app-alerts>
+        <header class="acoes__header">
+            <h2>Minha Carteira</h2>
+            <div class="acoes__header-actions">
+                <app-simple-button (btnClick)="openCreateModal()">
+                    Adicionar ativo
+                </app-simple-button>
+                <app-simple-button variant="cancelar" (btnClick)="toggleDeleteMode()">
+                    {{ isDeleteMode() ? 'Cancelar deletar' : 'Deletar ativo' }}
+                </app-simple-button>
+            </div>
+        </header>
+
+        <div class="acoes__table">
+            <div class="acoes__row acoes__row--head" [class.acoes__row--with-actions]="isDeleteMode()">
+                <span>Name</span>
+                <span>Value</span>
+                <span>Gain (Return)</span>
+                <span *ngIf="isDeleteMode()">Ações</span>
+            </div>
+
+            <div *ngIf="isLoading() && !errorMessage() && portfolios().length === 0" class="acoes__row">
+                <span>Carregando portfolios...</span>
+            </div>
+
+            <article class="acoes__row acoes__row--clickable" [class.acoes__row--with-actions]="isDeleteMode()" *ngFor="let item of portfolios()"
+                (click)="goToPortfolioDetails(item)">
+                <div class="acoes__name">
+                    <ng-template #defaultAcaoLogo>
+                        <div class="acoes__logo acoes__logo--blue">
+                            {{ item.codigo | slice:0:1 }}
+                        </div>
+                    </ng-template>
+                    <div>
+                        <strong>{{ item.nome }}</strong>
+                        <small>{{ item.codigo }}</small>
+                    </div>
+                </div>
+                <div class="acoes__value">
+                    {{ item.precoMedio * item.quantidade | currency:'BRL' }}
+                </div>
+                <div class="acoes__gain">
+                    <small>(Qtde: {{ item.quantidade }})</small>
+                </div>
+                <span *ngIf="isDeleteMode()" class="acoes__actions" (click)="$event.stopPropagation()">
+                    <app-action-button title="Deletar ativo" (actionClick)="openDeleteModal(item)"></app-action-button>
+                </span>
+            </article>
+        </div>
+    </section>
+
+    <section class="graphic">
+        <div class="chart-wrapper chart-wrapper--composicao">
+            <h2>Composição da Carteira</h2>
+            <app-portfolio-pie-chart [portfolios]="portfolios()"></app-portfolio-pie-chart>
+        </div>
+        <div class="chart-wrapper chart-wrapper--rentabilidade">
+            <h2>Rentabilidade (%)</h2>
+            <app-portfolio-profit-loss-chart></app-portfolio-profit-loss-chart>
+        </div>
+    </section>
+
+    <app-add-portfolio-modal [isOpen]="isCreateModalOpen()" [isSaving]="isCreating()" (closed)="closeCreateModal()"
+        (saved)="confirmCreatePortfolio($event)">
+    </app-add-portfolio-modal>
+
+    <div class="acoes__modal-backdrop" *ngIf="isDeleteModalOpen()" (click)="closeDeleteModal()">
+        <div class="acoes__modal" (click)="$event.stopPropagation()">
+            <h3>Confirmar exclusão</h3>
+            <p>
+                Deseja realmente deletar o ativo
+                <strong>{{ portfolioToDelete()?.codigo }}</strong>?
+            </p>
+
+            <div class="acoes__modal-actions">
+                <app-simple-button variant="cancelar" [disabled]="isDeleting()" (btnClick)="closeDeleteModal()">
+                    Cancelar
+                </app-simple-button>
+                <app-simple-button [disabled]="isDeleting()" (btnClick)="confirmDeletePortfolio()">
+                    {{ isDeleting() ? 'Deletando...' : 'Deletar' }}
+                </app-simple-button>
+            </div>
+        </div>
+    </div>
+</section>

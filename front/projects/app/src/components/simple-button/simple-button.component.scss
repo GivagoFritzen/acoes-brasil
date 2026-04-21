@@ -1,0 +1,45 @@
+.simple-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 120px;
+    height: 42px;
+    min-height: 38px;
+
+    padding: 0 20px;
+    border-radius: 8px;
+
+    font-size: 14px;
+    font-weight: 600;
+    color: #0f172a;
+
+    background-color: white;
+    border: 1px solid rgba(15, 23, 42, 0.2);
+
+    cursor: pointer;
+    outline: none;
+    transition: all 0.2s ease;
+
+    @media (max-width: 480px) {
+        width: 100%
+    }
+
+    &:hover {
+        background-color: #f8fafc;
+        border-color: rgba(15, 23, 42, 0.4);
+    }
+
+    &:active {
+        transform: scale(0.98);
+    }
+
+    &.btn--cancelar {
+        color: #b91c1c;
+        border-color: rgba(185, 28, 28, 0.4);
+
+        &:hover {
+            background-color: #fef2f2;
+            border-color: #b91c1c;
+        }
+    }
+}

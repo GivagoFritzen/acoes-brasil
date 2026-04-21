@@ -1,0 +1,10 @@
+<select class="simple-select" [value]="value" (change)="onChange($event)">
+
+    <option *ngIf="placeholder" value="" disabled selected>
+        {{ placeholder }}
+    </option>
+
+    <option *ngFor="let option of options" [value]="option.value">
+        {{ option.label }}
+    </option>
+</select>
