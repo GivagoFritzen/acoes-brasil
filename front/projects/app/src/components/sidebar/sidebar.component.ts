@@ -17,25 +17,25 @@ export class SidebarComponent implements OnInit {
     constructor(private readonly marketHoursService: MarketHoursService) {}
 
     ngOnInit(): void {
-        this.loadMarketStatus();
+        this.fetchMarketStatus();
     }
 
     toggleSidebar(): void {
         this.showSidebar = !this.showSidebar;
     }
 
-    private loadMarketStatus(): void {
+    private fetchMarketStatus(): void {
         this.marketHoursService.getBvmfMarketHours().subscribe({
             next: (response) => {
-                this.updateMarketStatus(response.data.isOpen);
+                this.setMarketStatus(response.data.isOpen);
             },
             error: () => {
-                this.updateMarketStatus(false);
+                this.setMarketStatus(false);
             },
         });
     }
 
-    private updateMarketStatus(isOpen: boolean): void {
+    private setMarketStatus(isOpen: boolean): void {
         Promise.resolve().then(() => {
             this.isMarketOpen = isOpen;
         });

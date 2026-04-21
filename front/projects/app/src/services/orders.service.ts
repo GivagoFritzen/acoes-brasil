@@ -1,19 +1,24 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { catchError } from 'rxjs/operators';
 import { Order, OrdersResponse } from '../models';
 import { CreateOrderPayload } from '../models/create-order-payload.model';
 import { ImportResponse } from '../models/import-response.model';
 import { SellSnapshotExportRow } from '../models/sell-snapshot-export-row.model';
 import { DeleteResponse } from '../models/delete-response.model';
+import { getApiUrl } from '../config/api.config';
+import { BaseHttpService } from './base-http.service';
 
 @Injectable({
   providedIn: 'root',
 })
-export class OrdersService {
-  private readonly baseUrl = 'http://localhost:3000/orders';
+export class OrdersService extends BaseHttpService {
+  private readonly baseUrl = getApiUrl('orders');
 
-  constructor(private readonly http: HttpClient) { }
+  constructor(http: HttpClient) {
+    super(http);
+  }
 
   getOrders(params?: {
     codigo?: string;
@@ -34,30 +39,30 @@ export class OrdersService {
         ...(params?.page ? { page: params.page } : {}),
         ...(params?.limit ? { limit: params.limit } : {}),
       },
-    });
+    }).pipe(catchError(error => this.handleError(error)));
   }
 
   importOrdersSpreadsheet(file: File): Observable<ImportResponse> {
     const formData = new FormData();
     formData.append('file', file);
-    return this.http.post<ImportResponse>(`${this.baseUrl}/import`, formData);
+    return this.http.post<ImportResponse>(`${this.baseUrl}/import`, formData).pipe(catchError(error => this.handleError(error)));
   }
 
   createOrder(payload: CreateOrderPayload): Observable<Order> {
-    return this.http.post<Order>(this.baseUrl, payload);
+    return this.http.post<Order>(this.baseUrl, payload).pipe(catchError(error => this.handleError(error)));
   }
 
   deleteOrder(id: string): Observable<DeleteResponse> {
-    return this.http.delete<DeleteResponse>(`${this.baseUrl}/${id}`);
+    return this.http.delete<DeleteResponse>(`${this.baseUrl}/${id}`).pipe(catchError(error => this.handleError(error)));
   }
 
   exportSellSnapshotsSpreadsheet(): Observable<Blob> {
     return this.http.get(`${this.baseUrl}/export/sell-snapshots`, {
       responseType: 'blob',
-    });
+    }).pipe(catchError(error => this.handleError(error)));
   }
 
   getSellSnapshotsForPdf(): Observable<SellSnapshotExportRow[]> {
-    return this.http.get<SellSnapshotExportRow[]>(`${this.baseUrl}/export/sell-snapshots/data`);
+    return this.http.get<SellSnapshotExportRow[]>(`${this.baseUrl}/export/sell-snapshots/data`).pipe(catchError(error => this.handleError(error)));
   }
 }

@@ -1,4 +1,4 @@
-export function formatDisplayDate(dateValue: unknown): string {
+export function formatDateForDisplay(dateValue: unknown): string {
   if (dateValue === null || dateValue === undefined) {
     return '';
   }

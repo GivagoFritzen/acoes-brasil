@@ -67,7 +67,7 @@
       <span data-label="Quantidade">{{ item.quantidade }}</span>
       <span data-label="Valor">{{ item.valor | currency:'BRL' }}</span>
       <span data-label="Soma">{{ (item.quantidade * item.valor) | currency:'BRL' }}</span>
-      <span data-label="Data">{{ formatDisplayDate(item.data) }}</span>
+      <span data-label="Data">{{ formatDateForDisplay(item.data) }}</span>
       <span class="orders__actions" data-label="Ações">
         <app-action-button title="Deletar ordem" (actionClick)="openDeleteModal(item)"></app-action-button>
       </span>

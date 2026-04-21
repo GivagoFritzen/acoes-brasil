@@ -23,7 +23,7 @@ import { SimpleCheckboxComponent } from '../../components/simple-checkobox/simpl
 import { AlertItem } from '../../models/alert/alert-item.model';
 import type { SelectOption } from '../../../../../../common/models/select-option.model';
 import { ProventosService } from '../../services/proventos.service';
-import { formatDisplayDate } from '../../utils/date.utils';
+import { formatDateForDisplay } from '../../utils/date.utils';
 import { ProventosFilters } from '../../models/proventos-filters.model';
 
 const DEFAULT_LIMIT = 10;
@@ -53,7 +53,7 @@ const DELETE_PROVENTO_ERROR_MESSAGE = 'Não foi possível deletar o provento.';
 export class ProventosComponent implements OnInit {
   private readonly proventosService = inject(ProventosService);
 
-  readonly formatDisplayDate = formatDisplayDate;
+  readonly formatDateForDisplay = formatDateForDisplay;
   readonly proventos = signal<Provento[]>([]);
   readonly juntarPorCodigo = signal(false);
 

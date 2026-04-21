@@ -6,6 +6,7 @@ import { OrderEntity } from "../../domain/entities/OrderEntity";
 import { IOrderRepository } from "../../domain/interfaces/IOrderRepository";
 import { IOrderFilters } from "../../domain/interfaces/IOrderFilters";
 import { IPaginatedOrders } from "../../domain/interfaces/IPaginatedOrders";
+import { DateUtils } from "../../shared/utils/DateUtils";
 
 export class SequelizeOrderRepository implements IOrderRepository {
   async createAsync(orderData: Omit<OrderEntity, "id" | "createdAt" | "updatedAt" | "isCompra" | "isVenda">, tx?: unknown): Promise<OrderEntity> {
@@ -78,23 +79,9 @@ export class SequelizeOrderRepository implements IOrderRepository {
     const where: any = {};
     const andConditions: unknown[] = [];
 
-    const normalizeToIsoDate = (value: unknown): string | null => {
-      if (typeof value !== "string") return null;
-      const trimmedValue = value.trim();
-      const brDateMatch = trimmedValue.match(/^(\d{2})-(\d{2})-(\d{4})$/);
-      if (brDateMatch) {
-        const [, day, month, year] = brDateMatch;
-        return `${year}-${month}-${day}`;
-      }
-      if (/^\d{4}-\d{2}-\d{2}$/.test(trimmedValue)) {
-        return trimmedValue;
-      }
-      return null;
-    };
-
-    const normalizedDataInicial = normalizeToIsoDate(filters.dataInicial);
-    const normalizedData = normalizeToIsoDate(filters.data);
-    const normalizedDataFinal = normalizeToIsoDate(filters.dataFinal);
+    const normalizedDataInicial = DateUtils.normalizeToIsoDate(filters.dataInicial);
+    const normalizedData = DateUtils.normalizeToIsoDate(filters.data);
+    const normalizedDataFinal = DateUtils.normalizeToIsoDate(filters.dataFinal);
 
     const startDate = normalizedDataInicial ?? normalizedData;
     const endDate = normalizedDataFinal;

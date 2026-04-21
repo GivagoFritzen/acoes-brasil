@@ -5,6 +5,7 @@ import { IPortfolioRepository } from "../../domain/interfaces/IPortfolioReposito
 import { IQuoteProvider } from "../../domain/interfaces/IQuoteProvider";
 import { ITransactionManager } from "../../domain/interfaces/ITransactionManager";
 import { CreateOrderDto } from "../dto/CreateOrderDto";
+import { DateUtils } from "../../shared/utils/DateUtils";
 
 export class CreateOrderUseCase {
   constructor(
@@ -23,7 +24,7 @@ export class CreateOrderUseCase {
       throw new Error("Dados inválidos para criar order. Informe código, quantidade, valor e data.");
     }
 
-    if (this.isFutureBrDate(data)) {
+    if (DateUtils.isFutureBrDate(data)) {
       throw new Error("A data da ordem não pode ser futura.");
     }
 
@@ -67,14 +68,6 @@ export class CreateOrderUseCase {
     });
   }
 
-  private isFutureBrDate(dateStr: string): boolean {
-    const parts = dateStr.split("-");
-    if (parts.length !== 3) return false;
-    const [day, month, year] = parts;
-    const dateObj = new Date(Number(year), Number(month) - 1, Number(day));
-    dateObj.setHours(23, 59, 59, 999);
-    return dateObj > new Date();
-  }
 
   private async resolveCodigoForSellAsync(codigo: string, operacao: "Compra" | "Venda", tx: unknown): Promise<string> {
     if (operacao !== "Venda") {

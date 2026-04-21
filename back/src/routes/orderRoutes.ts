@@ -4,12 +4,36 @@ import { OrderController } from "../controllers/OrderController";
 
 export const orderRoutes = Router();
 
-const orderController = new OrderController();
-const importController = new ImportController();
+// Lazy initialization to ensure DI container is ready
+orderRoutes.post("/", (req, res) => {
+  const controller = new OrderController();
+  return controller.createAsync(req, res);
+});
 
-orderRoutes.post("/", orderController.createAsync.bind(orderController));
-orderRoutes.post("/import", importController.getMiddleware(), importController.importAsync.bind(importController));
-orderRoutes.delete("/:id", orderController.deleteAsync.bind(orderController));
-orderRoutes.get("/", orderController.listAsync.bind(orderController));
-orderRoutes.get("/export/sell-snapshots", orderController.exportSellSnapshotsAsync.bind(orderController));
-orderRoutes.get("/export/sell-snapshots/data", orderController.getSellSnapshotsDataAsync.bind(orderController));
+orderRoutes.post("/import", (req, res, next) => {
+  const importController = new ImportController();
+  return importController.getMiddleware()(req, res, next);
+}, (req, res) => {
+  const importController = new ImportController();
+  return importController.importAsync(req, res);
+});
+
+orderRoutes.delete("/:id", (req, res) => {
+  const controller = new OrderController();
+  return controller.deleteAsync(req, res);
+});
+
+orderRoutes.get("/", (req, res) => {
+  const controller = new OrderController();
+  return controller.listAsync(req, res);
+});
+
+orderRoutes.get("/export/sell-snapshots", (req, res) => {
+  const controller = new OrderController();
+  return controller.exportSellSnapshotsAsync(req, res);
+});
+
+orderRoutes.get("/export/sell-snapshots/data", (req, res) => {
+  const controller = new OrderController();
+  return controller.getSellSnapshotsDataAsync(req, res);
+});

@@ -73,7 +73,7 @@
       <span data-label="Quantidade">{{ item.quantidade }}</span>
       <span data-label="Preço Unit.">{{ item.precoUnitario | currency:'BRL' }}</span>
       <span data-label="Valor Líquido">{{ item.valorLiquido | currency:'BRL' }}</span>
-      <span data-label="Data">{{ formatDisplayDate(item.data) }}</span>
+      <span data-label="Data">{{ formatDateForDisplay(item.data) }}</span>
       <span class="proventos__actions" data-label="Ações">
         <app-action-button title="Deletar provento" (actionClick)="openDeleteModal(item)"></app-action-button>
       </span>

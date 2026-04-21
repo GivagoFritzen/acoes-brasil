@@ -6,6 +6,7 @@ import { fundamentusRoutes } from "./routes/fundamentusRoutes";
 import { orderRoutes } from "./routes/orderRoutes";
 import { portfolioRoutes } from "./routes/portfolioRoutes";
 import { proventoRoutes } from "./routes/proventoRoutes";
+import { registerServices } from "./shared/dependency-injection/service-registration";
 
 const app = express();
 
@@ -23,6 +24,7 @@ app.use("/fundamentus", fundamentusRoutes);
 
 async function start() {
   try {
+    registerServices();
     await sequelize.authenticate();
 
     if (env.db.dialect === "sqlite") {

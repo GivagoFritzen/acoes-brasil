@@ -16,7 +16,7 @@ import { Order, OrderOperacao, OrdersResponse } from '../../models';
 import { AlertItem } from '../../models/alert/alert-item.model';
 import { CreateOrderPayload } from '../../models/create-order-payload.model';
 import { OrdersService } from '../../services/orders.service';
-import { formatDisplayDate } from '../../utils/date.utils';
+import { formatDateForDisplay } from '../../utils/date.utils';
 import { OrdersFilters } from '../../models/orders-filters.model';
 
 const DEFAULT_LIMIT = 10;
@@ -46,7 +46,7 @@ const DELETE_ORDER_ERROR_MESSAGE = 'Não foi possível deletar a ordem.';
 export class OrdersComponent implements OnInit {
   private readonly ordersService = inject(OrdersService);
 
-  readonly formatDisplayDate = formatDisplayDate;
+  readonly formatDateForDisplay = formatDateForDisplay;
   readonly orders = signal<Order[]>([]);
   readonly isLoading = signal(false);
   readonly isDeleting = signal(false);

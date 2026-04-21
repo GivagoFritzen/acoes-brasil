@@ -9,22 +9,28 @@ import { CommonModule } from '@angular/common';
     styleUrls: ['./simple-input.component.scss'],
 })
 export class SimpleInputComponent {
+    private readonly DEFAULT_MAX_LENGTH = 50;
     private readonly ALPHANUMERIC_PATTERN = /^[a-zA-Z0-9]+$/;
     private readonly CONTROL_KEYS = new Set(['Backspace', 'Delete', 'ArrowLeft', 'ArrowRight', 'Tab']);
-    maxLength: number = 5;
 
     @Input() value: string = '';
+    @Input() maxLength: number = this.DEFAULT_MAX_LENGTH;
+    @Input() placeholder: string = '';
+    @Input() disabled: boolean = false;
+    @Input() allowOnlyAlphanumeric: boolean = false;
     @Output() valueChange = new EventEmitter<string>();
 
     onKeyDown(event: KeyboardEvent): void {
         if (this.CONTROL_KEYS.has(event.key) || event.ctrlKey || event.metaKey) return;
 
-        if (!this.ALPHANUMERIC_PATTERN.test(event.key)) {
+        if (this.allowOnlyAlphanumeric && !this.ALPHANUMERIC_PATTERN.test(event.key)) {
             event.preventDefault();
         }
     }
 
     onPaste(event: ClipboardEvent): void {
+        if (!this.allowOnlyAlphanumeric) return;
+
         const pastedText = event.clipboardData?.getData('text') ?? '';
 
         if (!this.ALPHANUMERIC_PATTERN.test(pastedText)) {
