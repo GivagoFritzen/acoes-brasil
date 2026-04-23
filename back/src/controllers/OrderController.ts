@@ -27,12 +27,13 @@ export class OrderController {
 
   async createAsync(req: Request, res: Response): Promise<Response> {
     try {
+      const codigo = normalizeOrderCodigo(String(req.body?.codigo ?? ""));
       const operacao = OrderValidator.parseOperacao(String(req.body?.operacao ?? ""));
-      const tipo = OrderValidator.parseTipo(String(req.body?.tipo ?? ""));
+      const tipo = OrderValidator.parseTipo(String(req.body?.tipo ?? ""), codigo);
       const data = OrderValidator.normalizeToBrDateString(req.body?.data);
 
       const dto: CreateOrderDto = {
-        codigo: normalizeOrderCodigo(String(req.body?.codigo ?? "")),
+        codigo,
         quantidade: Number(req.body?.quantidade ?? 0),
         valor: Number(req.body?.valor ?? 0),
         data,

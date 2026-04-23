@@ -9,6 +9,7 @@ import { OrderOperacao, OrderTipo } from '../../models';
 import { SelectOption } from '../../../../../../common/models/select-option.model';
 import { CreateOrderPayload } from '../../models/create-order-payload.model';
 import { normalizeOrderCodigo } from '../../../../../../common/utils/order-codigo.utils';
+import { detectSupportedAssetTypeFromTicker } from '../../../../../../common/utils/asset-type.utils';
 
 @Component({
   selector: 'app-add-order-modal',
@@ -27,12 +28,12 @@ export class AddOrderModalComponent implements OnChanges {
 
   codigo = signal('');
   operacao = signal<OrderOperacao>('Compra');
-  tipo = signal<OrderTipo>('ACAO');
   quantidade = signal<number | null>(null);
   valor = signal<number | null>(null);
   data = signal('');
   validationMessage = signal('');
 
+  tipoDetectado = signal<OrderTipo | null>(null);
   readonly tipoOptions: SelectOption<OrderTipo>[] = [
     { label: 'Ação', value: 'ACAO' },
     { label: 'FII', value: 'FII' },
@@ -55,15 +56,13 @@ export class AddOrderModalComponent implements OnChanges {
   }
 
   handleCodigoChange(value: string): void {
-    this.codigo.set(normalizeOrderCodigo(value));
+    const codigo = normalizeOrderCodigo(value);
+    this.codigo.set(codigo);
+    this.tipoDetectado.set(detectSupportedAssetTypeFromTicker(codigo));
   }
 
   handleOperacaoChange(value: string): void {
     this.operacao.set(value as OrderOperacao);
-  }
-
-  handleTipoChange(value: string): void {
-    this.tipo.set(value as OrderTipo);
   }
 
   handleQuantidadeChange(value: string): void {
@@ -91,9 +90,15 @@ export class AddOrderModalComponent implements OnChanges {
     const quantidade = this.quantidade();
     const valor = this.valor();
     const data = this.data().trim();
+    const tipoDetectado = detectSupportedAssetTypeFromTicker(codigo);
 
     if (!codigo || !data || quantidade === null || quantidade <= 0 || valor === null || valor <= 0) {
       this.validationMessage.set('Preencha todos os campos com valores válidos.');
+      return null;
+    }
+
+    if (!tipoDetectado) {
+      this.validationMessage.set('Código inválido para padrões suportados da B3 (ex.: PETR4, HGLG11, AAPL34).');
       return null;
     }
 
@@ -107,7 +112,7 @@ export class AddOrderModalComponent implements OnChanges {
     return {
       codigo,
       operacao: this.operacao(),
-      tipo: this.tipo(),
+      tipo: tipoDetectado,
       quantidade: Math.trunc(quantidade),
       valor,
       data,
@@ -128,7 +133,7 @@ export class AddOrderModalComponent implements OnChanges {
   private resetForm(): void {
     this.codigo.set('');
     this.operacao.set('Compra');
-    this.tipo.set('ACAO');
+    this.tipoDetectado.set(null);
     this.quantidade.set(null);
     this.valor.set(null);
     this.data.set('');

@@ -9,14 +9,16 @@
       </label>
 
       <label>
-        Operação
-        <app-simple-select [value]="operacao()" [options]="operacaoOptions" (valueChange)="handleOperacaoChange($event)">
+        Tipo
+        <app-simple-select
+          [value]="tipoDetectado() ?? ''"
+          [options]="tipoOptions">
         </app-simple-select>
       </label>
 
       <label>
-        Tipo
-        <app-simple-select [value]="tipo()" [options]="tipoOptions" (valueChange)="handleTipoChange($event)">
+        Operação
+        <app-simple-select [value]="operacao()" [options]="operacaoOptions" (valueChange)="handleOperacaoChange($event)">
         </app-simple-select>
       </label>
 

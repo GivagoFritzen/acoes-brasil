@@ -1,16 +1,12 @@
 import { Router } from "express";
 import { Portfolio } from "../models/Portfolio";
+import { isSupportedB3Ticker } from "../../../common/utils/asset-type.utils";
+import { normalizeOrderCodigo } from "../../../common/utils/order-codigo.utils";
 
 export const portfolioRoutes = Router();
 
 const normalizeCodigo = (value: unknown): string => {
-  const normalized = String(value ?? "").trim().toUpperCase();
-
-  if (/^[A-Z0-9]{6}$/.test(normalized) && normalized.endsWith("F")) {
-    return normalized.slice(0, -1);
-  }
-
-  return normalized;
+  return normalizeOrderCodigo(String(value ?? ""));
 };
 const normalizeNome = (value: unknown): string => String(value ?? "").trim();
 
@@ -21,8 +17,19 @@ portfolioRoutes.post("/", async (req, res) => {
     const quantidade = Number(req.body?.quantidade);
     const precoMedio = Number(req.body?.precoMedio);
 
-    if (!codigo || !nome || !Number.isFinite(quantidade) || quantidade <= 0 || !Number.isFinite(precoMedio) || precoMedio < 0) {
+    if (
+      !codigo ||
+      !nome ||
+      !Number.isFinite(quantidade) ||
+      quantidade <= 0 ||
+      !Number.isFinite(precoMedio) ||
+      precoMedio < 0
+    ) {
       return res.status(400).json({ message: "Dados inválidos para criar/atualizar portfolio." });
+    }
+
+    if (!isSupportedB3Ticker(codigo)) {
+      return res.status(400).json({ message: "Código de ativo inválido para padrões suportados da B3." });
     }
 
     const existingPortfolios = await Portfolio.findAll();

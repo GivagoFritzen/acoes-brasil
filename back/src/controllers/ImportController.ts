@@ -3,13 +3,14 @@ import { Request, Response } from "express";
 import { extractField, parseDecimal, readSpreadsheetRows, toBrDateString } from "../utils/spreadsheet";
 import { CreateOrderDto } from "../application/dto/CreateOrderDto";
 import { ImportOrdersUseCase } from "../application/use-cases/ImportOrdersUseCase";
-import { OrderOperacao, OrderTipo } from "../domain/entities/OrderEntity";
+import { OrderOperacao } from "../domain/entities/OrderEntity";
 import { SequelizeOrderRepository } from "../infrastructure/repositories/SequelizeOrderRepository";
 import { SequelizePortfolioRepository } from "../infrastructure/repositories/SequelizePortfolioRepository";
 import { SequelizeOrderSellSnapshotRepository } from "../infrastructure/repositories/SequelizeOrderSellSnapshotRepository";
 import { FundamentusQuoteProvider } from "../infrastructure/services/FundamentusQuoteProvider";
 import { SequelizeTransactionManager } from "../infrastructure/database/SequelizeTransactionManager";
 import { normalizeOrderCodigo } from "../../../common/utils/order-codigo.utils";
+import { detectSupportedAssetTypeFromTicker } from "../../../common/utils/asset-type.utils";
 
 const upload = multer({ storage: multer.memoryStorage() });
 
@@ -66,16 +67,10 @@ export class ImportController {
         };
         const operacao = normalizeOperacao(extractField(row, ["Tipo de Movimentação", "Tipo de Movimentacao"]));
 
-        const normalizeTipo = (value: unknown): OrderTipo => {
-          const raw = String(value ?? "").trim().toLowerCase();
-          if (raw.includes("fii") || raw.includes("fundo imobili")) return "FII";
-          if (raw.includes("bdr")) return "BDR";
-          return "ACAO";
-        };
-        const tipo = normalizeTipo(extractField(row, ["Mercado"]));
+        const tipo = detectSupportedAssetTypeFromTicker(codigo);
         const quantidade = quantidadeRaw === null ? null : Math.trunc(quantidadeRaw);
 
-        if (!codigo || !quantidade || !preco || !data || !operacao) {
+        if (!codigo || !quantidade || !preco || !data || !operacao || !tipo) {
           throw new Error(`Linha ${line}: dados obrigatórios inválidos para importação de negociação.`);
         }
 

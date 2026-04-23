@@ -1,5 +1,6 @@
 import { OrderOperacao, OrderTipo } from "../../domain/entities/OrderEntity";
 import { CreateOrderDto } from "../../application/dto/CreateOrderDto";
+import { detectSupportedAssetTypeFromTicker } from "../../../../common/utils/asset-type.utils";
 
 export class ValidationError extends Error {
   constructor(message: string) {
@@ -49,11 +50,21 @@ export class OrderValidator {
     throw new ValidationError("Operação inválida. Use Compra ou Venda.");
   }
 
-  static parseTipo(value: string): OrderTipo {
+  static parseTipo(value: string, codigo?: string): OrderTipo {
+    if (codigo) {
+      const detectedFromCodigo = detectSupportedAssetTypeFromTicker(codigo);
+      if (detectedFromCodigo) {
+        return detectedFromCodigo;
+      }
+    }
+
     const tipoValue = value.trim().toLowerCase();
     if (tipoValue.includes("fii") || tipoValue.includes("fundo imobili")) return "FII";
     if (tipoValue.includes("bdr")) return "BDR";
-    return "ACAO";
+
+    if (tipoValue.includes("acao") || tipoValue.includes("ação")) return "ACAO";
+
+    throw new ValidationError("Não foi possível detectar o tipo do ativo pelo código informado.");
   }
 
   static normalizeToBrDateString(val: unknown): string {

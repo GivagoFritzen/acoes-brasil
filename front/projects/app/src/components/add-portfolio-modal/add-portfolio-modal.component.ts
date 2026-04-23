@@ -4,6 +4,8 @@ import { SimpleButtonComponent } from '../simple-button/simple-button.component'
 import { SimpleInputComponent } from '../simple-input/simple-input.component';
 import { SimpleInputNumberComponent } from '../simple-input-number/simple-input-number.component';
 import { CreatePortfolioPayload } from '../../models/create-portfolio-payload.model';
+import { isSupportedB3Ticker } from '../../../../../../common/utils/asset-type.utils';
+import { normalizeOrderCodigo } from '../../../../../../common/utils/order-codigo.utils';
 
 @Component({
   selector: 'app-add-portfolio-modal',
@@ -41,7 +43,7 @@ export class AddPortfolioModalComponent implements OnChanges {
   }
 
   handleCodigoChange(value: string): void {
-    this.codigo.set(value.toUpperCase());
+    this.codigo.set(normalizeOrderCodigo(value));
   }
 
   handleNomeChange(value: string): void {
@@ -65,13 +67,18 @@ export class AddPortfolioModalComponent implements OnChanges {
   }
 
   private buildPayload(): CreatePortfolioPayload | null {
-    const codigo = this.codigo().trim().toUpperCase();
+    const codigo = normalizeOrderCodigo(this.codigo());
     const nome = this.nome().trim();
     const quantidade = this.quantidade();
     const precoMedio = this.precoMedio();
 
     if (!codigo || !nome || quantidade === null || quantidade <= 0 || precoMedio === null || precoMedio < 0) {
       this.validationMessage.set('Preencha todos os campos com valores válidos.');
+      return null;
+    }
+
+    if (!isSupportedB3Ticker(codigo)) {
+      this.validationMessage.set('Código inválido para padrões suportados da B3 (ex.: PETR4, HGLG11, AAPL34).');
       return null;
     }
 
