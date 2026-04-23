@@ -1,4 +1,4 @@
-<select class="simple-select" [value]="value" (change)="onChange($event)">
+<select class="simple-select" [value]="value" [disabled]="disabled" (change)="onChange($event)">
 
     <option *ngIf="placeholder" value="" disabled selected>
         {{ placeholder }}

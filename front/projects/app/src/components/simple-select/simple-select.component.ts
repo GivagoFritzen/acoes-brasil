@@ -13,6 +13,7 @@ export class SimpleSelectComponent {
     @Input() options: SelectOption[] = [];
     @Input() value: string = '';
     @Input() placeholder: string = 'Selecione...';
+    @Input() disabled = false;
 
     @Output() valueChange = new EventEmitter<string>();
 
