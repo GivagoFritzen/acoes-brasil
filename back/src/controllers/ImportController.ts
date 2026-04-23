@@ -9,6 +9,7 @@ import { SequelizePortfolioRepository } from "../infrastructure/repositories/Seq
 import { SequelizeOrderSellSnapshotRepository } from "../infrastructure/repositories/SequelizeOrderSellSnapshotRepository";
 import { FundamentusQuoteProvider } from "../infrastructure/services/FundamentusQuoteProvider";
 import { SequelizeTransactionManager } from "../infrastructure/database/SequelizeTransactionManager";
+import { normalizeOrderCodigo } from "../../../common/utils/order-codigo.utils";
 
 const upload = multer({ storage: multer.memoryStorage() });
 
@@ -49,11 +50,9 @@ export class ImportController {
 
       for (const [index, row] of rows.entries()) {
         const line = index + 2;
-        const codigo = String(
+        const codigo = normalizeOrderCodigo(String(
           extractField(row, ["Código de Negociação", "Codigo de Negociacao", "Código", "Codigo"]) ?? ""
-        )
-          .trim()
-          .toUpperCase();
+        ));
 
         const quantidadeRaw = parseDecimal(extractField(row, ["Quantidade"]));
         const preco = parseDecimal(extractField(row, ["Preço", "Preco"]));

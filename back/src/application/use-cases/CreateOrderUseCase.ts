@@ -6,6 +6,7 @@ import { IQuoteProvider } from "../../domain/interfaces/IQuoteProvider";
 import { ITransactionManager } from "../../domain/interfaces/ITransactionManager";
 import { CreateOrderDto } from "../dto/CreateOrderDto";
 import { DateUtils } from "../../shared/utils/DateUtils";
+import { normalizeOrderCodigo } from "../../../../common/utils/order-codigo.utils";
 
 export class CreateOrderUseCase {
   constructor(
@@ -14,13 +15,13 @@ export class CreateOrderUseCase {
     private orderSellSnapshotRepository: IOrderSellSnapshotRepository,
     private quoteProvider: IQuoteProvider,
     private transactionManager: ITransactionManager
-  ) {}
+  ) { }
 
   public async executeAsync(input: CreateOrderDto): Promise<OrderEntity> {
     const { quantidade, valor, operacao, data, tipo, nome } = input;
-    const codigoInput = input.codigo.trim().toUpperCase();
+    const codigoNormalizado = normalizeOrderCodigo(input.codigo);
 
-    if (!codigoInput || !quantidade || !valor || !data) {
+    if (!codigoNormalizado || !quantidade || !valor || !data) {
       throw new Error("Dados inválidos para criar order. Informe código, quantidade, valor e data.");
     }
 
@@ -33,7 +34,7 @@ export class CreateOrderUseCase {
     }
 
     return await this.transactionManager.executeAsync(async (tx) => {
-      const codigo = await this.resolveCodigoForSellAsync(codigoInput, operacao, tx);
+      const codigo = await this.resolveCodigoForPortfolioAsync(codigoNormalizado, tx);
       const nomeEmpresa = nome ? nome.trim() : codigo;
 
       if (operacao === "Venda") {
@@ -68,23 +69,12 @@ export class CreateOrderUseCase {
     });
   }
 
+  private async resolveCodigoForPortfolioAsync(codigoBase: string, tx: unknown): Promise<string> {
+    const codigo = normalizeOrderCodigo(codigoBase);
 
-  private async resolveCodigoForSellAsync(codigo: string, operacao: "Compra" | "Venda", tx: unknown): Promise<string> {
-    if (operacao !== "Venda") {
-      return codigo;
-    }
-
-    const portfolioExact = await this.portfolioRepository.findByCodigoAsync(codigo, tx);
-    if (portfolioExact) {
-      return codigo;
-    }
-
-    if (!codigo.endsWith("F")) {
-      const codigoFracionario = `${codigo}F`;
-      const portfolioFracionario = await this.portfolioRepository.findByCodigoAsync(codigoFracionario, tx);
-      if (portfolioFracionario) {
-        return codigoFracionario;
-      }
+    const portfolioPadrao = await this.portfolioRepository.findByCodigoAsync(codigo, tx);
+    if (portfolioPadrao) {
+      return portfolioPadrao.codigo;
     }
 
     return codigo;
@@ -92,7 +82,7 @@ export class CreateOrderUseCase {
 
   private async rebuildPortfolioByCodigoAsync(codigo: string, tx: unknown): Promise<void> {
     const orders = await this.orderRepository.findAllByCodigoAsync(codigo, tx);
-    
+
     let quantidadeAtual = 0;
     let precoMedioAtual = 0;
 

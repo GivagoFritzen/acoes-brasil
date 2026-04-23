@@ -4,6 +4,7 @@ import { IPortfolioRepository } from "../../domain/interfaces/IPortfolioReposito
 import { IOrderSellSnapshotRepository } from "../../domain/interfaces/IOrderSellSnapshotRepository";
 import { IQuoteProvider } from "../../domain/interfaces/IQuoteProvider";
 import { ITransactionManager } from "../../domain/interfaces/ITransactionManager";
+import { normalizeOrderCodigo } from "../../../../common/utils/order-codigo.utils";
 
 export class ImportOrdersUseCase {
   constructor(
@@ -31,7 +32,8 @@ export class ImportOrdersUseCase {
           throw new Error("Data futura não é permitida para negociação.");
         }
 
-        const codigo = orderDto.codigo;
+        const codigoNormalizado = normalizeOrderCodigo(orderDto.codigo);
+        const codigo = await this.resolveCodigoForPortfolioAsync(codigoNormalizado, tx);
         const nomeEmpresa = orderDto.nome ? orderDto.nome.trim() : codigo;
 
         const orderData = {
@@ -63,6 +65,17 @@ export class ImportOrdersUseCase {
 
       return imported;
     });
+  }
+
+  private async resolveCodigoForPortfolioAsync(codigoBase: string, tx: unknown): Promise<string> {
+    const codigo = normalizeOrderCodigo(codigoBase);
+
+    const portfolioPadrao = await this.portfolioRepository.findByCodigoAsync(codigo, tx);
+    if (portfolioPadrao) {
+      return portfolioPadrao.codigo;
+    }
+
+    return codigo;
   }
 
   private isFutureBrDate(dateStr: string): boolean {

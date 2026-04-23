@@ -18,6 +18,7 @@ import { CreateOrderPayload } from '../../models/create-order-payload.model';
 import { OrdersService } from '../../services/orders.service';
 import { formatDateForDisplay } from '../../utils/date.utils';
 import { OrdersFilters } from '../../models/orders-filters.model';
+import { normalizeOrderCodigo } from '../../../../../../common/utils/order-codigo.utils';
 
 const DEFAULT_LIMIT = 10;
 const SELL_OPERATION: OrderOperacao = 'Venda';
@@ -85,7 +86,7 @@ export class OrdersComponent implements OnInit {
   }
 
   handleFilterCodeChange(value: string): void {
-    this.filtroCodigo.set(value);
+    this.filtroCodigo.set(normalizeOrderCodigo(value));
   }
 
   handleFilterOperacaoChange(value: string): void {

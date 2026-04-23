@@ -8,6 +8,7 @@ import { SimpleSelectComponent } from '../simple-select/simple-select.component'
 import { OrderOperacao, OrderTipo } from '../../models';
 import { SelectOption } from '../../../../../../common/models/select-option.model';
 import { CreateOrderPayload } from '../../models/create-order-payload.model';
+import { normalizeOrderCodigo } from '../../../../../../common/utils/order-codigo.utils';
 
 @Component({
   selector: 'app-add-order-modal',
@@ -54,7 +55,7 @@ export class AddOrderModalComponent implements OnChanges {
   }
 
   handleCodigoChange(value: string): void {
-    this.codigo.set(value.toUpperCase());
+    this.codigo.set(normalizeOrderCodigo(value));
   }
 
   handleOperacaoChange(value: string): void {
@@ -86,7 +87,7 @@ export class AddOrderModalComponent implements OnChanges {
   }
 
   private buildPayload(): CreateOrderPayload | null {
-    const codigo = this.codigo().trim().toUpperCase();
+    const codigo = normalizeOrderCodigo(this.codigo());
     const quantidade = this.quantidade();
     const valor = this.valor();
     const data = this.data().trim();

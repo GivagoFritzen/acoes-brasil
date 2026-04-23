@@ -4,13 +4,13 @@ import { CreateOrderDto } from "../application/dto/CreateOrderDto";
 import { CreateOrderUseCase } from "../application/use-cases/CreateOrderUseCase";
 import { DeleteOrderUseCase } from "../application/use-cases/DeleteOrderUseCase";
 import { ListOrdersUseCase } from "../application/use-cases/ListOrdersUseCase";
-import { OrderOperacao, OrderTipo } from "../domain/entities/OrderEntity";
 import { IOrderFilters } from "../domain/interfaces/IOrderFilters";
 import { Container } from "../shared/dependency-injection/Container";
 import { OrderValidator } from "../shared/validators/OrderValidator";
 import { ErrorHandler } from "../shared/error-handler/ErrorHandler";
 import { DateUtils } from "../shared/utils/DateUtils";
 import { SequelizeOrderSellSnapshotRepository } from "../infrastructure/repositories/SequelizeOrderSellSnapshotRepository";
+import { normalizeOrderCodigo } from "../../../common/utils/order-codigo.utils";
 
 export class OrderController {
   private createOrderUseCase: CreateOrderUseCase;
@@ -32,7 +32,7 @@ export class OrderController {
       const data = OrderValidator.normalizeToBrDateString(req.body?.data);
 
       const dto: CreateOrderDto = {
-        codigo: String(req.body?.codigo ?? "").trim().toUpperCase(),
+        codigo: normalizeOrderCodigo(String(req.body?.codigo ?? "")),
         quantidade: Number(req.body?.quantidade ?? 0),
         valor: Number(req.body?.valor ?? 0),
         data,
@@ -69,7 +69,7 @@ export class OrderController {
         data: typeof data === "string" ? data : undefined,
         dataInicial: typeof dataInicial === "string" ? dataInicial : undefined,
         dataFinal: typeof dataFinal === "string" ? dataFinal : undefined,
-        codigo: typeof codigo === "string" ? codigo : undefined,
+        codigo: typeof codigo === "string" ? normalizeOrderCodigo(codigo) : undefined,
         operacao: typeof operacao === "string" ? operacao : undefined,
       };
 
