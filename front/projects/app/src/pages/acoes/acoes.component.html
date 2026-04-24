@@ -16,8 +16,9 @@
         <div class="acoes__table">
             <div class="acoes__row acoes__row--head" [class.acoes__row--with-actions]="isDeleteMode()">
                 <span>Código - Nome</span>
-                <span>Valor Total</span>
+                <span>Preço Médio</span>
                 <span>Total Ações</span>
+                <span>Valor Total</span>
                 <span *ngIf="isDeleteMode()">Ações</span>
             </div>
 
@@ -38,11 +39,17 @@
                         <small>{{ item.codigo }}</small>
                     </div>
                 </div>
-                <div class="acoes__value">
-                    {{ item.precoMedio * item.quantidade | currency:'BRL' }}
+
+                <div class="acoes__price__medium">
+                    {{ item.precoMedio | currency:'BRL' }}
                 </div>
+
                 <div class="acoes__gain">
                     {{ item.quantidade }}
+                </div>
+
+                <div class="acoes__value">
+                    {{ item.precoMedio * item.quantidade | currency:'BRL' }}
                 </div>
                 <span *ngIf="isDeleteMode()" class="acoes__actions" (click)="$event.stopPropagation()">
                     <app-action-button title="Deletar ativo" (actionClick)="openDeleteModal(item)"></app-action-button>

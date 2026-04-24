@@ -72,7 +72,7 @@
 
         .acoes__row {
             display: grid;
-            grid-template-columns: 2.2fr 1fr 1.3fr;
+            grid-template-columns: 2.2fr 1fr 1fr 1.3fr;
             align-items: center;
             padding: 12px 8px;
             border-top: 1px solid rgba(15, 23, 42, 0.08);
@@ -80,7 +80,7 @@
         }
 
         .acoes__row--with-actions {
-            grid-template-columns: 2.2fr 1fr 1.3fr 0.7fr;
+            grid-template-columns: 2.2fr 1fr 1fr 1.3fr 0.7fr;
         }
 
         .acoes__row--clickable {
@@ -136,6 +136,7 @@
             color: #111827;
         }
 
+        .acoes__price__medium,
         .acoes__gain {
             display: flex;
             flex-direction: column;
@@ -214,7 +215,8 @@
     }
 }
 
-@media (max-width: 768px) {
+
+@media (max-width: 450px) {
     .acoes {
         margin: 12px 12px 12px 36px;
 
@@ -232,29 +234,56 @@
                     }
                 }
             }
+        }
+    }
+}
+
+@media (max-width: 768px) {
+    .acoes {
+        margin: 12px 12px 12px 36px;
+
+        .portfolios {
+            .acoes__table {
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+                padding-bottom: 8px;
+            }
+
+            .acoes__row--head {
+                font-size: 10px;
+                word-wrap: break-word;
+            }
 
             .acoes__row {
-                padding: 10px 4px;
-                font-size: 13px;
-                grid-template-columns: 2fr 1fr 1fr;
+                padding: 8px 4px;
+                font-size: 11px;
+                grid-template-columns: 1.8fr 1.2fr 0.8fr 1.2fr;
+                min-width: 100%;
+                gap: 6px;
             }
 
             .acoes__row--with-actions {
-                grid-template-columns: 2fr 1fr 1fr 0.9fr;
+                grid-template-columns: 1.8fr 1.2fr 0.8fr 1.2fr 0.8fr;
+                min-width: 100%;
             }
 
             .acoes__name {
-                gap: 8px;
+                gap: 6px;
 
                 strong {
-                    font-size: 13px;
+                    font-size: 11px;
+                }
+
+                small {
+                    font-size: 10px;
                 }
             }
 
             .acoes__logo {
-                width: 32px;
-                height: 32px;
-                font-size: 14px;
+                width: 24px;
+                height: 24px;
+                min-width: 24px;
+                font-size: 11px;
             }
         }
     }
