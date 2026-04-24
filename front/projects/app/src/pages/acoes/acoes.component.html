@@ -15,9 +15,9 @@
 
         <div class="acoes__table">
             <div class="acoes__row acoes__row--head" [class.acoes__row--with-actions]="isDeleteMode()">
-                <span>Name</span>
-                <span>Value</span>
-                <span>Gain (Return)</span>
+                <span>Código - Nome</span>
+                <span>Valor Total</span>
+                <span>Total Ações</span>
                 <span *ngIf="isDeleteMode()">Ações</span>
             </div>
 
@@ -25,8 +25,8 @@
                 <span>Carregando portfolios...</span>
             </div>
 
-            <article class="acoes__row acoes__row--clickable" [class.acoes__row--with-actions]="isDeleteMode()" *ngFor="let item of portfolios()"
-                (click)="goToPortfolioDetails(item)">
+            <article class="acoes__row acoes__row--clickable" [class.acoes__row--with-actions]="isDeleteMode()"
+                *ngFor="let item of portfolios()" (click)="goToPortfolioDetails(item)">
                 <div class="acoes__name">
                     <ng-template #defaultAcaoLogo>
                         <div class="acoes__logo acoes__logo--blue">
@@ -42,7 +42,7 @@
                     {{ item.precoMedio * item.quantidade | currency:'BRL' }}
                 </div>
                 <div class="acoes__gain">
-                    <small>(Qtde: {{ item.quantidade }})</small>
+                    {{ item.quantidade }}
                 </div>
                 <span *ngIf="isDeleteMode()" class="acoes__actions" (click)="$event.stopPropagation()">
                     <app-action-button title="Deletar ativo" (actionClick)="openDeleteModal(item)"></app-action-button>
