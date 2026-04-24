@@ -11,7 +11,7 @@
   <div class="proventos__filters">
     <label>
       Código
-      <app-simple-input [value]="filtroCodigo()" (valueChange)="handleFilterCodeChange($event)" />
+      <app-simple-input [value]="filtroCodigo()" [maxLength]="7" (valueChange)="handleFilterCodeChange($event)" />
     </label>
 
     <label>

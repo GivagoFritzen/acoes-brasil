@@ -7,6 +7,8 @@ import { Provento } from "../models/Provento";
 import { extractField, parseDecimal, readSpreadsheetRows, SpreadsheetRow, toBrDateString } from "../utils/spreadsheet";
 import { isFutureBrDate } from "../utils/datas";
 import { ProventoTipo } from "../models/ProventoTipo";
+import { normalizeOrderCodigo } from "../../../common/utils/order-codigo.utils";
+import { isSupportedB3Ticker } from "../../../common/utils/asset-type.utils";
 
 export const proventoRoutes = Router();
 const upload = multer({ storage: multer.memoryStorage() });
@@ -62,17 +64,23 @@ const normalizeCodigoFromProduto = (value: unknown): string => {
     return "";
   }
 
-  const codigoMatch = raw.match(/[A-Z]{4}(?:3|4|5|6|11|34|35|39)?/);
+  const codigoMatch = raw.match(/[A-Z]{4}\d{2}F?/);
   if (codigoMatch) {
-    return codigoMatch[0];
+    return normalizeOrderCodigo(codigoMatch[0]);
   }
 
-  return raw.split(/\s|-|\//)[0] ?? raw;
+  return normalizeOrderCodigo(raw.split(/\s|-|\//)[0] ?? raw);
 };
 
 proventoRoutes.post("/", async (req, res) => {
   try {
+    const codigo = normalizeOrderCodigo(String(req.body?.codigo ?? ""));
     const normalizedData = toBrDateString(req.body?.data);
+
+    if (!isSupportedB3Ticker(codigo)) {
+      return res.status(400).json({ message: "Código inválido. Use 4 letras + 2 dígitos (máx. 7), com sufixo F apenas para ações." });
+    }
+
     if (!normalizedData) {
       return res.status(400).json({ message: "Data inválida para provento." });
     }
@@ -83,6 +91,7 @@ proventoRoutes.post("/", async (req, res) => {
 
     const provento = await Provento.create({
       ...req.body,
+      codigo,
       data: normalizedData,
     });
     return res.status(201).json(provento);
@@ -158,6 +167,7 @@ proventoRoutes.post("/import", upload.single("file"), async (req, res) => {
 
       if (
         !codigo ||
+        !isSupportedB3Ticker(codigo) ||
         !data ||
         !tipo ||
         !instituicao ||
@@ -300,8 +310,9 @@ proventoRoutes.get("/", async (req, res) => {
   }
 
   if (typeof codigo === "string" && codigo.trim()) {
+    const codigoNormalizado = normalizeOrderCodigo(codigo);
     where.codigo = {
-      [Op.like]: `%${codigo.trim()}%`,
+      [Op.like]: `%${codigoNormalizado}%`,
     };
   }
 

@@ -29,7 +29,7 @@ portfolioRoutes.post("/", async (req, res) => {
     }
 
     if (!isSupportedB3Ticker(codigo)) {
-      return res.status(400).json({ message: "Código de ativo inválido para padrões suportados da B3." });
+      return res.status(400).json({ message: "Código inválido. Use 4 letras + 2 dígitos (máx. 7), com sufixo F apenas para ações." });
     }
 
     const existingPortfolios = await Portfolio.findAll();

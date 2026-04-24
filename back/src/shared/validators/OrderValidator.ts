@@ -56,6 +56,8 @@ export class OrderValidator {
       if (detectedFromCodigo) {
         return detectedFromCodigo;
       }
+
+      throw new ValidationError("Código inválido. Use 4 letras + 2 dígitos (máx. 7), com sufixo F apenas para ações.");
     }
 
     const tipoValue = value.trim().toLowerCase();

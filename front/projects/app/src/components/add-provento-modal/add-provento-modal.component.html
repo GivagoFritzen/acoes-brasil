@@ -5,7 +5,7 @@
     <div class="proventos-modal__form">
       <label>
         Código
-        <app-simple-input [value]="codigo()" (valueChange)="handleCodigoChange($event)"></app-simple-input>
+        <app-simple-input [value]="codigo()" [maxLength]="7" (valueChange)="handleCodigoChange($event)"></app-simple-input>
       </label>
 
       <label>

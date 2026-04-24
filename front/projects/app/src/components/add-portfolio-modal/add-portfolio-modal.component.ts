@@ -78,7 +78,7 @@ export class AddPortfolioModalComponent implements OnChanges {
     }
 
     if (!isSupportedB3Ticker(codigo)) {
-      this.validationMessage.set('Código inválido para padrões suportados da B3 (ex.: PETR4, HGLG11, AAPL34).');
+      this.validationMessage.set('Código inválido. Use 4 letras + 2 dígitos (máx. 7), com sufixo F apenas para ações (ex.: PETR04F, TAEE11, AAPL34).');
       return null;
     }
 

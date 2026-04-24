@@ -8,6 +8,8 @@ import { ProventoTipo, ProventoTipos } from '../../models';
 import { SelectOption } from '../../../../../../common/models/select-option.model';
 import { CreateProventoPayload } from '../../models/create-provento-payload.model';
 import { SimpleInputNumberComponent } from '../simple-input-number/simple-input-number.component';
+import { normalizeOrderCodigo } from '../../../../../../common/utils/order-codigo.utils';
+import { isSupportedB3Ticker } from '../../../../../../common/utils/asset-type.utils';
 
 @Component({
   selector: 'app-add-provento-modal',
@@ -52,7 +54,7 @@ export class AddProventoModalComponent implements OnChanges {
   }
 
   handleCodigoChange(value: string): void {
-    this.codigo.set(value.toUpperCase());
+    this.codigo.set(normalizeOrderCodigo(value));
   }
 
   handleTipoChange(value: string): void {
@@ -92,7 +94,7 @@ export class AddProventoModalComponent implements OnChanges {
   }
 
   private buildPayload(): CreateProventoPayload | null {
-    const codigo = this.codigo().trim().toUpperCase();
+    const codigo = normalizeOrderCodigo(this.codigo());
     const instituicao = this.instituicao().trim();
     const quantidade = this.quantidade();
     const precoUnitario = this.precoUnitario();
@@ -116,6 +118,11 @@ export class AddProventoModalComponent implements OnChanges {
 
     if (this.isFutureDate(data)) {
       this.validationMessage.set('A data do provento não pode ser futura.');
+      return null;
+    }
+
+    if (!isSupportedB3Ticker(codigo)) {
+      this.validationMessage.set('Código inválido. Use 4 letras + 2 dígitos (máx. 7), com sufixo F apenas para ações (ex.: PETR04F, TAEE11, AAPL34).');
       return null;
     }
 

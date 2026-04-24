@@ -1,16 +1,16 @@
-import { normalizeOrderCodigo } from './order-codigo.utils';
+import { isCodigoFormatoValido, normalizeOrderCodigo } from './order-codigo.utils';
 
 export type DetectedAssetType = 'ACAO' | 'FII' | 'BDR' | 'UNKNOWN';
 export type SupportedAssetType = Exclude<DetectedAssetType, 'UNKNOWN'>;
 
-const ACAO_REGEX = /^[A-Z]{4}(3|4)$/;
+const ACAO_REGEX = /^[A-Z]{4}(3|4|5|6|11)F?$/;
 const FII_REGEX = /^[A-Z]{4}11$/;
 const BDR_REGEX = /^[A-Z]{4}(31|32|33|34|35|39)$/;
 
 export function detectAssetTypeFromTicker(rawTicker: string): DetectedAssetType {
   const ticker = normalizeOrderCodigo(rawTicker);
 
-  if (!ticker) {
+  if (!ticker || !isCodigoFormatoValido(ticker)) {
     return 'UNKNOWN';
   }
 

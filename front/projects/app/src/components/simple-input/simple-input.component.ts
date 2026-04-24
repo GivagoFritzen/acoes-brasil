@@ -9,12 +9,11 @@ import { CommonModule } from '@angular/common';
     styleUrls: ['./simple-input.component.scss'],
 })
 export class SimpleInputComponent {
-    private readonly DEFAULT_MAX_LENGTH = 50;
     private readonly ALPHANUMERIC_PATTERN = /^[a-zA-Z0-9]+$/;
     private readonly CONTROL_KEYS = new Set(['Backspace', 'Delete', 'ArrowLeft', 'ArrowRight', 'Tab']);
 
     @Input() value: string = '';
-    @Input() maxLength: number = this.DEFAULT_MAX_LENGTH;
+    @Input() maxLength?: number | null;
     @Input() placeholder: string = '';
     @Input() disabled: boolean = false;
     @Input() allowOnlyAlphanumeric: boolean = false;
@@ -39,6 +38,14 @@ export class SimpleInputComponent {
     }
 
     onInput(event: Event): void {
-        this.valueChange.emit((event.target as HTMLInputElement).value);
+        const input = event.target as HTMLInputElement;
+        let nextValue = input.value;
+
+        if (this.maxLength != null && this.maxLength > 0 && nextValue.length > this.maxLength) {
+            nextValue = nextValue.slice(0, this.maxLength);
+            input.value = nextValue;
+        }
+
+        this.valueChange.emit(nextValue);
     }
 }
