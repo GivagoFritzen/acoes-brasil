@@ -22,7 +22,6 @@ export class AddPortfolioModalComponent implements OnChanges {
   @Output() saved = new EventEmitter<CreatePortfolioPayload>();
 
   codigo = signal('');
-  nome = signal('');
   quantidade = signal<number | null>(null);
   precoMedio = signal<number | null>(null);
   validationMessage = signal('');
@@ -46,9 +45,6 @@ export class AddPortfolioModalComponent implements OnChanges {
     this.codigo.set(normalizeOrderCodigo(value));
   }
 
-  handleNomeChange(value: string): void {
-    this.nome.set(value);
-  }
 
   handleQuantidadeChange(value: string): void {
     const parsed = Number(value);
@@ -68,11 +64,10 @@ export class AddPortfolioModalComponent implements OnChanges {
 
   private buildPayload(): CreatePortfolioPayload | null {
     const codigo = normalizeOrderCodigo(this.codigo());
-    const nome = this.nome().trim();
     const quantidade = this.quantidade();
     const precoMedio = this.precoMedio();
 
-    if (!codigo || !nome || quantidade === null || quantidade <= 0 || precoMedio === null || precoMedio < 0) {
+    if (!codigo || quantidade === null || quantidade <= 0 || precoMedio === null || precoMedio < 0) {
       this.validationMessage.set('Preencha todos os campos com valores válidos.');
       return null;
     }
@@ -86,7 +81,6 @@ export class AddPortfolioModalComponent implements OnChanges {
 
     return {
       codigo,
-      nome,
       quantidade: Math.trunc(quantidade),
       precoMedio,
     };
@@ -94,7 +88,6 @@ export class AddPortfolioModalComponent implements OnChanges {
 
   private resetForm(): void {
     this.codigo.set('');
-    this.nome.set('');
     this.quantidade.set(null);
     this.precoMedio.set(null);
     this.validationMessage.set('');

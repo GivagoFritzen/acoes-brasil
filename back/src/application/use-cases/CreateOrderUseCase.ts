@@ -18,7 +18,7 @@ export class CreateOrderUseCase {
   ) { }
 
   public async executeAsync(input: CreateOrderDto): Promise<OrderEntity> {
-    const { quantidade, valor, operacao, data, tipo, nome } = input;
+    const { quantidade, valor, operacao, data, tipo } = input;
     const codigoNormalizado = normalizeOrderCodigo(input.codigo);
 
     if (!codigoNormalizado || !quantidade || !valor || !data) {
@@ -35,7 +35,6 @@ export class CreateOrderUseCase {
 
     return await this.transactionManager.executeAsync(async (tx) => {
       const codigo = await this.resolveCodigoForPortfolioAsync(codigoNormalizado, tx);
-      const nomeEmpresa = nome ? nome.trim() : codigo;
 
       if (operacao === "Venda") {
         await this.rebuildPortfolioByCodigoAsync(codigo, tx);
@@ -56,7 +55,6 @@ export class CreateOrderUseCase {
         {
           orderId: order.id,
           codigo,
-          nome: nomeEmpresa,
           quantidade,
           valor,
           operacao,
@@ -124,7 +122,6 @@ export class CreateOrderUseCase {
       await this.portfolioRepository.createAsync(
         {
           codigo,
-          nome: codigo,
           quantidade: quantidadeAtual,
           precoMedio: precoMedioAtual,
         },
@@ -142,7 +139,6 @@ export class CreateOrderUseCase {
     input: {
       orderId: string;
       codigo: string;
-      nome: string;
       quantidade: number;
       valor: number;
       operacao: "Compra" | "Venda";
@@ -150,7 +146,7 @@ export class CreateOrderUseCase {
     },
     tx: unknown
   ): Promise<void> {
-    const { orderId, codigo, nome, quantidade, valor, operacao, data } = input;
+    const { orderId, codigo, quantidade, valor, operacao, data } = input;
 
     let portfolio = await this.portfolioRepository.findByCodigoAsync(codigo, tx);
 
@@ -162,7 +158,6 @@ export class CreateOrderUseCase {
       await this.portfolioRepository.createAsync(
         {
           codigo,
-          nome: nome || codigo,
           quantidade,
           precoMedio: valor,
         },
@@ -172,7 +167,7 @@ export class CreateOrderUseCase {
     }
 
     if (operacao === "Compra") {
-      portfolio.registerCompra(quantidade, valor, nome);
+      portfolio.registerCompra(quantidade, valor);
       await this.portfolioRepository.saveAsync(portfolio, tx);
     } else {
       const precoMedioAtual = portfolio.precoMedio;

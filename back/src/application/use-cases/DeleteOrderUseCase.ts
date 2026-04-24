@@ -67,7 +67,6 @@ export class DeleteOrderUseCase {
       await this.portfolioRepository.createAsync(
         {
           codigo,
-          nome: codigo,
           quantidade: quantidadeAtual,
           precoMedio: precoMedioAtual,
         },

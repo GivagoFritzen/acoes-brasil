@@ -9,7 +9,6 @@ export class SequelizePortfolioRepository implements IPortfolioRepository {
     const model = await PortfolioModel.create(
       {
         codigo: portfolioData.codigo,
-        nome: portfolioData.nome,
         quantidade: portfolioData.quantidade,
         precoMedio: portfolioData.precoMedio,
       },
@@ -35,7 +34,6 @@ export class SequelizePortfolioRepository implements IPortfolioRepository {
 
     model.quantidade = portfolio.quantidade;
     model.precoMedio = portfolio.precoMedio;
-    model.nome = portfolio.nome;
     
     await model.save({ transaction });
     return this.toEntity(model);
@@ -50,7 +48,6 @@ export class SequelizePortfolioRepository implements IPortfolioRepository {
     return new PortfolioEntity(
       model.id,
       model.codigo,
-      model.nome,
       model.quantidade,
       model.precoMedio,
       model.createdAt,

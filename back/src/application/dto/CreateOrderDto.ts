@@ -7,5 +7,4 @@ export interface CreateOrderDto {
   data: string;
   tipo: OrderTipo;
   operacao: OrderOperacao;
-  nome?: string;
 }

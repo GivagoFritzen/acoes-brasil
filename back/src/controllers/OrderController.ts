@@ -39,7 +39,6 @@ export class OrderController {
         data,
         tipo,
         operacao,
-        nome: req.body?.nome ? String(req.body.nome) : undefined,
       };
 
       OrderValidator.validateCreateOrderDto(dto);

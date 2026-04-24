@@ -15,7 +15,7 @@
 
         <div class="acoes__table">
             <div class="acoes__row acoes__row--head" [class.acoes__row--with-actions]="isDeleteMode()">
-                <span>Código - Nome</span>
+                <span>Código</span>
                 <span>Preço Médio</span>
                 <span>Total Ações</span>
                 <span>Valor Total</span>
@@ -35,8 +35,7 @@
                         </div>
                     </ng-template>
                     <div>
-                        <strong>{{ item.nome }}</strong>
-                        <small>{{ item.codigo }}</small>
+                        <strong>{{ item.codigo }}</strong>
                     </div>
                 </div>
 

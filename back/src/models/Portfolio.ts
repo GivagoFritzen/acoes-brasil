@@ -8,7 +8,6 @@ export class Portfolio
   implements PortfolioAttributes {
   declare id: string;
   declare codigo: string;
-  declare nome: string;
   declare quantidade: number;
   declare precoMedio: number;
   declare readonly createdAt?: Date;
@@ -23,10 +22,6 @@ Portfolio.init(
       primaryKey: true,
     },
     codigo: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
-    nome: {
       type: DataTypes.STRING,
       allowNull: false,
     },

@@ -34,8 +34,6 @@ export class ImportOrdersUseCase {
 
         const codigoNormalizado = normalizeOrderCodigo(orderDto.codigo);
         const codigo = await this.resolveCodigoForPortfolioAsync(codigoNormalizado, tx);
-        const nomeEmpresa = orderDto.nome ? orderDto.nome.trim() : codigo;
-
         const orderData = {
           codigo,
           quantidade: orderDto.quantidade,
@@ -51,7 +49,6 @@ export class ImportOrdersUseCase {
           {
             orderId: order.id,
             codigo,
-            nome: nomeEmpresa,
             quantidade: order.quantidade,
             valor: order.valor,
             operacao: order.operacao,
@@ -91,7 +88,6 @@ export class ImportOrdersUseCase {
     input: {
       orderId: string;
       codigo: string;
-      nome: string;
       quantidade: number;
       valor: number;
       operacao: "Compra" | "Venda";
@@ -99,7 +95,7 @@ export class ImportOrdersUseCase {
     },
     tx: unknown
   ): Promise<void> {
-    const { orderId, codigo, nome, quantidade, valor, operacao, data } = input;
+    const { orderId, codigo, quantidade, valor, operacao, data } = input;
 
     let portfolio = await this.portfolioRepository.findByCodigoAsync(codigo, tx);
 
@@ -111,7 +107,6 @@ export class ImportOrdersUseCase {
       await this.portfolioRepository.createAsync(
         {
           codigo,
-          nome: nome || codigo,
           quantidade,
           precoMedio: valor,
         },
@@ -121,7 +116,7 @@ export class ImportOrdersUseCase {
     }
 
     if (operacao === "Compra") {
-      portfolio.registerCompra(quantidade, valor, nome);
+      portfolio.registerCompra(quantidade, valor);
       await this.portfolioRepository.saveAsync(portfolio, tx);
     } else {
       const precoMedioAtual = portfolio.precoMedio;
