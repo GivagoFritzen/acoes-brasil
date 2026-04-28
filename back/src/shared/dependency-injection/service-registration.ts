@@ -7,6 +7,9 @@ import { SequelizeTransactionManager } from "../../infrastructure/database/Seque
 import { CreateOrderUseCase } from "../../application/use-cases/CreateOrderUseCase";
 import { DeleteOrderUseCase } from "../../application/use-cases/DeleteOrderUseCase";
 import { ListOrdersUseCase } from "../../application/use-cases/ListOrdersUseCase";
+import { CreateOrUpdatePortfolioUseCase } from "../../application/use-cases/CreateOrUpdatePortfolioUseCase";
+import { DeletePortfolioUseCase } from "../../application/use-cases/DeletePortfolioUseCase";
+import { ListPortfolioUseCase } from "../../application/use-cases/ListPortfolioUseCase";
 
 export function registerServices(): void {
   // Repositories
@@ -20,7 +23,7 @@ export function registerServices(): void {
   // Infrastructure
   Container.register('transactionManager', () => new SequelizeTransactionManager());
 
-  // Use Cases
+  // Use Cases - Order
   Container.register('createOrderUseCase', () => new CreateOrderUseCase(
     Container.get('orderRepository'),
     Container.get('portfolioRepository'),
@@ -37,5 +40,18 @@ export function registerServices(): void {
 
   Container.register('listOrdersUseCase', () => new ListOrdersUseCase(
     Container.get('orderRepository')
+  ));
+
+  // Use Cases - Portfolio
+  Container.register('createOrUpdatePortfolioUseCase', () => new CreateOrUpdatePortfolioUseCase(
+    Container.get('portfolioRepository')
+  ));
+
+  Container.register('deletePortfolioUseCase', () => new DeletePortfolioUseCase(
+    Container.get('portfolioRepository')
+  ));
+
+  Container.register('listPortfolioUseCase', () => new ListPortfolioUseCase(
+    Container.get('portfolioRepository')
   ));
 }
