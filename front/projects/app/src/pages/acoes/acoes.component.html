@@ -2,28 +2,28 @@
     <section class="portfolios">
         <app-alerts [alerts]="alerts()" (dismissed)="handleAlertDismiss($event)"></app-alerts>
         <header class="acoes__header">
-            <h2>Minha Carteira</h2>
+            <h2>{{ 'acoes.title' | translate }}</h2>
             <div class="acoes__header-actions">
                 <app-simple-button (btnClick)="openCreateModal()">
-                    Adicionar ativo
+                    {{ 'acoes.addAsset' | translate }}
                 </app-simple-button>
                 <app-simple-button variant="cancelar" (btnClick)="toggleDeleteMode()">
-                    {{ isDeleteMode() ? 'Cancelar deletar' : 'Deletar ativo' }}
+                    {{ isDeleteMode() ? ('acoes.cancelDelete' | translate) : ('acoes.deleteMode' | translate) }}
                 </app-simple-button>
             </div>
         </header>
 
         <div class="acoes__table">
             <div class="acoes__row acoes__row--head" [class.acoes__row--with-actions]="isDeleteMode()">
-                <span>Código</span>
-                <span>Preço Médio</span>
-                <span>Total Ações</span>
-                <span>Valor Total</span>
-                <span *ngIf="isDeleteMode()">Ações</span>
+                <span>{{ 'acoes.code' | translate }}</span>
+                <span>{{ 'acoes.averagePrice' | translate }}</span>
+                <span>{{ 'acoes.totalShares' | translate }}</span>
+                <span>{{ 'acoes.totalValue' | translate }}</span>
+                <span *ngIf="isDeleteMode()">{{ 'acoes.actions' | translate }}</span>
             </div>
 
             <div *ngIf="isLoading() && !errorMessage() && portfolios().length === 0" class="acoes__row">
-                <span>Carregando portfolios...</span>
+                <span>{{ 'acoes.loadingPortfolios' | translate }}</span>
             </div>
 
             <article class="acoes__row acoes__row--clickable" [class.acoes__row--with-actions]="isDeleteMode()"
@@ -51,7 +51,7 @@
                     {{ item.precoMedio * item.quantidade | currency:'BRL' }}
                 </div>
                 <span *ngIf="isDeleteMode()" class="acoes__actions" (click)="$event.stopPropagation()">
-                    <app-action-button title="Deletar ativo" (actionClick)="openDeleteModal(item)"></app-action-button>
+                    <app-action-button title="{{ 'acoes.deleteAssetTitle' | translate }}" (actionClick)="openDeleteModal(item)"></app-action-button>
                 </span>
             </article>
         </div>
@@ -59,11 +59,11 @@
 
     <section class="graphic">
         <div class="chart-wrapper chart-wrapper--composicao">
-            <h2>Composição da Carteira</h2>
+            <h2>{{ 'acoes.compositionTitle' | translate }}</h2>
             <app-portfolio-pie-chart [portfolios]="portfolios()"></app-portfolio-pie-chart>
         </div>
         <div class="chart-wrapper chart-wrapper--rentabilidade">
-            <h2>Rentabilidade (%)</h2>
+            <h2>{{ 'acoes.profitabilityTitle' | translate }}</h2>
             <app-portfolio-profit-loss-chart></app-portfolio-profit-loss-chart>
         </div>
     </section>
@@ -74,18 +74,18 @@
 
     <div class="acoes__modal-backdrop" *ngIf="isDeleteModalOpen()" (click)="closeDeleteModal()">
         <div class="acoes__modal" (click)="$event.stopPropagation()">
-            <h3>Confirmar exclusão</h3>
+            <h3>{{ 'acoes.confirmDeleteTitle' | translate }}</h3>
             <p>
-                Deseja realmente deletar o ativo
+                {{ 'acoes.confirmDeleteMessage' | translate }}
                 <strong>{{ portfolioToDelete()?.codigo }}</strong>?
             </p>
 
             <div class="acoes__modal-actions">
                 <app-simple-button variant="cancelar" [disabled]="isDeleting()" (btnClick)="closeDeleteModal()">
-                    Cancelar
+                    {{ 'acoes.cancel' | translate }}
                 </app-simple-button>
                 <app-simple-button [disabled]="isDeleting()" (btnClick)="confirmDeletePortfolio()">
-                    {{ isDeleting() ? 'Deletando...' : 'Deletar' }}
+                    {{ isDeleting() ? ('acoes.deleting' | translate) : ('acoes.delete' | translate) }}
                 </app-simple-button>
             </div>
         </div>

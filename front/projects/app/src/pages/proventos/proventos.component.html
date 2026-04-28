@@ -2,80 +2,80 @@
   <app-alerts [alerts]="alerts()" (dismissed)="handleAlertDismiss($event)"></app-alerts>
 
   <header class="proventos__header">
-    <h2>Proventos</h2>
+    <h2>{{ 'proventos.title' | translate }}</h2>
     <app-simple-button (btnClick)="openCreateModal()">
-      Adicionar provento
+      {{ 'proventos.addProvento' | translate }}
     </app-simple-button>
   </header>
 
   <div class="proventos__filters">
     <label>
-      Código
+      {{ 'proventos.code' | translate }}
       <app-simple-input [value]="filtroCodigo()" [maxLength]="7" (valueChange)="handleFilterCodeChange($event)" />
     </label>
 
     <label>
-      Tipo
-      <app-simple-select [value]="filtroTipo()" [options]="tipoOptions" [placeholder]="'Todos'"
+      {{ 'proventos.type' | translate }}
+      <app-simple-select [value]="filtroTipo()" [options]="tipoOptions" [placeholder]="'proventos.all' | translate"
         (valueChange)="handleFilterTypeChange($event)">
       </app-simple-select>
     </label>
 
     <label>
-      Data inicial
+      {{ 'proventos.startDate' | translate }}
       <app-date-picker [value]="filtroData()" (dateChange)="handleFilterStartChange($event)">
       </app-date-picker>
     </label>
 
     <label>
-      Data final
+      {{ 'proventos.endDate' | translate }}
       <app-date-picker [value]="filtroDataFinal()" (dateChange)="handleFilterEndChange($event)">
       </app-date-picker>
     </label>
 
     <label>
-      Juntar
+      {{ 'proventos.group' | translate }}
       <app-simple-checkbox [checked]="juntarPorCodigo()" (checkedChange)="handleJuntarPorCodigoChange($event)">
       </app-simple-checkbox>
     </label>
 
     <div class="proventos__buttons">
       <app-simple-button (btnClick)="applyFilter()">
-        Filtrar
+        {{ 'proventos.filter' | translate }}
       </app-simple-button>
 
       <app-simple-button variant="cancelar" (btnClick)="clearFilter()">
-        Limpar
+        {{ 'proventos.clear' | translate }}
       </app-simple-button>
     </div>
   </div>
 
   <div class="proventos__table">
     <div class="proventos__row proventos__row--head">
-      <span>Código</span>
-      <span>Tipo</span>
-      <span>Instituição</span>
-      <span>Quantidade</span>
-      <span>Preço Unit.</span>
-      <span>Valor Líquido</span>
-      <span>Data</span>
-      <span>Ações</span>
+      <span>{{ 'proventos.code' | translate }}</span>
+      <span>{{ 'proventos.type' | translate }}</span>
+      <span>{{ 'proventos.institution' | translate }}</span>
+      <span>{{ 'proventos.quantity' | translate }}</span>
+      <span>{{ 'proventos.unitPrice' | translate }}</span>
+      <span>{{ 'proventos.netValue' | translate }}</span>
+      <span>{{ 'proventos.date' | translate }}</span>
+      <span>{{ 'proventos.actions' | translate }}</span>
     </div>
 
     <div *ngIf="isLoading() && !errorMessage() && proventos().length === 0" class="proventos__row">
-      <span>Carregando proventos...</span>
+      <span>{{ 'proventos.loadingProventos' | translate }}</span>
     </div>
 
     <article class="proventos__row" *ngFor="let item of proventos(); trackBy: trackByProventoId">
-      <span class="proventos__code" data-label="Código">{{ item.codigo }}</span>
-      <span data-label="Tipo">{{ formatTipo(item.tipo) }}</span>
-      <span data-label="Instituição">{{ item.instituicao }}</span>
-      <span data-label="Quantidade">{{ item.quantidade }}</span>
-      <span data-label="Preço Unit.">{{ item.precoUnitario | currency:'BRL' }}</span>
-      <span data-label="Valor Líquido">{{ item.valorLiquido | currency:'BRL' }}</span>
-      <span data-label="Data">{{ formatDateForDisplay(item.data) }}</span>
-      <span class="proventos__actions" data-label="Ações">
-        <app-action-button title="Deletar provento" (actionClick)="openDeleteModal(item)"></app-action-button>
+      <span class="proventos__code" [attr.data-label]="'proventos.code' | translate">{{ item.codigo }}</span>
+      <span [attr.data-label]="'proventos.type' | translate">{{ formatTipo(item.tipo) }}</span>
+      <span [attr.data-label]="'proventos.institution' | translate">{{ item.instituicao }}</span>
+      <span [attr.data-label]="'proventos.quantity' | translate">{{ item.quantidade }}</span>
+      <span [attr.data-label]="'proventos.unitPrice' | translate">{{ item.precoUnitario | currency:'BRL' }}</span>
+      <span [attr.data-label]="'proventos.netValue' | translate">{{ item.valorLiquido | currency:'BRL' }}</span>
+      <span [attr.data-label]="'proventos.date' | translate">{{ formatDateForDisplay(item.data) }}</span>
+      <span class="proventos__actions" [attr.data-label]="'proventos.actions' | translate">
+        <app-action-button title="{{ 'proventos.deleteProventoTitle' | translate }}" (actionClick)="openDeleteModal(item)"></app-action-button>
       </span>
     </article>
   </div>
@@ -87,19 +87,19 @@
 
   <div class="proventos__modal-backdrop" *ngIf="isDeleteModalOpen()" (click)="closeDeleteModal()">
     <div class="proventos__modal" (click)="$event.stopPropagation()">
-      <h3>Confirmar exclusão</h3>
+      <h3>{{ 'proventos.confirmDeleteTitle' | translate }}</h3>
       <p>
-        Deseja realmente deletar o provento
+        {{ 'proventos.confirmDeleteMessage' | translate }}
         <strong>{{ proventoToDelete()?.codigo }}</strong>?
       </p>
 
       <div class="proventos__modal-actions">
         <button type="button" class="proventos__modal-btn" [disabled]="isDeleting()" (click)="closeDeleteModal()">
-          Cancelar
+          {{ 'proventos.cancel' | translate }}
         </button>
         <button type="button" class="proventos__modal-btn proventos__modal-btn--danger" [disabled]="isDeleting()"
           (click)="confirmDeleteProvento()">
-          {{ isDeleting() ? 'Deletando...' : 'Deletar' }}
+          {{ isDeleting() ? ('proventos.deleting' | translate) : ('proventos.delete' | translate) }}
         </button>
       </div>
     </div>

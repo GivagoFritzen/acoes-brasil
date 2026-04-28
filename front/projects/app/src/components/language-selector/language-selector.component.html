@@ -1,0 +1,27 @@
+<div class="language-selector" [class.language-selector--open]="isDropdownOpen()" (clickOutside)="closeDropdown()">
+  <button 
+    class="language-selector__toggle" 
+    type="button" 
+    (click)="toggleDropdown()"
+    [attr.aria-expanded]="isDropdownOpen()"
+    aria-haspopup="true"
+  >
+    <span class="language-selector__flag">{{ getCurrentLanguageOption().flag }}</span>
+    <span class="language-selector__code">{{ getCurrentLanguageOption().code }}</span>
+    <span class="language-selector__arrow">▼</span>
+  </button>
+
+  <div class="language-selector__dropdown" *ngIf="isDropdownOpen()" (click)="$event.stopPropagation()">
+    <button
+      class="language-selector__option"
+      type="button"
+      *ngFor="let lang of languages"
+      (click)="selectLanguage(lang.code)"
+      [class.language-selector__option--active]="lang.code === currentLanguage()"
+    >
+      <span class="language-selector__flag">{{ lang.flag }}</span>
+      <span class="language-selector__name">{{ lang.name }}</span>
+      <span class="language-selector__code">{{ lang.code }}</span>
+    </button>
+  </div>
+</div>

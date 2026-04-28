@@ -19,6 +19,7 @@ import { OrdersService } from '../../services/orders.service';
 import { formatDateForDisplay } from '../../utils/date.utils';
 import { OrdersFilters } from '../../models/orders-filters.model';
 import { normalizeOrderCodigo } from '../../../../../../common/utils/order-codigo.utils';
+import { TranslatePipe } from '../../pipes/translate.pipe';
 
 const DEFAULT_LIMIT = 10;
 const SELL_OPERATION: OrderOperacao = 'Venda';
@@ -38,7 +39,8 @@ const DELETE_ORDER_ERROR_MESSAGE = 'Não foi possível deletar a ordem.';
     DatePickerComponent,
     SimpleInputComponent,
     SimpleSelectComponent,
-    SimpleButtonComponent
+    SimpleButtonComponent,
+    TranslatePipe
   ],
   templateUrl: './orders.component.html',
   styleUrls: ['./orders.component.scss'],

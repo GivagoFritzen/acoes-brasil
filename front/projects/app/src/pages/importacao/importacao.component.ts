@@ -7,11 +7,12 @@ import { OrdersService } from '../../services/orders.service';
 import { ProventosService } from '../../services/proventos.service';
 import { AlertItem } from '../../models/alert/alert-item.model';
 import { ImportResponse } from '../../models/import-response.model';
+import { TranslatePipe } from '../../pipes/translate.pipe';
 
 @Component({
   selector: 'app-importacao',
   standalone: true,
-  imports: [CommonModule, AlertsComponent, SimpleButtonComponent, FileInputComponent],
+  imports: [CommonModule, AlertsComponent, SimpleButtonComponent, FileInputComponent, TranslatePipe],
   templateUrl: './importacao.component.html',
   styleUrls: ['./importacao.component.scss'],
 })
