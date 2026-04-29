@@ -26,7 +26,7 @@ export class LanguageSelectorComponent {
   
   readonly languages: LanguageOption[] = [
     { code: 'pt-BR', name: 'Português', flag: '🇧🇷' },
-    { code: 'en-US', name: 'English', flag: '🇺🇸' }
+    { code: 'en-US', name: 'Inglês', flag: '🇺🇸' }
   ];
 
   constructor() {

@@ -7,7 +7,7 @@
     aria-haspopup="true"
   >
     <span class="language-selector__flag">{{ getCurrentLanguageOption().flag }}</span>
-    <span class="language-selector__code">{{ getCurrentLanguageOption().code }}</span>
+    <span class="language-selector__name">{{ getCurrentLanguageOption().name }}</span>
     <span class="language-selector__arrow">▼</span>
   </button>
 
@@ -19,9 +19,8 @@
       (click)="selectLanguage(lang.code)"
       [class.language-selector__option--active]="lang.code === currentLanguage()"
     >
-      <span class="language-selector__flag">{{ lang.flag }}</span>
       <span class="language-selector__name">{{ lang.name }}</span>
-      <span class="language-selector__code">{{ lang.code }}</span>
+      <span class="language-selector__check" *ngIf="lang.code === currentLanguage()">✓</span>
     </button>
   </div>
 </div>
