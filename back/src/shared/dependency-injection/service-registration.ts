@@ -2,7 +2,10 @@ import { Container } from "./Container";
 import { SequelizeOrderRepository } from "../../infrastructure/repositories/SequelizeOrderRepository";
 import { SequelizePortfolioRepository } from "../../infrastructure/repositories/SequelizePortfolioRepository";
 import { SequelizeOrderSellSnapshotRepository } from "../../infrastructure/repositories/SequelizeOrderSellSnapshotRepository";
+import { SequelizeProventoRepository } from "../../infrastructure/repositories/SequelizeProventoRepository";
 import { FundamentusQuoteProvider } from "../../infrastructure/services/FundamentusQuoteProvider";
+import { FundamentusScraperService } from "../../infrastructure/services/FundamentusScraperService";
+import { SpreadsheetParserService } from "../../infrastructure/services/SpreadsheetParserService";
 import { SequelizeTransactionManager } from "../../infrastructure/database/SequelizeTransactionManager";
 import { CreateOrderUseCase } from "../../application/use-cases/CreateOrderUseCase";
 import { DeleteOrderUseCase } from "../../application/use-cases/DeleteOrderUseCase";
@@ -10,15 +13,22 @@ import { ListOrdersUseCase } from "../../application/use-cases/ListOrdersUseCase
 import { CreateOrUpdatePortfolioUseCase } from "../../application/use-cases/CreateOrUpdatePortfolioUseCase";
 import { DeletePortfolioUseCase } from "../../application/use-cases/DeletePortfolioUseCase";
 import { ListPortfolioUseCase } from "../../application/use-cases/ListPortfolioUseCase";
+import { CreateProventoUseCase } from "../../application/use-cases/CreateProventoUseCase";
+import { DeleteProventoUseCase } from "../../application/use-cases/DeleteProventoUseCase";
+import { ImportProventosUseCase } from "../../application/use-cases/ImportProventosUseCase";
+import { ListProventosUseCase } from "../../application/use-cases/ListProventosUseCase";
 
 export function registerServices(): void {
   // Repositories
   Container.register('orderRepository', () => new SequelizeOrderRepository());
   Container.register('portfolioRepository', () => new SequelizePortfolioRepository());
   Container.register('sellSnapshotRepository', () => new SequelizeOrderSellSnapshotRepository());
+  Container.register('proventoRepository', () => new SequelizeProventoRepository());
 
   // External Services
   Container.register('quoteProvider', () => new FundamentusQuoteProvider());
+  Container.register('fundamentusScraper', () => new FundamentusScraperService());
+  Container.register('spreadsheetParser', () => new SpreadsheetParserService());
 
   // Infrastructure
   Container.register('transactionManager', () => new SequelizeTransactionManager());
@@ -53,5 +63,23 @@ export function registerServices(): void {
 
   Container.register('listPortfolioUseCase', () => new ListPortfolioUseCase(
     Container.get('portfolioRepository')
+  ));
+
+  // Use Cases - Provento
+  Container.register('createProventoUseCase', () => new CreateProventoUseCase(
+    Container.get('proventoRepository')
+  ));
+
+  Container.register('deleteProventoUseCase', () => new DeleteProventoUseCase(
+    Container.get('proventoRepository')
+  ));
+
+  Container.register('importProventosUseCase', () => new ImportProventosUseCase(
+    Container.get('proventoRepository'),
+    Container.get('transactionManager')
+  ));
+
+  Container.register('listProventosUseCase', () => new ListProventosUseCase(
+    Container.get('proventoRepository')
   ));
 }

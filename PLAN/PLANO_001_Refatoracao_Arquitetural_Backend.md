@@ -10,12 +10,12 @@
 ## 📊 PROGRESSO GERAL
 
 **Status**: 🟡 Em Progresso
-**Progresso**: 5/11 etapas concluídas (45%)
-**Última Atualização**: 2026-04-28
+**Progresso**: 10/11 etapas concluídas (91%)
+**Última Atualização**: 2026-04-29
 
 ---
 
-[🟢🟢🟢🟢🟢⚪⚪⚪⚪⚪⚪] 45% (5/11 etapas concluídas)
+[🟢🟢🟢🟢🟢🟢🟢🟢🟢🟢⚪] 91% (10/11 etapas concluídas)
 
 > **IMPORTANTE**: Este progresso será atualizado automaticamente pela IA durante a implementação (skill `/implementar`).
 
@@ -393,8 +393,8 @@ SequelizeProventoRepository implements IProventoRepository
 
 ### ✅ ETAPA 6: Criar camada de aplicação do Provento (DTOs e Use Cases)
 
-**Status:** ⏳ Pendente
-**Data de Conclusão:** -
+**Status:** ✅ Concluída
+**Data de Conclusão:** 2026-04-29
 
 **Objetivo:**
 Criar os use cases e DTOs do módulo provento. `ImportProventosUseCase` recebe linhas já parseadas pelo `SpreadsheetParserService` (que será criado na ETAPA 9). `ListProventosUseCase` normaliza parâmetros e delega para o repositório.
@@ -480,8 +480,8 @@ executeAsync(filters: IProventoFilters): Promise<{ data, page, limit, total, tot
 
 ### ✅ ETAPA 7: Criar ProventoController, atualizar proventoRoutes e registrar DI
 
-**Status:** ⏳ Pendente
-**Data de Conclusão:** -
+**Status:** ✅ Concluída
+**Data de Conclusão:** 2026-04-29
 
 **Objetivo:**
 Criar `ProventoController` limpo e substituir toda a lógica de `proventoRoutes.ts` por delegações ao controller. O multer middleware para upload de arquivo permanece na rota (mesma abordagem de `orderRoutes.ts` para o import de ordens).
@@ -544,8 +544,8 @@ Container.register('listProventosUseCase', ...)
 
 ### ✅ ETAPA 8: Criar FundamentusScraperService, FundamentusController e atualizar fundamentusRoutes
 
-**Status:** ⏳ Pendente
-**Data de Conclusão:** -
+**Status:** ✅ Concluída
+**Data de Conclusão:** 2026-04-29
 
 **Objetivo:**
 Extrair todo o código de scraping/parsing HTML de `fundamentusRoutes.ts` para `FundamentusScraperService`. Criar `FundamentusController` limpo. Atualizar `fundamentusRoutes.ts` para delegar ao controller. Registrar no DI.
@@ -615,8 +615,8 @@ Container.register('fundamentusController', ...) // ou instanciar direto na rota
 
 ### ✅ ETAPA 9: Criar SpreadsheetParserService
 
-**Status:** ⏳ Pendente
-**Data de Conclusão:** -
+**Status:** ✅ Concluída
+**Data de Conclusão:** 2026-04-29
 
 **Objetivo:**
 Criar `SpreadsheetParserService` que encapsula toda lógica de extração e transformação de dados de planilhas. Terá dois métodos públicos: um para ordens (usado pelo `ImportController`) e um para proventos (usado pelo `ProventoController`). Reutiliza funções de `utils/spreadsheet.ts` já existentes.
@@ -668,8 +668,8 @@ SpreadsheetParserService
 
 ### ✅ ETAPA 10: Criar GetSellSnapshotsUseCase, ExcelExportService e ExportSellSnapshotsUseCase
 
-**Status:** ⏳ Pendente
-**Data de Conclusão:** -
+**Status:** ✅ Concluída
+**Data de Conclusão:** 2026-04-29
 
 **Objetivo:**
 Extrair do `OrderController` a lógica de consulta de sell snapshots e exportação XLSX para use cases e serviço dedicado. Manter exatamente a mesma regra de negócio: `if (ganhos === 0) ganhos = valorVendaTotal - custoMedioTotal`.
