@@ -2,6 +2,8 @@ import { Injectable, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { firstValueFrom, of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
+import { toObservable } from '@angular/core/rxjs-interop';
+import { ChangeDetectionService } from './change-detection.service';
 
 @Injectable({
     providedIn: 'root'
@@ -10,7 +12,10 @@ export class TranslationService {
     private currentLang = signal<string>('pt-BR');
     private translations = signal<Record<string, any>>({});
 
-    constructor(private readonly http: HttpClient) { }
+    constructor(
+        private readonly http: HttpClient,
+        private readonly changeDetectionService: ChangeDetectionService
+    ) { }
 
     async loadLanguage(lang: string): Promise<void> {
         const url = `assets/i18n/${lang}.json`;
@@ -24,6 +29,8 @@ export class TranslationService {
 
             this.translations.set(data as Record<string, any>);
             this.currentLang.set(lang);
+            // Notificar todos os componentes para atualizar as traduções
+            this.changeDetectionService.triggerChangeDetection();
         } catch {
             this.translations.set({});
         }
@@ -45,5 +52,13 @@ export class TranslationService {
 
     has(key: string): boolean {
         return this.get(key) !== '';
+    }
+
+    get currentLang$() {
+        return toObservable(this.currentLang);
+    }
+
+    getCurrentLanguage(): string {
+        return this.currentLang();
     }
 }

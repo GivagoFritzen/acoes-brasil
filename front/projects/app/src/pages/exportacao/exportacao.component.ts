@@ -5,11 +5,12 @@ import { SimpleButtonComponent } from '../../components';
 import { AlertItem } from '../../models/alert/alert-item.model';
 import { OrdersService } from '../../services/orders.service';
 import { SellSnapshotExportRow } from '../../models/sell-snapshot-export-row.model';
+import { TranslatePipe } from '../../pipes/translate.pipe';
 
 @Component({
   selector: 'app-exportacao',
   standalone: true,
-  imports: [CommonModule, AlertsComponent, SimpleButtonComponent],
+  imports: [CommonModule, AlertsComponent, SimpleButtonComponent, TranslatePipe],
   templateUrl: './exportacao.component.html',
   styleUrls: ['./exportacao.component.scss'],
 })
