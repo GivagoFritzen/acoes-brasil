@@ -2,46 +2,46 @@
   <app-alerts [alerts]="alerts()" (dismissed)="handleAlertDismiss($event)"></app-alerts>
 
   <header class="exportacao__header">
-    <h2>Exportação</h2>
-    <p>Exporte a página de ações em PDF.</p>
+    <h2>{{ 'exportacao.title' | translate }}</h2>
+    <p>{{ 'exportacao.description' | translate }}</p>
   </header>
 
   <div class="exportacao__grid">
     <article class="exportacao__card">
-      <h3>Ações → PDF</h3>
+      <h3>{{ 'exportacao.acoesPdfTitle' | translate }}</h3>
       <p class="exportacao__hint">
-        Gera a impressão da página de ações para salvar como PDF.
+        {{ 'exportacao.acoesPdfHint' | translate }}
       </p>
 
       <div class="exportacao__actions">
         <app-simple-button [disabled]="isExportingAcoes()" (btnClick)="exportarAcoesEmPdf()">
-          {{ isExportingAcoes() ? 'Exportando...' : 'Exportar ações em PDF' }}
+          {{ isExportingAcoes() ? ('exportacao.exporting' | translate) : ('exportacao.exportAcoesPdf' | translate) }}
         </app-simple-button>
       </div>
     </article>
 
     <article class="exportacao__card">
-      <h3>OrderSell → Excel</h3>
+      <h3>{{ 'exportacao.orderSellExcelTitle' | translate }}</h3>
       <p class="exportacao__hint">
-        Exporta os snapshots de venda para planilha.
+        {{ 'exportacao.orderSellExcelHint' | translate }}
       </p>
 
       <div class="exportacao__actions">
         <app-simple-button [disabled]="isExportingOrderSellExcel()" (btnClick)="exportarOrderSellExcel()">
-          {{ isExportingOrderSellExcel() ? 'Exportando...' : 'Exportar OrderSell em Excel' }}
+          {{ isExportingOrderSellExcel() ? ('exportacao.exporting' | translate) : ('exportacao.exportOrderSellExcel' | translate) }}
         </app-simple-button>
       </div>
     </article>
 
     <article class="exportacao__card">
-      <h3>OrderSell → PDF</h3>
+      <h3>{{ 'exportacao.orderSellPdfTitle' | translate }}</h3>
       <p class="exportacao__hint">
-        Gera PDF com os campos Código, precoMedioAtual, Quantidade, valorAtualAcao, ganhos e data.
+        {{ 'exportacao.orderSellPdfHint' | translate }}
       </p>
 
       <div class="exportacao__actions">
         <app-simple-button [disabled]="isExportingOrderSellPdf()" (btnClick)="exportarOrderSellPdf()">
-          {{ isExportingOrderSellPdf() ? 'Exportando...' : 'Exportar OrderSell em PDF' }}
+          {{ isExportingOrderSellPdf() ? ('exportacao.exporting' | translate) : ('exportacao.exportOrderSellPdf' | translate) }}
         </app-simple-button>
       </div>
     </article>

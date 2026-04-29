@@ -10,6 +10,7 @@ import { PortfolioProfitLossChartComponent } from '../../components/portfolio-pr
 import { AlertItem } from '../../models/alert/alert-item.model';
 import { PortfolioService } from '../../services/portfolio.service';
 import { CreatePortfolioPayload } from '../../models/create-portfolio-payload.model';
+import { TranslatePipe } from '../../pipes/translate.pipe';
 
 @Component({
     selector: 'app-acoes',
@@ -22,6 +23,7 @@ import { CreatePortfolioPayload } from '../../models/create-portfolio-payload.mo
         AddPortfolioModalComponent,
         PortfolioPieChartComponent,
         PortfolioProfitLossChartComponent,
+        TranslatePipe,
     ],
     templateUrl: './acoes.component.html',
     styleUrls: ['./acoes.component.scss'],

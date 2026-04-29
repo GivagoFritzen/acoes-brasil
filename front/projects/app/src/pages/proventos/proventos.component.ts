@@ -25,6 +25,7 @@ import type { SelectOption } from '../../../../../../common/models/select-option
 import { ProventosService } from '../../services/proventos.service';
 import { formatDateForDisplay } from '../../utils/date.utils';
 import { ProventosFilters } from '../../models/proventos-filters.model';
+import { TranslatePipe } from '../../pipes/translate.pipe';
 
 const DEFAULT_LIMIT = 10;
 const LOAD_PROVENTOS_ERROR_MESSAGE = 'Não foi possível carregar os proventos.';
@@ -45,6 +46,7 @@ const DELETE_PROVENTO_ERROR_MESSAGE = 'Não foi possível deletar o provento.';
     SimpleSelectComponent,
     SimpleButtonComponent,
     SimpleCheckboxComponent,
+    TranslatePipe,
   ],
   templateUrl: './proventos.component.html',
   styleUrls: ['./proventos.component.scss'],
