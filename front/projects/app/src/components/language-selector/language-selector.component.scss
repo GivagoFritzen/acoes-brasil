@@ -55,7 +55,8 @@
 
   &__dropdown {
     position: absolute;
-    top: calc(100% + 8px);
+    bottom: calc(100% + 8px);
+    right: 0;
     background: #ffffff;
     border: 1px solid #e5e7eb;
     border-radius: 12px;
@@ -63,7 +64,7 @@
     z-index: 1000;
     min-width: 200px;
     overflow: hidden;
-    animation: slideDown 0.2s ease-out;
+    animation: slideUp 0.2s ease-out;
   }
 
   &__option {
@@ -119,10 +120,10 @@
   }
 }
 
-@keyframes slideDown {
+@keyframes slideUp {
   from {
     opacity: 0;
-    transform: translateY(-10px);
+    transform: translateY(10px);
   }
 
   to {
