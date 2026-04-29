@@ -8,7 +8,6 @@ export type Language = 'pt-BR' | 'en-US';
 interface LanguageOption {
   code: Language;
   name: string;
-  flag: string;
 }
 
 @Component({
@@ -25,8 +24,8 @@ export class LanguageSelectorComponent {
   isDropdownOpen = signal(false);
   
   readonly languages: LanguageOption[] = [
-    { code: 'pt-BR', name: 'Português', flag: '🇧🇷' },
-    { code: 'en-US', name: 'Inglês', flag: '🇺🇸' }
+    { code: 'pt-BR', name: 'Português' },
+    { code: 'en-US', name: 'Inglês' }
   ];
 
   constructor() {

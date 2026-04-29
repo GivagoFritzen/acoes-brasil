@@ -30,12 +30,13 @@
         </a>
     </nav>
 
-    <div class="sidebar__status">
-        <span class="dot" [class.dot--open]="isMarketOpen" [class.dot--closed]="!isMarketOpen"></span>
-        <span class="status-label" *ngIf="showSidebar">{{ isMarketOpen ? ('sidebar.marketOpen' | translate) : ('sidebar.marketClosed' | translate) }}</span>
-    </div>
-
     <div class="sidebar__language" *ngIf="showSidebar">
         <app-language-selector></app-language-selector>
+    </div>
+
+    <div class="sidebar__status">
+        <span class="dot" [class.dot--open]="isMarketOpen" [class.dot--closed]="!isMarketOpen"></span>
+        <span class="status-label" *ngIf="showSidebar">{{ isMarketOpen ? ('sidebar.marketOpen' | translate) :
+            ('sidebar.marketClosed' | translate) }}</span>
     </div>
 </aside>
