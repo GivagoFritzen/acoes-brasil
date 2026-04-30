@@ -52,6 +52,6 @@ back/data/
 *.tsbuildinfo
 
 # AI
+.claude/
 /PRD
 /PLAN
-.claude
