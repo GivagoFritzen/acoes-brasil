@@ -6,10 +6,14 @@ import { SequelizeProventoRepository } from "../../infrastructure/repositories/S
 import { FundamentusQuoteProvider } from "../../infrastructure/services/FundamentusQuoteProvider";
 import { FundamentusScraperService } from "../../infrastructure/services/FundamentusScraperService";
 import { SpreadsheetParserService } from "../../infrastructure/services/SpreadsheetParserService";
+import { ExcelExportService } from "../../infrastructure/services/ExcelExportService";
 import { SequelizeTransactionManager } from "../../infrastructure/database/SequelizeTransactionManager";
 import { CreateOrderUseCase } from "../../application/use-cases/CreateOrderUseCase";
 import { DeleteOrderUseCase } from "../../application/use-cases/DeleteOrderUseCase";
 import { ListOrdersUseCase } from "../../application/use-cases/ListOrdersUseCase";
+import { ImportOrdersUseCase } from "../../application/use-cases/ImportOrdersUseCase";
+import { GetSellSnapshotsUseCase } from "../../application/use-cases/GetSellSnapshotsUseCase";
+import { ExportSellSnapshotsUseCase } from "../../application/use-cases/ExportSellSnapshotsUseCase";
 import { CreateOrUpdatePortfolioUseCase } from "../../application/use-cases/CreateOrUpdatePortfolioUseCase";
 import { DeletePortfolioUseCase } from "../../application/use-cases/DeletePortfolioUseCase";
 import { ListPortfolioUseCase } from "../../application/use-cases/ListPortfolioUseCase";
@@ -29,6 +33,7 @@ export function registerServices(): void {
   Container.register('quoteProvider', () => new FundamentusQuoteProvider());
   Container.register('fundamentusScraper', () => new FundamentusScraperService());
   Container.register('spreadsheetParser', () => new SpreadsheetParserService());
+  Container.register('excelExportService', () => new ExcelExportService());
 
   // Infrastructure
   Container.register('transactionManager', () => new SequelizeTransactionManager());
@@ -50,6 +55,23 @@ export function registerServices(): void {
 
   Container.register('listOrdersUseCase', () => new ListOrdersUseCase(
     Container.get('orderRepository')
+  ));
+
+  Container.register('importOrdersUseCase', () => new ImportOrdersUseCase(
+    Container.get('orderRepository'),
+    Container.get('portfolioRepository'),
+    Container.get('sellSnapshotRepository'),
+    Container.get('quoteProvider'),
+    Container.get('transactionManager')
+  ));
+
+  Container.register('getSellSnapshotsUseCase', () => new GetSellSnapshotsUseCase(
+    Container.get('sellSnapshotRepository')
+  ));
+
+  Container.register('exportSellSnapshotsUseCase', () => new ExportSellSnapshotsUseCase(
+    Container.get('sellSnapshotRepository'),
+    Container.get('excelExportService')
   ));
 
   // Use Cases - Portfolio
