@@ -23,22 +23,33 @@ import { ImportProventosUseCase } from "../../application/use-cases/ImportProven
 import { ListProventosUseCase } from "../../application/use-cases/ListProventosUseCase";
 
 export function registerServices(): void {
-  // Repositories
+  registerRepositories();
+  registerExternalServices();
+  registerInfrastructure();
+  registerOrderUseCases();
+  registerPortfolioUseCases();
+  registerProventoUseCases();
+}
+
+function registerRepositories(): void {
   Container.register('orderRepository', () => new SequelizeOrderRepository());
   Container.register('portfolioRepository', () => new SequelizePortfolioRepository());
   Container.register('sellSnapshotRepository', () => new SequelizeOrderSellSnapshotRepository());
   Container.register('proventoRepository', () => new SequelizeProventoRepository());
+}
 
-  // External Services
+function registerExternalServices(): void {
   Container.register('quoteProvider', () => new FundamentusQuoteProvider());
   Container.register('fundamentusScraper', () => new FundamentusScraperService());
   Container.register('spreadsheetParser', () => new SpreadsheetParserService());
   Container.register('excelExportService', () => new ExcelExportService());
+}
 
-  // Infrastructure
+function registerInfrastructure(): void {
   Container.register('transactionManager', () => new SequelizeTransactionManager());
+}
 
-  // Use Cases - Order
+function registerOrderUseCases(): void {
   Container.register('createOrderUseCase', () => new CreateOrderUseCase(
     Container.get('orderRepository'),
     Container.get('portfolioRepository'),
@@ -73,8 +84,9 @@ export function registerServices(): void {
     Container.get('sellSnapshotRepository'),
     Container.get('excelExportService')
   ));
+}
 
-  // Use Cases - Portfolio
+function registerPortfolioUseCases(): void {
   Container.register('createOrUpdatePortfolioUseCase', () => new CreateOrUpdatePortfolioUseCase(
     Container.get('portfolioRepository')
   ));
@@ -86,8 +98,9 @@ export function registerServices(): void {
   Container.register('listPortfolioUseCase', () => new ListPortfolioUseCase(
     Container.get('portfolioRepository')
   ));
+}
 
-  // Use Cases - Provento
+function registerProventoUseCases(): void {
   Container.register('createProventoUseCase', () => new CreateProventoUseCase(
     Container.get('proventoRepository')
   ));
