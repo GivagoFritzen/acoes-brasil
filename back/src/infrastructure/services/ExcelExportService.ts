@@ -1,15 +1,5 @@
 import * as XLSX from "xlsx";
-
-export interface SellSnapshotExportRow {
-  Data: string;
-  Ativo: string;
-  "Preço Médio": number;
-  "Quantidade Vendida": number;
-  "Preço Venda": number;
-  "Custo Médio Total": number;
-  "Valor Total Venda": number;
-  "Lucro/Perda": number;
-}
+import { SellSnapshotExportRow } from "./SellSnapshotExportRow";
 
 export class ExcelExportService {
   generateAsync(rows: SellSnapshotExportRow[], fileName: string): Buffer {

@@ -1,14 +1,9 @@
-import { PortfolioEntity } from "../../domain/entities/PortfolioEntity";
 import { IPortfolioRepository } from "../../domain/interfaces/IPortfolioRepository";
 import { ValidationError } from "../../shared/validators/OrderValidator";
 import { CreateOrUpdatePortfolioDto } from "../dto/CreateOrUpdatePortfolioDto";
+import { CreateOrUpdatePortfolioResult } from "../dto/CreateOrUpdatePortfolioResult";
 import { normalizeOrderCodigo } from "../../../../common/utils/order-codigo.utils";
 import { isSupportedB3Ticker } from "../../../../common/utils/asset-type.utils";
-
-export interface CreateOrUpdatePortfolioResult {
-  portfolio: PortfolioEntity;
-  created: boolean;
-}
 
 export class CreateOrUpdatePortfolioUseCase {
   constructor(private portfolioRepository: IPortfolioRepository) {}

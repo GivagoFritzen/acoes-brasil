@@ -1,5 +1,6 @@
 import { IOrderSellSnapshotRepository } from "../../domain/interfaces/IOrderSellSnapshotRepository";
-import { ExcelExportService, SellSnapshotExportRow } from "../../infrastructure/services/ExcelExportService";
+import { ExcelExportService } from "../../infrastructure/services/ExcelExportService";
+import { SellSnapshotExportRow } from "../../infrastructure/services/SellSnapshotExportRow";
 import { DateUtils } from "../../shared/utils/DateUtils";
 
 export class ExportSellSnapshotsUseCase {

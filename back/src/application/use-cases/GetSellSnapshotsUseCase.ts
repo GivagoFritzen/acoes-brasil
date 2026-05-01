@@ -1,13 +1,5 @@
 import { IOrderSellSnapshotRepository } from "../../domain/interfaces/IOrderSellSnapshotRepository";
-
-export interface SellSnapshotRow {
-  codigo: string;
-  precoMedioAtual: number;
-  quantidade: number;
-  valorAtualAcao: number;
-  ganhos: number;
-  data: string;
-}
+import { SellSnapshotRow } from "../dto/SellSnapshotRow";
 
 export class GetSellSnapshotsUseCase {
   constructor(private sellSnapshotRepository: IOrderSellSnapshotRepository) {}

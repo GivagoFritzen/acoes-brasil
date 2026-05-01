@@ -1,14 +1,9 @@
 import { IProventoRepository } from "../../domain/interfaces/IProventoRepository";
 import { ITransactionManager } from "../../domain/interfaces/ITransactionManager";
 import { CreateProventoDto } from "../dto/CreateProventoDto";
+import { ImportProventosResult } from "../dto/ImportProventosResult";
 import { isFutureBrDate } from "../../utils/datas";
 import { isSupportedB3Ticker } from "../../../../common/utils/asset-type.utils";
-
-export interface ImportProventosResult {
-  imported: number;
-  skipped: number;
-  invalidLines: number[];
-}
 
 export class ImportProventosUseCase {
   constructor(

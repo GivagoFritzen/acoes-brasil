@@ -1,16 +1,8 @@
-import { ProventoEntity } from "../../domain/entities/ProventoEntity";
 import { IProventoRepository } from "../../domain/interfaces/IProventoRepository";
 import { IProventoFilters } from "../../domain/interfaces/IProventoFilters";
+import { PaginatedProventosResult } from "../dto/PaginatedProventosResult";
 import { DateUtils } from "../../shared/utils/DateUtils";
 import { normalizeOrderCodigo } from "../../../../common/utils/order-codigo.utils";
-
-export interface PaginatedProventosResult {
-  data: ProventoEntity[];
-  page: number;
-  limit: number;
-  total: number;
-  totalPages: number;
-}
 
 export class ListProventosUseCase {
   constructor(private proventoRepository: IProventoRepository) {}
