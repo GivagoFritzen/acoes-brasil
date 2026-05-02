@@ -154,5 +154,15 @@
         "orderSellPdfTitle": "OrderSell → PDF",
         "orderSellPdfHint": "Gera PDF com os campos Código, precoMedioAtual, Quantidade, valorAtualAcao, ganhos e data.",
         "exportOrderSellPdf": "Exportar OrderSell em PDF"
+    },
+    "fileInput": {
+        "clickToUpload": "Clique no botão abaixo para enviar",
+        "maxFileSize": "Tam. máximo: 30MB",
+        "dragDrop": "Arraste e solte o arquivo aqui",
+        "dropToSelect": "Solte o arquivo para selecionar",
+        "fileReady": "Arquivo pronto para envio",
+        "fileSelected": "Arquivo selecionado",
+        "invalidFileType": "Tipo de arquivo inválido para este campo",
+        "couldNotIdentify": "Não foi possível identificar o arquivo arrastado"
     }
 }

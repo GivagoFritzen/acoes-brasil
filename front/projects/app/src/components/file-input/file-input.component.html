@@ -23,8 +23,8 @@
       </svg>
     </div>
 
-    <p class="file-input__text">Click the button below to upload</p>
-    <p class="file-input__size">Max. File Size: <strong>30MB</strong></p>
+    <p class="file-input__text">{{ 'fileInput.clickToUpload' | translate }}</p>
+    <p class="file-input__size">{{ 'fileInput.maxFileSize' | translate }}</p>
     <p class="file-input__feedback">{{ feedbackMessage }}</p>
 
     <button type="button" class="file-input__browse" [disabled]="disabled" (click)="$event.stopPropagation(); openFileDialog()">
