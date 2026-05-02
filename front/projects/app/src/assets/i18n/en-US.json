@@ -164,5 +164,24 @@
         "fileSelected": "File selected",
         "invalidFileType": "Invalid file type for this field",
         "couldNotIdentify": "Could not identify the dragged file"
+    },
+    "acaoDetails": {
+        "back": "Back to portfolio",
+        "loading": "Loading asset details...",
+        "cards": {
+            "information": "Information",
+            "oscillations": "Oscillations",
+            "fundamentalIndicators": "Fundamental Indicators",
+            "balanceSheet": "Balance Sheet",
+            "results": "Results"
+        },
+        "errors": {
+            "attention": "Warning",
+            "error": "Error",
+            "codeNotProvided": "Asset code not provided.",
+            "fundamentusLoadFailed": "Could not load Fundamentus data for",
+            "proventosLoadFailed": "Could not load dividends for",
+            "detailsLoadFailed": "Could not load details for"
+        }
     }
 }
