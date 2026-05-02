@@ -1,11 +1,10 @@
 import { Request, Response } from "express";
 import type { ProventoTipo } from "../../../common/models/provento";
-import { extractField, parseDecimal, readSpreadsheetRows, SpreadsheetRow, toBrDateString } from "../utils/spreadsheet";
 import { CreateProventoService } from "../application/services/CreateProventoService";
 import { DeleteProventoService } from "../application/services/DeleteProventoService";
 import { ImportProventosService } from "../application/services/ImportProventosService";
 import { ListProventosService } from "../application/services/ListProventosService";
-import { CreateProventoDto } from "../application/dto/CreateProventoDto";
+import { SpreadsheetParserService } from "../infrastructure/services/SpreadsheetParserService";
 import { Container } from "../shared/dependency-injection/Container";
 import { ErrorHandler } from "../shared/error-handler/ErrorHandler";
 
@@ -14,12 +13,14 @@ export class ProventoController {
   private deleteProventoService: DeleteProventoService;
   private importProventosService: ImportProventosService;
   private listProventosService: ListProventosService;
+  private spreadsheetParserService: SpreadsheetParserService;
 
   constructor() {
     this.createProventoService = Container.get("createProventoService");
     this.deleteProventoService = Container.get("deleteProventoService");
     this.importProventosService = Container.get("importProventosService");
     this.listProventosService = Container.get("listProventosService");
+    this.spreadsheetParserService = Container.get("spreadsheetParser");
   }
 
   async createAsync(req: Request, res: Response): Promise<Response> {
@@ -56,56 +57,14 @@ export class ProventoController {
     }
 
     try {
-      const rows = readSpreadsheetRows(file.buffer);
+      const { validRows, invalidLineNumbers } = this.spreadsheetParserService.parseProventoRowsAsync(file.buffer);
 
-      if (!rows.length) {
+      if (!validRows.length) {
         return res.status(400).json({ message: "Planilha sem dados." });
       }
 
-      const linhas: CreateProventoDto[] = [];
-
-      for (const row of rows) {
-        if (this.isRowEmpty(row)) {
-          continue;
-        }
-
-        const produtoField = extractField(row, ["Produto", "Código", "Codigo"]);
-        const pagamentoField = extractField(row, ["Pagamento", "Data", "Data de Pagamento"]);
-        const tipoField = extractField(row, ["Tipo de Evento", "Tipo"]);
-        const instituicaoField = extractField(row, ["Instituição", "Instituicao"]);
-        const quantidadeField = extractField(row, ["Quantidade"]);
-        const precoField = extractField(row, ["Preço unitário", "Preco unitario", "Preço", "Preco"]);
-        const valorField = extractField(row, ["Valor líquido", "Valor liquido", "Valor"]);
-
-        const seemsHeaderRow =
-          this.isHeaderCell(produtoField, ["Produto", "Código", "Codigo"]) ||
-          this.isHeaderCell(tipoField, ["Tipo de Evento", "Tipo"]);
-
-        if (seemsHeaderRow) {
-          continue;
-        }
-
-        const hasAnyMainField = [produtoField, pagamentoField, tipoField, instituicaoField, quantidadeField, precoField, valorField]
-          .some((value) => String(value ?? "").trim() !== "");
-
-        if (!hasAnyMainField) {
-          continue;
-        }
-
-        const codigo = this.normalizeCodigoFromProduto(produtoField);
-        const data = toBrDateString(pagamentoField) ?? "";
-        const tipo = this.normalizeTipoProvento(tipoField);
-        const instituicao = String(instituicaoField ?? "").trim();
-        const quantidadeRaw = parseDecimal(quantidadeField);
-        const precoUnitario = parseDecimal(precoField) ?? 0;
-        const valorLiquido = parseDecimal(valorField) ?? 0;
-        const quantidade = quantidadeRaw === null ? 0 : Math.trunc(quantidadeRaw);
-
-        linhas.push({ codigo, data, tipo, instituicao, quantidade, precoUnitario, valorLiquido });
-      }
-
-      const result = await this.importProventosService.executeAsync(linhas);
-      return res.status(201).json(result);
+      const result = await this.importProventosService.executeAsync(validRows);
+      return res.status(201).json({ ...result, invalidLineNumbers });
     } catch (error) {
       return ErrorHandler.handle(error, req, res);
     }
@@ -127,42 +86,5 @@ export class ProventoController {
     } catch (error) {
       return ErrorHandler.handle(error, req, res);
     }
-  }
-
-  private normalizeTipoProvento(value: unknown): ProventoTipo {
-    const raw = this.normalizeText(value);
-    if (raw.includes("divid")) return "Dividendo";
-    if (raw.includes("juros") || raw.includes("jscp") || raw.includes("capital proprio")) return "JurosSobreCapitalProprio";
-    return "Rendimento";
-  }
-
-  private isHeaderCell(value: unknown, headers: string[]): boolean {
-    const normalizedValue = this.normalizeText(value);
-    if (!normalizedValue) return false;
-    return headers.some((header) => this.normalizeText(header) === normalizedValue);
-  }
-
-  private isRowEmpty(row: SpreadsheetRow): boolean {
-    const values = Object.values(row);
-    if (!values.length) return true;
-    return values.every((value) => value === null || value === undefined || String(value).trim() === "");
-  }
-
-  private normalizeCodigoFromProduto(value: unknown): string {
-    const raw = String(value ?? "").trim().toUpperCase();
-    if (!raw) return "";
-    const codigoMatch = raw.match(/[A-Z]{4}\d{2}F?/);
-    if (codigoMatch) {
-      return String(codigoMatch[0]).trim().toUpperCase().replace(/\s+/g, "");
-    }
-    return String((raw.split(/\s|-|\//)[0] ?? raw)).trim().toUpperCase().replace(/\s+/g, "");
-  }
-
-  private normalizeText(value: unknown): string {
-    return String(value ?? "")
-      .normalize("NFD")
-      .replace(/[̀-ͯ]/g, "")
-      .trim()
-      .toLowerCase();
   }
 }
