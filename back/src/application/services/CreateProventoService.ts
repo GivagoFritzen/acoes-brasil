@@ -6,7 +6,7 @@ import { isFutureBrDate } from "../../utils/datas";
 import { isSupportedB3Ticker } from "../../../../common/utils/asset-type.utils";
 import { normalizeOrderCodigo } from "../../../../common/utils/order-codigo.utils";
 
-export class CreateProventoUseCase {
+export class CreateProventoService {
   constructor(private proventoRepository: IProventoRepository) {}
 
   public async executeAsync(dto: CreateProventoDto): Promise<ProventoEntity> {

@@ -4,7 +4,7 @@ import { PaginatedProventosResult } from "../dto/PaginatedProventosResult";
 import { DateUtils } from "../../shared/utils/DateUtils";
 import { normalizeOrderCodigo } from "../../../../common/utils/order-codigo.utils";
 
-export class ListProventosUseCase {
+export class ListProventosService {
   constructor(private proventoRepository: IProventoRepository) {}
 
   public async executeAsync(filters: IProventoFilters): Promise<PaginatedProventosResult> {

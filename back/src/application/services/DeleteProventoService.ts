@@ -1,6 +1,6 @@
 import { IProventoRepository } from "../../domain/interfaces/IProventoRepository";
 
-export class DeleteProventoUseCase {
+export class DeleteProventoService {
   constructor(private proventoRepository: IProventoRepository) {}
 
   public async executeAsync(id: string): Promise<void> {

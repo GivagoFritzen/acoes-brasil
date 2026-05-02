@@ -1,7 +1,7 @@
 import { IOrderSellSnapshotRepository } from "../../domain/interfaces/IOrderSellSnapshotRepository";
 import { SellSnapshotRow } from "../dto/SellSnapshotRow";
 
-export class GetSellSnapshotsUseCase {
+export class GetSellSnapshotsService {
   constructor(private sellSnapshotRepository: IOrderSellSnapshotRepository) {}
 
   async executeAsync(): Promise<SellSnapshotRow[]> {

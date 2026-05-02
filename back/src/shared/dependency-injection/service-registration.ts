@@ -8,27 +8,27 @@ import { FundamentusScraperService } from "../../infrastructure/services/Fundame
 import { SpreadsheetParserService } from "../../infrastructure/services/SpreadsheetParserService";
 import { ExcelExportService } from "../../infrastructure/services/ExcelExportService";
 import { SequelizeTransactionManager } from "../../infrastructure/database/SequelizeTransactionManager";
-import { CreateOrderUseCase } from "../../application/use-cases/CreateOrderUseCase";
-import { DeleteOrderUseCase } from "../../application/use-cases/DeleteOrderUseCase";
-import { ListOrdersUseCase } from "../../application/use-cases/ListOrdersUseCase";
-import { ImportOrdersUseCase } from "../../application/use-cases/ImportOrdersUseCase";
-import { GetSellSnapshotsUseCase } from "../../application/use-cases/GetSellSnapshotsUseCase";
-import { ExportSellSnapshotsUseCase } from "../../application/use-cases/ExportSellSnapshotsUseCase";
-import { CreateOrUpdatePortfolioUseCase } from "../../application/use-cases/CreateOrUpdatePortfolioUseCase";
-import { DeletePortfolioUseCase } from "../../application/use-cases/DeletePortfolioUseCase";
-import { ListPortfolioUseCase } from "../../application/use-cases/ListPortfolioUseCase";
-import { CreateProventoUseCase } from "../../application/use-cases/CreateProventoUseCase";
-import { DeleteProventoUseCase } from "../../application/use-cases/DeleteProventoUseCase";
-import { ImportProventosUseCase } from "../../application/use-cases/ImportProventosUseCase";
-import { ListProventosUseCase } from "../../application/use-cases/ListProventosUseCase";
+import { CreateOrderService } from "../../application/services/CreateOrderService";
+import { DeleteOrderService } from "../../application/services/DeleteOrderService";
+import { ListOrdersService } from "../../application/services/ListOrdersService";
+import { ImportOrdersService } from "../../application/services/ImportOrdersService";
+import { GetSellSnapshotsService } from "../../application/services/GetSellSnapshotsService";
+import { ExportSellSnapshotsService } from "../../application/services/ExportSellSnapshotsService";
+import { CreateOrUpdatePortfolioService } from "../../application/services/CreateOrUpdatePortfolioService";
+import { DeletePortfolioService } from "../../application/services/DeletePortfolioService";
+import { ListPortfolioService } from "../../application/services/ListPortfolioService";
+import { CreateProventoService } from "../../application/services/CreateProventoService";
+import { DeleteProventoService } from "../../application/services/DeleteProventoService";
+import { ImportProventosService } from "../../application/services/ImportProventosService";
+import { ListProventosService } from "../../application/services/ListProventosService";
 
 export function registerServices(): void {
   registerRepositories();
   registerExternalServices();
   registerInfrastructure();
-  registerOrderUseCases();
-  registerPortfolioUseCases();
-  registerProventoUseCases();
+  registerOrderServices();
+  registerPortfolioServices();
+  registerProventoServices();
 }
 
 function registerRepositories(): void {
@@ -49,8 +49,8 @@ function registerInfrastructure(): void {
   Container.register('transactionManager', () => new SequelizeTransactionManager());
 }
 
-function registerOrderUseCases(): void {
-  Container.register('createOrderUseCase', () => new CreateOrderUseCase(
+function registerOrderServices(): void {
+  Container.register('createOrderService', () => new CreateOrderService(
     Container.get('orderRepository'),
     Container.get('portfolioRepository'),
     Container.get('sellSnapshotRepository'),
@@ -58,17 +58,17 @@ function registerOrderUseCases(): void {
     Container.get('transactionManager')
   ));
 
-  Container.register('deleteOrderUseCase', () => new DeleteOrderUseCase(
+  Container.register('deleteOrderService', () => new DeleteOrderService(
     Container.get('orderRepository'),
     Container.get('portfolioRepository'),
     Container.get('transactionManager')
   ));
 
-  Container.register('listOrdersUseCase', () => new ListOrdersUseCase(
+  Container.register('listOrdersService', () => new ListOrdersService(
     Container.get('orderRepository')
   ));
 
-  Container.register('importOrdersUseCase', () => new ImportOrdersUseCase(
+  Container.register('importOrdersService', () => new ImportOrdersService(
     Container.get('orderRepository'),
     Container.get('portfolioRepository'),
     Container.get('sellSnapshotRepository'),
@@ -76,45 +76,45 @@ function registerOrderUseCases(): void {
     Container.get('transactionManager')
   ));
 
-  Container.register('getSellSnapshotsUseCase', () => new GetSellSnapshotsUseCase(
+  Container.register('getSellSnapshotsService', () => new GetSellSnapshotsService(
     Container.get('sellSnapshotRepository')
   ));
 
-  Container.register('exportSellSnapshotsUseCase', () => new ExportSellSnapshotsUseCase(
+  Container.register('exportSellSnapshotsService', () => new ExportSellSnapshotsService(
     Container.get('sellSnapshotRepository'),
     Container.get('excelExportService')
   ));
 }
 
-function registerPortfolioUseCases(): void {
-  Container.register('createOrUpdatePortfolioUseCase', () => new CreateOrUpdatePortfolioUseCase(
+function registerPortfolioServices(): void {
+  Container.register('createOrUpdatePortfolioService', () => new CreateOrUpdatePortfolioService(
     Container.get('portfolioRepository')
   ));
 
-  Container.register('deletePortfolioUseCase', () => new DeletePortfolioUseCase(
+  Container.register('deletePortfolioService', () => new DeletePortfolioService(
     Container.get('portfolioRepository')
   ));
 
-  Container.register('listPortfolioUseCase', () => new ListPortfolioUseCase(
+  Container.register('listPortfolioService', () => new ListPortfolioService(
     Container.get('portfolioRepository')
   ));
 }
 
-function registerProventoUseCases(): void {
-  Container.register('createProventoUseCase', () => new CreateProventoUseCase(
+function registerProventoServices(): void {
+  Container.register('createProventoService', () => new CreateProventoService(
     Container.get('proventoRepository')
   ));
 
-  Container.register('deleteProventoUseCase', () => new DeleteProventoUseCase(
+  Container.register('deleteProventoService', () => new DeleteProventoService(
     Container.get('proventoRepository')
   ));
 
-  Container.register('importProventosUseCase', () => new ImportProventosUseCase(
+  Container.register('importProventosService', () => new ImportProventosService(
     Container.get('proventoRepository'),
     Container.get('transactionManager')
   ));
 
-  Container.register('listProventosUseCase', () => new ListProventosUseCase(
+  Container.register('listProventosService', () => new ListProventosService(
     Container.get('proventoRepository')
   ));
 }

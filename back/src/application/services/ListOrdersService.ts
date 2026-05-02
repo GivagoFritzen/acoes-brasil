@@ -2,7 +2,7 @@ import { IOrderRepository } from "../../domain/interfaces/IOrderRepository";
 import { IOrderFilters } from "../../domain/interfaces/IOrderFilters";
 import { IPaginatedOrders } from "../../domain/interfaces/IPaginatedOrders";
 
-export class ListOrdersUseCase {
+export class ListOrdersService {
   constructor(private orderRepository: IOrderRepository) {}
 
   public async executeAsync(filters: IOrderFilters, page: number = 1, limit: number = 20): Promise<IPaginatedOrders> {

@@ -1,6 +1,6 @@
 import { IPortfolioRepository } from "../../domain/interfaces/IPortfolioRepository";
 
-export class DeletePortfolioUseCase {
+export class DeletePortfolioService {
   constructor(private portfolioRepository: IPortfolioRepository) {}
 
   public async executeAsync(id: string): Promise<void> {

@@ -5,7 +5,7 @@ import { ImportProventosResult } from "../dto/ImportProventosResult";
 import { isFutureBrDate } from "../../utils/datas";
 import { isSupportedB3Ticker } from "../../../../common/utils/asset-type.utils";
 
-export class ImportProventosUseCase {
+export class ImportProventosService {
   constructor(
     private proventoRepository: IProventoRepository,
     private transactionManager: ITransactionManager

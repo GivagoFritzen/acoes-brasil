@@ -1,30 +1,30 @@
 import { Request, Response } from "express";
 import type { ProventoTipo } from "../../../common/models/provento";
 import { extractField, parseDecimal, readSpreadsheetRows, SpreadsheetRow, toBrDateString } from "../utils/spreadsheet";
-import { CreateProventoUseCase } from "../application/use-cases/CreateProventoUseCase";
-import { DeleteProventoUseCase } from "../application/use-cases/DeleteProventoUseCase";
-import { ImportProventosUseCase } from "../application/use-cases/ImportProventosUseCase";
-import { ListProventosUseCase } from "../application/use-cases/ListProventosUseCase";
+import { CreateProventoService } from "../application/services/CreateProventoService";
+import { DeleteProventoService } from "../application/services/DeleteProventoService";
+import { ImportProventosService } from "../application/services/ImportProventosService";
+import { ListProventosService } from "../application/services/ListProventosService";
 import { CreateProventoDto } from "../application/dto/CreateProventoDto";
 import { Container } from "../shared/dependency-injection/Container";
 import { ErrorHandler } from "../shared/error-handler/ErrorHandler";
 
 export class ProventoController {
-  private createProventoUseCase: CreateProventoUseCase;
-  private deleteProventoUseCase: DeleteProventoUseCase;
-  private importProventosUseCase: ImportProventosUseCase;
-  private listProventosUseCase: ListProventosUseCase;
+  private createProventoService: CreateProventoService;
+  private deleteProventoService: DeleteProventoService;
+  private importProventosService: ImportProventosService;
+  private listProventosService: ListProventosService;
 
   constructor() {
-    this.createProventoUseCase = Container.get("createProventoUseCase");
-    this.deleteProventoUseCase = Container.get("deleteProventoUseCase");
-    this.importProventosUseCase = Container.get("importProventosUseCase");
-    this.listProventosUseCase = Container.get("listProventosUseCase");
+    this.createProventoService = Container.get("createProventoService");
+    this.deleteProventoService = Container.get("deleteProventoService");
+    this.importProventosService = Container.get("importProventosService");
+    this.listProventosService = Container.get("listProventosService");
   }
 
   async createAsync(req: Request, res: Response): Promise<Response> {
     try {
-      const result = await this.createProventoUseCase.executeAsync({
+      const result = await this.createProventoService.executeAsync({
         codigo: String(req.body?.codigo ?? ""),
         data: String(req.body?.data ?? ""),
         tipo: req.body?.tipo as ProventoTipo,
@@ -41,7 +41,7 @@ export class ProventoController {
 
   async deleteAsync(req: Request, res: Response): Promise<Response> {
     try {
-      await this.deleteProventoUseCase.executeAsync(String(req.params.id));
+      await this.deleteProventoService.executeAsync(String(req.params.id));
       return res.json({ message: "Provento deletado com sucesso." });
     } catch (error) {
       return ErrorHandler.handle(error, req, res);
@@ -104,7 +104,7 @@ export class ProventoController {
         linhas.push({ codigo, data, tipo, instituicao, quantidade, precoUnitario, valorLiquido });
       }
 
-      const result = await this.importProventosUseCase.executeAsync(linhas);
+      const result = await this.importProventosService.executeAsync(linhas);
       return res.status(201).json(result);
     } catch (error) {
       return ErrorHandler.handle(error, req, res);
@@ -113,7 +113,7 @@ export class ProventoController {
 
   async listAsync(req: Request, res: Response): Promise<Response> {
     try {
-      const result = await this.listProventosUseCase.executeAsync({
+      const result = await this.listProventosService.executeAsync({
         codigo: typeof req.query.codigo === "string" ? req.query.codigo : undefined,
         tipo: typeof req.query.tipo === "string" ? req.query.tipo : undefined,
         data: typeof req.query.data === "string" ? req.query.data : undefined,

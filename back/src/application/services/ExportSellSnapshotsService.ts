@@ -3,7 +3,7 @@ import { ExcelExportService } from "../../infrastructure/services/ExcelExportSer
 import { SellSnapshotExportRow } from "../../models/SellSnapshotExportRow";
 import { DateUtils } from "../../shared/utils/DateUtils";
 
-export class ExportSellSnapshotsUseCase {
+export class ExportSellSnapshotsService {
   constructor(
     private sellSnapshotRepository: IOrderSellSnapshotRepository,
     private excelExportService: ExcelExportService

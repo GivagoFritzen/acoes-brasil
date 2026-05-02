@@ -1,17 +1,17 @@
 import multer from "multer";
 import { Request, Response } from "express";
-import { ImportOrdersUseCase } from "../application/use-cases/ImportOrdersUseCase";
+import { ImportOrdersService } from "../application/services/ImportOrdersService";
 import { SpreadsheetParserService } from "../infrastructure/services/SpreadsheetParserService";
 import { Container } from "../shared/dependency-injection/Container";
 
 const upload = multer({ storage: multer.memoryStorage() });
 
 export class ImportController {
-  private importOrdersUseCase: ImportOrdersUseCase;
+  private importOrdersService: ImportOrdersService;
   private spreadsheetParser: SpreadsheetParserService;
 
   constructor() {
-    this.importOrdersUseCase = Container.get('importOrdersUseCase');
+    this.importOrdersService = Container.get('importOrdersService');
     this.spreadsheetParser = Container.get('spreadsheetParser');
   }
 
@@ -33,7 +33,7 @@ export class ImportController {
         return res.status(400).json({ message: "Planilha sem dados." });
       }
 
-      const importedCount = await this.importOrdersUseCase.executeAsync(ordersToImport);
+      const importedCount = await this.importOrdersService.executeAsync(ordersToImport);
       return res.status(201).json({ imported: importedCount });
     } catch (error: any) {
       return res.status(400).json({

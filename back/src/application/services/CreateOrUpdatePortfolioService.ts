@@ -5,7 +5,7 @@ import { CreateOrUpdatePortfolioResult } from "../dto/CreateOrUpdatePortfolioRes
 import { normalizeOrderCodigo } from "../../../../common/utils/order-codigo.utils";
 import { isSupportedB3Ticker } from "../../../../common/utils/asset-type.utils";
 
-export class CreateOrUpdatePortfolioUseCase {
+export class CreateOrUpdatePortfolioService {
   constructor(private portfolioRepository: IPortfolioRepository) {}
 
   public async executeAsync(dto: CreateOrUpdatePortfolioDto): Promise<CreateOrUpdatePortfolioResult> {
