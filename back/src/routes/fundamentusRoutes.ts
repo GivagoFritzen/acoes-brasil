@@ -2,7 +2,8 @@ import { Router } from "express";
 import { FundamentusController } from "../controllers/FundamentusController";
 
 export const fundamentusRoutes = Router();
+const getFundamentusController = () => new FundamentusController();
 
 fundamentusRoutes.get("/:codigo", (req, res) => {
-  new FundamentusController().getAsync(req, res);
+  return getFundamentusController().getAsync(req, res);
 });
