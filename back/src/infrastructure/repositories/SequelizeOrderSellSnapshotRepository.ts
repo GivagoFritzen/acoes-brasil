@@ -1,6 +1,6 @@
 import { Transaction } from "sequelize";
 import { buildBrDateOrderExpression } from "../../database/dateExpression";
-import { OrderSellSnapshot as OrderSellSnapshotModel } from "../../models/OrderSellSnapshot";
+import { OrderSellSnapshot as OrderSellSnapshotModel } from "../../models/order/OrderSellSnapshot";
 import { OrderSellSnapshotEntity } from "../../domain/entities/OrderSellSnapshotEntity";
 import { IOrderSellSnapshotRepository } from "../../domain/interfaces/IOrderSellSnapshotRepository";
 

@@ -12,7 +12,9 @@ export class ErrorHandler {
     if (error instanceof Error) {
       const message = error.message;
       
-      if (message.includes("Ordem não encontrada")) {
+      if (message.includes("Ordem não encontrada") ||
+          message.includes("Ativo do portfólio não encontrado") ||
+          message.includes("Provento não encontrado")) {
         return res.status(404).json({ message });
       }
       

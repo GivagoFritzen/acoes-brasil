@@ -1,7 +1,7 @@
 import { Op, Transaction, WhereOptions } from "sequelize";
 import { sequelize } from "../../database";
 import { buildBrDateOrderExpression } from "../../database/dateExpression";
-import { Order as OrderModel } from "../../models/Order";
+import { Order as OrderModel } from "../../models/order/Order";
 import { OrderEntity } from "../../domain/entities/OrderEntity";
 import { IOrderRepository } from "../../domain/interfaces/IOrderRepository";
 import { IOrderFilters } from "../../domain/interfaces/IOrderFilters";

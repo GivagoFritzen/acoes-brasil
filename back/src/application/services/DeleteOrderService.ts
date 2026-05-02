@@ -2,7 +2,7 @@ import { IOrderRepository } from "../../domain/interfaces/IOrderRepository";
 import { IPortfolioRepository } from "../../domain/interfaces/IPortfolioRepository";
 import { ITransactionManager } from "../../domain/interfaces/ITransactionManager";
 
-export class DeleteOrderUseCase {
+export class DeleteOrderService {
   constructor(
     private orderRepository: IOrderRepository,
     private portfolioRepository: IPortfolioRepository,

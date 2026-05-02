@@ -6,7 +6,7 @@ import { IQuoteProvider } from "../../domain/interfaces/IQuoteProvider";
 import { ITransactionManager } from "../../domain/interfaces/ITransactionManager";
 import { normalizeOrderCodigo } from "../../../../common/utils/order-codigo.utils";
 
-export class ImportOrdersUseCase {
+export class ImportOrdersService {
   constructor(
     private orderRepository: IOrderRepository,
     private portfolioRepository: IPortfolioRepository,

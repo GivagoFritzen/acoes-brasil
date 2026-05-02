@@ -1,19 +1,19 @@
 import { DataTypes, Model } from "sequelize";
-import { sequelize } from "../database";
-import { ProventoAttributes } from "./ProventoAttributes";
-import { ProventoCreationAttributes } from "./ProventoCreationAttributes";
-import { ProventoTipo } from "./ProventoTipo";
+import { sequelize } from "../../database";
+import { OrderCreationAttributes } from "./OrderCreationAttributes";
+import { OrderAttributes } from "./OrderAttributes";
 
-export class Provento extends Model<ProventoAttributes, ProventoCreationAttributes>
-  implements ProventoAttributes {
+export type OrderOperacao = "Compra" | "Venda";
+export type OrderTipo = "FII" | "BDR" | "ACAO";
+
+export class Order extends Model<OrderAttributes, OrderCreationAttributes> implements OrderAttributes {
   declare id: string;
   declare codigo: string;
-  declare data: string;
-  declare tipo: ProventoTipo;
-  declare instituicao: string;
+  declare valor: number;
   declare quantidade: number;
-  declare precoUnitario: number;
-  declare valorLiquido: number;
+  declare data: string;
+  declare tipo: OrderTipo;
+  declare operacao: OrderOperacao;
   declare readonly createdAt?: Date;
   declare readonly updatedAt?: Date;
 }
@@ -43,7 +43,7 @@ const getCurrentBrDate = (): string => {
   return `${day}-${month}-${year}`;
 };
 
-Provento.init(
+Order.init(
   {
     id: {
       type: DataTypes.UUID,
@@ -52,6 +52,14 @@ Provento.init(
     },
     codigo: {
       type: DataTypes.STRING,
+      allowNull: false,
+    },
+    valor: {
+      type: DataTypes.FLOAT,
+      allowNull: false,
+    },
+    quantidade: {
+      type: DataTypes.INTEGER,
       allowNull: false,
     },
     data: {
@@ -69,25 +77,13 @@ Provento.init(
       type: DataTypes.STRING,
       allowNull: false,
     },
-    instituicao: {
+    operacao: {
       type: DataTypes.STRING,
-      allowNull: false,
-    },
-    quantidade: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-    },
-    precoUnitario: {
-      type: DataTypes.FLOAT,
-      allowNull: false,
-    },
-    valorLiquido: {
-      type: DataTypes.FLOAT,
       allowNull: false,
     },
   },
   {
     sequelize,
-    tableName: "Proventos",
+    tableName: "Orders",
   }
 );

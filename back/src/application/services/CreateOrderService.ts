@@ -8,7 +8,7 @@ import { CreateOrderDto } from "../dto/CreateOrderDto";
 import { DateUtils } from "../../shared/utils/DateUtils";
 import { normalizeOrderCodigo } from "../../../../common/utils/order-codigo.utils";
 
-export class CreateOrderUseCase {
+export class CreateOrderService {
   constructor(
     private orderRepository: IOrderRepository,
     private portfolioRepository: IPortfolioRepository,
