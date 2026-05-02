@@ -1,7 +1,7 @@
 import { Op, Transaction } from "sequelize";
 import { sequelize } from "../../database";
 import { buildBrDateOrderExpression } from "../../database/dateExpression";
-import { Provento as ProventoModel } from "../../models/Provento";
+import { Provento as ProventoModel } from "../../models/provento/Provento";
 import { ProventoEntity } from "../../domain/entities/ProventoEntity";
 import { IProventoRepository } from "../../domain/interfaces/IProventoRepository";
 import { IProventoFilters } from "../../domain/interfaces/IProventoFilters";

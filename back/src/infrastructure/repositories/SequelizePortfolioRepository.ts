@@ -1,5 +1,5 @@
 import { Transaction } from "sequelize";
-import { Portfolio as PortfolioModel } from "../../models/Portfolio";
+import { Portfolio as PortfolioModel } from "../../models/portfolio/Portfolio";
 import { PortfolioEntity } from "../../domain/entities/PortfolioEntity";
 import { IPortfolioRepository } from "../../domain/interfaces/IPortfolioRepository";
 

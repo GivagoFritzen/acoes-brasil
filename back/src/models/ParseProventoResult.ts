@@ -1,4 +1,4 @@
-import { CreateProventoDto } from "../../application/dto/CreateProventoDto";
+import { CreateProventoDto } from "../application/dto/CreateProventoDto";
 
 export interface ParseProventoResult {
   validRows: CreateProventoDto[];

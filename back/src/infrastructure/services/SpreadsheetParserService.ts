@@ -2,10 +2,10 @@ import { SpreadsheetRow, extractField, parseDecimal, readSpreadsheetRows, toBrDa
 import type { ProventoTipo } from "../../../../common/models/provento";
 import { CreateOrderDto } from "../../application/dto/CreateOrderDto";
 import { CreateProventoDto } from "../../application/dto/CreateProventoDto";
-import { ParseProventoResult } from "./ParseProventoResult";
 import { OrderOperacao } from "../../domain/entities/OrderEntity";
 import { normalizeOrderCodigo } from "../../../../common/utils/order-codigo.utils";
 import { detectSupportedAssetTypeFromTicker } from "../../../../common/utils/asset-type.utils";
+import { ParseProventoResult } from "../../models/ParseProventoResult";
 
 export class SpreadsheetParserService {
   parseOrderRowsAsync(buffer: Buffer): CreateOrderDto[] {

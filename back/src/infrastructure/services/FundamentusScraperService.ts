@@ -1,4 +1,4 @@
-import { FundamentusAcaoDetails } from "../../models/FundamentusAcaoDetails";
+import { FundamentusAcaoDetails } from "../../models/fundamentus/FundamentusAcaoDetails";
 
 const BASE_URL = "https://www.fundamentus.com.br/detalhes.php";
 

@@ -1,5 +1,5 @@
 import * as XLSX from "xlsx";
-import { SellSnapshotExportRow } from "./SellSnapshotExportRow";
+import { SellSnapshotExportRow } from "../../models/SellSnapshotExportRow";
 
 export class ExcelExportService {
   generateAsync(rows: SellSnapshotExportRow[], fileName: string): Buffer {
