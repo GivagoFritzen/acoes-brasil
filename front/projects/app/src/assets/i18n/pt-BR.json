@@ -154,5 +154,34 @@
         "orderSellPdfTitle": "OrderSell → PDF",
         "orderSellPdfHint": "Gera PDF com os campos Código, precoMedioAtual, Quantidade, valorAtualAcao, ganhos e data.",
         "exportOrderSellPdf": "Exportar OrderSell em PDF"
+    },
+    "fileInput": {
+        "clickToUpload": "Clique no botão abaixo para enviar",
+        "maxFileSize": "Tam. máximo: 30MB",
+        "dragDrop": "Arraste e solte o arquivo aqui",
+        "dropToSelect": "Solte o arquivo para selecionar",
+        "fileReady": "Arquivo pronto para envio",
+        "fileSelected": "Arquivo selecionado",
+        "invalidFileType": "Tipo de arquivo inválido para este campo",
+        "couldNotIdentify": "Não foi possível identificar o arquivo arrastado"
+    },
+    "acaoDetails": {
+        "back": "Voltar para carteira",
+        "loading": "Carregando detalhes do ativo...",
+        "cards": {
+            "information": "Informações",
+            "oscillations": "Oscilações",
+            "fundamentalIndicators": "Indicadores Fundamentalistas",
+            "balanceSheet": "Balanço Patrimonial",
+            "results": "Resultados"
+        },
+        "errors": {
+            "attention": "Atenção",
+            "error": "Erro",
+            "codeNotProvided": "Código do ativo não informado.",
+            "fundamentusLoadFailed": "Não foi possível carregar os dados do Fundamentus para",
+            "proventosLoadFailed": "Não foi possível carregar os proventos para",
+            "detailsLoadFailed": "Não foi possível carregar os detalhes de"
+        }
     }
 }

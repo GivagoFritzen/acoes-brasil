@@ -1,10 +1,12 @@
 import { CommonModule } from '@angular/common';
-import { Component, ElementRef, EventEmitter, Input, OnDestroy, Output, ViewChild } from '@angular/core';
+import { Component, ElementRef, EventEmitter, Input, OnDestroy, Output, ViewChild, inject } from '@angular/core';
+import { TranslatePipe } from '../../pipes/translate.pipe';
+import { TranslationService } from '../../services/translation.service';
 
 @Component({
   selector: 'app-file-input',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, TranslatePipe],
   templateUrl: './file-input.component.html',
   styleUrls: ['./file-input.component.scss'],
 })
@@ -23,7 +25,8 @@ export class FileInputComponent {
   isDragActive = false;
   isDropSuccess = false;
   isDropError = false;
-  feedbackMessage = 'Arraste e solte o arquivo aqui';
+  private translationService = inject(TranslationService);
+  feedbackMessage = this.translationService.get('fileInput.dragDrop');
 
   private successTimeoutId: ReturnType<typeof setTimeout> | null = null;
   private errorTimeoutId: ReturnType<typeof setTimeout> | null = null;
@@ -49,7 +52,7 @@ export class FileInputComponent {
     }
 
     if (!this.isFileAccepted(file)) {
-      this.showErrorFeedback('Tipo de arquivo inválido para este campo');
+      this.showErrorFeedback(this.translationService.get('fileInput.invalidFileType'));
       this.fileSelected.emit(null);
       return;
     }
@@ -65,7 +68,7 @@ export class FileInputComponent {
 
     event.preventDefault();
     this.isDragActive = true;
-    this.feedbackMessage = 'Solte o arquivo para selecionar';
+    this.feedbackMessage = this.translationService.get('fileInput.dropToSelect');
   }
 
   handleDragEnter(event: DragEvent): void {
@@ -76,7 +79,7 @@ export class FileInputComponent {
     event.preventDefault();
     this.dragCounter += 1;
     this.isDragActive = true;
-    this.feedbackMessage = 'Solte o arquivo para selecionar';
+    this.feedbackMessage = this.translationService.get('fileInput.dropToSelect');
   }
 
   handleDragLeave(event: DragEvent): void {
@@ -89,7 +92,7 @@ export class FileInputComponent {
 
     if (this.dragCounter === 0) {
       this.isDragActive = false;
-      this.feedbackMessage = this.fileName ? 'Arquivo pronto para envio' : 'Arraste e solte o arquivo aqui';
+      this.feedbackMessage = this.fileName ? this.translationService.get('fileInput.fileReady') : this.translationService.get('fileInput.dragDrop');
     }
   }
 
@@ -105,12 +108,12 @@ export class FileInputComponent {
     const file = event.dataTransfer?.files?.[0] ?? null;
 
     if (!file) {
-      this.showErrorFeedback('Não foi possível identificar o arquivo arrastado');
+      this.showErrorFeedback(this.translationService.get('fileInput.couldNotIdentify'));
       return;
     }
 
     if (!this.isFileAccepted(file)) {
-      this.showErrorFeedback('Tipo de arquivo inválido para este campo');
+      this.showErrorFeedback(this.translationService.get('fileInput.invalidFileType'));
       this.fileSelected.emit(null);
       return;
     }
@@ -131,11 +134,11 @@ export class FileInputComponent {
 
     this.isDropError = false;
     this.isDropSuccess = true;
-    this.feedbackMessage = `Arquivo selecionado: ${fileName}`;
+    this.feedbackMessage = `${this.translationService.get('fileInput.fileSelected')}: ${fileName}`;
 
     this.successTimeoutId = setTimeout(() => {
       this.isDropSuccess = false;
-      this.feedbackMessage = 'Arquivo pronto para envio';
+      this.feedbackMessage = this.translationService.get('fileInput.fileReady');
     }, 1800);
   }
 
@@ -186,7 +189,7 @@ export class FileInputComponent {
   }
 
   private getIdleFeedbackMessage(): string {
-    return this.fileName ? 'Arquivo pronto para envio' : 'Arraste e solte o arquivo aqui';
+    return this.fileName ? this.translationService.get('fileInput.fileReady') : this.translationService.get('fileInput.dragDrop');
   }
 
   ngOnDestroy(): void {

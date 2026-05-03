@@ -154,5 +154,34 @@
         "orderSellPdfTitle": "OrderSell → PDF",
         "orderSellPdfHint": "Generates PDF with fields: Code, currentAveragePrice, Quantity, currentStockValue, gains and date.",
         "exportOrderSellPdf": "Export OrderSell to PDF"
+    },
+    "fileInput": {
+        "clickToUpload": "Click the button below to upload",
+        "maxFileSize": "Max. File Size: 30MB",
+        "dragDrop": "Drag and drop file here",
+        "dropToSelect": "Drop file to select",
+        "fileReady": "File ready to send",
+        "fileSelected": "File selected",
+        "invalidFileType": "Invalid file type for this field",
+        "couldNotIdentify": "Could not identify the dragged file"
+    },
+    "acaoDetails": {
+        "back": "Back to portfolio",
+        "loading": "Loading asset details...",
+        "cards": {
+            "information": "Information",
+            "oscillations": "Oscillations",
+            "fundamentalIndicators": "Fundamental Indicators",
+            "balanceSheet": "Balance Sheet",
+            "results": "Results"
+        },
+        "errors": {
+            "attention": "Warning",
+            "error": "Error",
+            "codeNotProvided": "Asset code not provided.",
+            "fundamentusLoadFailed": "Could not load Fundamentus data for",
+            "proventosLoadFailed": "Could not load dividends for",
+            "detailsLoadFailed": "Could not load details for"
+        }
     }
 }

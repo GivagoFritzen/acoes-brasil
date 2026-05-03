@@ -3,7 +3,7 @@
 
     <header class="acao-details__header">
         <a class="acao-details__back" routerLink="/acoes">
-            <i class="ph ph-arrow-left"></i> Voltar para carteira
+            <i class="ph ph-arrow-left"></i> {{ 'acaoDetails.back' | translate }}
         </a>
 
         <div class="acao-details__title-wrap" *ngIf="fundamentus() as fund">
@@ -14,7 +14,7 @@
 
     <div *ngIf="isLoading()" class="acao-details__loading">
         <div class="spinner"></div>
-        <span>Carregando detalhes do ativo...</span>
+        <span>{{ 'acaoDetails.loading' | translate }}</span>
     </div>
 
     <ng-container *ngIf="!isLoading() && fundamentus() as fund">
@@ -22,7 +22,7 @@
 
             <article class="acao-details__card">
                 <header>
-                    <h3>Informações</h3>
+                    <h3>{{ 'acaoDetails.cards.information' | translate }}</h3>
                 </header>
                 <div class="acao-details__table">
                     <div class="acao-details__row" *ngFor="let item of fund.indicadores | slice:0:11">
@@ -37,7 +37,7 @@
 
             <article class="acao-details__card">
                 <header>
-                    <h3>Oscilações</h3>
+                    <h3>{{ 'acaoDetails.cards.oscillations' | translate }}</h3>
                 </header>
                 <div class="acao-details__table">
                     <div class="acao-details__row" *ngFor="let item of fund.indicadores | slice:11:22">
@@ -52,7 +52,7 @@
 
             <article class="acao-details__card acao-details__card--full">
                 <header>
-                    <h3>Indicadores Fundamentalistas</h3>
+                    <h3>{{ 'acaoDetails.cards.fundamentalIndicators' | translate }}</h3>
                 </header>
                 <div class="acao-details__table acao-details__table--columns">
                     <div class="acao-details__row" *ngFor="let item of fund.indicadores | slice:22:44">
@@ -67,7 +67,7 @@
 
             <article class="acao-details__card">
                 <header>
-                    <h3>Balanço Patrimonial</h3>
+                    <h3>{{ 'acaoDetails.cards.balanceSheet' | translate }}</h3>
                 </header>
                 <div class="acao-details__table">
                     <div class="acao-details__row" *ngFor="let item of fund.indicadores | slice:44:50">
@@ -82,7 +82,7 @@
 
             <article class="acao-details__card">
                 <header>
-                    <h3>Resultados</h3>
+                    <h3>{{ 'acaoDetails.cards.results' | translate }}</h3>
                 </header>
                 <div class="acao-details__table">
                     <div class="acao-details__row" *ngFor="let item of fund.indicadores | slice:50">

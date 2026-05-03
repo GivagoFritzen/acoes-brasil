@@ -11,13 +11,14 @@ import {
 import { FundamentusService } from '../../../services/fundamentus.service';
 import { ProventosService } from '../../../services/proventos.service';
 import { HelpTipComponent } from '../../../components/help-tip/help-tip.component';
+import { TranslatePipe } from '../../../pipes/translate.pipe';
 import { TranslationService } from '../../../services/translation.service';
 import { AlertItem } from '../../../models/alert/alert-item.model';
 
 @Component({
     selector: 'app-acao-details',
     standalone: true,
-    imports: [CommonModule, RouterModule, AlertsComponent, HelpTipComponent],
+    imports: [CommonModule, RouterModule, AlertsComponent, HelpTipComponent, TranslatePipe],
     templateUrl: './acao-details.component.html',
     styleUrls: ['./acao-details.component.scss'],
 })
@@ -43,7 +44,7 @@ export class AcaoDetailsComponent implements OnInit {
             const codigo = params.get('codigo');
 
             if (!codigo) {
-                this.setError('Código do ativo não informado.');
+                this.setError(this.translationService.get('acaoDetails.errors.codeNotProvided'));
                 return;
             }
 
@@ -120,8 +121,8 @@ export class AcaoDetailsComponent implements OnInit {
                     if (!fundamentus) {
                         this.pushAlert(
                             'warning',
-                            'Atenção',
-                            `Não foi possível carregar os dados do Fundamentus para ${normalizedCode}.`,
+                            this.translationService.get('acaoDetails.errors.attention'),
+                            `${this.translationService.get('acaoDetails.errors.fundamentusLoadFailed')} ${normalizedCode}.`,
                             '!'
                         );
                     }
@@ -129,21 +130,21 @@ export class AcaoDetailsComponent implements OnInit {
                     if (!proventos) {
                         this.pushAlert(
                             'warning',
-                            'Atenção',
-                            `Não foi possível carregar os proventos para ${normalizedCode}.`,
+                            this.translationService.get('acaoDetails.errors.attention'),
+                            `${this.translationService.get('acaoDetails.errors.proventosLoadFailed')} ${normalizedCode}.`,
                             '!'
                         );
                     }
                 },
                 error: () => {
-                    this.setError(`Não foi possível carregar os detalhes de ${normalizedCode}.`);
+                    this.setError(`${this.translationService.get('acaoDetails.errors.detailsLoadFailed')} ${normalizedCode}.`);
                 }
             });
     }
 
     private setError(message: string): void {
         this.errorMessage.set(message);
-        this.pushAlert('error', 'Erro', message, '✕');
+        this.pushAlert('error', this.translationService.get('acaoDetails.errors.error'), message, '✕');
     }
 
     private pushAlert(
