@@ -1,19 +1,23 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { catchError } from 'rxjs/operators';
 import { Provento, ProventosResponse } from '../models';
 import { CreateProventoPayload } from '../models/create-provento-payload.model';
 import { ImportResponse } from '../models/import-response.model';
 import { DeleteResponse } from '../models/delete-response.model';
 import { getApiUrl } from '../config/api.config';
+import { BaseHttpService } from './base-http.service';
 
 @Injectable({
   providedIn: 'root',
 })
-export class ProventosService {
+export class ProventosService extends BaseHttpService {
   private readonly baseUrl = getApiUrl('proventos');
 
-  constructor(private readonly http: HttpClient) { }
+  constructor(http: HttpClient) {
+    super(http);
+  }
 
   getProventos(params?: {
     codigo?: string;
@@ -36,20 +40,20 @@ export class ProventosService {
         ...(params?.page ? { page: params.page } : {}),
         ...(params?.limit ? { limit: params.limit } : {}),
       },
-    });
+    }).pipe(catchError(error => this.handleError(error)));
   }
 
   importProventosSpreadsheet(file: File): Observable<ImportResponse> {
     const formData = new FormData();
     formData.append('file', file);
-    return this.http.post<ImportResponse>(`${this.baseUrl}/import`, formData);
+    return this.http.post<ImportResponse>(`${this.baseUrl}/import`, formData).pipe(catchError(error => this.handleError(error)));
   }
 
   createProvento(payload: CreateProventoPayload): Observable<Provento> {
-    return this.http.post<Provento>(this.baseUrl, payload);
+    return this.http.post<Provento>(this.baseUrl, payload).pipe(catchError(error => this.handleError(error)));
   }
 
   deleteProvento(id: string): Observable<DeleteResponse> {
-    return this.http.delete<DeleteResponse>(`${this.baseUrl}/${id}`);
+    return this.http.delete<DeleteResponse>(`${this.baseUrl}/${id}`).pipe(catchError(error => this.handleError(error)));
   }
-}
+}

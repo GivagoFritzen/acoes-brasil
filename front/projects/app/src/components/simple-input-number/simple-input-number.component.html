@@ -2,7 +2,7 @@
     class="simple-input-number"
     type="text"
     [value]="value"
-    [attr.maxLength]="maxLength"
+    [attr.maxlength]="maxLength ? maxLength : null"
     inputmode="decimal"
     (keydown)="onKeyDown($event)"
     (paste)="onPaste($event)"

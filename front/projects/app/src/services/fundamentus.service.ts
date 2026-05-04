@@ -1,19 +1,25 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { catchError } from 'rxjs/operators';
 import { FundamentusAcaoDetails } from '../models';
 import { getApiUrl } from '../config/api.config';
+import { BaseHttpService } from './base-http.service';
 
 @Injectable({
   providedIn: 'root',
 })
-export class FundamentusService {
+export class FundamentusService extends BaseHttpService {
   private readonly baseUrl = getApiUrl('fundamentus');
 
-  constructor(private readonly http: HttpClient) {}
+  constructor(http: HttpClient) {
+    super(http);
+  }
 
   getAcaoDetails(codigo: string): Observable<FundamentusAcaoDetails> {
     const normalizedCode = codigo.trim().toUpperCase();
-    return this.http.get<FundamentusAcaoDetails>(`${this.baseUrl}/${normalizedCode}`);
+    return this.http.get<FundamentusAcaoDetails>(`${this.baseUrl}/${normalizedCode}`).pipe(
+      catchError(error => this.handleError(error))
+    );
   }
 }
