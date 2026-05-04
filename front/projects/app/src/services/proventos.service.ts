@@ -5,12 +5,13 @@ import { Provento, ProventosResponse } from '../models';
 import { CreateProventoPayload } from '../models/create-provento-payload.model';
 import { ImportResponse } from '../models/import-response.model';
 import { DeleteResponse } from '../models/delete-response.model';
+import { getApiUrl } from '../config/api.config';
 
 @Injectable({
   providedIn: 'root',
 })
 export class ProventosService {
-  private readonly baseUrl = 'http://localhost:3000/proventos';
+  private readonly baseUrl = getApiUrl('proventos');
 
   constructor(private readonly http: HttpClient) { }
 
