@@ -55,3 +55,7 @@ back/data/
 .claude/
 /PRD
 /PLAN
+
+# Sonar
+sonar-project.properties
+.scannerwork/
