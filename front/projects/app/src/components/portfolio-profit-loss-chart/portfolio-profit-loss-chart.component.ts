@@ -5,6 +5,9 @@ import { BehaviorSubject, Observable, combineLatest, forkJoin, of } from 'rxjs';
 import { catchError, map, switchMap } from 'rxjs/operators';
 import { Info } from '../../enums/info.enum';
 import { FundamentusAcaoDetails, PortfolioItem } from '../../models';
+import type { BarChartItem } from '../../models/graphics/bar-chart-item.model';
+import type { PositionedDataItem } from '../../models/graphics/positioned-data-item.model';
+import type { ProfitLossDataItem } from '../../models/graphics/profit-loss-data-item.model';
 import { FundamentusService } from '../../services/fundamentus.service';
 import { PortfolioService } from '../../services/portfolio.service';
 

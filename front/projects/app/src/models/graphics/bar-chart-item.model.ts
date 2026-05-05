@@ -1,4 +1,4 @@
-interface BarChartItem {
+export interface BarChartItem {
     name: string;
     value: number;
     color: string;

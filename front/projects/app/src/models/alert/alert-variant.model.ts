@@ -1,1 +1,1 @@
-type AlertVariant = 'info' | 'warning' | 'error';
+export type AlertVariant = 'info' | 'warning' | 'error';
