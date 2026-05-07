@@ -76,6 +76,66 @@ describe('OrdersService', () => {
         expect(error.status).toBe(500);
       }
     });
+
+    it('deve tratar erro de conexão (status 0)', async () => {
+      const promise = firstValueFrom(service.getOrders());
+
+      const req = httpMock.expectOne(r => r.url === baseUrl);
+      req.error(new ErrorEvent('Network error'), { status: 0 });
+
+      try {
+        await promise;
+        expect('não deveria chegar aqui').toBe(false);
+      } catch (error: any) {
+        expect(error.status).toBe(0);
+        expect(error.message).toBe('Não foi possível conectar ao servidor. Verifique sua conexão.');
+      }
+    });
+
+    it('deve tratar erro HTTP 401 (não autorizado)', async () => {
+      const promise = firstValueFrom(service.getOrders());
+
+      const req = httpMock.expectOne(r => r.url === baseUrl);
+      req.flush('Unauthorized', { status: 401, statusText: 'Unauthorized' });
+
+      try {
+        await promise;
+        expect('não deveria chegar aqui').toBe(false);
+      } catch (error: any) {
+        expect(error.status).toBe(401);
+        expect(error.message).toBe('Não autorizado.');
+      }
+    });
+
+    it('deve tratar erro HTTP 403 (acesso negado)', async () => {
+      const promise = firstValueFrom(service.getOrders());
+
+      const req = httpMock.expectOne(r => r.url === baseUrl);
+      req.flush('Forbidden', { status: 403, statusText: 'Forbidden' });
+
+      try {
+        await promise;
+        expect('não deveria chegar aqui').toBe(false);
+      } catch (error: any) {
+        expect(error.status).toBe(403);
+        expect(error.message).toBe('Acesso negado.');
+      }
+    });
+
+    it('deve usar mensagem de erro do servidor quando disponível', async () => {
+      const promise = firstValueFrom(service.getOrders());
+
+      const req = httpMock.expectOne(r => r.url === baseUrl);
+      req.flush({ message: 'Erro customizado do servidor' }, { status: 400, statusText: 'Bad Request' });
+
+      try {
+        await promise;
+        expect('não deveria chegar aqui').toBe(false);
+      } catch (error: any) {
+        expect(error.status).toBe(400);
+        expect(error.message).toBe('Erro customizado do servidor');
+      }
+    });
   });
 
   describe('createOrder', () => {
