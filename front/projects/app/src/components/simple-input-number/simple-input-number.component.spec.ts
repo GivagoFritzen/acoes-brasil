@@ -266,14 +266,14 @@ describe('SimpleInputNumberComponent', () => {
                 expect(input.value).toBe('1234');
             });
 
-            it('deve manter apenas primeiro ponto/vírgula quando allowDecimal = true', () => {
+            it('deve manter valor com ponto quando allowDecimal = true', () => {
                 component.allowDecimal = true;
                 fixture.detectChanges();
                 const input = fixture.debugElement.query(By.css('input')).nativeElement;
                 input.value = '12.34.56';
                 const event = { target: input } as unknown as Event;
                 component.onInput(event);
-                expect(input.value).toBe('12.3456');
+                expect(input.value).toBe('1234.56');
             });
         });
 

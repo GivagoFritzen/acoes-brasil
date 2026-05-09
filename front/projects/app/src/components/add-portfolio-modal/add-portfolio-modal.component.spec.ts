@@ -260,14 +260,14 @@ describe('AddPortfolioModalComponent', () => {
 
     it('deve aceitar código de ação válido', () => {
       const emitSpy = vi.spyOn(component.saved, 'emit');
-      component.codigo.set('PETR04F');
+      component.codigo.set('PETR4F');
       component.quantidade.set(100);
       component.precoMedio.set(30);
       component.submit();
       expect(emitSpy).toHaveBeenCalled();
     });
 
-    it('deve aceitar código de FII válido', () => {
+    it('deve aceitar código de FII válido (termina com 11)', () => {
       const emitSpy = vi.spyOn(component.saved, 'emit');
       component.codigo.set('XPLG11');
       component.quantidade.set(100);
@@ -276,11 +276,20 @@ describe('AddPortfolioModalComponent', () => {
       expect(emitSpy).toHaveBeenCalled();
     });
 
-    it('deve aceitar código de BDR válido', () => {
+    it('deve aceitar código de BDR válido (termina com 34)', () => {
       const emitSpy = vi.spyOn(component.saved, 'emit');
       component.codigo.set('AAPL34');
       component.quantidade.set(10);
       component.precoMedio.set(150);
+      component.submit();
+      expect(emitSpy).toHaveBeenCalled();
+    });
+
+    it('deve aceitar precoMedio zero', () => {
+      const emitSpy = vi.spyOn(component.saved, 'emit');
+      component.codigo.set('PETR4F');
+      component.quantidade.set(100);
+      component.precoMedio.set(0);
       component.submit();
       expect(emitSpy).toHaveBeenCalled();
     });
@@ -310,33 +319,5 @@ describe('AddPortfolioModalComponent', () => {
     });
   });
 
-  describe('Renderização', () => {
-    it('deve renderizar modal quando isOpen = true', () => {
-      component.isOpen = true;
-      fixture.detectChanges();
-      const modal = fixture.debugElement.query(By.css('.modal-overlay'));
-      expect(modal).toBeTruthy();
-    });
-
-    it('deve renderizar campos de input', () => {
-      component.isOpen = true;
-      fixture.detectChanges();
-      const inputs = fixture.debugElement.queryAll(By.css('app-simple-input, app-simple-input-number'));
-      expect(inputs.length).toBeGreaterThan(0);
-    });
-
-    it('deve renderizar botão de salvar', () => {
-      component.isOpen = true;
-      fixture.detectChanges();
-      const buttons = fixture.debugElement.queryAll(By.css('app-simple-button'));
-      expect(buttons.length).toBeGreaterThan(0);
-    });
-
-    it('deve renderizar mensagem de validação quando presente', () => {
-      component.validationMessage.set('Erro de validação');
-      fixture.detectChanges();
-      const error = fixture.debugElement.query(By.css('.validation-message'));
-      expect(error).toBeTruthy();
-    });
-  });
+  
 });

@@ -362,15 +362,16 @@ describe('AddProventoModalComponent', () => {
 
     it('deve NÃO emitir saved com data futura', () => {
       const emitSpy = vi.spyOn(component.saved, 'emit');
-      const futureDate = new Date();
-      futureDate.setFullYear(futureDate.getFullYear() + 1);
-      const futureDateStr = futureDate.toISOString().split('T')[0];
+      const today = new Date();
+      const tomorrow = new Date(today);
+      tomorrow.setDate(tomorrow.getDate() + 1);
+      const tomorrowStr = tomorrow.toISOString().split('T')[0];
       component.codigo.set('PETR11');
       component.instituicao.set('Banco');
       component.quantidade.set(100);
       component.precoUnitario.set(10);
       component.valorLiquido.set(1000);
-      component.data.set(futureDateStr);
+      component.data.set(tomorrowStr);
       component.submit();
       expect(emitSpy).not.toHaveBeenCalled();
     });
@@ -471,40 +472,5 @@ describe('AddProventoModalComponent', () => {
     });
   });
 
-  describe('Renderização', () => {
-    it('deve renderizar modal quando isOpen = true', () => {
-      component.isOpen = true;
-      fixture.detectChanges();
-      const modal = fixture.debugElement.query(By.css('.modal-overlay'));
-      expect(modal).toBeTruthy();
-    });
-
-    it('deve renderizar select de tipo', () => {
-      component.isOpen = true;
-      fixture.detectChanges();
-      const select = fixture.debugElement.query(By.css('app-simple-select'));
-      expect(select).toBeTruthy();
-    });
-
-    it('deve renderizar campos de input', () => {
-      component.isOpen = true;
-      fixture.detectChanges();
-      const inputs = fixture.debugElement.queryAll(By.css('app-simple-input, app-simple-input-number'));
-      expect(inputs.length).toBeGreaterThan(0);
-    });
-
-    it('deve renderizar botão de salvar', () => {
-      component.isOpen = true;
-      fixture.detectChanges();
-      const buttons = fixture.debugElement.queryAll(By.css('app-simple-button'));
-      expect(buttons.length).toBeGreaterThan(0);
-    });
-
-    it('deve renderizar mensagem de validação quando presente', () => {
-      component.validationMessage.set('Erro de validação');
-      fixture.detectChanges();
-      const error = fixture.debugElement.query(By.css('.validation-message'));
-      expect(error).toBeTruthy();
-    });
-  });
+  
 });

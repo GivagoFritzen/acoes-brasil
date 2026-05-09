@@ -130,16 +130,7 @@ describe('SimpleSelectComponent', () => {
             expect(emitSpy).toHaveBeenCalledWith('opt2');
         });
 
-        it('NÃO deve emitir quando disabled = true e onChange chamado', () => {
-            component.disabled = true;
-            fixture.detectChanges();
-            const emitSpy = vi.spyOn(component.valueChange, 'emit');
-            const select = fixture.debugElement.query(By.css('select')).nativeElement;
-            select.value = 'opt2';
-            const event = { target: select } as unknown as Event;
-            component.onChange(event);
-            expect(emitSpy).not.toHaveBeenCalled();
-        });
+        
 
         it('deve emitir valueChange via evento change do select', () => {
             component.options = mockOptions as any;

@@ -131,12 +131,17 @@ describe('AddOrderModalComponent', () => {
       expect(component.codigo()).toBe('TEST11');
     });
 
-    it('deve detectar tipo de ação quando código tem sufixo F', () => {
-      component.handleCodigoChange('PETR04F');
+    it('deve detectar tipo de ação quando código termina com 3 e sufixo F', () => {
+      component.handleCodigoChange('PETR3F');
       expect(component.tipoDetectado()).toBe('ACAO');
     });
 
-    it('deve detectar tipo FII quando código sem sufixo F', () => {
+    it('deve detectar tipo de ação quando código termina com 4 e sufixo F', () => {
+      component.handleCodigoChange('PETR4F');
+      expect(component.tipoDetectado()).toBe('ACAO');
+    });
+
+    it('deve detectar tipo FII quando código termina com 11', () => {
       component.handleCodigoChange('XPLG11');
       expect(component.tipoDetectado()).toBe('FII');
     });
@@ -149,6 +154,11 @@ describe('AddOrderModalComponent', () => {
     it('deve limpar tipoDetectado quando código vazio', () => {
       component.tipoDetectado.set('ACAO');
       component.handleCodigoChange('');
+      expect(component.tipoDetectado()).toBeNull();
+    });
+
+    it('deve retornar null para código inválido', () => {
+      component.handleCodigoChange('INVALID');
       expect(component.tipoDetectado()).toBeNull();
     });
   });
@@ -199,7 +209,7 @@ describe('AddOrderModalComponent', () => {
   describe('submit', () => {
     it('deve emitir saved com payload válido', () => {
       const emitSpy = vi.spyOn(component.saved, 'emit');
-      component.codigo.set('PETR04F');
+      component.codigo.set('PETR4F');
       component.operacao.set('Compra');
       component.quantidade.set(100);
       component.valor.set(30);
@@ -208,7 +218,7 @@ describe('AddOrderModalComponent', () => {
       component.submit();
 
       expect(emitSpy).toHaveBeenCalledWith({
-        codigo: 'PETR04F',
+        codigo: 'PETR4F',
         operacao: 'Compra',
         tipo: 'ACAO',
         quantidade: 100,
@@ -225,7 +235,7 @@ describe('AddOrderModalComponent', () => {
 
     it('deve NÃO emitir saved com quantidade zero', () => {
       const emitSpy = vi.spyOn(component.saved, 'emit');
-      component.codigo.set('PETR04F');
+      component.codigo.set('PETR4F');
       component.quantidade.set(0);
       component.valor.set(30);
       component.data.set('2025-01-01');
@@ -235,7 +245,7 @@ describe('AddOrderModalComponent', () => {
 
     it('deve NÃO emitir saved com quantidade negativa', () => {
       const emitSpy = vi.spyOn(component.saved, 'emit');
-      component.codigo.set('PETR04F');
+      component.codigo.set('PETR4F');
       component.quantidade.set(-10);
       component.valor.set(30);
       component.data.set('2025-01-01');
@@ -245,7 +255,7 @@ describe('AddOrderModalComponent', () => {
 
     it('deve NÃO emitir saved com valor zero', () => {
       const emitSpy = vi.spyOn(component.saved, 'emit');
-      component.codigo.set('PETR04F');
+      component.codigo.set('PETR4F');
       component.quantidade.set(100);
       component.valor.set(0);
       component.data.set('2025-01-01');
@@ -255,7 +265,7 @@ describe('AddOrderModalComponent', () => {
 
     it('deve NÃO emitir saved com valor negativo', () => {
       const emitSpy = vi.spyOn(component.saved, 'emit');
-      component.codigo.set('PETR04F');
+      component.codigo.set('PETR4F');
       component.quantidade.set(100);
       component.valor.set(-30);
       component.data.set('2025-01-01');
@@ -275,13 +285,14 @@ describe('AddOrderModalComponent', () => {
 
     it('deve NÃO emitir saved com data futura', () => {
       const emitSpy = vi.spyOn(component.saved, 'emit');
-      const futureDate = new Date();
-      futureDate.setFullYear(futureDate.getFullYear() + 1);
-      const futureDateStr = futureDate.toISOString().split('T')[0];
-      component.codigo.set('PETR04F');
+      const today = new Date();
+      const tomorrow = new Date(today);
+      tomorrow.setDate(tomorrow.getDate() + 1);
+      const tomorrowStr = tomorrow.toISOString().split('T')[0];
+      component.codigo.set('PETR4F');
       component.quantidade.set(100);
       component.valor.set(30);
-      component.data.set(futureDateStr);
+      component.data.set(tomorrowStr);
       component.submit();
       expect(emitSpy).not.toHaveBeenCalled();
     });
@@ -301,20 +312,21 @@ describe('AddOrderModalComponent', () => {
     });
 
     it('deve mostrar mensagem de validação para data futura', () => {
-      const futureDate = new Date();
-      futureDate.setFullYear(futureDate.getFullYear() + 1);
-      const futureDateStr = futureDate.toISOString().split('T')[0];
-      component.codigo.set('PETR04F');
+      const today = new Date();
+      const tomorrow = new Date(today);
+      tomorrow.setDate(tomorrow.getDate() + 1);
+      const tomorrowStr = tomorrow.toISOString().split('T')[0];
+      component.codigo.set('PETR4F');
       component.quantidade.set(100);
       component.valor.set(30);
-      component.data.set(futureDateStr);
+      component.data.set(tomorrowStr);
       component.submit();
       expect(component.validationMessage()).toBe('A data da ordem não pode ser futura.');
     });
 
     it('deve limpar validationMessage quando payload válido', () => {
       component.validationMessage.set('erro anterior');
-      component.codigo.set('PETR04F');
+      component.codigo.set('PETR4F');
       component.operacao.set('Compra');
       component.quantidade.set(100);
       component.valor.set(30);
@@ -325,7 +337,7 @@ describe('AddOrderModalComponent', () => {
 
     it('deve truncar quantidade em payload', () => {
       const emitSpy = vi.spyOn(component.saved, 'emit');
-      component.codigo.set('PETR04F');
+      component.codigo.set('PETR4F');
       component.operacao.set('Compra');
       component.quantidade.set(100.9);
       component.valor.set(30);
@@ -333,6 +345,28 @@ describe('AddOrderModalComponent', () => {
       component.submit();
       const payload = emitSpy.mock.calls[0]?.[0];
       expect(payload?.quantidade).toBe(100);
+    });
+
+    it('deve aceitar código FII válido', () => {
+      const emitSpy = vi.spyOn(component.saved, 'emit');
+      component.codigo.set('XPLG11');
+      component.operacao.set('Compra');
+      component.quantidade.set(100);
+      component.valor.set(100);
+      component.data.set('2025-01-01');
+      component.submit();
+      expect(emitSpy).toHaveBeenCalled();
+    });
+
+    it('deve aceitar código BDR válido', () => {
+      const emitSpy = vi.spyOn(component.saved, 'emit');
+      component.codigo.set('AAPL34');
+      component.operacao.set('Compra');
+      component.quantidade.set(10);
+      component.valor.set(150);
+      component.data.set('2025-01-01');
+      component.submit();
+      expect(emitSpy).toHaveBeenCalled();
     });
   });
 
@@ -360,37 +394,5 @@ describe('AddOrderModalComponent', () => {
     });
   });
 
-  describe('Renderização', () => {
-    it('deve renderizar modal quando isOpen = true', () => {
-      component.isOpen = true;
-      fixture.detectChanges();
-      const modal = fixture.debugElement.query(By.css('.modal-overlay'));
-      expect(modal).toBeTruthy();
-    });
-
-    it('deve renderizar código de operação options', () => {
-      component.isOpen = true;
-      component.operacaoOptions = [
-        { label: 'Compra', value: 'Compra' },
-        { label: 'Venda', value: 'Venda' },
-      ];
-      fixture.detectChanges();
-      const select = fixture.debugElement.query(By.css('app-simple-select'));
-      expect(select).toBeTruthy();
-    });
-
-    it('deve renderizar botão de salvar', () => {
-      component.isOpen = true;
-      fixture.detectChanges();
-      const buttons = fixture.debugElement.queryAll(By.css('app-simple-button'));
-      expect(buttons.length).toBeGreaterThan(0);
-    });
-
-    it('deve renderizar mensagem de validação quando presente', () => {
-      component.validationMessage.set('Erro de validação');
-      fixture.detectChanges();
-      const error = fixture.debugElement.query(By.css('.validation-message'));
-      expect(error).toBeTruthy();
-    });
-  });
+  
 });

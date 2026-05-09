@@ -1,4 +1,4 @@
-import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { Component } from '@angular/core';
 import { vi } from 'vitest';
@@ -48,7 +48,7 @@ describe('SidebarComponent', () => {
         }
     });
 
-    beforeEach(waitForAsync(() => {
+    beforeEach(async () => {
         mockMarketHoursService = {
             getBvmfMarketHours: vi.fn().mockReturnValue(of(createMarketHoursResponse(false)))
         };
@@ -65,7 +65,7 @@ describe('SidebarComponent', () => {
             changeDetection: of(void 0)
         };
 
-        TestBed.configureTestingModule({
+        await TestBed.configureTestingModule({
             imports: [
                 SidebarComponent,
                 TranslatePipe,
@@ -79,11 +79,15 @@ describe('SidebarComponent', () => {
                 { provide: ChangeDetectionService, useValue: mockChangeDetectionService },
                 { provide: DOCUMENT, useValue: document }
             ]
-        });
+        }).compileComponents();
 
         fixture = TestBed.createComponent(SidebarComponent);
         component = fixture.componentInstance;
-    }));
+    });
+
+    const flushMicrotasks = async () => {
+        await new Promise(resolve => setTimeout(resolve, 0));
+    };
 
     describe('Criação', () => {
         it('deve criar componente', () => {
@@ -97,7 +101,9 @@ describe('SidebarComponent', () => {
             expect(component.showSidebar).toBe(true);
         });
 
-        it('deve usar isMarketOpen = false como padrão', () => {
+        it('deve usar isMarketOpen = false como padrão', async () => {
+            component.ngOnInit();
+            await flushMicrotasks();
             fixture.detectChanges();
             expect(component.isMarketOpen).toBe(false);
         });
@@ -111,18 +117,20 @@ describe('SidebarComponent', () => {
 
     describe('ngOnInit', () => {
         it('deve chamar fetchMarketStatus() no ngOnInit', () => {
-            fixture.detectChanges();
+            component.ngOnInit();
             expect(mockMarketHoursService.getBvmfMarketHours).toHaveBeenCalled();
         });
 
-        it('deve definir isMarketOpen = false quando API retorna isOpen = false', () => {
-            fixture.detectChanges();
+        it('deve definir isMarketOpen = false quando API retorna isOpen = false', async () => {
+            component.ngOnInit();
+            await flushMicrotasks();
             expect(component.isMarketOpen).toBe(false);
         });
 
-        it('deve definir isMarketOpen = false quando API retorna erro', () => {
+        it('deve definir isMarketOpen = false quando API retorna erro', async () => {
             mockMarketHoursService.getBvmfMarketHours.mockReturnValue(throwError(() => new Error('API Error')));
-            fixture.detectChanges();
+            component.ngOnInit();
+            await flushMicrotasks();
             expect(component.isMarketOpen).toBe(false);
         });
     });
@@ -140,13 +148,14 @@ describe('SidebarComponent', () => {
             expect(component.showSidebar).toBe(true);
         });
 
-        it('deve alternarshowSidebar ao togglar', () => {
+        it('deve alternarshowSidebar ao togglar', async () => {
             fixture.detectChanges();
             expect(component.showSidebar).toBe(true);
             component.toggleSidebar();
             fixture.detectChanges();
             expect(component.showSidebar).toBe(false);
             component.toggleSidebar();
+            await flushMicrotasks();
             fixture.detectChanges();
             expect(component.showSidebar).toBe(true);
         });
@@ -183,7 +192,9 @@ describe('SidebarComponent', () => {
             expect(dot).toBeTruthy();
         });
 
-        it('deve usar classe dot--closed quando isMarketOpen = false', () => {
+        it('deve usar classe dot--closed quando isMarketOpen = false', async () => {
+            component.ngOnInit();
+            await flushMicrotasks();
             fixture.detectChanges();
             const dot = fixture.debugElement.query(By.css('.dot')).nativeElement;
             expect(dot.classList.contains('dot--closed')).toBe(true);
@@ -235,12 +246,13 @@ describe('SidebarComponent', () => {
             expect(component.showSidebar).toBe(false);
         });
 
-        it('deve alternar ícone entre ‹ e › baseado no showSidebar', () => {
+        it('deve alternar ícone entre ‹ e › baseado no showSidebar', async () => {
             fixture.detectChanges();
             const toggleIcon = fixture.debugElement.query(By.css('.sidebar__toggle-icon')).nativeElement;
             expect(toggleIcon.textContent.trim()).toBe('‹');
 
             component.toggleSidebar();
+            await flushMicrotasks();
             fixture.detectChanges();
             expect(toggleIcon.textContent.trim()).toBe('›');
         });
@@ -248,12 +260,11 @@ describe('SidebarComponent', () => {
 
     describe('Market Hours Service', () => {
         it('deve injetar MarketHoursService no construtor', () => {
-            fixture.detectChanges();
             expect(mockMarketHoursService).toBeTruthy();
         });
 
         it('deve chamar getBvmfMarketHours apenas uma vez', () => {
-            fixture.detectChanges();
+            component.ngOnInit();
             expect(mockMarketHoursService.getBvmfMarketHours).toHaveBeenCalledTimes(1);
         });
     });
