@@ -22,7 +22,7 @@ const config: Config = {
   collectCoverage: true,
   coverageDirectory: "coverage",
   coverageProvider: "v8",
-  coverageReporters: ["text", "html"],
+  coverageReporters: ["text", "html", "lcov", "lcovonly"],
   collectCoverageFrom: [
     "application/services/**/*.ts",
     "infrastructure/services/**/*.ts",
