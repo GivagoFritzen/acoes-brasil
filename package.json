@@ -13,7 +13,14 @@
     "dev:electron": "npm run build:electron && electron .",
     "dev:desktop": "concurrently -k \"npm run dev:back\" \"npm run dev:front\" \"npm run dev:electron\"",
     "dev:desktop:app": "concurrently -k \"npm run dev:back:sqlite\" \"npm run dev:front\" \"npm run dev:electron\"",
-    "start:desktop": "npm run build:desktop && electron ."
+    "start:desktop": "npm run build:desktop && electron .",
+    "coverage:sonar": "npm run coverage:back && npm run coverage:front && npm run coverage:convert && npx sonar-scanner",
+    "coverage:back": "cd back && npm test",
+    "coverage:front": "cd front && npm test -- --coverage",
+    "coverage:convert": "node scripts/convert-coverage.js",
+    "coverage:bat": "scripts\\coverage-sonar.bat",
+    "start:dev": "scripts\\start-dev.bat",
+    "start:app": "scripts\\start-app.bat"
   },
   "keywords": [],
   "author": "",
