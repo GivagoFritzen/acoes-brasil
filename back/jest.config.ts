@@ -26,6 +26,7 @@ const config: Config = {
   collectCoverageFrom: [
     "application/services/**/*.ts",
     "infrastructure/services/**/*.ts",
+    "routes/**/*.ts",
   ],
   coverageThreshold: {
     global: {
