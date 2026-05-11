@@ -22,7 +22,26 @@ describe('ExportacaoComponent', () => {
     },
   ];
 
+  let createElementSpy: ReturnType<typeof vi.spyOn>;
+  let appendChildSpy: ReturnType<typeof vi.spyOn>;
+  let removeChildSpy: ReturnType<typeof vi.spyOn>;
+  let originalCreateElement: (tag: string) => HTMLElement;
+  let mockAnchor: { href: string; download: string; click: ReturnType<typeof vi.fn>; remove: ReturnType<typeof vi.fn> };
+
+  afterEach(() => {
+    createElementSpy?.mockRestore();
+    appendChildSpy?.mockRestore();
+    removeChildSpy?.mockRestore();
+  });
+
   beforeEach(async () => {
+    mockAnchor = {
+      href: '',
+      download: '',
+      click: vi.fn(),
+      remove: vi.fn(),
+    };
+    originalCreateElement = document.createElement.bind(document);
     ordersServiceMock = {
       exportSellSnapshotsSpreadsheet: vi.fn(),
       getSellSnapshotsForPdf: vi.fn(),
@@ -106,26 +125,21 @@ describe('ExportacaoComponent', () => {
     const mockBlob = new Blob(['test'], { type: 'application/vnd.ms-excel' }) as any;
     ordersServiceMock.exportSellSnapshotsSpreadsheet.mockReturnValue(of(mockBlob));
 
-    const createElementSpy = vi.spyOn(document, 'createElement').mockImplementation((tag: string) => {
+    createElementSpy = vi.spyOn(document, 'createElement').mockImplementation((tag: string) => {
       if (tag === 'a') {
-        return {
-          href: '',
-          download: '',
-          click: vi.fn(),
-          remove: vi.fn(),
-        } as unknown as HTMLElement;
+        return mockAnchor as unknown as HTMLElement;
       }
-      return document.createElement(tag);
+      return originalCreateElement(tag);
     });
 
+    appendChildSpy = vi.spyOn(document.body, 'appendChild').mockReturnValue(mockAnchor as unknown as HTMLElement);
+    removeChildSpy = vi.spyOn(document.body, 'removeChild').mockReturnValue(mockAnchor as unknown as HTMLElement);
     vi.spyOn(URL, 'createObjectURL').mockReturnValue('blob:url');
     vi.spyOn(URL, 'revokeObjectURL').mockImplementation(() => {});
 
     component.exportarOrderSellExcel();
 
     expect(ordersServiceMock.exportSellSnapshotsSpreadsheet).toHaveBeenCalled();
-
-    createElementSpy.mockRestore();
   });
 
   it('deve tratar erro ao exportar Excel', () => {
