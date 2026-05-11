@@ -85,6 +85,9 @@ describe('OrdersComponent', () => {
 
     component.handleFilterOperacaoChange('Invalida');
     expect(component.filtroOperacao()).toBe('');
+
+    component.handleFilterOperacaoChange('');
+    expect(component.filtroOperacao()).toBe('');
   });
 
   it('deve setar filtro de data final', () => {
