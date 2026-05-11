@@ -62,10 +62,6 @@
         }
     }
 
-    .acao-details__card--full {
-        grid-column: 1 / -1;
-    }
-
     .acao-details__fundamentus-table,
     .acao-details__history-table {
         display: flex;
@@ -101,6 +97,8 @@
     }
 
     .acao-details__card--full {
+        grid-column: 1 / -1;
+
         .acao-details__fundamentus-table {
             display: grid;
             grid-template-columns: 1fr;
