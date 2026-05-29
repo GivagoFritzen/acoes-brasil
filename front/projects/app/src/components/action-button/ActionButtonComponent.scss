@@ -1,0 +1,18 @@
+@use '../../colors.scss' as *;
+
+.action-button {
+  width: 30px;
+  height: 30px;
+  border: 1px solid $color-danger-border;
+  border-radius: 999px;
+  background: $color-danger-light;
+  color: $color-danger;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  line-height: 1;
+}
+
+.action-button:hover {
+  background: $color-danger-border;
+}

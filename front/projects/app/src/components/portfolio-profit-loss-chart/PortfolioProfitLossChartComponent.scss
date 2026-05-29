@@ -1,0 +1,112 @@
+@use '../../colors.scss' as *;
+
+:host {
+  display: block;
+  font-family: sans-serif;
+}
+
+.bar-chart-container {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  padding: 1rem;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: thin;
+  scrollbar-color: #c7c7c7 transparent;
+}
+
+.bar-chart-container::-webkit-scrollbar {
+  height: 6px;
+}
+
+.bar-chart-container::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.bar-chart-container::-webkit-scrollbar-thumb {
+  background: #c7c7c7;
+  border-radius: 999px;
+}
+
+.bar-chart-svg {
+  width: 100%;
+  height: auto;
+  min-width: 560px;
+  max-width: 100%;
+  display: block;
+}
+
+.bar-chart-svg--mobile {
+  width: auto;
+  min-width: 0;
+  max-width: none;
+  flex: 0 0 auto;
+}
+
+.axis {
+  stroke: #ccc;
+  stroke-width: 1;
+}
+
+.bar-group {
+  transition: opacity 0.3s;
+
+  &:hover {
+    opacity: 0.8;
+  }
+}
+
+.bar-label {
+  font-size: 12px;
+  fill: #555;
+}
+
+.value-label {
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.no-data {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100px;
+  color: #888;
+}
+
+@media (max-width: 768px) {
+  .bar-chart-container {
+    padding: 0.5rem;
+    justify-content: flex-start;
+  }
+
+  .bar-chart-svg {
+    min-width: 0;
+  }
+
+  .bar-label,
+  .value-label {
+    font-size: 11px;
+  }
+}
+
+@media (max-width: 480px) {
+  .bar-label,
+  .value-label {
+    font-size: 10px;
+  }
+}
+
+@media print {
+  .bar-chart-container {
+    overflow: visible !important;
+    padding: 0 !important;
+  }
+
+  .bar-chart-svg {
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+  }
+}

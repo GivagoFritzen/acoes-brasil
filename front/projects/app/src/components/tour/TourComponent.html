@@ -1,0 +1,63 @@
+<div
+  class="tour-backdrop"
+  *ngIf="tourService.isActive()"
+  (click)="tourService.finish()"
+>
+  <div
+    class="tour-spotlight"
+    *ngIf="state() as s"
+    [style.top.px]="s.spotlight.top"
+    [style.left.px]="s.spotlight.left"
+    [style.width.px]="s.spotlight.width"
+    [style.height.px]="s.spotlight.height"
+  ></div>
+
+  <div
+    class="tour-card"
+    *ngIf="state() as s"
+    [class.tour-card--center]="s.placement === 'center'"
+    [style.top.px]="s.placement !== 'center' ? s.card.top : null"
+    [style.left.px]="s.placement !== 'center' ? s.card.left : null"
+    (click)="$event.stopPropagation()"
+  >
+    <button class="tour-card__close" (click)="tourService.finish()" type="button">
+      ✕
+    </button>
+
+    <div class="tour-card__step-count">
+      {{ tourService.currentStepIndex() + 1 }} / {{ tourService.totalSteps }}
+    </div>
+
+    <h3 class="tour-card__title">{{ titleKey | translate }}</h3>
+    <p class="tour-card__desc">{{ descKey | translate }}</p>
+
+    <div class="tour-card__dots">
+      <span
+        class="tour-card__dot"
+        *ngFor="let _ of tourService.steps(); let i = index"
+        [class.tour-card__dot--active]="i === tourService.currentStepIndex()"
+        (click)="tourService.goToStep(i)"
+      ></span>
+    </div>
+
+    <div class="tour-card__actions">
+      <button
+        *ngIf="!tourService.isFirstStep"
+        class="tour-card__btn tour-card__btn--prev"
+        (click)="tourService.prev()"
+        type="button"
+      >
+        ← {{ 'tour.prev' | translate }}
+      </button>
+
+      <button
+        class="tour-card__btn tour-card__btn--next"
+        (click)="tourService.isLastStep ? tourService.finish() : tourService.next()"
+        type="button"
+      >
+        {{ tourService.isLastStep ? ('tour.finish' | translate) : ('tour.next' | translate) }}
+        {{ tourService.isLastStep ? '' : '→' }}
+      </button>
+    </div>
+  </div>
+</div>

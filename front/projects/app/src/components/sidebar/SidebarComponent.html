@@ -1,0 +1,49 @@
+<aside class="sidebar" [class.sidebar--collapsed]="!showSidebar">
+    <button class="sidebar__toggle" type="button" (click)="toggleSidebar()">
+        <span class="sidebar__toggle-icon">{{ showSidebar ? '‹' : '›' }}</span>
+    </button>
+
+    <nav class="sidebar__menu">
+        <a class="menu-item" routerLink="/acoes" routerLinkActive="active" data-tour="sidebar-acoes">
+            <span class="icon icon--wallet" aria-hidden="true"></span>
+            <span class="menu-label" *ngIf="showSidebar">{{ 'sidebar.acoes' | translate }}</span>
+        </a>
+
+        <a class="menu-item" routerLink="/ordens" routerLinkActive="active" data-tour="sidebar-ordens">
+            <span class="icon icon--receipt" aria-hidden="true"></span>
+            <span class="menu-label" *ngIf="showSidebar">{{ 'sidebar.ordens' | translate }}</span>
+        </a>
+
+        <a class="menu-item" routerLink="/proventos" routerLinkActive="active" data-tour="sidebar-proventos">
+            <span class="icon icon--hand-coins" aria-hidden="true"></span>
+            <span class="menu-label" *ngIf="showSidebar">{{ 'sidebar.proventos' | translate }}</span>
+        </a>
+
+        <a class="menu-item" routerLink="/importacao" routerLinkActive="active" data-tour="sidebar-importacao">
+            <span class="icon icon--coin-vertical" aria-hidden="true"></span>
+            <span class="menu-label" *ngIf="showSidebar">{{ 'sidebar.importacao' | translate }}</span>
+        </a>
+
+        <a class="menu-item" routerLink="/exportacao" routerLinkActive="active" data-tour="sidebar-exportacao">
+            <span class="icon icon--chart-bar" aria-hidden="true"></span>
+            <span class="menu-label" *ngIf="showSidebar">{{ 'sidebar.exportacao' | translate }}</span>
+        </a>
+    </nav>
+
+    <div class="sidebar__tour" *ngIf="showSidebar">
+        <button class="sidebar__tour-btn" type="button" (click)="tourService.start()">
+            <span class="icon icon--tour" aria-hidden="true"></span>
+            <span class="tour-label">{{ 'sidebar.tour' | translate }}</span>
+        </button>
+    </div>
+
+    <div class="sidebar__language" *ngIf="showSidebar">
+        <app-language-selector></app-language-selector>
+    </div>
+
+    <div class="sidebar__status">
+        <span class="dot" [class.dot--open]="isMarketOpen" [class.dot--closed]="!isMarketOpen"></span>
+        <span class="status-label" *ngIf="showSidebar">{{ isMarketOpen ? ('sidebar.marketOpen' | translate) :
+            ('sidebar.marketClosed' | translate) }}</span>
+    </div>
+</aside>

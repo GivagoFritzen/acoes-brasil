@@ -1,0 +1,47 @@
+@use '../../colors.scss' as *;
+
+.simple-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 120px;
+  height: 42px;
+  min-height: 38px;
+
+  padding: 0 20px;
+  border-radius: 8px;
+
+  font-size: 14px;
+  font-weight: 600;
+  color: $color-text;
+
+  background-color: $color-white;
+  border: 1px solid $color-text-opacity-20;
+
+  cursor: pointer;
+  outline: none;
+  transition: all 0.2s ease;
+
+  @media (max-width: 480px) {
+    width: 100%
+  }
+
+  &:hover {
+    background-color: $color-gray-50;
+    border-color: $color-text-opacity-40;
+  }
+
+  &:active {
+    transform: scale(0.98);
+  }
+
+  &.btn--cancelar {
+    color: $color-danger-dark;
+    border-color: $color-text-opacity-40;
+
+    &:hover {
+      background-color: $color-gray-100;
+      border-color: $color-danger-dark;
+    }
+  }
+}

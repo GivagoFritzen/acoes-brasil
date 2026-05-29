@@ -1,0 +1,13 @@
+<section class="alerts">
+  <article class="alert" *ngFor="let alert of alertItems()" [class]="'alert alert--' + alert.variant">
+    <div class="alert__icon">
+      <span>{{ alert.icon }}</span>
+    </div>
+    <div class="alert__content">
+      <strong class="alert__title">{{ alert.title }}</strong>
+      <p class="alert__message">{{ alert.message }}</p>
+    </div>
+    <button class="alert__close" type="button" aria-label="Fechar alerta" (click)="closeAlert(alert.id)">×</button>
+    <div class="alert__progress" *ngIf="autoDismissMs > 0" [style.animation-duration.ms]="autoDismissMs"></div>
+  </article>
+</section>

@@ -1,0 +1,1 @@
+export type { PortfolioItem } from '../../../../../common/models/PortfolioItemModel';

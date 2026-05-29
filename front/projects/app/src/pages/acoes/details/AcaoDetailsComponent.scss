@@ -1,0 +1,167 @@
+@use '../../../colors.scss' as *;
+
+.acao-details {
+  margin: 24px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  background: $color-white;
+  border-radius: 16px;
+  box-shadow: 0 12px 32px $color-text-opacity-08;
+
+  h2 {
+    margin: 0;
+    font-size: 26px;
+    font-weight: 700;
+    color: $color-text;
+  }
+
+  small {
+    font-size: 13px;
+    color: $color-text-opacity-60;
+  }
+
+  .acao-details__header {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .acao-details__back {
+    width: fit-content;
+    font-size: 14px;
+    font-weight: 600;
+    text-decoration: none;
+    color: $color-primary;
+  }
+
+  .acao-details__loading {
+    font-size: 14px;
+    color: $color-text-opacity-70;
+  }
+
+  .acao-details__grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .acao-details__card {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 18px;
+    background: $color-white;
+    border: 1px solid $color-text-opacity-08;
+    border-radius: 12px;
+
+    h3 {
+      margin: 0;
+      font-size: 15px;
+      font-weight: 700;
+      color: $color-text;
+    }
+  }
+
+  .acao-details__fundamentus-table,
+  .acao-details__history-table {
+    display: flex;
+    flex-direction: column;
+    border-top: 1px solid $color-text-opacity-08;
+  }
+
+  .acao-details__fundamentus-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    font-size: 13px;
+    border-bottom: 1px solid $color-text-opacity-08;
+
+    .label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: $color-text-opacity-60;
+
+      app-help-tip {
+        flex-shrink: 0;
+      }
+    }
+
+    strong {
+      margin-left: 12px;
+      text-align: right;
+      font-weight: 600;
+      color: $color-text;
+    }
+  }
+
+  .acao-details__card--full {
+    grid-column: 1 / -1;
+
+    .acao-details__fundamentus-table {
+      display: grid;
+      grid-template-columns: 1fr;
+      column-gap: 28px;
+      row-gap: 6px;
+    }
+
+    .acao-details__fundamentus-row {
+      padding: 10px 4px;
+    }
+
+    @media (min-width: 640px) {
+      .acao-details__fundamentus-table {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (min-width: 900px) {
+      .acao-details__fundamentus-table {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+  }
+
+  .acao-details__history {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .acao-details__history-row {
+    display: grid;
+    grid-template-columns: 1fr 1.2fr 0.8fr 0.8fr 0.8fr;
+    padding: 10px 6px;
+    font-size: 13px;
+    border-bottom: 1px solid $color-text-opacity-08;
+  }
+
+  .acao-details__history-row--head {
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: $color-text-opacity-50;
+  }
+
+  .acao-details__change--positive {
+    color: $color-success;
+  }
+
+  .acao-details__change--negative {
+    color: $color-danger;
+  }
+}
+
+@media (min-width: 640px) {
+.acao-details {
+  margin: 32px;
+
+    .acao-details__grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+}

@@ -1,0 +1,61 @@
+# Dependency directories
+node_modules
+
+# Build outputs
+**/dist/
+out-tsc/
+tmp/
+coverage/
+
+# Electron build outputs
+dist-electron/
+release/
+electron/dist/
+electron/build/
+.out/
+
+# Electron packages
+*.asar
+*.blockmap
+
+# Electron auto-update
+latest.yml
+
+# Electron cache
+node_modules/.cache/electron/
+node_modules/.cache/electron-builder/
+
+# IDEs and Editors
+.vscode/
+.idea/
+*.swp
+*.scratch
+
+# Angular specific
+**/.angular/
+.angular/
+.angular-cli.json
+.ng/
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Environment files
+.env
+front/projects/app/src/environments/environment.local.ts
+back/data/
+
+# TypeScript cache
+*.tsbuildinfo
+
+# AI
+.claude/
+/PRD
+/PLAN
+
+# Sonar
+sonar-project.properties
+sonar-scanner.properties
+.scannerwork/

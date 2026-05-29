@@ -1,0 +1,74 @@
+@use '../../colors.scss' as *;
+
+$switch-width: 42px;
+$switch-height: 26px;
+$circle-size: 20px;
+$offset: 3px;
+$bg-color: #dfe1e4;
+$bg-hover: #c9cbcd;
+$checked-bg: #6e79d6;
+$checked-hover-bg: #535db3;
+$circle-color: $color-white;
+
+.checkbox-wrapper-2 .ikxBAC {
+  appearance: none;
+  background-color: $bg-color;
+  border-radius: 72px;
+  border-style: none;
+  flex-shrink: 0;
+  height: $switch-height;
+  margin: 0;
+  position: relative;
+  width: $switch-width;
+}
+
+.checkbox-wrapper-2 .ikxBAC::before {
+  bottom: -6px;
+  content: "";
+  left: -6px;
+  position: absolute;
+  right: -6px;
+  top: -6px;
+}
+
+.checkbox-wrapper-2 .ikxBAC,
+.checkbox-wrapper-2 .ikxBAC::after {
+  transition: all 100ms ease-out;
+}
+
+.checkbox-wrapper-2 .ikxBAC::after {
+  background-color: $circle-color;
+  border-radius: 50%;
+  content: "";
+  height: $circle-size;
+  left: $offset;
+  position: absolute;
+  top: $offset;
+  width: $circle-size;
+}
+
+.checkbox-wrapper-2 input[type=checkbox] {
+  cursor: default;
+}
+
+.checkbox-wrapper-2 .ikxBAC:hover {
+  background-color: $bg-hover;
+  transition-duration: 0s;
+}
+
+.checkbox-wrapper-2 .ikxBAC:checked {
+  background-color: $checked-bg;
+}
+
+.checkbox-wrapper-2 .ikxBAC:checked::after {
+  background-color: $circle-color;
+  left: calc(#{$switch-width} - #{$circle-size} - #{$offset});
+}
+
+.checkbox-wrapper-2 :focus:not(.focus-visible) {
+  outline: 0;
+}
+
+.checkbox-wrapper-2 .ikxBAC:checked:hover {
+  background-color: $checked-hover-bg;
+}

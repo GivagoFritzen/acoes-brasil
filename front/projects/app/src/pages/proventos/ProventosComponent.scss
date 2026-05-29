@@ -1,0 +1,361 @@
+@use '../../colors.scss' as *;
+
+.proventos {
+  margin: 48px;
+  padding: 24px 28px;
+  background: $color-white;
+  border-radius: 18px;
+  box-shadow: 0 18px 40px $color-text-opacity-08;
+
+  ::ng-deep .checkbox-wrapper-2 {
+    margin-bottom: 3px;
+    margin-top: 8px;
+
+    @media (max-width: 768px) {
+      margin: 0;
+    }
+  }
+
+  .proventos__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 16px;
+
+    h2 {
+      margin: 0;
+      font-size: 20px;
+      font-weight: 700;
+    }
+  }
+
+  .proventos__table {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .proventos__filters {
+    display: flex;
+    align-items: end;
+    flex-wrap: wrap;
+    gap: 16px;
+    margin-bottom: 16px;
+
+    label {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      font-size: 13px;
+      color: $color-text-muted;
+    }
+
+    input {
+      border: 1px solid $color-text-opacity-20;
+      border-radius: 8px;
+      padding: 6px 10px;
+      font-size: 14px;
+      min-height: 38px;
+    }
+
+    select {
+      border: 1px solid $color-text-opacity-20;
+      border-radius: 8px;
+      padding: 6px 10px;
+      font-size: 14px;
+      background: $color-white;
+      min-height: 38px;
+    }
+  }
+
+  .proventos__row {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1.2fr 1fr 1fr 1.2fr 1fr 0.7fr;
+    align-items: center;
+    padding: 12px 8px;
+    border-top: 1px solid $color-border;
+    font-size: 14px;
+  }
+
+  .proventos__actions {
+    display: flex;
+    justify-content: flex-end;
+  }
+
+  .proventos__row--head {
+    border-top: 0;
+    font-size: 12px;
+    font-weight: 600;
+    color: $color-text-opacity-50;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  .proventos__code {
+    font-weight: 600;
+  }
+
+  .proventos__pagination {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-top: 16px;
+    font-size: 14px;
+
+    button {
+      border: 1px solid $color-text-opacity-20;
+      background: $color-white;
+      border-radius: 8px;
+      padding: 6px 12px;
+      cursor: pointer;
+      font-weight: 600;
+    }
+
+    button:disabled {
+      cursor: not-allowed;
+      opacity: 0.5;
+    }
+  }
+
+  .proventos__buttons {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 10px;
+
+    > :first-child {
+      margin-right: 15px;
+    }
+
+    @media (max-width: 768px) {
+      justify-content: end;
+      width: 100%;
+    }
+
+    @media (max-width: 480px) {
+      justify-content: space-between;
+
+      app-simple-button {
+        width: 100%;
+      }
+    }
+  }
+
+  .proventos__modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background: $color-text-opacity-40;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 50;
+    padding: 16px;
+  }
+
+  .proventos__modal {
+    width: min(100%, 420px);
+    background: $color-white;
+    border-radius: 14px;
+    padding: 20px;
+    box-shadow: 0 20px 45px $color-text-opacity-20;
+
+    h3 {
+      margin: 0 0 10px;
+      font-size: 18px;
+    }
+
+    p {
+      margin: 0;
+      color: $color-text-opacity-80;
+    }
+  }
+
+  .proventos__modal--create {
+    width: min(100%, 720px);
+  }
+
+  .proventos__create-form {
+    margin-top: 16px;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+
+    label {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      font-size: 13px;
+      color: $color-text-muted;
+    }
+
+    input {
+      border: 1px solid $color-text-opacity-20;
+      border-radius: 8px;
+      padding: 6px 10px;
+      font-size: 14px;
+      min-height: 38px;
+    }
+  }
+
+  .proventos__create-date {
+    grid-column: 1 / -1;
+  }
+
+  .proventos__modal-actions {
+    margin-top: 18px;
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+  }
+
+  .proventos__modal-btn {
+    border: 1px solid $color-text-opacity-20;
+    border-radius: 8px;
+    background: $color-white;
+    padding: 8px 14px;
+    cursor: pointer;
+    font-weight: 600;
+  }
+
+  .proventos__modal-btn--danger {
+    border-color: $color-danger;
+    background: $color-danger;
+    color: $color-white;
+  }
+
+  .proventos__modal-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+}
+
+@media (max-width: 1024px) {
+  .proventos {
+    margin: 24px;
+    padding: 20px;
+
+    .proventos__row {
+      grid-template-columns: repeat(8, minmax(90px, 1fr));
+      column-gap: 10px;
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .proventos {
+    margin: 16px;
+    padding: 16px;
+
+    .proventos__header {
+      flex-direction: column;
+      align-items: flex-start;
+
+      app-simple-button {
+        width: 100%;
+      }
+    }
+
+    .proventos__create-form {
+      grid-template-columns: 1fr;
+    }
+
+    .proventos__filters {
+      gap: 12px;
+
+      label {
+        flex: 1 1 calc(50% - 6px);
+        min-width: 0;
+      }
+
+      input,
+      select {
+        width: 100%;
+      }
+
+      button {
+        flex: 1 1 140px;
+      }
+    }
+
+    .proventos__row--head {
+      display: none;
+    }
+
+    article.proventos__row {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      border: 1px solid $color-text-opacity-12;
+      border-radius: 12px;
+      margin-bottom: 8px;
+      padding: 12px;
+
+      @media (max-width: 1024px) {
+        align-items: stretch;
+      }
+    }
+
+    article.proventos__row span {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      text-align: right;
+    }
+
+    article.proventos__row span::before {
+      content: attr(data-label);
+      color: $color-text-opacity-60;
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+      text-align: left;
+    }
+
+    article.proventos__row .proventos__actions {
+      margin-top: 8px;
+      padding-top: 16px;
+      border-top: 1px dashed $color-text-opacity-10;
+      justify-content: flex-end;
+
+      &::before {
+        display: none;
+      }
+    }
+
+    .proventos__pagination {
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 10px;
+
+      button {
+        flex: 1 1 140px;
+      }
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .proventos {
+    margin: 12px;
+    padding: 12px;
+
+    .proventos__filters {
+      label,
+      button {
+        flex: 1 1 100%;
+      }
+    }
+
+    .proventos__pagination {
+      flex-direction: column;
+      align-items: stretch;
+
+      span {
+        text-align: center;
+      }
+    }
+  }
+}

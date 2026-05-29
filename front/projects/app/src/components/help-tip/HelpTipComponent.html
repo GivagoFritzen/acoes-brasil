@@ -1,0 +1,9 @@
+<div class="tooltip-container">
+  <span class="help-tip" (click)="toggleTip($event)">
+    ?
+  </span>
+
+  <div class="tip-content" [class.active]="showTip">
+    {{ text }}
+  </div>
+</div>

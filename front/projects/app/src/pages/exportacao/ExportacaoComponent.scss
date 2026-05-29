@@ -1,0 +1,114 @@
+@use '../../colors.scss' as *;
+
+.exportacao {
+  margin: 48px;
+  padding: 24px 28px;
+  background: $color-white;
+  border-radius: 18px;
+  box-shadow: 0 18px 40px rgba(15, 23, 42, 0.08);
+
+  .exportacao__header {
+    margin-bottom: 20px;
+
+    h2 {
+      margin: 0 0 8px;
+      font-size: 20px;
+      font-weight: 700;
+    }
+
+    p {
+      margin: 0;
+      color: rgba(15, 23, 42, 0.7);
+    }
+  }
+
+  .exportacao__grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .exportacao__card {
+    border: 1px solid rgba(15, 23, 42, 0.1);
+    border-radius: 14px;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 12px;
+
+    h3 {
+      margin: 0;
+      font-size: 17px;
+    }
+  }
+
+  .exportacao__actions {
+    display: flex;
+    justify-content: flex-start;
+  }
+
+  .exportacao__hint {
+    margin: 0;
+    color: rgba(15, 23, 42, 0.65);
+    font-size: 13px;
+    line-height: 1.4;
+  }
+
+  .exportacao__print-frame {
+    position: absolute;
+    width: 0;
+    height: 0;
+    border: 0;
+    opacity: 0;
+    pointer-events: none;
+  }
+}
+
+@media (max-width: 1024px) {
+  .exportacao {
+    margin: 24px;
+    padding: 20px;
+  }
+}
+
+@media (max-width: 768px) {
+  .exportacao {
+    margin: 16px;
+    padding: 16px 14px;
+
+    .exportacao__card {
+      padding: 14px;
+      gap: 10px;
+    }
+
+    .exportacao__actions {
+      width: 100%;
+
+      app-simple-button {
+        width: 100%;
+      }
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .exportacao {
+    margin: 12px;
+    padding: 12px;
+
+    .exportacao__header {
+      h2 {
+        font-size: 18px;
+      }
+
+      p {
+        font-size: 13px;
+      }
+    }
+
+    .exportacao__hint {
+      font-size: 12px;
+    }
+  }
+}
