@@ -1,0 +1,11 @@
+<input
+  class="simple-input"
+  type="text"
+  [value]="value"
+  [attr.maxlength]="maxLength ? maxLength : null"
+  [placeholder]="placeholder"
+  [disabled]="disabled"
+  (keydown)="onKeyDown($event)"
+  (paste)="onPaste($event)"
+  (input)="onInput($event)"
+/>

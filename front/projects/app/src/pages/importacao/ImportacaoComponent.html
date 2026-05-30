@@ -1,0 +1,56 @@
+<section class="importacao">
+  <app-alerts [alerts]="alerts()" (dismissed)="handleAlertDismiss($event)"></app-alerts>
+
+  <header class="importacao__header" data-tour="importacao-title">
+    <h2>{{ 'importacao.title' | translate }}</h2>
+    <p>{{ 'importacao.description' | translate }}</p>
+  </header>
+
+  <div class="importacao__grid">
+    <article class="importacao__card">
+      <h3>{{ 'importacao.negociacaoTitle' | translate }}</h3>
+      <p class="importacao__hint">
+        {{ 'importacao.negociacaoHint' | translate }}
+      </p>
+
+      <app-file-input
+        label="{{ 'importacao.negociacaoFileLabel' | translate }}"
+        buttonText="{{ 'importacao.browseFile' | translate }}"
+        placeholder="{{ 'importacao.noFileSelected' | translate }}"
+        accept=".xlsx,.xls"
+        [fileName]="negociacaoFile()?.name ?? ''"
+        [disabled]="isImportingNegociacao()"
+        (fileSelected)="handleNegociacaoFileChange($event)"
+      ></app-file-input>
+
+      <div class="importacao__actions">
+        <app-simple-button [disabled]="isImportingNegociacao()" (btnClick)="importarNegociacao()">
+          {{ isImportingNegociacao() ? ('importacao.importing' | translate) : ('importacao.importNegociacao' | translate) }}
+        </app-simple-button>
+      </div>
+    </article>
+
+    <article class="importacao__card">
+      <h3>{{ 'importacao.proventosTitle' | translate }}</h3>
+      <p class="importacao__hint">
+        {{ 'importacao.proventosHint' | translate }}
+      </p>
+
+      <app-file-input
+        label="{{ 'importacao.proventosFileLabel' | translate }}"
+        buttonText="{{ 'importacao.browseFile' | translate }}"
+        placeholder="{{ 'importacao.noFileSelected' | translate }}"
+        accept=".xlsx,.xls"
+        [fileName]="proventoFile()?.name ?? ''"
+        [disabled]="isImportingProvento()"
+        (fileSelected)="handleProventoFileChange($event)"
+      ></app-file-input>
+
+      <div class="importacao__actions">
+        <app-simple-button [disabled]="isImportingProvento()" (btnClick)="importarProventos()">
+          {{ isImportingProvento() ? ('importacao.importing' | translate) : ('importacao.importProventos' | translate) }}
+        </app-simple-button>
+      </div>
+    </article>
+  </div>
+</section>

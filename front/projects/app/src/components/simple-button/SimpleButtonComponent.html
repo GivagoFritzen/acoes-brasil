@@ -1,0 +1,4 @@
+<button type="button" class="simple-btn" [ngClass]="{ 'btn--cancelar': variant === 'cancelar' }" [disabled]="disabled"
+    (click)="handleClick()">
+    <ng-content></ng-content>
+</button>

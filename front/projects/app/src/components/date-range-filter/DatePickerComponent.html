@@ -1,0 +1,61 @@
+<div class="date-picker-wrapper">
+    <button type="button" class="trigger-btn" (click)="toggleDatePicker()">
+        <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+        </svg>
+        <span [class.placeholder]="!selectedDate">
+            {{ selectedDate ? (selectedDate | date:'dd/MM/yyyy') : 'Select date' }}
+        </span>
+    </button>
+
+    <div *ngIf="isOpen" class="calendar-popover">
+
+        <div class="calendar-header">
+            <button (click)="changeMonth(-1)" class="nav-btn">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                </svg>
+            </button>
+            <div class="current-month-title">
+                {{ currentMonth | date:'MMMM \'de\' yyyy':'':'pt-BR' }}
+            </div>
+            <button (click)="changeMonth(1)" class="nav-btn">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                </svg>
+            </button>
+        </div>
+
+        <div class="date-input-container">
+            <input type="text" class="date-input" placeholder="DD / MM / YYYY" [(ngModel)]="inputValue"
+                (ngModelChange)="onInputTyping($event)" />
+            <button type="button" class="today-btn" (click)="selectToday()">
+                Today
+            </button>
+        </div>
+
+        <div class="weekdays-grid">
+            <div *ngFor="let day of weekDays" class="weekday-label">
+                {{ day }}
+            </div>
+        </div>
+
+        <div class="days-grid">
+            <button *ngFor="let day of daysInMonth" (click)="selectTempDate(day)" [disabled]="disableFutureDates && isFutureDate(day.date)" [ngClass]="{
+          'outside-month': !day.isCurrentMonth,
+          'current-month-day': day.isCurrentMonth && !isTempSelected(day.date),
+          'selected-day': isTempSelected(day.date),
+          'today': isToday(day.date) && !isTempSelected(day.date)
+        }" class="day-btn">
+                {{ day.date.getDate() }}
+            </button>
+        </div>
+
+        <div class="calendar-footer">
+            <button type="button" class="footer-btn cancel-btn" (click)="cancel()">Cancel</button>
+            <button type="button" class="footer-btn apply-btn" (click)="apply()">Apply</button>
+        </div>
+
+    </div>
+</div>

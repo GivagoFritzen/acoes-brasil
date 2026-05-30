@@ -1,0 +1,10 @@
+<input
+    class="simple-input-number"
+    type="text"
+    [value]="value"
+    [attr.maxlength]="maxLength ? maxLength : null"
+    inputmode="decimal"
+    (keydown)="onKeyDown($event)"
+    (paste)="onPaste($event)"
+    (input)="onInput($event)"
+/>

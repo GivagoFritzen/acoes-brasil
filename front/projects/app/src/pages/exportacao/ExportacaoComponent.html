@@ -1,0 +1,52 @@
+<section class="exportacao">
+  <app-alerts [alerts]="alerts()" (dismissed)="handleAlertDismiss($event)"></app-alerts>
+
+  <header class="exportacao__header" data-tour="exportacao-title">
+    <h2>{{ 'exportacao.title' | translate }}</h2>
+    <p>{{ 'exportacao.description' | translate }}</p>
+  </header>
+
+  <div class="exportacao__grid">
+    <article class="exportacao__card">
+      <h3>{{ 'exportacao.acoesPdfTitle' | translate }}</h3>
+      <p class="exportacao__hint">
+        {{ 'exportacao.acoesPdfHint' | translate }}
+      </p>
+
+      <div class="exportacao__actions">
+        <app-simple-button [disabled]="isExportingAcoes()" (btnClick)="exportarAcoesEmPdf()">
+          {{ isExportingAcoes() ? ('exportacao.exporting' | translate) : ('exportacao.exportAcoesPdf' | translate) }}
+        </app-simple-button>
+      </div>
+    </article>
+
+    <article class="exportacao__card">
+      <h3>{{ 'exportacao.orderSellExcelTitle' | translate }}</h3>
+      <p class="exportacao__hint">
+        {{ 'exportacao.orderSellExcelHint' | translate }}
+      </p>
+
+      <div class="exportacao__actions">
+        <app-simple-button [disabled]="isExportingOrderSellExcel()" (btnClick)="exportarOrderSellExcel()">
+          {{ isExportingOrderSellExcel() ? ('exportacao.exporting' | translate) : ('exportacao.exportOrderSellExcel' | translate) }}
+        </app-simple-button>
+      </div>
+    </article>
+
+    <article class="exportacao__card">
+      <h3>{{ 'exportacao.orderSellPdfTitle' | translate }}</h3>
+      <p class="exportacao__hint">
+        {{ 'exportacao.orderSellPdfHint' | translate }}
+      </p>
+
+      <div class="exportacao__actions">
+        <app-simple-button [disabled]="isExportingOrderSellPdf()" (btnClick)="exportarOrderSellPdf()">
+          {{ isExportingOrderSellPdf() ? ('exportacao.exporting' | translate) : ('exportacao.exportOrderSellPdf' | translate) }}
+        </app-simple-button>
+      </div>
+    </article>
+  </div>
+
+  <iframe id="print-acoes-frame" class="exportacao__print-frame" title="print-acoes"></iframe>
+  <iframe id="print-ordersell-frame" class="exportacao__print-frame" title="print-ordersell"></iframe>
+</section>

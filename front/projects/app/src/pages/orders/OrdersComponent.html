@@ -1,0 +1,110 @@
+<section class="orders">
+  <app-alerts [alerts]="alerts()" (dismissed)="handleAlertDismiss($event)"></app-alerts>
+
+  <header class="orders__header" data-tour="ordens-title">
+    <h2>{{ 'orders.title' | translate }}</h2>
+    <app-simple-button (btnClick)="openCreateModal()">
+      {{ 'orders.addOrder' | translate }}
+    </app-simple-button>
+  </header>
+
+  <div class="orders__filters" data-tour="ordens-filters">
+    <label>
+      {{ 'orders.code' | translate }}
+      <app-simple-input [value]="filtroCodigo()" [maxLength]="7" (valueChange)="handleFilterCodeChange($event)" />
+    </label>
+
+    <label>
+      {{ 'orders.operation' | translate }}
+      <app-simple-select [value]="filtroOperacao()" [options]="operacaoOptions" [placeholder]="'orders.all' | translate"
+        (valueChange)="handleFilterOperacaoChange($event)">
+      </app-simple-select>
+    </label>
+
+    <label>
+      {{ 'orders.startDate' | translate }}
+      <app-date-picker [value]="filtroData()" (dateChange)="handleFilterStartChange($event)">
+      </app-date-picker>
+    </label>
+
+    <label>
+      {{ 'orders.endDate' | translate }}
+      <app-date-picker [value]="filtroDataFinal()" (dateChange)="handleFilterEndChange($event)">
+      </app-date-picker>
+    </label>
+
+    <div class="orders__buttons">
+      <app-simple-button (btnClick)="applyFilter()">
+        {{ 'orders.filter' | translate }}
+      </app-simple-button>
+
+      <app-simple-button variant="cancelar" (btnClick)="clearFilter()">
+        {{ 'orders.clear' | translate }}
+      </app-simple-button>
+    </div>
+  </div>
+
+  <div class="orders__table">
+    <div class="orders__row orders__row--head">
+      <span>{{ 'orders.code' | translate }}</span>
+      <span>{{ 'orders.operation' | translate }}</span>
+      <span>{{ 'orders.type' | translate }}</span>
+      <span>{{ 'orders.quantity' | translate }}</span>
+      <span>{{ 'orders.value' | translate }}</span>
+      <span>{{ 'orders.sum' | translate }}</span>
+      <span>{{ 'orders.date' | translate }}</span>
+      <span>{{ 'orders.actions' | translate }}</span>
+    </div>
+
+    <div *ngIf="isLoading() && !errorMessage() && orders().length === 0" class="orders__row">
+      <span>{{ 'orders.loadingOrders' | translate }}</span>
+    </div>
+
+    <article class="orders__row" [ngClass]="getOrderClass(item)" *ngFor="let item of orders(); trackBy: trackByOrderId">
+      <span class="orders__code" [attr.data-label]="'orders.code' | translate">{{ item.codigo }}</span>
+      <span [attr.data-label]="'orders.operation' | translate">{{ item.operacao }}</span>
+      <span [attr.data-label]="'orders.type' | translate">{{ item.tipo }}</span>
+      <span [attr.data-label]="'orders.quantity' | translate">{{ item.quantidade }}</span>
+      <span [attr.data-label]="'orders.value' | translate">{{ item.valor | currency:'BRL' }}</span>
+      <span [attr.data-label]="'orders.sum' | translate">{{ (item.quantidade * item.valor) | currency:'BRL' }}</span>
+      <span [attr.data-label]="'orders.date' | translate">{{ formatDateForDisplay(item.data) }}</span>
+      <span class="orders__actions" [attr.data-label]="'orders.actions' | translate">
+        <app-action-button title="{{ 'orders.deleteOrderTitle' | translate }}" (actionClick)="openDeleteModal(item)"></app-action-button>
+      </span>
+    </article>
+  </div>
+
+  <footer class="orders__pagination">
+    <app-pagination [page]="page()" [totalPages]="totalPages()" align="right" (previous)="previousPage()"
+      (next)="nextPage()">
+    </app-pagination>
+  </footer>
+
+  <div class="orders__modal-backdrop" *ngIf="isDeleteModalOpen()" (click)="closeDeleteModal()">
+    <div class="orders__modal" (click)="$event.stopPropagation()">
+      <h3>{{ 'orders.confirmDeleteTitle' | translate }}</h3>
+      <p>
+        {{ 'orders.confirmDeleteMessage' | translate }}
+        <strong>{{ orderToDelete()?.codigo }}</strong>?
+      </p>
+
+      <div class="orders__modal-actions">
+        <button type="button" class="orders__modal-btn" [disabled]="isDeleting()" (click)="closeDeleteModal()">
+          {{ 'orders.cancel' | translate }}
+        </button>
+        <button
+          type="button"
+          class="orders__modal-btn orders__modal-btn--danger"
+          [disabled]="isDeleting()"
+          (click)="confirmDeleteOrder()"
+        >
+          {{ isDeleting() ? ('orders.deleting' | translate) : ('orders.delete' | translate) }}
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <app-add-order-modal [isOpen]="isCreateModalOpen()" [isSaving]="isCreating()" [operacaoOptions]="operacaoOptions"
+    (closed)="closeCreateModal()" (saved)="confirmCreateOrder($event)">
+  </app-add-order-modal>
+</section>

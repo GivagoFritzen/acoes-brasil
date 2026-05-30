@@ -1,0 +1,128 @@
+@use '../../colors.scss' as *;
+
+.alert {
+  align-items: center;
+  background: $color-white;
+  border: 1px solid transparent;
+  border-radius: 12px;
+  box-shadow: 0 12px 24px rgba(15, 23, 42, 0.12);
+  display: grid;
+  gap: 12px;
+  grid-template-columns: 48px 1fr 24px;
+  max-width: 320px;
+  min-width: 260px;
+  overflow: hidden;
+  padding: 16px 18px;
+  position: relative;
+}
+
+.alert--error {
+  .alert__icon {
+    background: rgba(255, 255, 255, 0.85);
+    color: $color-red;
+  }
+  background: #ff7893;
+  border-color: #f14f70;
+  color: #7b112b;
+}
+
+.alert--info {
+  .alert__icon {
+    background: rgba(255, 255, 255, 0.7);
+    color: #0f4c4d;
+  }
+  background: #9bd2cf;
+  border-color: #6fbeb9;
+  color: #0f4c4d;
+}
+
+.alert--warning {
+  .alert__icon {
+    background: rgba(255, 255, 255, 0.8);
+    color: #f59e0b;
+  }
+  background: #ffe09b;
+  border-color: #f2c463;
+  color: #7c4a00;
+}
+
+.alert__close {
+  background: transparent;
+  border: none;
+  color: inherit;
+  cursor: pointer;
+  font-size: 18px;
+  padding: 0;
+}
+
+.alert__content {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.alert__icon {
+  background: rgba(255, 255, 255, 0.7);
+  border-radius: 50%;
+  color: inherit;
+  display: grid;
+  font-size: 18px;
+  font-weight: 700;
+  height: 40px;
+  place-items: center;
+  width: 40px;
+}
+
+.alert__message {
+  color: $color-text-opacity-80;
+  font-size: 13px;
+  line-height: 1.4;
+  margin: 0;
+}
+
+.alert__progress {
+  animation-fill-mode: forwards;
+  animation-name: alert-progress;
+  animation-timing-function: linear;
+  background: currentColor;
+  bottom: 0;
+  height: 4px;
+  left: 0;
+  opacity: 0.35;
+  position: absolute;
+  transform-origin: left center;
+  width: 100%;
+}
+
+.alert__title {
+  font-size: 14px;
+  letter-spacing: 0.2px;
+  text-transform: uppercase;
+}
+
+.alerts {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  position: fixed;
+  right: 24px;
+  top: 24px;
+  z-index: 2000;
+}
+
+@media (max-width: 375px) {
+  .alerts {
+    left: 1rem;
+    top: 1rem;
+    width: auto;
+  }
+}
+
+@keyframes alert-progress {
+  from {
+    transform: scaleX(1);
+  }
+  to {
+    transform: scaleX(0);
+  }
+}
