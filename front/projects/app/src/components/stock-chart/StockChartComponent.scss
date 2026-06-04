@@ -1,0 +1,105 @@
+@use '../../colors.scss' as *;
+
+.stock-chart {
+  width: 100%;
+  overflow: hidden;
+
+  &__svg {
+    display: block;
+    width: 100%;
+    max-width: 700px;
+    height: auto;
+    margin: 0 auto;
+  }
+
+  &__no-data {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 200px;
+    color: $color-text-opacity-50;
+    font-size: 14px;
+  }
+
+  .grid-line {
+    stroke: $color-text-opacity-08;
+    stroke-width: 1;
+  }
+
+  .grid-label {
+    font-size: 11px;
+    fill: $color-text-opacity-50;
+    font-family: 'Google Sans Text', sans-serif;
+  }
+
+  .chart-fill {
+    pointer-events: none;
+  }
+
+  .chart-line {
+    fill: none;
+    stroke-width: 2;
+    stroke-linejoin: round;
+    stroke-linecap: round;
+  }
+
+  .chart-end-dot {
+    pointer-events: none;
+  }
+
+  .chart-points {
+    cursor: pointer;
+  }
+
+  .chart-point {
+    fill: transparent;
+    transition: fill 0.15s ease;
+
+    &:hover {
+      fill: $color-text-opacity-12;
+    }
+  }
+
+  .crosshair-line {
+    stroke: $color-text-opacity-30;
+    stroke-width: 1;
+    stroke-dasharray: 4 3;
+    pointer-events: none;
+  }
+
+  .crosshair-dot {
+    fill: $color-white;
+    stroke-width: 2;
+    stroke: $color-primary;
+    pointer-events: none;
+  }
+
+  .tooltip-bg {
+    fill: $color-text;
+    opacity: 0.9;
+    pointer-events: none;
+  }
+
+  .tooltip-date {
+    fill: $color-white;
+    font-size: 11px;
+    font-family: 'Google Sans Text', sans-serif;
+    pointer-events: none;
+
+    @media (max-width: 425px) {
+      font-size: 25px;
+    }
+  }
+
+  .tooltip-price {
+    fill: $color-white;
+    font-size: 13px;
+    font-weight: 700;
+    font-family: 'Google Sans Text', sans-serif;
+    pointer-events: none;
+
+    @media (max-width: 425px) {
+      font-size: 25px;
+    }
+  }
+}

@@ -34,6 +34,7 @@ Aplicação **full-stack** para controle de ordens (compra/venda), proventos, po
 | 💼 **Portfólio** | Carteira consolidada com preço médio, quantidade total e saldo atualizado por ativo |
 | 💰 **Proventos** | Registro de dividendos, JCP e rendimentos. Importação de relatórios Excel |
 | 🔍 **Fundamentus** | Indicadores fundamentalistas obtidos via web scraping |
+| 📈 **Google Finance** | Cotações em tempo real e gráfico de preços |
 | 📤 **Exportação** | Exportação de snapshots de venda para Excel |
 | 🖥️ **Desktop** | Versão empacotada com Electron |
 
@@ -47,6 +48,7 @@ Aplicação **full-stack** para controle de ordens (compra/venda), proventos, po
 | **Desktop** | Electron 41 |
 | **Testes** | Jest (back), Vitest (front), Supertest |
 | **Análise** | SonarQube |
+| **Fontes de dados** | Fundamentus, Google Finance |
 | **Container** | Docker / Docker Compose |
 
 ## 📁 Estrutura
@@ -110,6 +112,7 @@ acoes/
 |---|---|---|
 | `GET` | `/health` | Health check |
 | `GET` | `/fundamentus/:codigo` | Dados fundamentalistas |
+| `GET` | `/google-finance/:codigo` | Cotações e gráfico do Google Finance |
 
 ## ⚡ Como rodar
 

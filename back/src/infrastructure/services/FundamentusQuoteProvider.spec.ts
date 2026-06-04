@@ -216,7 +216,7 @@ describe("FundamentusQuoteProvider", () => {
     );
   });
 
-  it("Deve retornar null quando excede maximo de iteracoes do regex", async () => {
+  it("Deve retornar null quando excede maximo de iteracoes do parser", async () => {
     const lines: string[] = [];
     for (let i = 0; i < 1001; i++) {
       lines.push(`<tr><td class="label">Indice${i}:</td><td class="data">${i}</td></tr>`);

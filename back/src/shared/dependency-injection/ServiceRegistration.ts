@@ -5,6 +5,7 @@ import { SequelizeOrderSellSnapshotRepository } from "../../infrastructure/repos
 import { SequelizeProventoRepository } from "../../infrastructure/repositories/SequelizeProventoRepository";
 import { FundamentusQuoteProvider } from "../../infrastructure/services/FundamentusQuoteProvider";
 import { FundamentusScraperService } from "../../infrastructure/services/FundamentusScraperService";
+import { GoogleFinanceService } from "../../infrastructure/services/GoogleFinanceService";
 import { SpreadsheetParserService } from "../../infrastructure/services/SpreadsheetParserService";
 import { ExcelExportService } from "../../infrastructure/services/ExcelExportService";
 import { SequelizeTransactionManager } from "../../infrastructure/database/SequelizeTransactionManager";
@@ -43,6 +44,7 @@ function registerRepositories(): void {
 function registerExternalServices(): void {
   Container.register('quoteProvider', () => new FundamentusQuoteProvider());
   Container.register('fundamentusScraper', () => new FundamentusScraperService());
+  Container.register('googleFinanceService', () => new GoogleFinanceService());
   Container.register('spreadsheetParser', () => new SpreadsheetParserService());
   Container.register('ExcelExportService', () => new ExcelExportService());
 }

@@ -15,6 +15,7 @@ describe("ServiceRegistration", () => {
     expect(() => Container.get("proventoRepository")).not.toThrow();
     expect(() => Container.get("quoteProvider")).not.toThrow();
     expect(() => Container.get("fundamentusScraper")).not.toThrow();
+    expect(() => Container.get("googleFinanceService")).not.toThrow();
     expect(() => Container.get("spreadsheetParser")).not.toThrow();
     expect(() => Container.get("ExcelExportService")).not.toThrow();
     expect(() => Container.get("transactionManager")).not.toThrow();

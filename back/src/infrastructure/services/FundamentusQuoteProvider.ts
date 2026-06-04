@@ -49,27 +49,61 @@ export class FundamentusQuoteProvider implements IQuoteProvider {
         return null;
       }
 
-      const pairRegex = /<td[^>]*class="label[^"]*"[^>]*>([\s\S]*?)<\/td>\s*<td[^>]*class="data[^"]*"[^>]*>([\s\S]*?)<\/td>/gi;
-      let match: RegExpExecArray | null;
-      let iterations = 0;
-
-      while ((match = pairRegex.exec(html)) !== null) {
-        iterations++;
-        if (iterations > MAX_REGEX_ITERATIONS) break;
-
-        const label = this.normalizeIndicatorLabel(match[1] ?? "");
-        if (label !== "cotacao") {
-          continue;
-        }
-
-        const quoteText = stripHtml(match[2] ?? "");
-        return parseDecimal(quoteText);
-      }
+      const quote = this.findQuoteInHtml(html);
+      if (quote !== null) return quote;
     } catch (error) {
       logger.error("Erro ao buscar cotação no Fundamentus", { error: error instanceof Error ? error.message : String(error) });
     }
 
     return null;
+  }
+
+  private findQuoteInHtml(html: string): number | null {
+    let pos = 0;
+    let iterations = 0;
+
+    while (pos < html.length && iterations < MAX_REGEX_ITERATIONS) {
+      iterations++;
+      const result = this.tryExtractQuote(html, pos);
+      if (result === null) return null;
+      if (result.quote !== undefined) return result.quote;
+      pos = result.nextPos;
+    }
+
+    return null;
+  }
+
+  private tryExtractQuote(html: string, pos: number): { quote?: number; nextPos: number } | null {
+    const labelAttr = 'class="label"';
+    const dataAttr = 'class="data"';
+
+    const labelIdx = html.indexOf(labelAttr, pos);
+    if (labelIdx === -1) return null;
+
+    const tdClose = html.indexOf(">", labelIdx);
+    if (tdClose === -1) return null;
+
+    const labelStart = tdClose + 1;
+    const labelEnd = html.indexOf("</td>", labelStart);
+    if (labelEnd === -1) return null;
+
+    const label = this.normalizeIndicatorLabel(html.substring(labelStart, labelEnd));
+    if (label !== "cotacao") return { nextPos: labelEnd + 5 };
+
+    const dataIdx = html.indexOf(dataAttr, labelEnd + 5);
+    if (dataIdx === -1) return null;
+
+    const dataTdClose = html.indexOf(">", dataIdx);
+    if (dataTdClose === -1) return null;
+
+    const dataStart = dataTdClose + 1;
+    const dataEnd = html.indexOf("</td>", dataStart);
+    if (dataEnd === -1) return null;
+
+    const quoteText = stripHtml(html.substring(dataStart, dataEnd));
+    const quote = parseDecimal(quoteText);
+    if (quote === null) return null;
+    return { quote, nextPos: dataEnd + 5 };
   }
 
   private normalizeIndicatorLabel(value: string): string {

@@ -95,6 +95,24 @@
                 </div>
             </article>
 
+            <article class="acao-details__card acao-details__card--chart">
+                <header class="acao-details__chart-header">
+                    <h3>{{ 'acaoDetails.cards.priceChart' | translate }}</h3>
+                    <div class="acao-details__chart-windows">
+                        <button *ngFor="let w of chartWindows"
+                                class="acao-details__chart-btn"
+                                [class.acao-details__chart-btn--active]="selectedChartWindow() === w"
+                                (click)="changeChartWindow(w)">
+                            {{ w }}
+                        </button>
+                    </div>
+                </header>
+                <app-stock-chart
+                    [points]="(googleFinance()?.chart?.points) ?? []"
+                    [previousClose]="googleFinance()?.chart?.previousClose ?? null">
+                </app-stock-chart>
+            </article>
+
         </div>
     </ng-container>
 </section>

@@ -12,3 +12,7 @@ export type {
   MarketHoursResponse,
   MarketHoursStatus,
 } from './market-hours';
+export type { ChartDimensions } from './googleGraphic';
+export type { GridLine } from './googleGraphic';
+export type { LinePoint } from './googleGraphic';
+export type { SelectedPointInfo } from './googleGraphic';
