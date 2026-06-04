@@ -207,7 +207,8 @@
             "oscillations": "Oscillations",
             "fundamentalIndicators": "Fundamental Indicators",
             "balanceSheet": "Balance Sheet",
-            "results": "Results"
+            "results": "Results",
+            "priceChart": "Price Chart"
         },
         "errors": {
             "attention": "Warning",
@@ -215,6 +216,7 @@
             "codeNotProvided": "Asset code not provided.",
             "fundamentusLoadFailed": "Could not load Fundamentus data for",
             "proventosLoadFailed": "Could not load dividends for",
+            "googleFinanceLoadFailed": "Could not load Google Finance chart for",
             "detailsLoadFailed": "Could not load details for"
         }
     }

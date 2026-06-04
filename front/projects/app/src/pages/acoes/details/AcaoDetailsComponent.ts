@@ -3,22 +3,21 @@ import { Component, OnInit, signal } from '@angular/core';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { catchError, finalize, forkJoin, of } from 'rxjs';
 import { AlertsComponent } from '../../../components/alerts/AlertsComponent';
-import {
-    FundamentusAcaoDetails,
-    FundamentusIndicator,
-    ProventosResponse
-} from '../../../models';
+import { StockChartComponent } from '../../../components/stock-chart/StockChartComponent';
 import { FundamentusService } from '../../../services/FundamentusService';
+import { GoogleFinanceService } from '../../../services/GoogleFinanceService';
 import { ProventosService } from '../../../services/ProventosService';
 import { HelpTipComponent } from '../../../components/help-tip/HelpTipComponent';
 import { TranslatePipe } from '../../../pipes/TranslatePipe';
 import { TranslationService } from '../../../services/TranslationService';
 import { AlertItem } from '../../../models/alert/AlertItemModel';
+import { FundamentusAcaoDetails, FundamentusIndicator, ProventosResponse } from '../../../models';
+import { CHART_WINDOWS, GoogleFinanceChartWindow, GoogleFinanceResponse } from '../../../../../../../common/models/google-finance';
 
 @Component({
     selector: 'app-acao-details',
     standalone: true,
-    imports: [CommonModule, RouterModule, AlertsComponent, HelpTipComponent, TranslatePipe],
+    imports: [CommonModule, RouterModule, AlertsComponent, StockChartComponent, HelpTipComponent, TranslatePipe],
     templateUrl: './AcaoDetailsComponent.html',
     styleUrls: ['./AcaoDetailsComponent.scss'],
 })
@@ -26,6 +25,9 @@ export class AcaoDetailsComponent implements OnInit {
 
     fundamentus = signal<FundamentusAcaoDetails | null>(null);
     proventos = signal<ProventosResponse | null>(null);
+    googleFinance = signal<GoogleFinanceResponse | null>(null);
+    chartWindows = CHART_WINDOWS;
+    selectedChartWindow = signal<GoogleFinanceChartWindow>('1Y');
 
     isLoading = signal(false);
     errorMessage = signal('');
@@ -35,6 +37,7 @@ export class AcaoDetailsComponent implements OnInit {
     constructor(
         private readonly route: ActivatedRoute,
         private readonly fundamentusService: FundamentusService,
+        private readonly googleFinanceService: GoogleFinanceService,
         private readonly proventosService: ProventosService,
         private readonly translationService: TranslationService
     ) { }
@@ -81,6 +84,25 @@ export class AcaoDetailsComponent implements OnInit {
         return this.translationService.get(`fundamentus.indicators.${key}`);
     }
 
+    changeChartWindow(window: GoogleFinanceChartWindow): void {
+        this.selectedChartWindow.set(window);
+
+        const codigo = this.route.snapshot.paramMap.get('codigo');
+        if (!codigo) return;
+
+        this.googleFinanceService.getData(codigo, window).subscribe({
+            next: (data) => this.googleFinance.set(data),
+            error: () => {
+                this.pushAlert(
+                    'warning',
+                    this.translationService.get('acaoDetails.errors.attention'),
+                    `${this.translationService.get('acaoDetails.errors.googleFinanceLoadFailed')} ${codigo}.`,
+                    '!'
+                );
+            }
+        });
+    }
+
     private normalize(label: string): string {
         return label
             .normalize('NFD')
@@ -102,6 +124,7 @@ export class AcaoDetailsComponent implements OnInit {
 
         this.fundamentus.set(null);
         this.proventos.set(null);
+        this.googleFinance.set(null);
 
         forkJoin({
             fundamentus: this.fundamentusService
@@ -111,12 +134,17 @@ export class AcaoDetailsComponent implements OnInit {
             proventos: this.proventosService
                 .getProventos({ codigo: normalizedCode, limit: 10 })
                 .pipe(catchError(() => of(null))),
+
+            googleFinance: this.googleFinanceService
+                .getData(normalizedCode)
+                .pipe(catchError(() => of(null))),
         })
             .pipe(finalize(() => this.isLoading.set(false)))
             .subscribe({
-                next: ({ fundamentus, proventos }) => {
+                next: ({ fundamentus, proventos, googleFinance }) => {
                     this.fundamentus.set(fundamentus);
                     this.proventos.set(proventos);
+                    this.googleFinance.set(googleFinance);
 
                     if (!fundamentus) {
                         this.pushAlert(

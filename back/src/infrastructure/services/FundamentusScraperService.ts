@@ -57,27 +57,15 @@ export class FundamentusScraperService {
   }
 
   private parseFundamentusDetails(codigo: string, html: string): FundamentusAcaoDetails {
-    const pairRegex = /<td[^>]*class="label[^"]*"[^>]*>([\s\S]*?)<\/td>\s*<td[^>]*class="data[^"]*"[^>]*>([\s\S]*?)<\/td>/gi;
     const indicadoresMap = new Map<string, string>();
-
-    let match: RegExpExecArray | null;
+    let pos = 0;
     let iterations = 0;
-    while ((match = pairRegex.exec(html)) !== null) {
+
+    while (pos < html.length && iterations < MAX_REGEX_ITERATIONS) {
       iterations++;
-      if (iterations > MAX_REGEX_ITERATIONS) {
-        throw new Error("Limite de iterações do parser Fundamentus excedido.");
-      }
-
-      const label = this.normalizeLabel(match[1] ?? "");
-      const value = stripHtml(match[2] ?? "");
-
-      if (!label || !value) {
-        continue;
-      }
-
-      if (!indicadoresMap.has(label)) {
-        indicadoresMap.set(label, value);
-      }
+      const nextPos = this.extractNextIndicator(html, pos, indicadoresMap);
+      if (nextPos === null) break;
+      pos = nextPos;
     }
 
     const empresa = indicadoresMap.get("Empresa") ?? null;
@@ -96,6 +84,40 @@ export class FundamentusScraperService {
       indicadores,
       updatedAt: new Date().toISOString(),
     };
+  }
+
+  private extractNextIndicator(html: string, pos: number, indicadoresMap: Map<string, string>): number | null {
+    const labelAttr = 'class="label"';
+    const dataAttr = 'class="data"';
+
+    const labelIdx = html.indexOf(labelAttr, pos);
+    if (labelIdx === -1) return null;
+
+    const tdClose = html.indexOf(">", labelIdx);
+    if (tdClose === -1) return null;
+
+    const labelStart = tdClose + 1;
+    const labelEnd = html.indexOf("</td>", labelStart);
+    if (labelEnd === -1) return null;
+
+    const dataIdx = html.indexOf(dataAttr, labelEnd + 5);
+    if (dataIdx === -1) return null;
+
+    const dataTdClose = html.indexOf(">", dataIdx);
+    if (dataTdClose === -1) return null;
+
+    const dataStart = dataTdClose + 1;
+    const dataEnd = html.indexOf("</td>", dataStart);
+    if (dataEnd === -1) return null;
+
+    const label = this.normalizeLabel(html.substring(labelStart, labelEnd));
+    const value = stripHtml(html.substring(dataStart, dataEnd));
+
+    if (label && value && !indicadoresMap.has(label)) {
+      indicadoresMap.set(label, value);
+    }
+
+    return dataEnd + 5;
   }
 
   private normalizeLabel(value: string): string {

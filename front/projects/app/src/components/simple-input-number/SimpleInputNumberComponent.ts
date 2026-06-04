@@ -76,7 +76,10 @@ export class SimpleInputNumberComponent {
         if (!this.allowDecimal) {
             value = value.replace(/[.,]/g, '');
         } else {
-            value = value.replace(/([.,])(?=.*[.,])/g, '');
+            const lastSep = value.search(/[.,][^.,]*$/);
+            if (lastSep !== -1) {
+                value = value.slice(0, lastSep).replace(/[.,]/g, '') + value.slice(lastSep);
+            }
         }
 
         input.value = value;

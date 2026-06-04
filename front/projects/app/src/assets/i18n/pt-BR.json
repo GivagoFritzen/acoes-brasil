@@ -207,7 +207,8 @@
             "oscillations": "Oscilações",
             "fundamentalIndicators": "Indicadores Fundamentalistas",
             "balanceSheet": "Balanço Patrimonial",
-            "results": "Resultados"
+            "results": "Resultados",
+            "priceChart": "Gráfico de Preços"
         },
         "errors": {
             "attention": "Atenção",
@@ -215,6 +216,7 @@
             "codeNotProvided": "Código do ativo não informado.",
             "fundamentusLoadFailed": "Não foi possível carregar os dados do Fundamentus para",
             "proventosLoadFailed": "Não foi possível carregar os proventos para",
+            "googleFinanceLoadFailed": "Não foi possível carregar o gráfico do Google Finance para",
             "detailsLoadFailed": "Não foi possível carregar os detalhes de"
         }
     }

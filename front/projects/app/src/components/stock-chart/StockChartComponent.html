@@ -1,0 +1,68 @@
+<div class="stock-chart" *ngIf="hasData; else noData">
+  <svg [attr.viewBox]="'0 0 ' + chartDimensions.width + ' ' + chartDimensions.height"
+       class="stock-chart__svg"
+       (click)="onSvgClick($event)">
+    <defs>
+      <linearGradient id="fillGradient" x1="0" x2="0" y1="0" y2="1">
+        <stop offset="0%" [attr.stop-color]="chartColor" stop-opacity="0.25"/>
+        <stop offset="100%" [attr.stop-color]="chartColor" stop-opacity="0.02"/>
+      </linearGradient>
+    </defs>
+
+    <g class="grid-lines">
+      <g *ngFor="let line of gridLines">
+        <line class="grid-line" [attr.x1]="line.x1" [attr.y1]="line.y1" [attr.x2]="line.x2" [attr.y2]="line.y2"/>
+        <text class="grid-label" [attr.x]="line.x1 - 8" [attr.y]="line.y1 + 4" text-anchor="end">{{ line.label }}</text>
+      </g>
+    </g>
+
+    <path class="chart-fill" [attr.d]="fillPath" fill="url(#fillGradient)"/>
+
+    <path class="chart-line"
+          [attr.d]="linePath"
+          [attr.stroke]="chartColor"/>
+
+    <circle class="chart-end-dot"
+            [attr.cx]="endPoint?.x"
+            [attr.cy]="endPoint?.y"
+            [attr.fill]="chartColor"
+            r="4"/>
+
+    <g class="chart-points">
+      <circle *ngFor="let pt of linePoints"
+              class="chart-point"
+              [attr.cx]="pt.x"
+              [attr.cy]="pt.y"
+              r="5"/>
+    </g>
+
+    <g *ngIf="selectedPoint" class="crosshair">
+      <line class="crosshair-line"
+            [attr.x1]="selectedPoint.x"
+            [attr.y1]="chartDimensions.paddingTop"
+            [attr.x2]="selectedPoint.x"
+            [attr.y2]="chartDimensions.paddingTop + chartDimensions.plotHeight"/>
+      <circle class="crosshair-dot"
+              [attr.cx]="selectedPoint.x"
+              [attr.cy]="selectedPoint.y"
+              r="5"/>
+      <rect class="tooltip-bg"
+            [attr.x]="selectedPoint.tooltipX"
+            [attr.y]="selectedPoint.tooltipY"
+            [attr.width]="tooltipW"
+            [attr.height]="tooltipH"
+            rx="4" ry="4"/>
+      <text class="tooltip-date"
+            [attr.x]="selectedPoint.tooltipX + 10"
+            [attr.y]="selectedPoint.tooltipY + (tooltipH > 44 ? 20 : 16)">{{ selectedPoint.formattedDate }}</text>
+      <text class="tooltip-price"
+            [attr.x]="selectedPoint.tooltipX + 10"
+            [attr.y]="selectedPoint.tooltipY + (tooltipH > 44 ? 48 : 34)">{{ selectedPoint.formattedPrice }}</text>
+    </g>
+  </svg>
+</div>
+<ng-template #noData>
+  <div class="stock-chart__no-data">
+    <span>Sem dados de gráfico disponíveis.</span>
+  </div>
+</ng-template>

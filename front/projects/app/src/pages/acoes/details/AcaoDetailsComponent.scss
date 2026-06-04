@@ -55,6 +55,7 @@
     background: $color-white;
     border: 1px solid $color-text-opacity-08;
     border-radius: 12px;
+    overflow: hidden;
 
     h3 {
       margin: 0;
@@ -125,6 +126,12 @@
     }
   }
 
+  .acao-details__card--chart {
+    @media (max-width: 768px) {
+      grid-column: 1 / -1;
+    }
+  }
+
   .acao-details__history {
     display: flex;
     flex-direction: column;
@@ -147,12 +154,61 @@
     color: $color-text-opacity-50;
   }
 
+  .acao-details__chart-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .acao-details__chart-windows {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+
+  .acao-details__chart-btn {
+    padding: 4px 10px;
+    font-size: 11px;
+    font-weight: 600;
+    border: 1px solid $color-text-opacity-08;
+    border-radius: 6px;
+    background: $color-white;
+    color: $color-text-opacity-60;
+    cursor: pointer;
+    transition: all 0.15s ease;
+
+    &:hover {
+      background: $color-text-opacity-08;
+      color: $color-text;
+    }
+
+    &--active {
+      background: $color-primary;
+      border-color: $color-primary;
+      color: $color-white;
+    }
+  }
+
   .acao-details__change--positive {
     color: $color-success;
   }
 
   .acao-details__change--negative {
     color: $color-danger;
+  }
+}
+
+@media (max-width: 425px) {
+  .acao-details {
+    margin: 16px;
+    padding: 16px;
+    border-radius: 12px;
+
+    .acao-details__card--chart {
+      padding: 8px;
+    }
   }
 }
 
