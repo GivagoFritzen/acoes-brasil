@@ -117,12 +117,37 @@ export class DatePickerComponent implements OnChanges {
         const d = date.getDate().toString().padStart(2, '0');
         const m = (date.getMonth() + 1).toString().padStart(2, '0');
         const y = date.getFullYear();
-        this.inputValue = `${d} / ${m} / ${y}`;
+        this.inputValue = `${d}/${m}/${y}`;
+    }
+
+    onKeyDown(event: KeyboardEvent): void {
+        if (event.ctrlKey || event.metaKey) return;
+        const allowed = ['Backspace', 'Delete', 'Tab', 'Escape', 'Enter',
+            'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Home', 'End'];
+        if (allowed.includes(event.key)) return;
+        if (/^[0-9]$/.test(event.key)) return;
+        event.preventDefault();
+    }
+
+    onInput(event: Event): void {
+        const input = event.target as HTMLInputElement;
+        const digits = input.value.replace(/[^0-9]/g, '').slice(0, 8);
+
+        let masked = digits;
+        if (digits.length > 4) {
+            masked = `${digits.substring(0, 2)}/${digits.substring(2, 4)}/${digits.substring(4)}`;
+        } else if (digits.length > 2) {
+            masked = `${digits.substring(0, 2)}/${digits.substring(2)}`;
+        }
+
+        if (masked !== input.value) {
+            input.value = masked;
+        }
     }
 
     onInputTyping(value: string): void {
-        const cleanValue = value.replace(/\s/g, '');
-        const match = cleanValue.match(/^(\d{2})[\/\-](\d{2})[\/\-](\d{4})$/);
+        const cleanValue = value.replace(/\//g, '');
+        const match = cleanValue.match(/^(\d{2})(\d{2})(\d{4})$/);
 
         if (match) {
             const day = parseInt(match[1], 10);

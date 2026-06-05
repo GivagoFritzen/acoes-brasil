@@ -266,17 +266,17 @@ describe('DatePickerComponent', () => {
             expect(component.currentMonth.getMonth()).toBe(today.getMonth());
         });
 
-        it('deve formatar inputValue corretamente', () => {
+        it('deve formatar inputValue como DD/MM/YYYY', () => {
             component.selectToday();
-            expect(component.inputValue).toContain('/');
+            expect(component.inputValue).toMatch(/^\d{2}\/\d{2}\/\d{4}$/);
         });
     });
 
     describe('formatInputValue', () => {
-        it('deve formatar data corretamente', () => {
+        it('deve formatar data como DD/MM/YYYY', () => {
             const date = new Date(2026, 4, 15);
             component.formatInputValue(date);
-            expect(component.inputValue).toBe('15 / 05 / 2026');
+            expect(component.inputValue).toBe('15/05/2026');
         });
 
         it('deve usar valor vazio quando date é null', () => {
@@ -287,12 +287,12 @@ describe('DatePickerComponent', () => {
         it('deve usar padding para dia e mês menores que 10', () => {
             const date = new Date(2026, 0, 5);
             component.formatInputValue(date);
-            expect(component.inputValue).toBe('05 / 01 / 2026');
+            expect(component.inputValue).toBe('05/01/2026');
         });
     });
 
     describe('onInputTyping', () => {
-        it('deve fazer parse de data válida no formato DD/MM/YYYY', () => {
+        it('deve fazer parse de data no formato DD/MM/YYYY', () => {
             component.onInputTyping('15/05/2026');
             expect(component.tempSelectedDate).toBeTruthy();
             expect(component.tempSelectedDate?.getDate()).toBe(15);
@@ -300,9 +300,12 @@ describe('DatePickerComponent', () => {
             expect(component.tempSelectedDate?.getFullYear()).toBe(2026);
         });
 
-        it('deve fazer parse de data válida no formato DD-MM-YYYY', () => {
-            component.onInputTyping('15-05-2026');
+        it('deve fazer parse de data sem separadores', () => {
+            component.onInputTyping('15052026');
             expect(component.tempSelectedDate).toBeTruthy();
+            expect(component.tempSelectedDate?.getDate()).toBe(15);
+            expect(component.tempSelectedDate?.getMonth()).toBe(4);
+            expect(component.tempSelectedDate?.getFullYear()).toBe(2026);
         });
 
         it('NÃO deve aceitar data inválida', () => {
@@ -326,9 +329,129 @@ describe('DatePickerComponent', () => {
             expect(component.tempSelectedDate).toBeNull();
         });
 
-        it('deve limpar espaços ao processar', () => {
-            component.onInputTyping(' 15 / 05 / 2026 ');
-            expect(component.tempSelectedDate).toBeTruthy();
+        it('NÃO deve aceitar menos de 8 dígitos', () => {
+            component.tempSelectedDate = null;
+            component.onInputTyping('1505202');
+            expect(component.tempSelectedDate).toBeNull();
+        });
+    });
+
+    describe('onKeyDown', () => {
+        function createKeyEvent(key: string, ctrl = false): KeyboardEvent {
+            return new KeyboardEvent('keydown', { key, ctrlKey: ctrl, cancelable: true });
+        }
+
+        it('deve bloquear letras', () => {
+            const event = createKeyEvent('a');
+            vi.spyOn(event, 'preventDefault');
+            component.onKeyDown(event);
+            expect(event.preventDefault).toHaveBeenCalled();
+        });
+
+        it('deve permitir dígitos', () => {
+            const event = createKeyEvent('5');
+            vi.spyOn(event, 'preventDefault');
+            component.onKeyDown(event);
+            expect(event.preventDefault).not.toHaveBeenCalled();
+        });
+
+        it('deve bloquear /', () => {
+            const event = createKeyEvent('/');
+            vi.spyOn(event, 'preventDefault');
+            component.onKeyDown(event);
+            expect(event.preventDefault).toHaveBeenCalled();
+        });
+
+        it('deve bloquear -', () => {
+            const event = createKeyEvent('-');
+            vi.spyOn(event, 'preventDefault');
+            component.onKeyDown(event);
+            expect(event.preventDefault).toHaveBeenCalled();
+        });
+
+        it('deve permitir Backspace', () => {
+            const event = createKeyEvent('Backspace');
+            vi.spyOn(event, 'preventDefault');
+            component.onKeyDown(event);
+            expect(event.preventDefault).not.toHaveBeenCalled();
+        });
+
+        it('deve permitir teclas de navegação', () => {
+            const event = createKeyEvent('ArrowRight');
+            vi.spyOn(event, 'preventDefault');
+            component.onKeyDown(event);
+            expect(event.preventDefault).not.toHaveBeenCalled();
+        });
+
+        it('deve permitir Ctrl+C', () => {
+            const event = createKeyEvent('c', true);
+            vi.spyOn(event, 'preventDefault');
+            component.onKeyDown(event);
+            expect(event.preventDefault).not.toHaveBeenCalled();
+        });
+    });
+
+    describe('onInput', () => {
+        function createInputEvent(value: string): Event {
+            const input = document.createElement('input');
+            input.value = value;
+            return { target: input } as unknown as Event;
+        }
+
+        it('deve mascarar 8 dígitos como DD/MM/YYYY', () => {
+            const event = createInputEvent('15052026');
+            component.onInput(event);
+            const target = event.target as HTMLInputElement;
+            expect(target.value).toBe('15/05/2026');
+        });
+
+        it('deve remover letras e mascarar', () => {
+            const event = createInputEvent('abc15def05gh2026');
+            component.onInput(event);
+            const target = event.target as HTMLInputElement;
+            expect(target.value).toBe('15/05/2026');
+        });
+
+        it('deve remover separador extra e mascarar', () => {
+            const event = createInputEvent('15//05--2026');
+            component.onInput(event);
+            const target = event.target as HTMLInputElement;
+            expect(target.value).toBe('15/05/2026');
+        });
+
+        it('deve limitar a 8 dígitos e mascarar', () => {
+            const event = createInputEvent('15052026123');
+            component.onInput(event);
+            const target = event.target as HTMLInputElement;
+            expect(target.value).toBe('15/05/2026');
+        });
+
+        it('deve aplicar máscara progressiva: 2 dígitos', () => {
+            const event = createInputEvent('15');
+            component.onInput(event);
+            const target = event.target as HTMLInputElement;
+            expect(target.value).toBe('15');
+        });
+
+        it('deve aplicar máscara progressiva: 3 dígitos', () => {
+            const event = createInputEvent('155');
+            component.onInput(event);
+            const target = event.target as HTMLInputElement;
+            expect(target.value).toBe('15/5');
+        });
+
+        it('deve aplicar máscara progressiva: 5 dígitos', () => {
+            const event = createInputEvent('15052');
+            component.onInput(event);
+            const target = event.target as HTMLInputElement;
+            expect(target.value).toBe('15/05/2');
+        });
+
+        it('NÃO deve alterar value já mascarado', () => {
+            const event = createInputEvent('15/05/2026');
+            component.onInput(event);
+            const target = event.target as HTMLInputElement;
+            expect(target.value).toBe('15/05/2026');
         });
     });
 
