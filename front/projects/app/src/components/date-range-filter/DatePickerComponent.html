@@ -29,7 +29,8 @@
 
         <div class="date-input-container">
             <input type="text" class="date-input" placeholder="DD / MM / YYYY" [(ngModel)]="inputValue"
-                (ngModelChange)="onInputTyping($event)" />
+                (ngModelChange)="onInputTyping($event)" (keydown)="onKeyDown($event)" (input)="onInput($event)"
+                maxlength="10" />
             <button type="button" class="today-btn" (click)="selectToday()">
                 Today
             </button>
