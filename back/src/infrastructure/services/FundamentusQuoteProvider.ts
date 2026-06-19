@@ -74,8 +74,8 @@ export class FundamentusQuoteProvider implements IQuoteProvider {
   }
 
   private tryExtractQuote(html: string, pos: number): { quote?: number; nextPos: number } | null {
-    const labelAttr = 'class="label"';
-    const dataAttr = 'class="data"';
+    const labelAttr = 'class="label';
+    const dataAttr = 'class="data';
 
     const labelIdx = html.indexOf(labelAttr, pos);
     if (labelIdx === -1) return null;

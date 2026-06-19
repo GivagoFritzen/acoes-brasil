@@ -87,8 +87,8 @@ export class FundamentusScraperService {
   }
 
   private extractNextIndicator(html: string, pos: number, indicadoresMap: Map<string, string>): number | null {
-    const labelAttr = 'class="label"';
-    const dataAttr = 'class="data"';
+    const labelAttr = 'class="label';
+    const dataAttr = 'class="data';
 
     const labelIdx = html.indexOf(labelAttr, pos);
     if (labelIdx === -1) return null;
