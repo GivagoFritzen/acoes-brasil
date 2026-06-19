@@ -4,7 +4,7 @@ export interface ApiEndpoints {
   proventos: string;
   fundamentus: string;
   googleFinance: string;
-  marketHours: string;
+  tradingHours: string;
 }
 
 export interface ApiConfig {
@@ -20,7 +20,7 @@ export const API_CONFIG: ApiConfig = {
     proventos: '/proventos',
     fundamentus: '/fundamentus',
     googleFinance: '/google-finance',
-    marketHours: '/market-hours'
+    tradingHours: '/trading-hours'
   }
 };
 

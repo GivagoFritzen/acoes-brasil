@@ -5,7 +5,7 @@ import { vi } from 'vitest';
 import { of, throwError } from 'rxjs';
 import { DOCUMENT } from '@angular/common';
 import { SidebarComponent } from './SidebarComponent';
-import { MarketHoursService } from '../../services/MarketHoursService';
+import { TradingHoursService } from '../../services/TradingHoursService';
 import { TranslatePipe } from '../../pipes/TranslatePipe';
 import { TranslationService } from '../../services/TranslationService';
 import { ChangeDetectionService } from '../../services/ChangeDetectionService';
@@ -22,8 +22,8 @@ class MockLanguageSelectorComponent {}
 describe('SidebarComponent', () => {
     let component: SidebarComponent;
     let fixture: ComponentFixture<SidebarComponent>;
-    let mockMarketHoursService: any;
-    const createMarketHoursResponse = (isOpen: boolean) => ({
+    let mockTradingHoursService: any;
+    const createTradingHoursResponse = (isOpen: boolean) => ({
         success: true,
         data: {
             isOpen,
@@ -48,8 +48,8 @@ describe('SidebarComponent', () => {
     });
 
     beforeEach(async () => {
-        mockMarketHoursService = {
-            getBvmfMarketHours: vi.fn().mockReturnValue(of(createMarketHoursResponse(false)))
+        mockTradingHoursService = {
+            getBvmfTradingHours: vi.fn().mockReturnValue(of(createTradingHoursResponse(false)))
         };
 
         const mockTranslationService = {
@@ -73,7 +73,7 @@ describe('SidebarComponent', () => {
                 RouterModule.forRoot([])
             ],
             providers: [
-                { provide: MarketHoursService, useValue: mockMarketHoursService },
+                { provide: TradingHoursService, useValue: mockTradingHoursService },
                 { provide: TranslationService, useValue: mockTranslationService },
                 { provide: ChangeDetectionService, useValue: mockChangeDetectionService },
                 { provide: DOCUMENT, useValue: document }
@@ -116,9 +116,9 @@ describe('SidebarComponent', () => {
 
     describe('ngOnInit', () => {
         it('deve chamar fetchMarketStatus() no ngOnInit', () => {
-            mockMarketHoursService.getBvmfMarketHours.mockClear();
+            mockTradingHoursService.getBvmfTradingHours.mockClear();
             component.ngOnInit();
-            expect(mockMarketHoursService.getBvmfMarketHours).toHaveBeenCalled();
+            expect(mockTradingHoursService.getBvmfTradingHours).toHaveBeenCalled();
         });
 
         it('deve definir isMarketOpen = false quando API retorna isOpen = false', async () => {
@@ -128,7 +128,7 @@ describe('SidebarComponent', () => {
         });
 
         it('deve definir isMarketOpen = false quando API retorna erro', async () => {
-            mockMarketHoursService.getBvmfMarketHours.mockReturnValue(throwError(() => new Error('API Error')));
+            mockTradingHoursService.getBvmfTradingHours.mockReturnValue(throwError(() => new Error('API Error')));
             component.ngOnInit();
             await flushMicrotasks();
             expect(component.isMarketOpen).toBe(false);
@@ -255,14 +255,20 @@ describe('SidebarComponent', () => {
     });
 
     describe('Market Hours Service', () => {
-        it('deve injetar MarketHoursService no construtor', () => {
-            expect(mockMarketHoursService).toBeTruthy();
+        it('deve injetar TradingHoursService no construtor', () => {
+            expect(mockTradingHoursService).toBeTruthy();
         });
 
-        it('deve chamar getBvmfMarketHours apenas uma vez', () => {
-            mockMarketHoursService.getBvmfMarketHours.mockClear();
+        it('deve chamar getBvmfTradingHours apenas uma vez', () => {
+            mockTradingHoursService.getBvmfTradingHours.mockClear();
             component.ngOnInit();
-            expect(mockMarketHoursService.getBvmfMarketHours).toHaveBeenCalledTimes(1);
+            expect(mockTradingHoursService.getBvmfTradingHours).toHaveBeenCalledTimes(1);
+        });
+
+        it('deve chamar getBvmfTradingHours apenas uma vez', () => {
+            mockTradingHoursService.getBvmfTradingHours.mockClear();
+            component.ngOnInit();
+            expect(mockTradingHoursService.getBvmfTradingHours).toHaveBeenCalledTimes(1);
         });
     });
 });

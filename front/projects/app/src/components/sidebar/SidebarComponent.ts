@@ -1,7 +1,7 @@
 import { Component, OnInit, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
-import { MarketHoursService } from '../../services/MarketHoursService';
+import { TradingHoursService } from '../../services/TradingHoursService';
 import { TourService } from '../../services/TourService';
 import { TranslatePipe } from '../../pipes/TranslatePipe';
 import { LanguageSelectorComponent } from '../language-selector/LanguageSelectorComponent';
@@ -18,7 +18,7 @@ export class SidebarComponent implements OnInit {
     isMarketOpen = false;
 
     constructor(
-        private readonly marketHoursService: MarketHoursService,
+        private readonly tradingHoursService: TradingHoursService,
         readonly tourService: TourService,
     ) {
         effect(() => {
@@ -37,7 +37,7 @@ export class SidebarComponent implements OnInit {
     }
 
     private fetchMarketStatus(): void {
-        this.marketHoursService.getBvmfMarketHours().subscribe({
+        this.tradingHoursService.getBvmfTradingHours().subscribe({
             next: (response) => {
                 this.setMarketStatus(response.data.isOpen);
             },

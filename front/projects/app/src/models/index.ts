@@ -8,10 +8,10 @@ export { ProventoTipos } from './ProventoModel';
 export type { Provento, ProventoTipo } from './ProventoModel';
 export type { ProventosResponse } from './ProventosResponseModel';
 export type {
-  MarketHoursData,
-  MarketHoursResponse,
-  MarketHoursStatus,
-} from './market-hours';
+  TradingHoursData,
+  TradingHoursResponse,
+  TradingHoursStatus,
+} from './trading-hours';
 export type { ChartDimensions } from './googleGraphic';
 export type { GridLine } from './googleGraphic';
 export type { LinePoint } from './googleGraphic';
