@@ -6,7 +6,7 @@
     "build:back": "npm --prefix back run build",
     "build:front": "npm --prefix front run build",
     "build:electron": "tsc -p electron/tsconfig.json",
-    "build:desktop": "npm run build:back && npm run build:front && npm run build:electron",
+    "build:desktop": "npm run build:back && npm run build:front && npm run build:electron && npm run rebuild:native",
     "dev:back": "npm --prefix back run dev",
     "dev:back:sqlite": "set DB_DIALECT=sqlite&& set DB_STORAGE=back\\data\\app-dev.sqlite&& npm --prefix back run dev",
     "dev:front": "npm --prefix front run start",
@@ -20,6 +20,7 @@
     "coverage:convert": "node scripts/ConvertCoverage.js",
     "coverage:bat": "scripts\\CoverageSonar.bat",
     "build:win": "npm run build:desktop && electron-builder --win",
+    "rebuild:native": "electron-rebuild -f -w sqlite3 -m back",
     "start:dev": "scripts\\StartDev.bat",
     "start:app": "scripts\\StartApp.bat"
   },
@@ -53,6 +54,7 @@
     }
   },
   "devDependencies": {
+    "@electron/rebuild": "^4.0.4",
     "@types/node": "^25.5.0",
     "concurrently": "^9.2.1",
     "electron": "^41.0.4",

@@ -46,7 +46,7 @@ async function start() {
     await sequelize.authenticate();
 
     if (env.db.dialect === "sqlite") {
-      await sequelize.sync({ alter: true });
+      await sequelize.sync();
     }
 
     logger.info("Conectado ao banco com sucesso");
