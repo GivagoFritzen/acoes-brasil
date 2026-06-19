@@ -1,4 +1,4 @@
-export interface MarketHoursStatus {
+export interface TradingHoursStatus {
   marketId: string;
   isOpen: boolean;
   status: string;

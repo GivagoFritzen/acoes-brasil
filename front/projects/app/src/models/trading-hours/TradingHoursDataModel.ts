@@ -1,6 +1,6 @@
-import { MarketHoursStatus } from './MarketHoursStatusModel';
+import { TradingHoursStatus } from './TradingHoursStatusModel';
 
-export interface MarketHoursData {
+export interface TradingHoursData {
   id: string;
   name: string;
   shortName: string;
@@ -17,6 +17,6 @@ export interface MarketHoursData {
   holidays: string[];
   tradingDays: number[];
   nextOpenTime: string;
-  currentStatus: MarketHoursStatus;
+  currentStatus: TradingHoursStatus;
   upcomingHolidays: string[];
 }
