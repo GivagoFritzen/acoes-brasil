@@ -16,11 +16,11 @@
     flex: 1;
     min-width: 400px;
     max-width: 600px;
-    border: 1px solid #eee;
+    border: 1px solid var(--color-border);
     border-radius: 8px;
     padding: 1rem;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-    background-color: $color-white;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+    background-color: var(--color-surface);
 
     @media (max-width: 425px) {
       min-width: 0;
@@ -34,14 +34,14 @@
       text-align: center;
       margin-top: 0;
       font-size: 1.2rem;
-      color: $color-text;
+      color: var(--color-text);
     }
   }
 
   .portfolios {
-    background: $color-white;
+    background: var(--color-surface);
     border-radius: 18px;
-    box-shadow: 0 18px 40px $color-text-opacity-08;
+    box-shadow: 0 18px 40px var(--color-shadow);
     margin: 12px;
     padding: 14px 18px;
     width: 65%;
@@ -57,6 +57,7 @@
         margin: 0;
         font-size: 20px;
         font-weight: 700;
+        color: var(--color-text);
       }
 
       .acoes__header-actions {
@@ -77,8 +78,9 @@
       grid-template-columns: 2.2fr 1fr 1fr 1.3fr;
       align-items: center;
       padding: 12px 8px;
-      border-top: 1px solid $color-border;
+      border-top: 1px solid var(--color-border);
       font-size: 14px;
+      color: var(--color-text);
     }
 
     .acoes__row--with-actions {
@@ -98,7 +100,7 @@
       border-top: 0;
       font-size: 12px;
       font-weight: 600;
-      color: $color-text-opacity-50;
+      color: var(--color-text-muted);
       text-transform: uppercase;
       letter-spacing: 0.04em;
     }
@@ -112,12 +114,13 @@
         display: block;
         font-size: 14px;
         font-weight: 600;
+        color: var(--color-text);
       }
 
       small {
         display: block;
         font-size: 12px;
-        color: $color-text-opacity-60;
+        color: var(--color-text-muted);
       }
     }
 
@@ -135,7 +138,7 @@
 
     .acoes__value {
       font-weight: 600;
-      color: $color-text;
+      color: var(--color-text);
     }
 
     .acoes__price__medium,
@@ -167,7 +170,7 @@
   .acoes__modal-backdrop {
     position: fixed;
     inset: 0;
-    background: $color-text-opacity-50;
+    background: rgba(0, 0, 0, 0.5);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -177,19 +180,20 @@
 
   .acoes__modal {
     width: min(100%, 420px);
-    background: $color-white;
+    background: var(--color-surface);
     border-radius: 14px;
     padding: 20px;
-    box-shadow: 0 20px 45px $color-text-opacity-20;
+    box-shadow: 0 20px 45px rgba(0, 0, 0, 0.3);
 
     h3 {
       margin: 0 0 10px;
       font-size: 18px;
+      color: var(--color-text);
     }
 
     p {
       margin: 0;
-      color: $color-text-opacity-80;
+      color: var(--color-text-muted);
     }
   }
 
