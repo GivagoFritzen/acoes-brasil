@@ -110,6 +110,7 @@ export class ProventosComponent implements OnInit {
 
   handleJuntarPorCodigoChange(value: boolean): void {
     this.juntarPorCodigo.set(value);
+    this.applyFilter();
   }
 
   applyFilter(): void {
