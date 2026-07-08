@@ -13,10 +13,10 @@
 
   font-size: 14px;
   font-weight: 600;
-  color: $color-text;
+  color: var(--color-text);
 
-  background-color: $color-white;
-  border: 1px solid $color-text-opacity-20;
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-card-border);
 
   cursor: pointer;
   outline: none;
@@ -27,8 +27,8 @@
   }
 
   &:hover {
-    background-color: $color-gray-50;
-    border-color: $color-text-opacity-40;
+    background-color: rgba(226, 232, 240, 0.08);
+    border-color: var(--color-text-muted);
   }
 
   &:active {
@@ -37,10 +37,10 @@
 
   &.btn--cancelar {
     color: $color-danger-dark;
-    border-color: $color-text-opacity-40;
+    border-color: var(--color-card-border);
 
     &:hover {
-      background-color: $color-gray-100;
+      background-color: rgba(239, 68, 68, 0.1);
       border-color: $color-danger-dark;
     }
   }

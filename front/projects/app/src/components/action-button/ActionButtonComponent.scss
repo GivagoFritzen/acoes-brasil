@@ -5,7 +5,7 @@
   height: 30px;
   border: 1px solid $color-danger-border;
   border-radius: 999px;
-  background: $color-danger-light;
+  background: rgba(239, 68, 68, 0.12);
   color: $color-danger;
   font-size: 16px;
   font-weight: 700;
@@ -14,5 +14,5 @@
 }
 
 .action-button:hover {
-  background: $color-danger-border;
+  background: rgba(239, 68, 68, 0.25);
 }
