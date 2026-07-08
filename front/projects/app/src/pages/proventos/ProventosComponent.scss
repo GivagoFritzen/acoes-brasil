@@ -152,7 +152,7 @@
   .proventos__modal-backdrop {
     position: fixed;
     inset: 0;
-    background: rgba(0, 0, 0, 0.5);
+    background: $color-overlay;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -165,7 +165,7 @@
     background: var(--color-surface);
     border-radius: 14px;
     padding: 20px;
-    box-shadow: 0 20px 45px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 20px 45px $color-modal-shadow;
 
     h3 {
       margin: 0 0 10px;
