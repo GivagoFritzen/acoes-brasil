@@ -4,15 +4,26 @@ $switch-width: 42px;
 $switch-height: 26px;
 $circle-size: 20px;
 $offset: 3px;
-$bg-color: #dfe1e4;
-$bg-hover: #c9cbcd;
-$checked-bg: #6e79d6;
-$checked-hover-bg: #535db3;
-$circle-color: $color-white;
+
+.checkbox-wrapper-2 .ikxBAC {
+  --bg: #dfe1e4;
+  --bg-hover: #c9cbcd;
+  --checked-bg: #6e79d6;
+  --checked-hover-bg: #535db3;
+  --circle-color: #ffffff;
+}
+
+:host-context(html[data-theme="dark"]) .checkbox-wrapper-2 .ikxBAC {
+  --bg: rgba(226, 232, 240, 0.15);
+  --bg-hover: rgba(226, 232, 240, 0.25);
+  --checked-bg: #4f8cff;
+  --checked-hover-bg: #3965b8;
+  --circle-color: #ffffff;
+}
 
 .checkbox-wrapper-2 .ikxBAC {
   appearance: none;
-  background-color: $bg-color;
+  background-color: var(--bg);
   border-radius: 72px;
   border-style: none;
   flex-shrink: 0;
@@ -37,7 +48,7 @@ $circle-color: $color-white;
 }
 
 .checkbox-wrapper-2 .ikxBAC::after {
-  background-color: $circle-color;
+  background-color: var(--circle-color);
   border-radius: 50%;
   content: "";
   height: $circle-size;
@@ -52,16 +63,16 @@ $circle-color: $color-white;
 }
 
 .checkbox-wrapper-2 .ikxBAC:hover {
-  background-color: $bg-hover;
+  background-color: var(--bg-hover);
   transition-duration: 0s;
 }
 
 .checkbox-wrapper-2 .ikxBAC:checked {
-  background-color: $checked-bg;
+  background-color: var(--checked-bg);
 }
 
 .checkbox-wrapper-2 .ikxBAC:checked::after {
-  background-color: $circle-color;
+  background-color: var(--circle-color);
   left: calc(#{$switch-width} - #{$circle-size} - #{$offset});
 }
 
@@ -70,5 +81,5 @@ $circle-color: $color-white;
 }
 
 .checkbox-wrapper-2 .ikxBAC:checked:hover {
-  background-color: $checked-hover-bg;
+  background-color: var(--checked-hover-bg);
 }
