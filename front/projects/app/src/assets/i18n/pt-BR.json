@@ -138,6 +138,7 @@
         "proventos": "Proventos",
         "importacao": "Importação",
         "exportacao": "Exportação",
+        "configuracoes": "Configurações",
         "tour": "Tour Guiado",
         "marketOpen": "Mercado Aberto",
         "marketClosed": "Mercado Fechado"
@@ -174,6 +175,16 @@
         "importacaoDesc": "Importe dados de negociação e proventos diretamente de planilhas Excel geradas pela B3. Selecione o arquivo e clique em importar.",
         "exportacaoTitle": "Exportação",
         "exportacaoDesc": "Exporte suas informações do app em PDF ou Excel. Gere relatórios da sua carteira, ordens de venda para compartilhar ou arquivar."
+    },
+    "configuracoes": {
+        "title": "Configurações",
+        "description": "Personalize suas preferências do aplicativo.",
+        "idioma": "Idioma",
+        "idiomaHint": "Selecione o idioma de exibição do aplicativo.",
+        "tema": "Tema",
+        "temaHint": "Alterne entre tema claro e escuro.",
+        "temaEscuro": "Modo Escuro",
+        "temaClaro": "Modo Claro"
     },
     "exportacao": {
         "title": "Exportação",

@@ -54,6 +54,7 @@
         "proventos": "Dividends",
         "importacao": "Import",
         "exportacao": "Export",
+        "configuracoes": "Settings",
         "tour": "Guided Tour",
         "marketOpen": "Market Open",
         "marketClosed": "Market Closed"
@@ -174,6 +175,16 @@
         "proventosHint": "Expected headers: Product, Payment, Event Type, Institution, Quantity, Unit Price, Net Value.",
         "proventosFileLabel": "Dividend file",
         "importProventos": "Import dividends"
+    },
+    "configuracoes": {
+        "title": "Settings",
+        "description": "Customize your application preferences.",
+        "idioma": "Language",
+        "idiomaHint": "Select the display language.",
+        "tema": "Theme",
+        "temaHint": "Toggle between light and dark mode.",
+        "temaEscuro": "Dark Mode",
+        "temaClaro": "Light Mode"
     },
     "exportacao": {
         "title": "Export",

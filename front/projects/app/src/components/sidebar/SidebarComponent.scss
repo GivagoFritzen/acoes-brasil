@@ -13,7 +13,7 @@ $sidebar-collapsed-width: 80px;
   width: $sidebar-width;
   height: 100vh;
   max-height: 100vh;
-  background: $color-white;
+  background: var(--color-surface);
   display: flex;
   flex-direction: column;
   padding: 24px 16px;
@@ -155,6 +155,11 @@ $sidebar-collapsed-width: 80px;
         -webkit-mask-image: url('/icons/chart-bar.svg');
       }
 
+      &--settings {
+        mask-image: url('/icons/settings.svg');
+        -webkit-mask-image: url('/icons/settings.svg');
+      }
+
       &--tour {
         mask-image: url('/icons/compass.svg');
         -webkit-mask-image: url('/icons/compass.svg');
@@ -201,6 +206,7 @@ $sidebar-collapsed-width: 80px;
     gap: 8px;
     font-size: 15px;
     transition: opacity 0.2s ease;
+    color: var(--color-text);
 
     .dot {
       border-radius: 50%;

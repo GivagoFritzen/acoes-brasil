@@ -166,16 +166,10 @@ describe('SidebarComponent', () => {
             expect(menu).toBeTruthy();
         });
 
-        it('deve renderizar 5 itens de menu', () => {
+        it('deve renderizar 6 itens de menu', () => {
             fixture.detectChanges();
             const menuItems = fixture.debugElement.queryAll(By.css('.menu-item'));
-            expect(menuItems.length).toBe(5);
-        });
-
-        it('deve renderizar language selector', () => {
-            fixture.detectChanges();
-            const langSelector = fixture.debugElement.query(By.css('app-language-selector'));
-            expect(langSelector).toBeTruthy();
+            expect(menuItems.length).toBe(6);
         });
 
         it('deve renderizar status do mercado', () => {
@@ -217,13 +211,6 @@ describe('SidebarComponent', () => {
             fixture.detectChanges();
             const toggleBtn = fixture.debugElement.query(By.css('.sidebar__toggle'));
             expect(toggleBtn).toBeTruthy();
-        });
-
-        it('deve mostrar language selector quando showSidebar = true', () => {
-            component.showSidebar = true;
-            fixture.detectChanges();
-            const langSection = fixture.debugElement.query(By.css('.sidebar__language'));
-            expect(langSection).toBeTruthy();
         });
 
         it('deve ocultar language selector quando showSidebar = false', () => {

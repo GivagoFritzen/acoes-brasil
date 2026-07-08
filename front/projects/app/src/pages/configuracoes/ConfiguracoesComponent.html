@@ -1,0 +1,48 @@
+<section class="configuracoes">
+  <header class="configuracoes__header">
+    <h2>{{ 'configuracoes.title' | translate }}</h2>
+    <p>{{ 'configuracoes.description' | translate }}</p>
+  </header>
+
+  <div class="configuracoes__grid">
+    <article class="configuracoes__card">
+      <h3>{{ 'configuracoes.idioma' | translate }}</h3>
+      <p class="configuracoes__hint">
+        {{ 'configuracoes.idiomaHint' | translate }}
+      </p>
+
+      <div class="configuracoes__idiomas">
+        <button
+          class="configuracoes__idioma-btn"
+          type="button"
+          *ngFor="let lang of languages"
+          (click)="selecionarIdioma(lang.code)"
+          [class.configuracoes__idioma-btn--active]="lang.code === settingsService.language()"
+        >
+          <span>{{ lang.name }}</span>
+          <span class="configuracoes__check" *ngIf="lang.code === settingsService.language()">✓</span>
+        </button>
+      </div>
+    </article>
+
+    <article class="configuracoes__card">
+      <h3>{{ 'configuracoes.tema' | translate }}</h3>
+      <p class="configuracoes__hint">
+        {{ 'configuracoes.temaHint' | translate }}
+      </p>
+
+      <div class="configuracoes__tema">
+        <button
+          class="configuracoes__tema-btn"
+          type="button"
+          (click)="alternarTema()"
+        >
+          <span>{{ settingsService.theme() === 'dark' ? ('configuracoes.temaClaro' | translate) : ('configuracoes.temaEscuro' | translate) }}</span>
+          <span class="configuracoes__theme-icon">
+            {{ settingsService.theme() === 'dark' ? '☀️' : '🌙' }}
+          </span>
+        </button>
+      </div>
+    </article>
+  </div>
+</section>
