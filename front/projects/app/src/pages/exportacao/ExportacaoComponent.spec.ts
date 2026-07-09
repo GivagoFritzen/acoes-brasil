@@ -121,6 +121,18 @@ describe('ExportacaoComponent', () => {
     expect(component.alerts()[0].variant).toBe('error');
   });
 
+  it('deve conter lista de anos de 2020 ate o ano atual', () => {
+    const anoAtual = new Date().getFullYear();
+    expect(component.anos.length).toBe(anoAtual - 2020 + 1);
+    expect(component.anos[0].value).toBe(String(anoAtual));
+    expect(component.anos[component.anos.length - 1].value).toBe('2020');
+  });
+
+  it('deve atualizar anoFiltro ao chamar onAnoChange', () => {
+    component.onAnoChange('2024');
+    expect(component.anoFiltro()).toBe('2024');
+  });
+
   it('deve exportar ordem venda em Excel com sucesso', () => {
     const mockBlob = new Blob(['test'], { type: 'application/vnd.ms-excel' }) as any;
     ordersServiceMock.exportSellSnapshotsSpreadsheet.mockReturnValue(of(mockBlob));
@@ -140,6 +152,24 @@ describe('ExportacaoComponent', () => {
     component.exportarOrderSellExcel();
 
     expect(ordersServiceMock.exportSellSnapshotsSpreadsheet).toHaveBeenCalled();
+  });
+
+  it('deve passar ano filtro ao exportar Excel quando ano selecionado', () => {
+    component.onAnoChange('2024');
+    ordersServiceMock.exportSellSnapshotsSpreadsheet.mockReturnValue(of(new Blob()));
+
+    component.exportarOrderSellExcel();
+
+    expect(ordersServiceMock.exportSellSnapshotsSpreadsheet).toHaveBeenCalledWith('2024');
+  });
+
+  it('deve passar ano filtro ao exportar PDF quando ano selecionado', () => {
+    component.onAnoChange('2025');
+    ordersServiceMock.getSellSnapshotsForPdf.mockReturnValue(of([]));
+
+    component.exportarOrderSellPdf();
+
+    expect(ordersServiceMock.getSellSnapshotsForPdf).toHaveBeenCalledWith('2025');
   });
 
   it('deve tratar erro ao exportar Excel', () => {

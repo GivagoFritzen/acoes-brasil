@@ -56,13 +56,20 @@ export class OrdersService extends BaseHttpService {
     return this.http.delete<DeleteResponse>(`${this.baseUrl}/${id}`).pipe(catchError(error => this.handleError(error)));
   }
 
-  exportSellSnapshotsSpreadsheet(): Observable<Blob> {
+  exportSellSnapshotsSpreadsheet(ano?: string): Observable<Blob> {
     return this.http.get(`${this.baseUrl}/export/sell-snapshots`, {
       responseType: 'blob',
+      params: {
+        ...(ano ? { ano } : {}),
+      },
     }).pipe(catchError(error => this.handleError(error)));
   }
 
-  getSellSnapshotsForPdf(): Observable<SellSnapshotExportRow[]> {
-    return this.http.get<SellSnapshotExportRow[]>(`${this.baseUrl}/export/sell-snapshots/data`).pipe(catchError(error => this.handleError(error)));
+  getSellSnapshotsForPdf(ano?: string): Observable<SellSnapshotExportRow[]> {
+    return this.http.get<SellSnapshotExportRow[]>(`${this.baseUrl}/export/sell-snapshots/data`, {
+      params: {
+        ...(ano ? { ano } : {}),
+      },
+    }).pipe(catchError(error => this.handleError(error)));
   }
 }

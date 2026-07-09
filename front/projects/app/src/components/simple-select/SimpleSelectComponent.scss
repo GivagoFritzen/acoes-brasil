@@ -1,15 +1,15 @@
 @use '../../colors.scss' as *;
 
 .simple-select {
-  background-color: $color-white;
-  border: 1px solid rgba(15, 23, 42, 0.2);
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-card-border);
   border-radius: 8px;
   font-size: 14px;
   height: 42px;
   padding: 0 35px 0 15px;
   min-width: 120px;
   cursor: pointer;
-  color: $color-text;
+  color: var(--color-text);
   outline: none;
   transition: border-color 0.2s ease;
 
@@ -17,7 +17,7 @@
   -webkit-appearance: none;
   -moz-appearance: none;
 
-  background-image: url('../../assets/icons/chevron-down.svg');
+  background-image: url('/icons/chevron-down.svg');
   background-repeat: no-repeat;
   background-position: right 12px center;
   background-size: 16px;
@@ -27,11 +27,11 @@
   }
 
   &:focus {
-    border-color: rgba(15, 23, 42, 0.5);
+    border-color: var(--color-text-muted);
   }
 
   &:disabled {
-    background-color: #f1f5f9;
+    background-color: rgba(226, 232, 240, 0.08);
     cursor: not-allowed;
   }
 }

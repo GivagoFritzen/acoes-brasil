@@ -13,7 +13,7 @@ $sidebar-collapsed-width: 80px;
   width: $sidebar-width;
   height: 100vh;
   max-height: 100vh;
-  background: $color-white;
+  background: var(--color-surface);
   display: flex;
   flex-direction: column;
   padding: 24px 16px;
@@ -42,9 +42,21 @@ $sidebar-collapsed-width: 80px;
       justify-content: flex-start;
     }
 
-    .sidebar__toggle {
-      align-self: center;
-    }
+.sidebar__toggle {
+        align-self: center;
+      }
+
+      .sidebar__tour-btn {
+        justify-content: center;
+      }
+
+      .tour-label {
+        opacity: 0;
+        width: 0;
+        height: 0;
+        overflow: hidden;
+        pointer-events: none;
+      }
   }
 
   &__toggle {
@@ -116,49 +128,54 @@ $sidebar-collapsed-width: 80px;
       transition: opacity 0.2s ease;
       white-space: nowrap;
     }
+  }
 
-    .icon {
-      width: 18px;
-      height: 18px;
-      display: inline-block;
-      flex: 0 0 18px;
-      background-color: $color-primary;
-      mask-repeat: no-repeat;
-      mask-position: center;
-      mask-size: contain;
-      -webkit-mask-repeat: no-repeat;
-      -webkit-mask-position: center;
-      -webkit-mask-size: contain;
+  .icon {
+    width: 18px;
+    height: 18px;
+    display: inline-block;
+    flex: 0 0 18px;
+    background-color: $color-primary;
+    mask-repeat: no-repeat;
+    mask-position: center;
+    mask-size: contain;
+    -webkit-mask-repeat: no-repeat;
+    -webkit-mask-position: center;
+    -webkit-mask-size: contain;
 
-      &--wallet {
-        mask-image: url('/icons/wallet.svg');
-        -webkit-mask-image: url('/icons/wallet.svg');
-      }
+    &--wallet {
+      mask-image: url('/icons/wallet.svg');
+      -webkit-mask-image: url('/icons/wallet.svg');
+    }
 
-      &--receipt {
-        mask-image: url('/icons/receipt.svg');
-        -webkit-mask-image: url('/icons/receipt.svg');
-      }
+    &--receipt {
+      mask-image: url('/icons/receipt.svg');
+      -webkit-mask-image: url('/icons/receipt.svg');
+    }
 
-      &--hand-coins {
-        mask-image: url('/icons/hand-coins.svg');
-        -webkit-mask-image: url('/icons/hand-coins.svg');
-      }
+    &--hand-coins {
+      mask-image: url('/icons/hand-coins.svg');
+      -webkit-mask-image: url('/icons/hand-coins.svg');
+    }
 
-      &--coin-vertical {
-        mask-image: url('/icons/coin-vertical.svg');
-        -webkit-mask-image: url('/icons/coin-vertical.svg');
-      }
+    &--coin-vertical {
+      mask-image: url('/icons/coin-vertical.svg');
+      -webkit-mask-image: url('/icons/coin-vertical.svg');
+    }
 
-      &--chart-bar {
-        mask-image: url('/icons/chart-bar.svg');
-        -webkit-mask-image: url('/icons/chart-bar.svg');
-      }
+    &--chart-bar {
+      mask-image: url('/icons/chart-bar.svg');
+      -webkit-mask-image: url('/icons/chart-bar.svg');
+    }
 
-      &--tour {
-        mask-image: url('/icons/compass.svg');
-        -webkit-mask-image: url('/icons/compass.svg');
-      }
+    &--settings {
+      mask-image: url('/icons/settings.svg');
+      -webkit-mask-image: url('/icons/settings.svg');
+    }
+
+    &--tour {
+      mask-image: url('/icons/compass.svg');
+      -webkit-mask-image: url('/icons/compass.svg');
     }
   }
 
@@ -201,6 +218,7 @@ $sidebar-collapsed-width: 80px;
     gap: 8px;
     font-size: 15px;
     transition: opacity 0.2s ease;
+    color: var(--color-text);
 
     .dot {
       border-radius: 50%;

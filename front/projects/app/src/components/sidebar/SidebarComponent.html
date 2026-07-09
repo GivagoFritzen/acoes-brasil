@@ -28,17 +28,18 @@
             <span class="icon icon--chart-bar" aria-hidden="true"></span>
             <span class="menu-label" *ngIf="showSidebar">{{ 'sidebar.exportacao' | translate }}</span>
         </a>
+
+        <a class="menu-item" routerLink="/configuracoes" routerLinkActive="active">
+            <span class="icon icon--settings" aria-hidden="true"></span>
+            <span class="menu-label" *ngIf="showSidebar">{{ 'sidebar.configuracoes' | translate }}</span>
+        </a>
     </nav>
 
-    <div class="sidebar__tour" *ngIf="showSidebar">
+    <div class="sidebar__tour">
         <button class="sidebar__tour-btn" type="button" (click)="tourService.start()">
             <span class="icon icon--tour" aria-hidden="true"></span>
             <span class="tour-label">{{ 'sidebar.tour' | translate }}</span>
         </button>
-    </div>
-
-    <div class="sidebar__language" *ngIf="showSidebar">
-        <app-language-selector></app-language-selector>
     </div>
 
     <div class="sidebar__status">

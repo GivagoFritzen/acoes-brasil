@@ -1,6 +1,7 @@
 import { Routes } from '@angular/router';
 import { AcoesComponent } from '../pages/acoes/AcoesComponent';
 import { AcaoDetailsComponent } from '../pages/acoes/details/AcaoDetailsComponent';
+import { ConfiguracoesComponent } from '../pages/configuracoes/ConfiguracoesComponent';
 import { ExportacaoComponent } from '../pages/exportacao/ExportacaoComponent';
 import { ImportacaoComponent } from '../pages/importacao/ImportacaoComponent';
 import { OrdersComponent } from '../pages/orders/OrdersComponent';
@@ -35,5 +36,9 @@ export const routes: Routes = [
   {
     path: 'exportacao',
     component: ExportacaoComponent,
+  },
+  {
+    path: 'configuracoes',
+    component: ConfiguracoesComponent,
   },
 ];

@@ -88,7 +88,8 @@ export class OrderController {
 
   async getSellSnapshotsDataAsync(req: Request, res: Response): Promise<Response> {
     try {
-      const rows = await this.getSellSnapshotsService.executeAsync();
+      const ano = typeof req.query.ano === "string" ? req.query.ano : undefined;
+      const rows = await this.getSellSnapshotsService.executeAsync(ano);
       return res.json(rows);
     } catch (error) {
       return ErrorHandler.handle(error, req, res);
@@ -97,7 +98,8 @@ export class OrderController {
 
   async exportSellSnapshotsAsync(req: Request, res: Response): Promise<Response> {
     try {
-      const { buffer, fileName } = await this.exportSellSnapshotsService.executeAsync();
+      const ano = typeof req.query.ano === "string" ? req.query.ano : undefined;
+      const { buffer, fileName } = await this.exportSellSnapshotsService.executeAsync(ano);
       res.setHeader("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
       res.setHeader("Content-Disposition", `attachment; filename="${fileName}"`);
       return res.send(buffer);

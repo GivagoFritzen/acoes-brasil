@@ -4,6 +4,7 @@ import { routes } from './AppRoutes';
 import { provideClientHydration, withEventReplay } from '@angular/platform-browser';
 import { provideHttpClient, withFetch } from '@angular/common/http';
 import { TranslationService } from '../services/TranslationService';
+import { SettingsService } from '../services/SettingsService';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -13,10 +14,11 @@ export const appConfig: ApplicationConfig = {
     provideHttpClient(withFetch()),
     provideAppInitializer(() => {
       const translationService = inject(TranslationService);
+      const settingsService = inject(SettingsService);
 
-      const forcedLang = 'pt-BR';
+      const lang = settingsService.language();
 
-      return translationService.loadLanguage(forcedLang);
+      return translationService.loadLanguage(lang);
     })
   ]
 };

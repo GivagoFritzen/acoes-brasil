@@ -4,12 +4,11 @@ import { RouterModule } from '@angular/router';
 import { TradingHoursService } from '../../services/TradingHoursService';
 import { TourService } from '../../services/TourService';
 import { TranslatePipe } from '../../pipes/TranslatePipe';
-import { LanguageSelectorComponent } from '../language-selector/LanguageSelectorComponent';
 
 @Component({
     selector: 'app-sidebar',
     standalone: true,
-    imports: [CommonModule, RouterModule, TranslatePipe, LanguageSelectorComponent],
+    imports: [CommonModule, RouterModule, TranslatePipe],
     templateUrl: './SidebarComponent.html',
     styleUrls: ['./SidebarComponent.scss'],
 })

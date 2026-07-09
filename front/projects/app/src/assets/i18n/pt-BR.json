@@ -138,6 +138,7 @@
         "proventos": "Proventos",
         "importacao": "Importação",
         "exportacao": "Exportação",
+        "configuracoes": "Configurações",
         "tour": "Tour Guiado",
         "marketOpen": "Mercado Aberto",
         "marketClosed": "Mercado Fechado"
@@ -175,6 +176,16 @@
         "exportacaoTitle": "Exportação",
         "exportacaoDesc": "Exporte suas informações do app em PDF ou Excel. Gere relatórios da sua carteira, ordens de venda para compartilhar ou arquivar."
     },
+    "configuracoes": {
+        "title": "Configurações",
+        "description": "Personalize suas preferências do aplicativo.",
+        "idioma": "Idioma",
+        "idiomaHint": "Selecione o idioma de exibição do aplicativo.",
+        "tema": "Tema",
+        "temaHint": "Alterne entre tema claro e escuro.",
+        "temaEscuro": "Modo Escuro",
+        "temaClaro": "Modo Claro"
+    },
     "exportacao": {
         "title": "Exportação",
         "description": "Exporte a página de ações em PDF.",
@@ -187,7 +198,9 @@
         "exportOrderSellExcel": "Exportar OrderSell em Excel",
         "orderSellPdfTitle": "OrderSell → PDF",
         "orderSellPdfHint": "Gera PDF com os campos Código, precoMedioAtual, Quantidade, valorAtualAcao, ganhos e data.",
-        "exportOrderSellPdf": "Exportar OrderSell em PDF"
+        "exportOrderSellPdf": "Exportar OrderSell em PDF",
+        "filtrarAno": "Filtrar por ano",
+        "todosAnos": "Todos os anos"
     },
     "fileInput": {
         "clickToUpload": "Clique no botão abaixo para enviar",

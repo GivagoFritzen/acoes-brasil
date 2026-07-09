@@ -54,6 +54,7 @@
         "proventos": "Dividends",
         "importacao": "Import",
         "exportacao": "Export",
+        "configuracoes": "Settings",
         "tour": "Guided Tour",
         "marketOpen": "Market Open",
         "marketClosed": "Market Closed"
@@ -175,6 +176,16 @@
         "proventosFileLabel": "Dividend file",
         "importProventos": "Import dividends"
     },
+    "configuracoes": {
+        "title": "Settings",
+        "description": "Customize your application preferences.",
+        "idioma": "Language",
+        "idiomaHint": "Select the display language.",
+        "tema": "Theme",
+        "temaHint": "Toggle between light and dark mode.",
+        "temaEscuro": "Dark Mode",
+        "temaClaro": "Light Mode"
+    },
     "exportacao": {
         "title": "Export",
         "description": "Export the stocks page to PDF.",
@@ -187,7 +198,9 @@
         "exportOrderSellExcel": "Export OrderSell to Excel",
         "orderSellPdfTitle": "OrderSell → PDF",
         "orderSellPdfHint": "Generates PDF with fields: Code, currentAveragePrice, Quantity, currentStockValue, gains and date.",
-        "exportOrderSellPdf": "Export OrderSell to PDF"
+        "exportOrderSellPdf": "Export OrderSell to PDF",
+        "filtrarAno": "Filter by year",
+        "todosAnos": "All years"
     },
     "fileInput": {
         "clickToUpload": "Click the button below to upload",

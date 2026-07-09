@@ -6,6 +6,18 @@
     <p>{{ 'exportacao.description' | translate }}</p>
   </header>
 
+  <div class="exportacao__filtros">
+    <div class="exportacao__filtro-ano">
+      <label class="exportacao__label">{{ 'exportacao.filtrarAno' | translate }}</label>
+      <app-simple-select
+        [options]="anos"
+        [value]="anoFiltro()"
+        [placeholder]="'exportacao.todosAnos' | translate"
+        (valueChange)="onAnoChange($event)"
+      ></app-simple-select>
+    </div>
+  </div>
+
   <div class="exportacao__grid">
     <article class="exportacao__card">
       <h3>{{ 'exportacao.acoesPdfTitle' | translate }}</h3>

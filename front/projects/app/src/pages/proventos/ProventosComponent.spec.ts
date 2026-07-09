@@ -129,9 +129,11 @@ describe('ProventosComponent', () => {
     expect(component.filtroDataFinal()).toBe('2024-01-20');
   });
 
-  it('deve alternar agrupamento por código', () => {
+  it('deve alternar agrupamento por código e resetar página', () => {
+    component.page.set(5);
     component.handleJuntarPorCodigoChange(true);
     expect(component.juntarPorCodigo()).toBe(true);
+    expect(component.page()).toBe(1);
   });
 
   it('deve aplicar filtros e recarregar', () => {
