@@ -5,23 +5,13 @@ $switch-height: 26px;
 $circle-size: 20px;
 $offset: 3px;
 
-.checkbox-wrapper-2 .ikxBAC {
+.simple-checkbox__track {
   --bg: #dfe1e4;
   --bg-hover: #c9cbcd;
   --checked-bg: #6e79d6;
   --checked-hover-bg: #535db3;
   --circle-color: #ffffff;
-}
 
-:host-context(html[data-theme="dark"]) .checkbox-wrapper-2 .ikxBAC {
-  --bg: rgba(226, 232, 240, 0.15);
-  --bg-hover: rgba(226, 232, 240, 0.25);
-  --checked-bg: #4f8cff;
-  --checked-hover-bg: #3965b8;
-  --circle-color: #ffffff;
-}
-
-.checkbox-wrapper-2 .ikxBAC {
   appearance: none;
   background-color: var(--bg);
   border-radius: 72px;
@@ -33,7 +23,15 @@ $offset: 3px;
   width: $switch-width;
 }
 
-.checkbox-wrapper-2 .ikxBAC::before {
+:host-context(html[data-theme="dark"]) .simple-checkbox__track {
+  --bg: rgba(226, 232, 240, 0.15);
+  --bg-hover: rgba(226, 232, 240, 0.25);
+  --checked-bg: #4f8cff;
+  --checked-hover-bg: #3965b8;
+  --circle-color: #ffffff;
+}
+
+.simple-checkbox__track::before {
   bottom: -6px;
   content: "";
   left: -6px;
@@ -42,12 +40,12 @@ $offset: 3px;
   top: -6px;
 }
 
-.checkbox-wrapper-2 .ikxBAC,
-.checkbox-wrapper-2 .ikxBAC::after {
+.simple-checkbox__track,
+.simple-checkbox__track::after {
   transition: all 100ms ease-out;
 }
 
-.checkbox-wrapper-2 .ikxBAC::after {
+.simple-checkbox__track::after {
   background-color: var(--circle-color);
   border-radius: 50%;
   content: "";
@@ -58,28 +56,28 @@ $offset: 3px;
   width: $circle-size;
 }
 
-.checkbox-wrapper-2 input[type=checkbox] {
+.simple-checkbox input[type=checkbox] {
   cursor: default;
 }
 
-.checkbox-wrapper-2 .ikxBAC:hover {
+.simple-checkbox__track:hover {
   background-color: var(--bg-hover);
   transition-duration: 0s;
 }
 
-.checkbox-wrapper-2 .ikxBAC:checked {
+.simple-checkbox__track:checked {
   background-color: var(--checked-bg);
 }
 
-.checkbox-wrapper-2 .ikxBAC:checked::after {
+.simple-checkbox__track:checked::after {
   background-color: var(--circle-color);
   left: calc(#{$switch-width} - #{$circle-size} - #{$offset});
 }
 
-.checkbox-wrapper-2 :focus:not(.focus-visible) {
+.simple-checkbox :focus:not(.focus-visible) {
   outline: 0;
 }
 
-.checkbox-wrapper-2 .ikxBAC:checked:hover {
+.simple-checkbox__track:checked:hover {
   background-color: var(--checked-hover-bg);
 }
