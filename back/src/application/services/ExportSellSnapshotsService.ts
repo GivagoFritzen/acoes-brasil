@@ -9,8 +9,8 @@ export class ExportSellSnapshotsService {
     private ExcelExportService: ExcelExportService
   ) {}
 
-  async executeAsync(): Promise<{ buffer: Buffer; fileName: string }> {
-    const snapshots = await this.sellSnapshotRepository.findAllAsync();
+  async executeAsync(ano?: string): Promise<{ buffer: Buffer; fileName: string }> {
+    const snapshots = await this.sellSnapshotRepository.findAllAsync(ano);
 
     const rows: SellSnapshotExportRow[] = snapshots.map((snapshot) => {
       const custoMedioTotal = snapshot.precoMedioAtual * snapshot.quantidade;

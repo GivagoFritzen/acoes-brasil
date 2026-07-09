@@ -1,3 +1,4 @@
+import { Op } from "sequelize";
 import { SequelizeOrderSellSnapshotRepository } from "./SequelizeOrderSellSnapshotRepository";
 import { OrderSellSnapshot as OrderSellSnapshotModel } from "../../models/order/OrderSellSnapshot";
 
@@ -78,6 +79,21 @@ describe("SequelizeOrderSellSnapshotRepository", () => {
 
       expect(resultado).toHaveLength(1);
       expect(OrderSellSnapshotModel.findAll).toHaveBeenCalledWith({
+        where: {},
+        order: expect.any(Array),
+        transaction: undefined,
+      });
+    });
+
+    it("Deve filtrar snapshots por ano quando ano informado", async () => {
+      const mockModels = [modelMock];
+      const findAllSpy = jest.spyOn(OrderSellSnapshotModel, "findAll").mockResolvedValue(mockModels);
+
+      const resultado = await repository.findAllAsync("2024");
+
+      expect(resultado).toHaveLength(1);
+      expect(findAllSpy).toHaveBeenCalledWith({
+        where: { data: { [Op.endsWith]: "-2024" } },
         order: expect.any(Array),
         transaction: undefined,
       });

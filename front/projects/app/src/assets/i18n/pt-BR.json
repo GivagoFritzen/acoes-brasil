@@ -198,7 +198,9 @@
         "exportOrderSellExcel": "Exportar OrderSell em Excel",
         "orderSellPdfTitle": "OrderSell → PDF",
         "orderSellPdfHint": "Gera PDF com os campos Código, precoMedioAtual, Quantidade, valorAtualAcao, ganhos e data.",
-        "exportOrderSellPdf": "Exportar OrderSell em PDF"
+        "exportOrderSellPdf": "Exportar OrderSell em PDF",
+        "filtrarAno": "Filtrar por ano",
+        "todosAnos": "Todos os anos"
     },
     "fileInput": {
         "clickToUpload": "Clique no botão abaixo para enviar",

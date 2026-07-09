@@ -23,6 +23,25 @@
     }
   }
 
+  .exportacao__filtros {
+    margin-bottom: 20px;
+    display: flex;
+    gap: 16px;
+    align-items: flex-end;
+  }
+
+  .exportacao__filtro-ano {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .exportacao__label {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--color-text-muted);
+  }
+
   .exportacao__grid {
     display: grid;
     grid-template-columns: 1fr;

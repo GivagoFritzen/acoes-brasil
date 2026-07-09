@@ -25,7 +25,7 @@ describe("ExportSellSnapshotsService", () => {
 
   it("Deve gerar buffer de excel quando snapshots existem", async () => {
     const snapshotsFakes: OrderSellSnapshotEntity[] = [
-      { id: "1", codigo: "VALE3", precoMedioAtual: 50.0, quantidade: 100, valorAtualAcao: 60.0, ganhos: 1000.0, data: "2024-01-01", createdAt: new Date(), updatedAt: new Date() },
+      { id: "1", codigo: "VALE3", precoMedioAtual: 50.0, quantidade: 100, valorAtualAcao: 60.0, ganhos: 1000.0, data: "01-01-2024", createdAt: new Date(), updatedAt: new Date() },
     ] as unknown as OrderSellSnapshotEntity[];
     sellSnapshotRepositoryMock.findAllAsync.mockResolvedValue(snapshotsFakes);
 
@@ -33,5 +33,13 @@ describe("ExportSellSnapshotsService", () => {
 
     expect(resultado.buffer).toBeDefined();
     expect(resultado.fileName).toBeDefined();
+  });
+
+  it("Deve repassar ano para o repository quando informado", async () => {
+    sellSnapshotRepositoryMock.findAllAsync.mockResolvedValue([]);
+
+    await service.executeAsync("2025");
+
+    expect(sellSnapshotRepositoryMock.findAllAsync).toHaveBeenCalledWith("2025");
   });
 });

@@ -1,16 +1,17 @@
 import { CommonModule } from '@angular/common';
 import { Component, signal } from '@angular/core';
 import { AlertsComponent } from '../../components/alerts/AlertsComponent';
-import { SimpleButtonComponent } from '../../components';
+import { SimpleButtonComponent, SimpleSelectComponent } from '../../components';
 import { AlertItem } from '../../models/alert/AlertItemModel';
 import { OrdersService } from '../../services/OrdersService';
 import { SellSnapshotExportRow } from '../../models/SellSnapshotExportRowModel';
 import { TranslatePipe } from '../../pipes/TranslatePipe';
+import { SelectOption } from '../../../../../../common/models/SelectOptionModel';
 
 @Component({
   selector: 'app-exportacao',
   standalone: true,
-  imports: [CommonModule, AlertsComponent, SimpleButtonComponent, TranslatePipe],
+  imports: [CommonModule, AlertsComponent, SimpleButtonComponent, SimpleSelectComponent, TranslatePipe],
   templateUrl: './ExportacaoComponent.html',
   styleUrls: ['./ExportacaoComponent.scss'],
 })
@@ -19,8 +20,23 @@ export class ExportacaoComponent {
   isExportingOrderSellExcel = signal(false);
   isExportingOrderSellPdf = signal(false);
   alerts = signal<AlertItem[]>([]);
+  anoFiltro = signal('');
+  anos = this.gerarAnos();
 
   constructor(private readonly ordersService: OrdersService) { }
+
+  onAnoChange(ano: string): void {
+    this.anoFiltro.set(ano);
+  }
+
+  private gerarAnos(): SelectOption[] {
+    const anoAtual = new Date().getFullYear();
+    const anos: SelectOption[] = [];
+    for (let i = anoAtual; i >= 2020; i--) {
+      anos.push({ value: String(i), label: String(i) });
+    }
+    return anos;
+  }
 
   exportarAcoesEmPdf(): void {
     const frame = document.getElementById('print-acoes-frame') as HTMLIFrameElement | null;
@@ -60,7 +76,7 @@ export class ExportacaoComponent {
   exportarOrderSellExcel(): void {
     this.isExportingOrderSellExcel.set(true);
 
-    this.ordersService.exportSellSnapshotsSpreadsheet().subscribe({
+    this.ordersService.exportSellSnapshotsSpreadsheet(this.anoFiltro()).subscribe({
       next: (blob) => {
         const url = URL.createObjectURL(blob);
         const anchor = document.createElement('a');
@@ -92,7 +108,7 @@ export class ExportacaoComponent {
 
     this.isExportingOrderSellPdf.set(true);
 
-    this.ordersService.getSellSnapshotsForPdf().subscribe({
+    this.ordersService.getSellSnapshotsForPdf(this.anoFiltro()).subscribe({
       next: (rows) => {
         const html = this.buildOrderSellPrintHtml(rows);
         frame.srcdoc = html;

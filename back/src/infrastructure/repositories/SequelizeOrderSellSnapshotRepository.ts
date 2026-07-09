@@ -1,4 +1,4 @@
-import { Transaction } from "sequelize";
+import { Op, Transaction } from "sequelize";
 import { buildBrDateOrderExpression } from "../../database/DateExpression";
 import { OrderSellSnapshot as OrderSellSnapshotModel } from "../../models/order/OrderSellSnapshot";
 import { OrderSellSnapshotEntity } from "../../domain/entities/OrderSellSnapshotEntity";
@@ -23,10 +23,16 @@ export class SequelizeOrderSellSnapshotRepository implements IOrderSellSnapshotR
     return this.toEntity(model);
   }
 
-  async findAllAsync(tx?: unknown): Promise<OrderSellSnapshotEntity[]> {
+  async findAllAsync(ano?: string, tx?: unknown): Promise<OrderSellSnapshotEntity[]> {
     const transaction = tx as Transaction | undefined;
     try {
+      const where: any = {};
+      if (ano) {
+        where.data = { [Op.endsWith]: `-${ano}` };
+      }
+
       const models = await OrderSellSnapshotModel.findAll({
+        where,
         order: [[buildBrDateOrderExpression("OrderSellSnapshot"), "DESC"], ["createdAt", "DESC"]],
         transaction,
       });

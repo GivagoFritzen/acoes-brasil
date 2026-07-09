@@ -198,7 +198,9 @@
         "exportOrderSellExcel": "Export OrderSell to Excel",
         "orderSellPdfTitle": "OrderSell → PDF",
         "orderSellPdfHint": "Generates PDF with fields: Code, currentAveragePrice, Quantity, currentStockValue, gains and date.",
-        "exportOrderSellPdf": "Export OrderSell to PDF"
+        "exportOrderSellPdf": "Export OrderSell to PDF",
+        "filtrarAno": "Filter by year",
+        "todosAnos": "All years"
     },
     "fileInput": {
         "clickToUpload": "Click the button below to upload",

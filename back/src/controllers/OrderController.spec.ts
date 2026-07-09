@@ -189,6 +189,17 @@ describe("OrderController", () => {
 
       expect(res.json).toHaveBeenCalledWith(mockData);
     });
+
+    it("deve passar ano como parametro quando informado", async () => {
+      mockGetSellSnapshotsService.executeAsync.mockResolvedValue([]);
+
+      const req = createMockReq({ query: { ano: "2024" } });
+      const res = createMockRes();
+
+      await controller.getSellSnapshotsDataAsync(req, res);
+
+      expect(mockGetSellSnapshotsService.executeAsync).toHaveBeenCalledWith("2024");
+    });
   });
 
   describe("exportSellSnapshotsAsync", () => {
@@ -204,6 +215,17 @@ describe("OrderController", () => {
       expect(res.setHeader).toHaveBeenCalledWith("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
       expect(res.setHeader).toHaveBeenCalledWith("Content-Disposition", 'attachment; filename="export.xlsx"');
       expect(res.send).toHaveBeenCalledWith(mockBuffer);
+    });
+
+    it("deve passar ano como parametro quando informado", async () => {
+      mockExportSellSnapshotsService.executeAsync.mockResolvedValue({ buffer: Buffer.from("test"), fileName: "vendas.xlsx" });
+
+      const req = createMockReq({ query: { ano: "2025" } });
+      const res = createMockRes();
+
+      await controller.exportSellSnapshotsAsync(req, res);
+
+      expect(mockExportSellSnapshotsService.executeAsync).toHaveBeenCalledWith("2025");
     });
   });
 });
