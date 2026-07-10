@@ -29,15 +29,6 @@ export class ExportacaoComponent {
     this.anoFiltro.set(ano);
   }
 
-  private gerarAnos(): SelectOption[] {
-    const anoAtual = new Date().getFullYear();
-    const anos: SelectOption[] = [];
-    for (let i = anoAtual; i >= 2020; i--) {
-      anos.push({ value: String(i), label: String(i) });
-    }
-    return anos;
-  }
-
   exportarAcoesEmPdf(): void {
     const frame = document.getElementById('print-acoes-frame') as HTMLIFrameElement | null;
 
@@ -153,6 +144,15 @@ export class ExportacaoComponent {
           item.icon !== alert.icon
       )
     );
+  }
+
+  private gerarAnos(): SelectOption[] {
+    const anoAtual = new Date().getFullYear();
+    const anos: SelectOption[] = [];
+    for (let i = anoAtual; i >= 2020; i--) {
+      anos.push({ value: String(i), label: String(i) });
+    }
+    return anos;
   }
 
   private pushAlert(variant: AlertItem['variant'], title: string, message: string, icon: string): void {

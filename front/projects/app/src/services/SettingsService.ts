@@ -16,22 +16,6 @@ export class SettingsService {
     this.loadSettings();
   }
 
-  private loadSettings(): void {
-    try {
-      const savedLang = localStorage.getItem(STORAGE_KEY_LANG);
-      if (savedLang) {
-        this.language.set(savedLang);
-      }
-
-      const savedTheme = localStorage.getItem(STORAGE_KEY_THEME) as Theme | null;
-      if (savedTheme) {
-        this.theme.set(savedTheme);
-        this.applyTheme(savedTheme);
-      }
-    } catch {
-    }
-  }
-
   setTheme(theme: Theme): void {
     this.theme.set(theme);
     this.applyTheme(theme);
@@ -45,6 +29,22 @@ export class SettingsService {
     this.language.set(lang);
     try {
       localStorage.setItem(STORAGE_KEY_LANG, lang);
+    } catch {
+    }
+  }
+
+  private loadSettings(): void {
+    try {
+      const savedLang = localStorage.getItem(STORAGE_KEY_LANG);
+      if (savedLang) {
+        this.language.set(savedLang);
+      }
+
+      const savedTheme = localStorage.getItem(STORAGE_KEY_THEME) as Theme | null;
+      if (savedTheme) {
+        this.theme.set(savedTheme);
+        this.applyTheme(savedTheme);
+      }
     } catch {
     }
   }
