@@ -1,7 +1,7 @@
 <section class="acao-details">
     <app-alerts [alerts]="alerts()" (dismissed)="handleAlertDismiss($event)"></app-alerts>
 
-    <header class="acao-details__header">
+    <header class="acao-details__header" data-tour="acaoDetails-title">
         <a class="acao-details__back" routerLink="/acoes">
             <i class="ph ph-arrow-left"></i> {{ 'acaoDetails.back' | translate }}
         </a>
@@ -33,7 +33,7 @@
         <span>{{ 'acaoDetails.loading' | translate }}</span>
     </div>
 
-    <div *ngIf="!isLoading()" class="acao-details__grid">
+    <div *ngIf="!isLoading()" class="acao-details__grid" data-tour="acaoDetails-cards">
         <ng-container *ngIf="detailSource() === 'fundamentus' && fundamentus() as fund">
 
             <article class="acao-details__card">

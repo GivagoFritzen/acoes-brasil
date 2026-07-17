@@ -26,8 +26,8 @@ describe('TourService', () => {
       expect(service.currentStepIndex()).toBe(0);
     });
 
-    it('deve ter 14 steps definidos', () => {
-      expect(service.totalSteps).toBe(14);
+    it('deve ter 20 steps definidos', () => {
+      expect(service.totalSteps).toBe(20);
     });
   });
 
@@ -48,7 +48,7 @@ describe('TourService', () => {
 
   describe('totalSteps', () => {
     it('deve retornar quantidade de steps', () => {
-      expect(service.totalSteps).toBe(14);
+      expect(service.totalSteps).toBe(20);
     });
 
     it('deve ser igual ao length do array steps', () => {
@@ -186,7 +186,7 @@ describe('TourService', () => {
     });
 
     it('deve navegar para rota do step', () => {
-      service.goToStep(5);
+      service.goToStep(9);
       expect(routerMock.navigate).toHaveBeenCalledWith(['/ordens']);
     });
 
@@ -241,24 +241,39 @@ describe('TourService', () => {
       expect(routerMock.navigate).toHaveBeenCalledWith(['/acoes']);
     });
 
-    it('deve navegar para /ordens no step 5', () => {
-      service.goToStep(5);
+    it('deve navegar para /acoes/teste no step 3', () => {
+      service.goToStep(3);
+      expect(routerMock.navigate).toHaveBeenCalledWith(['/acoes/teste']);
+    });
+
+    it('deve navegar para /personalizar no step 7', () => {
+      service.goToStep(7);
+      expect(routerMock.navigate).toHaveBeenCalledWith(['/personalizar']);
+    });
+
+    it('deve navegar para /ordens no step 9', () => {
+      service.goToStep(9);
       expect(routerMock.navigate).toHaveBeenCalledWith(['/ordens']);
     });
 
-    it('deve navegar para /proventos no step 8', () => {
-      service.goToStep(8);
+    it('deve navegar para /proventos no step 12', () => {
+      service.goToStep(12);
       expect(routerMock.navigate).toHaveBeenCalledWith(['/proventos']);
     });
 
-    it('deve navegar para /importacao no step 10', () => {
-      service.goToStep(10);
+    it('deve navegar para /importacao no step 14', () => {
+      service.goToStep(14);
       expect(routerMock.navigate).toHaveBeenCalledWith(['/importacao']);
     });
 
-    it('deve navegar para /exportacao no step 12', () => {
-      service.goToStep(12);
+    it('deve navegar para /exportacao no step 16', () => {
+      service.goToStep(16);
       expect(routerMock.navigate).toHaveBeenCalledWith(['/exportacao']);
+    });
+
+    it('deve navegar para /configuracoes no step 18', () => {
+      service.goToStep(18);
+      expect(routerMock.navigate).toHaveBeenCalledWith(['/configuracoes']);
     });
   });
 });

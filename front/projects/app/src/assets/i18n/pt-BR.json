@@ -255,7 +255,19 @@
         "importacaoTitle": "Importação",
         "importacaoDesc": "Importe dados de negociação e proventos diretamente de planilhas Excel geradas pela B3. Selecione o arquivo e clique em importar.",
         "exportacaoTitle": "Exportação",
-        "exportacaoDesc": "Exporte suas informações do app em PDF ou Excel. Gere relatórios da sua carteira, ordens de venda para compartilhar ou arquivar."
+        "exportacaoDesc": "Exporte suas informações do app em PDF ou Excel. Gere relatórios da sua carteira, ordens de venda para compartilhar ou arquivar.",
+        "sidebarConfiguracoesTitle": "Menu — Configurações",
+        "sidebarConfiguracoesDesc": "Esta seção fica no menu lateral. Clique no ícone de engrenagem para acessar as configurações do aplicativo.",
+        "configuracoesTitle": "Configurações",
+        "configuracoesDesc": "Personalize o idioma e o tema do aplicativo de acordo com suas preferências.",
+        "personalizarTitle": "Personalizar Dashboard",
+        "personalizarDesc": "Personalize quais módulos aparecem no painel principal da página inicial.",
+        "personalizarModulesTitle": "Módulos do Dashboard",
+        "personalizarModulesDesc": "Ative ou desative módulos como Carteira, Composição e Rentabilidade usando os botões de alternância.",
+        "acaoDetailsTitle": "Detalhes do Ativo",
+        "acaoDetailsDesc": "Visualize informações completas do ativo, incluindo indicadores financeiros, balanços e demonstrativos.",
+        "acaoDetailsCardsTitle": "Indicadores Financeiros",
+        "acaoDetailsCardsDesc": "Navegue pelos cards para conferir indicadores fundamentalistas, gráfico de preços e proventos do ativo."
     },
     "configuracoes": {
         "title": "Configurações",

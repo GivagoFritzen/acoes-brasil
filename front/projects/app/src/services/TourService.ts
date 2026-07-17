@@ -41,6 +41,20 @@ export class TourService {
       position: 'top',
     },
     {
+      route: '/acoes/teste',
+      titleKey: 'tour.acaoDetailsTitle',
+      descKey: 'tour.acaoDetailsDesc',
+      elementSelector: '[data-tour="acaoDetails-title"]',
+      position: 'bottom',
+    },
+    {
+      route: '/acoes/teste',
+      titleKey: 'tour.acaoDetailsCardsTitle',
+      descKey: 'tour.acaoDetailsCardsDesc',
+      elementSelector: '[data-tour="acaoDetails-cards"]',
+      position: 'top',
+    },
+    {
       route: '/acoes',
       titleKey: 'tour.acoesCompositionTitle',
       descKey: 'tour.acoesCompositionDesc',
@@ -53,6 +67,20 @@ export class TourService {
       descKey: 'tour.acoesProfitabilityDesc',
       elementSelector: '[data-tour="acoes-profitability"]',
       position: 'right',
+    },
+    {
+      route: '/personalizar',
+      titleKey: 'tour.personalizarTitle',
+      descKey: 'tour.personalizarDesc',
+      elementSelector: '[data-tour="personalizar-title"]',
+      position: 'bottom',
+    },
+    {
+      route: '/personalizar',
+      titleKey: 'tour.personalizarModulesTitle',
+      descKey: 'tour.personalizarModulesDesc',
+      elementSelector: '[data-tour="personalizar-modules"]',
+      position: 'top',
     },
     {
       route: '/ordens',
@@ -115,6 +143,20 @@ export class TourService {
       titleKey: 'tour.exportacaoTitle',
       descKey: 'tour.exportacaoDesc',
       elementSelector: '[data-tour="exportacao-title"]',
+      position: 'bottom',
+    },
+    {
+      route: '/configuracoes',
+      titleKey: 'tour.sidebarConfiguracoesTitle',
+      descKey: 'tour.sidebarConfiguracoesDesc',
+      elementSelector: '[data-tour="sidebar-configuracoes"]',
+      position: 'right',
+    },
+    {
+      route: '/configuracoes',
+      titleKey: 'tour.configuracoesTitle',
+      descKey: 'tour.configuracoesDesc',
+      elementSelector: '[data-tour="configuracoes-title"]',
       position: 'bottom',
     },
   ]);
