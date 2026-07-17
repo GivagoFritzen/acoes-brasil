@@ -1,5 +1,10 @@
 export type { Investidor10Indicator } from './Investidor10IndicatorModel';
 export type { Investidor10AcaoDetails } from './Investidor10AcaoDetailsModel';
-export type { Investidor10Provento, Investidor10ProventosResponse } from './Investidor10ProventoModel';
-export type { Investidor10HistoricoIndicador, Investidor10HistoricoIndicadoresResponse, Investidor10ValorHistorico } from './Investidor10HistoricoIndicadorModel';
-export type { Investidor10RegiaoReceita, Investidor10SegmentoReceita, Investidor10ReceitaAno } from './Investidor10RevenueModel';
+export type { Investidor10Provento } from './Investidor10ProventoModel';
+export type { Investidor10ProventosResponse } from './Investidor10ProventosResponseModel';
+export type { Investidor10ValorHistorico } from './Investidor10ValorHistoricoModel';
+export type { Investidor10HistoricoIndicador } from './Investidor10HistoricoIndicadorModel';
+export type { Investidor10HistoricoIndicadoresResponse } from './Investidor10HistoricoIndicadoresResponseModel';
+export type { Investidor10RegiaoReceita } from './Investidor10RegiaoReceitaModel';
+export type { Investidor10SegmentoReceita } from './Investidor10SegmentoReceitaModel';
+export type { Investidor10ReceitaAno } from './Investidor10ReceitaAnoModel';

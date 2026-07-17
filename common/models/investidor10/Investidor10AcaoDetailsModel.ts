@@ -1,6 +1,6 @@
 import type { Investidor10Indicator } from './Investidor10IndicatorModel';
 import type { Investidor10HistoricoIndicador } from './Investidor10HistoricoIndicadorModel';
-import type { Investidor10ReceitaAno } from './Investidor10RevenueModel';
+import type { Investidor10ReceitaAno } from './Investidor10ReceitaAnoModel';
 
 export interface Investidor10AcaoDetails {
   codigo: string;

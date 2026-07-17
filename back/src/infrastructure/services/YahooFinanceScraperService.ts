@@ -9,6 +9,16 @@ import type {
   YahooFinanceCalendarEvents,
 } from "../../../../common/models/yahoo-finance";
 
+import type {
+  RawValue,
+  RawDate,
+  RawIncomeStatement,
+  RawBalanceSheet,
+  RawCashflowStatement,
+  RawEarningsItem,
+  RawKeyStatistics,
+} from "../../models/yahoo";
+
 const CRUMB_URL = "https://query2.finance.yahoo.com/v1/test/getcrumb";
 const QUOTE_SUMMARY_URL = "https://query2.finance.yahoo.com/v10/finance/quoteSummary";
 const CONSENT_URL = "https://fc.yahoo.com/";
@@ -72,116 +82,6 @@ const QUOTE_MODULES = [
   "earningsHistory",
   "price",
 ].join(",");
-
-interface RawValue {
-  raw?: number;
-  fmt?: string;
-  longFmt?: string;
-}
-
-interface RawDate {
-  raw?: number;
-  fmt?: string;
-}
-
-interface RawIncomeStatement {
-  endDate?: RawDate;
-  totalRevenue?: RawValue;
-  costOfRevenue?: RawValue;
-  grossProfit?: RawValue;
-  researchDevelopment?: RawValue;
-  sellingGeneralAdministrative?: RawValue;
-  operatingIncome?: RawValue;
-  ebit?: RawValue;
-  interestExpense?: RawValue;
-  incomeBeforeTax?: RawValue;
-  incomeTaxExpense?: RawValue;
-  netIncome?: RawValue;
-  netIncomeApplicableToCommonShares?: RawValue;
-}
-
-interface RawBalanceSheet {
-  endDate?: RawDate;
-  totalAssets?: RawValue;
-  totalCurrentAssets?: RawValue;
-  cash?: RawValue;
-  totalCurrentLiabilities?: RawValue;
-  totalLiabilities?: RawValue;
-  longTermDebt?: RawValue;
-  shortLongTermDebt?: RawValue;
-  totalShareholderEquity?: RawValue;
-  minorityInterest?: RawValue;
-  netTangibleAssets?: RawValue;
-  goodwill?: RawValue;
-  intangibleAssets?: RawValue;
-  otherCurrentAssets?: RawValue;
-  otherCurrentLiabilities?: RawValue;
-  otherAssets?: RawValue;
-  otherLiabilities?: RawValue;
-  propertyPlantEquipment?: RawValue;
-  inventory?: RawValue;
-  receivables?: RawValue;
-  payable?: RawValue;
-  deferredLongTermAssetCharges?: RawValue;
-  treasuryStock?: RawValue;
-}
-
-interface RawCashflowStatement {
-  endDate?: RawDate;
-  netIncome?: RawValue;
-  depreciation?: RawValue;
-  changeToNetincome?: RawValue;
-  changeToAccountReceivables?: RawValue;
-  changeToLiabilities?: RawValue;
-  changeToInventory?: RawValue;
-  changeToOperatingActivities?: RawValue;
-  totalCashFromOperatingActivities?: RawValue;
-  capitalExpenditures?: RawValue;
-  investments?: RawValue;
-  otherCashflowsFromInvestingActivities?: RawValue;
-  totalCashFromInvestingActivities?: RawValue;
-  dividendsPaid?: RawValue;
-  netBorrowings?: RawValue;
-  otherCashflowsFromFinancingActivities?: RawValue;
-  totalCashFromFinancingActivities?: RawValue;
-  effectOfExchangeRate?: RawValue;
-  changeInCash?: RawValue;
-  repurchaseOfStock?: RawValue;
-  issuanceOfStock?: RawValue;
-}
-
-interface RawEarningsItem {
-  epsActual?: RawValue;
-  epsEstimate?: RawValue;
-  epsDifference?: RawValue;
-  surprisePercent?: RawValue;
-  quarter?: RawDate;
-  currency?: string;
-  period?: string;
-}
-
-interface RawKeyStatistics {
-  enterpriseValue?: RawValue;
-  forwardPE?: RawValue;
-  profitMargins?: RawValue;
-  floatShares?: RawValue;
-  sharesOutstanding?: RawValue;
-  heldPercentInsiders?: RawValue;
-  heldPercentInstitutions?: RawValue;
-  beta?: RawValue;
-  bookValue?: RawValue;
-  priceToBook?: RawValue;
-  earningsQuarterlyGrowth?: RawValue;
-  netIncomeToCommon?: RawValue;
-  trailingEps?: RawValue;
-  forwardEps?: RawValue;
-  pegRatio?: RawValue;
-  enterpriseToRevenue?: RawValue;
-  enterpriseToEbitda?: RawValue;
-  lastDividendValue?: RawValue;
-  lastDividendDate?: RawDate;
-  lastSplitFactor?: string;
-}
 
 export class YahooFinanceScraperService {
   private cookie: string | null = null;
