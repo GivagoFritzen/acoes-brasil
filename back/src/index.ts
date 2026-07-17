@@ -4,7 +4,9 @@ import express from "express";
 import { env } from "./config/EnvConfig";
 import { sequelize } from "./database";
 import { fundamentusRoutes } from "./routes/FundamentusRoutes";
+import { yahooFinanceRoutes } from "./routes/YahooFinanceRoutes";
 import { googleFinanceRoutes } from "./routes/GoogleFinanceRoutes";
+import { investidor10Routes } from "./routes/Investidor10Routes";
 import { tradingHoursRoutes } from "./routes/TradingHoursRoutes";
 import { orderRoutes } from "./routes/OrderRoutes";
 import { portfolioRoutes } from "./routes/PortfolioRoutes";
@@ -33,8 +35,10 @@ app.use("/orders", orderRoutes);
 app.use("/portfolios", portfolioRoutes);
 app.use("/proventos", proventoRoutes);
 app.use("/fundamentus", fundamentusRoutes);
+app.use("/investidor10", investidor10Routes);
 app.use("/google-finance", googleFinanceRoutes);
 app.use("/trading-hours", tradingHoursRoutes);
+app.use("/yahoo-finance", yahooFinanceRoutes);
 
 if (process.env.SERVE_STATIC === "true") {
   app.use((_req, res) => {

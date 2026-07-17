@@ -1,5 +1,5 @@
-export type { AcaoCurrentInfo } from './AcaoCurrentInfoModel';
-export type { FundamentusAcaoDetails, FundamentusIndicator } from './FundamentusModel';
+export type { FundamentusAcaoDetails, FundamentusIndicator, FundamentusProvento, FundamentusProventosResponse } from './FundamentusModel';
+export type { Investidor10AcaoDetails, Investidor10Indicator, Investidor10Provento, Investidor10ProventosResponse } from './Investidor10Model';
 export type { Order, OrderOperacao, OrderTipo } from './OrderModel';
 export type { OrdersResponse } from './OrdersRespondeModel';
 export type { PortfolioPieSlice } from './PortfolioPieSliceModel';
@@ -12,6 +12,16 @@ export type {
   TradingHoursResponse,
   TradingHoursStatus,
 } from './trading-hours';
+export type {
+  YahooFinanceDetails,
+  YahooFinanceKeyStatistics,
+  YahooFinanceFinancialData,
+  YahooIncomeStatement,
+  YahooBalanceSheet,
+  YahooCashflowStatement,
+  YahooFinanceEarningsHistoryItem,
+  YahooFinanceCalendarEvents,
+} from './YahooFinanceModel';
 export type { ChartDimensions } from './googleGraphic';
 export type { GridLine } from './googleGraphic';
 export type { LinePoint } from './googleGraphic';

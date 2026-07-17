@@ -2,6 +2,7 @@ import { SpreadsheetRow, extractField, parseDecimal, readSpreadsheetRows, toBrDa
 import type { ProventoTipo as proventoTipo } from "../../../../common/models/provento";
 import { CreateOrderDto } from "../../application/dto/CreateOrderDto";
 import { CreateProventoDto } from "../../application/dto/CreateProventoDto";
+import { PortfolioImportRowDto } from "../../application/dto/PortfolioImportRowDto";
 import type { OrderOperacao as orderOperacao } from "../../../../common/models/order";
 import { normalizeOrderCodigo } from "../../../../common/utils/OrderCodigoUtils";
 import { detectSupportedAssetTypeFromTicker } from "../../../../common/utils/AssetTypeUtils";
@@ -88,6 +89,30 @@ export class SpreadsheetParserService {
     }
 
     return { validRows, invalidLineNumbers };
+  }
+
+  parsePortfolioRowsAsync(buffer: Buffer): PortfolioImportRowDto[] {
+    const rows = readSpreadsheetRows(buffer);
+    const portfolios: PortfolioImportRowDto[] = [];
+
+    for (const [index, row] of rows.entries()) {
+      const line = index + 2;
+      const codigo = normalizeOrderCodigo(
+        String(extractField(row, ["Código", "Codigo", "Ativo"]) ?? "")
+      );
+      const quantidadeRaw = parseDecimal(extractField(row, ["Quantidade"]));
+      const precoMedio = parseDecimal(extractField(row, ["Preço Médio", "Preco Medio", "PrecoMedio", "Preço", "Preco"]));
+
+      const quantidade = quantidadeRaw === null ? null : Math.trunc(quantidadeRaw);
+
+      if (!codigo || !quantidade || quantidade <= 0 || !precoMedio) {
+        throw new Error(`Linha ${line}: dados obrigatórios inválidos para importação de portfólio.`);
+      }
+
+      portfolios.push({ codigo, quantidade, precoMedio });
+    }
+
+    return portfolios;
   }
 
   private normalizeOperacao(value: unknown): orderOperacao | null {

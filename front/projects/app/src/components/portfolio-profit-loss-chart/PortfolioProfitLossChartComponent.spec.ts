@@ -3,7 +3,7 @@ import { PortfolioProfitLossChartComponent } from './PortfolioProfitLossChartCom
 import { PortfolioService } from '../../services/PortfolioService';
 import { FundamentusService } from '../../services/FundamentusService';
 import { vi } from 'vitest';
-import { of } from 'rxjs';
+import { firstValueFrom, of } from 'rxjs';
 import { PLATFORM_ID } from '@angular/core';
 import { PortfolioItem, FundamentusAcaoDetails } from '../../models';
 
@@ -288,6 +288,54 @@ describe('PortfolioProfitLossChartComponent', () => {
       const item = { name: 'TEST', value: 0 };
       const result = (component as any).buildBarChartItems([item]);
       expect(result[0].color).toBe('#5AA454');
+    });
+  });
+
+  describe('merge no getProfitLossChartData', () => {
+    it('deve mesclar PETR4 e PETR4F em unica chamada a FundamentusService', () => {
+      mockPortfolioService.getPortfolios.mockReturnValue(of([
+        { id: '1', codigo: 'PETR4', precoMedio: 30, quantidade: 100 },
+        { id: '2', codigo: 'PETR4F', precoMedio: 35, quantidade: 50 },
+      ]));
+      mockFundamentusService.getAcaoDetails.mockReset();
+      mockFundamentusService.getAcaoDetails.mockReturnValue(of({
+        codigo: 'PETR4',
+        empresa: 'Petrobras',
+        setor: 'Petroleo',
+        subsetor: 'Refino',
+        updatedAt: '2025-01-01',
+        indicadores: [{ label: 'Cotação', value: '35,00' }],
+      }));
+
+      component.ngOnInit();
+      component.chartItems$.subscribe();
+
+      expect(mockFundamentusService.getAcaoDetails).toHaveBeenCalledTimes(1);
+    });
+
+    it('deve gerar uma barra por codigo mesclado', async () => {
+      mockPortfolioService.getPortfolios.mockReturnValue(of([
+        { id: '1', codigo: 'PETR4', precoMedio: 30, quantidade: 100 },
+        { id: '2', codigo: 'PETR4F', precoMedio: 35, quantidade: 50 },
+        { id: '3', codigo: 'VALE5', precoMedio: 70, quantidade: 50 },
+      ]));
+      mockFundamentusService.getAcaoDetails.mockReset();
+      mockFundamentusService.getAcaoDetails.mockImplementation((codigo: string) => of({
+        codigo,
+        empresa: 'Test',
+        setor: 'Test',
+        subsetor: 'Test',
+        updatedAt: '2025-01-01',
+        indicadores: [{ label: 'Cotação', value: codigo === 'PETR4' ? '35,00' : '100,00' }],
+      } as FundamentusAcaoDetails));
+
+      component.ngOnInit();
+
+      const items = await firstValueFrom(component.chartItems$);
+      expect(items).toHaveLength(2);
+      const nomes = items.map(i => i.name);
+      expect(nomes).toContain('PETR4');
+      expect(nomes).toContain('VALE5');
     });
   });
 });

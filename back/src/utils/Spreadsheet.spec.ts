@@ -9,6 +9,8 @@ describe("Spreadsheet", () => {
 
       expect(resultado).toEqual([]);
     });
+
+
   });
 
   describe("extractField", () => {
@@ -115,6 +117,18 @@ describe("Spreadsheet", () => {
 
     it("Deve retornar null quando string vazia", () => {
       expect(toBrDateString("")).toBeNull();
+    });
+
+    it("Deve converter numero serial Excel para formato BR", () => {
+      expect(toBrDateString(45292)).toBe("01-01-2024");
+    });
+
+    it("Deve converter string com formatacao Date() para formato BR", () => {
+      expect(toBrDateString("2024/01/15")).toBe("15-01-2024");
+    });
+
+    it("Deve retornar null quando string nao e data", () => {
+      expect(toBrDateString("abc")).toBeNull();
     });
   });
 });

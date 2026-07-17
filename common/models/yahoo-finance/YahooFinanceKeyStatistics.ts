@@ -1,0 +1,23 @@
+export interface YahooFinanceKeyStatistics {
+  enterpriseValue: string | null;
+  forwardPE: string | null;
+  profitMargins: string | null;
+  floatShares: string | null;
+  sharesOutstanding: string | null;
+  heldPercentInsiders: string | null;
+  heldPercentInstitutions: string | null;
+  beta: string | null;
+  bookValue: string | null;
+  priceToBook: string | null;
+  earningsQuarterlyGrowth: string | null;
+  netIncomeToCommon: string | null;
+  trailingEps: string | null;
+  forwardEps: string | null;
+  pegRatio: string | null;
+  enterpriseToRevenue: string | null;
+  enterpriseToEbitda: string | null;
+  lastDividendValue: string | null;
+  lastDividendDate: string | null;
+  lastSplitFactor: string | null;
+  marketCap: string | null;
+}

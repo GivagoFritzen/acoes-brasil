@@ -38,7 +38,7 @@ export class ProventoController {
       });
       return res.status(201).json(result);
     } catch (error) {
-      return ErrorHandler.handle(error, req, res);
+      return ErrorHandler.handle(error, res);
     }
   }
 
@@ -51,7 +51,7 @@ export class ProventoController {
       await this.deleteProventoService.executeAsync(id);
       return res.json({ message: "provento deletado com sucesso." });
     } catch (error) {
-      return ErrorHandler.handle(error, req, res);
+      return ErrorHandler.handle(error, res);
     }
   }
 
@@ -73,7 +73,7 @@ export class ProventoController {
       const result = await this.importProventosService.executeAsync(validRows);
       return res.status(201).json({ ...result, invalidLineNumbers });
     } catch (error) {
-      return ErrorHandler.handle(error, req, res);
+      return ErrorHandler.handle(error, res);
     } finally {
       if (file?.path) fs.unlink(file.path, () => {});
     }
@@ -93,7 +93,7 @@ export class ProventoController {
       });
       return res.json(result);
     } catch (error) {
-      return ErrorHandler.handle(error, req, res);
+      return ErrorHandler.handle(error, res);
     }
   }
 }

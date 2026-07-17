@@ -3,8 +3,10 @@ export interface ApiEndpoints {
   portfolios: string;
   proventos: string;
   fundamentus: string;
+  investidor10: string;
   googleFinance: string;
   tradingHours: string;
+  yahooFinance: string;
 }
 
 export interface ApiConfig {
@@ -19,8 +21,10 @@ export const API_CONFIG: ApiConfig = {
     portfolios: '/portfolios',
     proventos: '/proventos',
     fundamentus: '/fundamentus',
+    investidor10: '/investidor10',
     googleFinance: '/google-finance',
-    tradingHours: '/trading-hours'
+    tradingHours: '/trading-hours',
+    yahooFinance: '/yahoo-finance'
   }
 };
 

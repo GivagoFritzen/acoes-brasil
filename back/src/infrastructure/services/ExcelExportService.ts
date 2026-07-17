@@ -1,11 +1,10 @@
 import * as XLSX from "xlsx";
-import { SellSnapshotExportRow } from "../../models/SellSnapshotExportRow";
 
 export class ExcelExportService {
-  generateAsync(rows: SellSnapshotExportRow[]): Buffer {
+  generateAsync(rows: Record<string, any>[], sheetName: string = "Vendas"): Buffer {
     const workbook = XLSX.utils.book_new();
     const worksheet = XLSX.utils.json_to_sheet(rows);
-    XLSX.utils.book_append_sheet(workbook, worksheet, "Vendas");
+    XLSX.utils.book_append_sheet(workbook, worksheet, sheetName);
     return XLSX.write(workbook, { type: "buffer", bookType: "xlsx" });
   }
 }

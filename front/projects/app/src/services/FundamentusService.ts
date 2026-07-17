@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { catchError } from 'rxjs/operators';
-import { FundamentusAcaoDetails } from '../models';
+import { FundamentusAcaoDetails, FundamentusProventosResponse } from '../models';
 import { getApiUrl } from '../config/ApiConfig';
 import { BaseHttpService } from './BaseHttpService';
 
@@ -19,6 +19,13 @@ export class FundamentusService extends BaseHttpService {
   getAcaoDetails(codigo: string): Observable<FundamentusAcaoDetails> {
     const normalizedCode = codigo.trim().toUpperCase();
     return this.http.get<FundamentusAcaoDetails>(`${this.baseUrl}/${normalizedCode}`).pipe(
+      catchError(error => this.handleError(error))
+    );
+  }
+
+  getProventos(codigo: string): Observable<FundamentusProventosResponse> {
+    const normalizedCode = codigo.trim().toUpperCase();
+    return this.http.get<FundamentusProventosResponse>(`${this.baseUrl}/${normalizedCode}/proventos`).pipe(
       catchError(error => this.handleError(error))
     );
   }

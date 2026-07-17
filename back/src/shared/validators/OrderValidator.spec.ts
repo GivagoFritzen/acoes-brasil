@@ -41,6 +41,32 @@ describe("OrderValidator", () => {
       ).toThrow("Dados inválidos para criar order");
     });
 
+    it("Deve lancar ValidationError quando quantidade for negativa", () => {
+      expect(() =>
+        OrderValidator.validateCreateOrderDto({
+          codigo: "VALE3",
+          quantidade: -1,
+          valor: 50,
+          data: "01-01-2024",
+          tipo: "ACAO",
+          operacao: "Compra",
+        })
+      ).toThrow("Quantidade deve ser maior que zero.");
+    });
+
+    it("Deve lancar ValidationError quando valor for negativo", () => {
+      expect(() =>
+        OrderValidator.validateCreateOrderDto({
+          codigo: "VALE3",
+          quantidade: 100,
+          valor: -1,
+          data: "01-01-2024",
+          tipo: "ACAO",
+          operacao: "Compra",
+        })
+      ).toThrow("Valor deve ser maior que zero.");
+    });
+
     it("Deve lancar ValidationError quando operacao invalida", () => {
       expect(() =>
         OrderValidator.validateCreateOrderDto({

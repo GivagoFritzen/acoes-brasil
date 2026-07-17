@@ -10,6 +10,7 @@ import type { PositionedDataItem } from '../../models/graphics/PositionedDataIte
 import type { ProfitLossDataItem } from '../../models/graphics/ProfitLossDataItemModel';
 import { FundamentusService } from '../../services/FundamentusService';
 import { PortfolioService } from '../../services/PortfolioService';
+import { mesclarPorCodigo } from '../../../../../../common/utils/OrderCodigoUtils';
 
 @Component({
   selector: 'app-portfolio-profit-loss-chart',
@@ -73,11 +74,13 @@ export class PortfolioProfitLossChartComponent implements OnInit {
   private getProfitLossChartData(): Observable<ProfitLossDataItem[]> {
     return this.portfolioService.getPortfolios().pipe(
       switchMap((portfolioItems: PortfolioItem[]) => {
-        if (!portfolioItems || portfolioItems.length === 0) {
+        const merged = mesclarPorCodigo(portfolioItems ?? []);
+
+        if (merged.length === 0) {
           return of([]);
         }
 
-        const itemObservables = portfolioItems.map((item) =>
+        const itemObservables = merged.map((item) =>
           this.fundamentusService.getAcaoDetails(item.codigo).pipe(
             map((details) => ({
               portfolioItem: item,
@@ -251,4 +254,5 @@ export class PortfolioProfitLossChartComponent implements OnInit {
     this.isMobileLayout = nextIsMobile;
     this.isMobileLayout$.next(nextIsMobile);
   }
+
 }

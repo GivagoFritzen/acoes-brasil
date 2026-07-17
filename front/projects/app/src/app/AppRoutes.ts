@@ -5,6 +5,7 @@ import { ConfiguracoesComponent } from '../pages/configuracoes/ConfiguracoesComp
 import { ExportacaoComponent } from '../pages/exportacao/ExportacaoComponent';
 import { ImportacaoComponent } from '../pages/importacao/ImportacaoComponent';
 import { OrdersComponent } from '../pages/orders/OrdersComponent';
+import { CustomizeComponent } from '../pages/personalizar/CustomizeComponent';
 import { ProventosComponent } from '../pages/proventos/ProventosComponent';
 
 export const routes: Routes = [
@@ -40,5 +41,9 @@ export const routes: Routes = [
   {
     path: 'configuracoes',
     component: ConfiguracoesComponent,
+  },
+  {
+    path: 'personalizar',
+    component: CustomizeComponent,
   },
 ];

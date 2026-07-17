@@ -10,6 +10,8 @@
   --color-card-border: rgba(15, 23, 42, 0.1);
   --color-shadow: rgba(15, 23, 42, 0.08);
   --color-hint: rgba(15, 23, 42, 0.65);
+  --color-warning: #b45309;
+  --color-surface-alt: #f8fafc;
 }
 
 [data-theme="dark"] {
@@ -21,6 +23,8 @@
   --color-card-border: rgba(226, 232, 240, 0.12);
   --color-shadow: rgba(0, 0, 0, 0.3);
   --color-hint: rgba(226, 232, 240, 0.6);
+  --color-warning: #fbbf24;
+  --color-surface-alt: #334155;
 }
 
 body {

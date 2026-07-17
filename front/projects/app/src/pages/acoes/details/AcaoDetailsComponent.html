@@ -10,6 +10,22 @@
             <h2>{{ fund.codigo }}</h2>
             <span>{{ fund.empresa }}</span>
         </div>
+
+        <div class="acao-details__title-wrap" *ngIf="!fundamentus() && investidor10() as inv">
+            <h2>{{ inv.codigo }}</h2>
+            <span>{{ inv.empresa }}</span>
+        </div>
+
+        <div class="acao-details__title-wrap" *ngIf="!fundamentus() && !investidor10() && yahooFinance() as yh">
+            <h2>{{ yh.codigo }}</h2>
+        </div>
+
+        <button class="acao-details__edit-btn" (click)="openPersonalizar()" title="Personalizar">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/>
+                <path d="m15 5 4 4"/>
+            </svg>
+        </button>
     </header>
 
     <div *ngIf="isLoading()" class="acao-details__loading">
@@ -17,15 +33,15 @@
         <span>{{ 'acaoDetails.loading' | translate }}</span>
     </div>
 
-    <ng-container *ngIf="!isLoading() && fundamentus() as fund">
-        <div class="acao-details__grid">
+    <div *ngIf="!isLoading()" class="acao-details__grid">
+        <ng-container *ngIf="detailSource() === 'fundamentus' && fundamentus() as fund">
 
             <article class="acao-details__card">
                 <header>
                     <h3>{{ 'acaoDetails.cards.information' | translate }}</h3>
                 </header>
-                <div class="acao-details__table">
-                    <div class="acao-details__row" *ngFor="let item of fund.indicadores | slice:0:11">
+                <div class="acao-details__fundamentus-table">
+                    <div class="acao-details__fundamentus-row" *ngFor="let item of fund.indicadores | slice:0:11">
                         <span class="label">
                             {{ item.label }}
                             <app-help-tip *ngIf="hasHelp(item.label)" [text]="getHelp(item.label)"></app-help-tip>
@@ -39,8 +55,8 @@
                 <header>
                     <h3>{{ 'acaoDetails.cards.oscillations' | translate }}</h3>
                 </header>
-                <div class="acao-details__table">
-                    <div class="acao-details__row" *ngFor="let item of fund.indicadores | slice:11:22">
+                <div class="acao-details__fundamentus-table">
+                    <div class="acao-details__fundamentus-row" *ngFor="let item of fund.indicadores | slice:11:22">
                         <span class="label">
                             {{ item.label }}
                             <app-help-tip *ngIf="hasHelp(item.label)" [text]="getHelp(item.label)"></app-help-tip>
@@ -54,8 +70,8 @@
                 <header>
                     <h3>{{ 'acaoDetails.cards.fundamentalIndicators' | translate }}</h3>
                 </header>
-                <div class="acao-details__table acao-details__table--columns">
-                    <div class="acao-details__row" *ngFor="let item of fund.indicadores | slice:22:44">
+                <div class="acao-details__fundamentus-table">
+                    <div class="acao-details__fundamentus-row" *ngFor="let item of fund.indicadores | slice:22:44">
                         <span class="label">
                             {{ item.label }}
                             <app-help-tip *ngIf="hasHelp(item.label)" [text]="getHelp(item.label)"></app-help-tip>
@@ -69,8 +85,8 @@
                 <header>
                     <h3>{{ 'acaoDetails.cards.balanceSheet' | translate }}</h3>
                 </header>
-                <div class="acao-details__table">
-                    <div class="acao-details__row" *ngFor="let item of fund.indicadores | slice:44:50">
+                <div class="acao-details__fundamentus-table">
+                    <div class="acao-details__fundamentus-row" *ngFor="let item of fund.indicadores | slice:44:50">
                         <span class="label">
                             {{ item.label }}
                             <app-help-tip *ngIf="hasHelp(item.label)" [text]="getHelp(item.label)"></app-help-tip>
@@ -84,8 +100,8 @@
                 <header>
                     <h3>{{ 'acaoDetails.cards.results' | translate }}</h3>
                 </header>
-                <div class="acao-details__table">
-                    <div class="acao-details__row" *ngFor="let item of fund.indicadores | slice:50">
+                <div class="acao-details__fundamentus-table">
+                    <div class="acao-details__fundamentus-row" *ngFor="let item of fund.indicadores | slice:50">
                         <span class="label">
                             {{ item.label }}
                             <app-help-tip *ngIf="hasHelp(item.label)" [text]="getHelp(item.label)"></app-help-tip>
@@ -95,24 +111,898 @@
                 </div>
             </article>
 
-            <article class="acao-details__card acao-details__card--chart">
-                <header class="acao-details__chart-header">
-                    <h3>{{ 'acaoDetails.cards.priceChart' | translate }}</h3>
-                    <div class="acao-details__chart-windows">
-                        <button *ngFor="let w of chartWindows"
-                                class="acao-details__chart-btn"
-                                [class.acao-details__chart-btn--active]="selectedChartWindow() === w"
-                                (click)="changeChartWindow(w)">
-                            {{ w }}
-                        </button>
-                    </div>
+        </ng-container>
+
+        <ng-container *ngIf="detailSource() === 'investidor10' && investidor10() as inv">
+
+            <article class="acao-details__card acao-details__card--full">
+                <header>
+                    <h3>{{ 'acaoDetails.cards.investidor10CompanyData' | translate }}</h3>
                 </header>
-                <app-stock-chart
-                    [points]="(googleFinance()?.chart?.points) ?? []"
-                    [previousClose]="googleFinance()?.chart?.previousClose ?? null">
-                </app-stock-chart>
+                <div class="acao-details__fundamentus-table">
+                    <div class="acao-details__fundamentus-row" *ngFor="let item of inv.dadosSobreEmpresa">
+                        <span class="label">
+                            {{ item.label }}
+                            <app-help-tip *ngIf="hasHelp(item.label)" [text]="getHelp(item.label)"></app-help-tip>
+                        </span>
+                        <strong class="value">{{ item.value }}</strong>
+                    </div>
+                </div>
             </article>
 
+            <article class="acao-details__card acao-details__card--info-2cols">
+                <header>
+                    <h3>{{ 'acaoDetails.cards.investidor10CompanyInfo' | translate }}</h3>
+                </header>
+                <div class="acao-details__fundamentus-table">
+                    <div class="acao-details__fundamentus-row" *ngFor="let item of inv.informacoesSobreEmpresa">
+                        <span class="label">
+                            {{ item.label }}
+                            <app-help-tip *ngIf="hasHelp(item.label)" [text]="getHelp(item.label)"></app-help-tip>
+                        </span>
+                        <strong class="value">{{ item.value }}</strong>
+                    </div>
+                </div>
+            </article>
+
+            <article class="acao-details__card acao-details__card--full">
+                <header>
+                    <h3>{{ 'acaoDetails.cards.investidor10FundamentalIndicators' | translate }}</h3>
+                </header>
+                <div class="acao-details__fundamentus-table">
+                    <div class="acao-details__fundamentus-row" *ngFor="let item of inv.indicadoresFundamentalistas">
+                        <span class="label">
+                            {{ item.label }}
+                            <app-help-tip *ngIf="hasHelp(item.label)" [text]="getHelp(item.label)"></app-help-tip>
+                        </span>
+                        <strong class="value">{{ item.value }}</strong>
+                    </div>
+                </div>
+            </article>
+
+            <article class="acao-details__card acao-details__card--full" *ngIf="inv.historicoIndicadores.length">
+                <header>
+                    <h3>{{ 'acaoDetails.cards.investidor10HistoricalIndicators' | translate }}</h3>
+                    <p id="historico-description" class="acao-details__historico-description">{{ 'acaoDetails.historical.description' | translate }}</p>
+                </header>
+                <div class="acao-details__historico-table">
+                <table aria-describedby="historico-description" class="acao-details__historico-table-inner">
+                    <thead>
+                            <tr>
+                                <th class="col-indicador">{{ 'acaoDetails.historical.indicator' | translate }}</th>
+                                <th class="col-ano" *ngFor="let ano of historicoAnos()">{{ ano }}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let item of inv.historicoIndicadores">
+                                <td class="col-indicador">{{ item.indicador }}</td>
+                                <td class="col-valor" *ngFor="let ano of historicoAnos()">{{ getValorHistorico(item, ano) }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </article>
+
+            <ng-container *ngIf="inv.receitas.length">
+                <div class="acao-details__revenue-grid">
+                    <ng-template #revenueCard let-titleKey="titleKey" let-data="data" let-total="total" let-descLabelKey="descLabelKey" let-year="year">
+                        <article class="acao-details__card">
+                            <header>
+                                <h3>{{ titleKey | translate }} ({{ year }})</h3>
+                            </header>
+                            <div class="acao-details__fundamentus-table">
+                                <div class="acao-details__revenue-total">
+                                    <span class="label">{{ 'acaoDetails.revenue.totalRevenue' | translate }}</span>
+                                    <strong class="value">{{ total }}</strong>
+                                </div>
+                                <div class="acao-details__fundamentus-row acao-details__revenue-desc">
+                                    <span class="label">{{ descLabelKey | translate }}</span>
+                                    <strong class="value">{{ 'acaoDetails.revenue.percentage' | translate }}</strong>
+                                </div>
+                                <div class="acao-details__fundamentus-row" *ngFor="let item of data">
+                                    <span class="label">{{ item.nome }}</span>
+                                    <strong class="value">{{ item.porcentagem }}%</strong>
+                                </div>
+                            </div>
+                        </article>
+                    </ng-template>
+
+                    <ng-container *ngTemplateOutlet="revenueCard; context: {
+                        titleKey: 'acaoDetails.cards.investidor10Revenue',
+                        data: inv.receitas[0].regioes,
+                        total: inv.receitas[0].receitaTotal,
+                        descLabelKey: 'acaoDetails.revenue.region',
+                        year: inv.receitas[0].ano
+                    }"></ng-container>
+                    <ng-container *ngTemplateOutlet="revenueCard; context: {
+                        titleKey: 'acaoDetails.cards.investidor10BussinesRevenue',
+                        data: inv.receitas[0].negocios,
+                        total: inv.receitas[0].receitaTotal,
+                        descLabelKey: 'acaoDetails.revenue.business',
+                        year: inv.receitas[0].ano
+                    }"></ng-container>
+
+                </div>
+            </ng-container>
+        </ng-container>
+
+        <ng-container *ngIf="detailSource() === 'yahoo' && yahooFinance() as yh">
+
+            <article class="acao-details__card">
+                <header>
+                    <h3>{{ 'acaoDetails.cards.valuationMeasures' | translate }}</h3>
+                </header>
+                <div class="acao-details__fundamentus-table" *ngIf="yh.keyStatistics as ks">
+                    <div class="acao-details__fundamentus-row">
+                        <span class="label">
+                            Market Cap
+                            <app-help-tip *ngIf="hasHelp('Market Cap')" [text]="getHelp('Market Cap')"></app-help-tip>
+                        </span>
+                        <strong class="value">{{ ks.marketCap ?? '-' }}</strong>
+                    </div>
+                    <div class="acao-details__fundamentus-row">
+                        <span class="label">
+                            Enterprise Value
+                            <app-help-tip *ngIf="hasHelp('Enterprise Value')" [text]="getHelp('Enterprise Value')"></app-help-tip>
+                        </span>
+                        <strong class="value">{{ ks.enterpriseValue ?? '-' }}</strong>
+                    </div>
+                    <div class="acao-details__fundamentus-row">
+                        <span class="label">
+                            LPA (Trailing)
+                            <app-help-tip *ngIf="hasHelp('LPA (Trailing)')" [text]="getHelp('LPA (Trailing)')"></app-help-tip>
+                        </span>
+                        <strong class="value">{{ ks.trailingEps ?? '-' }}</strong>
+                    </div>
+                    <div class="acao-details__fundamentus-row">
+                        <span class="label">
+                            LPA (Forward)
+                            <app-help-tip *ngIf="hasHelp('LPA (Forward)')" [text]="getHelp('LPA (Forward)')"></app-help-tip>
+                        </span>
+                        <strong class="value">{{ ks.forwardEps ?? '-' }}</strong>
+                    </div>
+                    <div class="acao-details__fundamentus-row">
+                        <span class="label">
+                            P/L (Forward)
+                            <app-help-tip *ngIf="hasHelp('P/L (Forward)')" [text]="getHelp('P/L (Forward)')"></app-help-tip>
+                        </span>
+                        <strong class="value">{{ ks.forwardPE ?? '-' }}</strong>
+                    </div>
+                    <div class="acao-details__fundamentus-row">
+                        <span class="label">
+                            PEG Ratio
+                            <app-help-tip *ngIf="hasHelp('PEG Ratio')" [text]="getHelp('PEG Ratio')"></app-help-tip>
+                        </span>
+                        <strong class="value">{{ ks.pegRatio ?? '-' }}</strong>
+                    </div>
+                    <div class="acao-details__fundamentus-row">
+                        <span class="label">
+                            Cresc. Trimestral Lucro
+                            <app-help-tip *ngIf="hasHelp('Cresc. Trimestral Lucro')" [text]="getHelp('Cresc. Trimestral Lucro')"></app-help-tip>
+                        </span>
+                        <strong class="value">{{ ks.earningsQuarterlyGrowth ?? '-' }}</strong>
+                    </div>
+                    <div class="acao-details__fundamentus-row">
+                        <span class="label">
+                            P/VP
+                            <app-help-tip *ngIf="hasHelp('P/VP')" [text]="getHelp('P/VP')"></app-help-tip>
+                        </span>
+                        <strong class="value">{{ ks.priceToBook ?? '-' }}</strong>
+                    </div>
+                    <div class="acao-details__fundamentus-row">
+                        <span class="label">
+                            Enterprise/Receita
+                            <app-help-tip *ngIf="hasHelp('Enterprise/Receita')" [text]="getHelp('Enterprise/Receita')"></app-help-tip>
+                        </span>
+                        <strong class="value">{{ ks.enterpriseToRevenue ?? '-' }}</strong>
+                    </div>
+                    <div class="acao-details__fundamentus-row">
+                        <span class="label">
+                            Enterprise/EBITDA
+                            <app-help-tip *ngIf="hasHelp('Enterprise/EBITDA')" [text]="getHelp('Enterprise/EBITDA')"></app-help-tip>
+                        </span>
+                        <strong class="value">{{ ks.enterpriseToEbitda ?? '-' }}</strong>
+                    </div>
+                    <div class="acao-details__fundamentus-row">
+                        <span class="label">
+                            Valor Patrimonial
+                            <app-help-tip *ngIf="hasHelp('Valor Patrimonial')" [text]="getHelp('Valor Patrimonial')"></app-help-tip>
+                        </span>
+                        <strong class="value">{{ ks.bookValue ?? '-' }}</strong>
+                    </div>
+                    <div class="acao-details__fundamentus-row">
+                        <span class="label">
+                            Último Dividendo
+                            <app-help-tip *ngIf="hasHelp('Último Dividendo')" [text]="getHelp('Último Dividendo')"></app-help-tip>
+                        </span>
+                        <strong class="value">{{ ks.lastDividendValue ?? '-' }}</strong>
+                    </div>
+                    <div class="acao-details__fundamentus-row">
+                        <span class="label">
+                            Data Último Dividendo
+                            <app-help-tip *ngIf="hasHelp('Data Último Dividendo')" [text]="getHelp('Data Último Dividendo')"></app-help-tip>
+                        </span>
+                        <strong class="value">{{ ks.lastDividendDate ?? '-' }}</strong>
+                    </div>
+                </div>
+            </article>
+
+            <article class="acao-details__card">
+                <header>
+                    <h3>{{ 'acaoDetails.cards.tradingInformation' | translate }}</h3>
+                </header>
+                <div class="acao-details__fundamentus-table" *ngIf="yh.keyStatistics as ks">
+                    <div class="acao-details__fundamentus-row">
+                        <span class="label">
+                            Beta
+                            <app-help-tip *ngIf="hasHelp('Beta')" [text]="getHelp('Beta')"></app-help-tip>
+                        </span>
+                        <strong class="value">{{ ks.beta ?? '-' }}</strong>
+                    </div>
+                    <div class="acao-details__fundamentus-row">
+                        <span class="label">
+                            Ações em Circulação
+                            <app-help-tip *ngIf="hasHelp('Ações em Circulação')" [text]="getHelp('Ações em Circulação')"></app-help-tip>
+                        </span>
+                        <strong class="value">{{ ks.sharesOutstanding ?? '-' }}</strong>
+                    </div>
+                    <div class="acao-details__fundamentus-row">
+                        <span class="label">
+                            Ações em Float
+                            <app-help-tip *ngIf="hasHelp('Ações em Float')" [text]="getHelp('Ações em Float')"></app-help-tip>
+                        </span>
+                        <strong class="value">{{ ks.floatShares ?? '-' }}</strong>
+                    </div>
+                    <div class="acao-details__fundamentus-row">
+                        <span class="label">
+                            % Insider
+                            <app-help-tip *ngIf="hasHelp('% Insider')" [text]="getHelp('% Insider')"></app-help-tip>
+                        </span>
+                        <strong class="value">{{ ks.heldPercentInsiders ?? '-' }}</strong>
+                    </div>
+                    <div class="acao-details__fundamentus-row">
+                        <span class="label">
+                            % Institucional
+                            <app-help-tip *ngIf="hasHelp('% Institucional')" [text]="getHelp('% Institucional')"></app-help-tip>
+                        </span>
+                        <strong class="value">{{ ks.heldPercentInstitutions ?? '-' }}</strong>
+                    </div>
+                    <div class="acao-details__fundamentus-row">
+                        <span class="label">
+                            Lucro Líquido (Common)
+                            <app-help-tip *ngIf="hasHelp('Lucro Líquido (Common)')" [text]="getHelp('Lucro Líquido (Common)')"></app-help-tip>
+                        </span>
+                        <strong class="value">{{ ks.netIncomeToCommon ?? '-' }}</strong>
+                    </div>
+                </div>
+                <div class="acao-details__fundamentus-table" *ngIf="yh.financialData as fd">
+                    <div class="acao-details__fundamentus-row">
+                        <span class="label">
+                            Preço Alvo (Médio)
+                            <app-help-tip *ngIf="hasHelp('Preço Alvo (Médio)')" [text]="getHelp('Preço Alvo (Médio)')"></app-help-tip>
+                        </span>
+                        <strong class="value">{{ fd.targetMeanPrice ?? '-' }}</strong>
+                    </div>
+                    <div class="acao-details__fundamentus-row">
+                        <span class="label">
+                            Preço Alvo (Máx)
+                            <app-help-tip *ngIf="hasHelp('Preço Alvo (Máx)')" [text]="getHelp('Preço Alvo (Máx)')"></app-help-tip>
+                        </span>
+                        <strong class="value">{{ fd.targetHighPrice ?? '-' }}</strong>
+                    </div>
+                    <div class="acao-details__fundamentus-row">
+                        <span class="label">
+                            Preço Alvo (Mín)
+                            <app-help-tip *ngIf="hasHelp('Preço Alvo (Mín)')" [text]="getHelp('Preço Alvo (Mín)')"></app-help-tip>
+                        </span>
+                        <strong class="value">{{ fd.targetLowPrice ?? '-' }}</strong>
+                    </div>
+                    <div class="acao-details__fundamentus-row">
+                        <span class="label">
+                            Preço Alvo (Mediana)
+                            <app-help-tip *ngIf="hasHelp('Preço Alvo (Mediana)')" [text]="getHelp('Preço Alvo (Mediana)')"></app-help-tip>
+                        </span>
+                        <strong class="value">{{ fd.targetMedianPrice ?? '-' }}</strong>
+                    </div>
+                    <div class="acao-details__fundamentus-row">
+                        <span class="label">
+                            Recomendação
+                            <app-help-tip *ngIf="hasHelp('Recomendação')" [text]="getHelp('Recomendação')"></app-help-tip>
+                        </span>
+                        <strong class="value">{{ fd.recommendationKey ?? '-' }}</strong>
+                    </div>
+                    <div class="acao-details__fundamentus-row">
+                        <span class="label">
+                            Nota dos Analistas
+                            <app-help-tip *ngIf="hasHelp('Nota dos Analistas')" [text]="getHelp('Nota dos Analistas')"></app-help-tip>
+                        </span>
+                        <strong class="value">{{ fd.recommendationMean ?? '-' }}</strong>
+                    </div>
+                    <div class="acao-details__fundamentus-row">
+                        <span class="label">
+                            Nº de Analistas
+                            <app-help-tip *ngIf="hasHelp('Nº de Analistas')" [text]="getHelp('Nº de Analistas')"></app-help-tip>
+                        </span>
+                        <strong class="value">{{ fd.numberOfAnalystOpinions ?? '-' }}</strong>
+                    </div>
+                </div>
+                <div class="acao-details__fundamentus-table" *ngIf="yh.calendarEvents as ce">
+                    <div class="acao-details__fundamentus-row">
+                        <span class="label">
+                            Próximos Resultados
+                            <app-help-tip *ngIf="hasHelp('Próximos Resultados')" [text]="getHelp('Próximos Resultados')"></app-help-tip>
+                        </span>
+                        <strong class="value">{{ ce.earningsDate ?? '-' }}</strong>
+                    </div>
+                    <div class="acao-details__fundamentus-row">
+                        <span class="label">
+                            Teleconferência
+                            <app-help-tip *ngIf="hasHelp('Teleconferência')" [text]="getHelp('Teleconferência')"></app-help-tip>
+                        </span>
+                        <strong class="value">{{ ce.earningsCallDate ?? '-' }}</strong>
+                    </div>
+                    <div class="acao-details__fundamentus-row">
+                        <span class="label">
+                            Estimativa Média
+                            <app-help-tip *ngIf="hasHelp('Estimativa Média')" [text]="getHelp('Estimativa Média')"></app-help-tip>
+                        </span>
+                        <strong class="value">{{ ce.earningsAverage ?? '-' }}</strong>
+                    </div>
+                    <div class="acao-details__fundamentus-row">
+                        <span class="label">
+                            Estimativa (Baixa-Alta)
+                            <app-help-tip *ngIf="hasHelp('Estimativa (Baixa-Alta)')" [text]="getHelp('Estimativa (Baixa-Alta)')"></app-help-tip>
+                        </span>
+                        <strong class="value">{{ ce.earningsLow ?? '-' }} – {{ ce.earningsHigh ?? '-' }}</strong>
+                    </div>
+                    <div class="acao-details__fundamentus-row">
+                        <span class="label">
+                            Receita Estimada Média
+                            <app-help-tip *ngIf="hasHelp('Receita Estimada Média')" [text]="getHelp('Receita Estimada Média')"></app-help-tip>
+                        </span>
+                        <strong class="value">{{ ce.revenueAverage ?? '-' }}</strong>
+                    </div>
+                    <div class="acao-details__fundamentus-row">
+                        <span class="label">
+                            Ex-Dividendo
+                            <app-help-tip *ngIf="hasHelp('Ex-Dividendo')" [text]="getHelp('Ex-Dividendo')"></app-help-tip>
+                        </span>
+                        <strong class="value">{{ ce.exDividendDate ?? '-' }}</strong>
+                    </div>
+                    <div class="acao-details__fundamentus-row">
+                        <span class="label">
+                            Data Pagamento Div.
+                            <app-help-tip *ngIf="hasHelp('Data Pagamento Div.')" [text]="getHelp('Data Pagamento Div.')"></app-help-tip>
+                        </span>
+                        <strong class="value">{{ ce.dividendDate ?? '-' }}</strong>
+                    </div>
+                </div>
+            </article>
+
+            <article class="acao-details__card acao-details__card--full">
+                <header>
+                    <h3>{{ 'acaoDetails.cards.financialHighlights' | translate }}</h3>
+                </header>
+                <div class="acao-details__fundamentus-table" *ngIf="yh.financialData as fd">
+                    <div class="acao-details__fundamentus-row">
+                        <span class="label">
+                            Preço Atual
+                            <app-help-tip *ngIf="hasHelp('Preço Atual')" [text]="getHelp('Preço Atual')"></app-help-tip>
+                        </span>
+                        <strong class="value">{{ fd.currentPrice ?? '-' }}</strong>
+                    </div>
+                    <div class="acao-details__fundamentus-row">
+                        <span class="label">
+                            Lucro Bruto
+                            <app-help-tip *ngIf="hasHelp('Lucro Bruto')" [text]="getHelp('Lucro Bruto')"></app-help-tip>
+                        </span>
+                        <strong class="value">{{ fd.grossProfits ?? '-' }}</strong>
+                    </div>
+                    <div class="acao-details__fundamentus-row">
+                        <span class="label">
+                            EBITDA
+                            <app-help-tip *ngIf="hasHelp('EBITDA')" [text]="getHelp('EBITDA')"></app-help-tip>
+                        </span>
+                        <strong class="value">{{ fd.ebitda ?? '-' }}</strong>
+                    </div>
+                    <div class="acao-details__fundamentus-row">
+                        <span class="label">
+                            Receita Total
+                            <app-help-tip *ngIf="hasHelp('Receita Total')" [text]="getHelp('Receita Total')"></app-help-tip>
+                        </span>
+                        <strong class="value">{{ fd.totalRevenue ?? '-' }}</strong>
+                    </div>
+                    <div class="acao-details__fundamentus-row">
+                        <span class="label">
+                            Caixa Total
+                            <app-help-tip *ngIf="hasHelp('Caixa Total')" [text]="getHelp('Caixa Total')"></app-help-tip>
+                        </span>
+                        <strong class="value">{{ fd.totalCash ?? '-' }}</strong>
+                    </div>
+                    <div class="acao-details__fundamentus-row">
+                        <span class="label">
+                            Caixa por Ação
+                            <app-help-tip *ngIf="hasHelp('Caixa por Ação')" [text]="getHelp('Caixa por Ação')"></app-help-tip>
+                        </span>
+                        <strong class="value">{{ fd.totalCashPerShare ?? '-' }}</strong>
+                    </div>
+                    <div class="acao-details__fundamentus-row">
+                        <span class="label">
+                            Dívida Total
+                            <app-help-tip *ngIf="hasHelp('Dívida Total')" [text]="getHelp('Dívida Total')"></app-help-tip>
+                        </span>
+                        <strong class="value">{{ fd.totalDebt ?? '-' }}</strong>
+                    </div>
+                    <div class="acao-details__fundamentus-row">
+                        <span class="label">
+                            Receita por Ação
+                            <app-help-tip *ngIf="hasHelp('Receita por Ação')" [text]="getHelp('Receita por Ação')"></app-help-tip>
+                        </span>
+                        <strong class="value">{{ fd.revenuePerShare ?? '-' }}</strong>
+                    </div>
+                    <div class="acao-details__fundamentus-row">
+                        <span class="label">
+                            Fluxo de Caixa Livre
+                            <app-help-tip *ngIf="hasHelp('Fluxo de Caixa Livre')" [text]="getHelp('Fluxo de Caixa Livre')"></app-help-tip>
+                        </span>
+                        <strong class="value">{{ fd.freeCashflow ?? '-' }}</strong>
+                    </div>
+                    <div class="acao-details__fundamentus-row">
+                        <span class="label">
+                            Fluxo de Caixa Operac.
+                            <app-help-tip *ngIf="hasHelp('Fluxo de Caixa Operac.')" [text]="getHelp('Fluxo de Caixa Operac.')"></app-help-tip>
+                        </span>
+                        <strong class="value">{{ fd.operatingCashflow ?? '-' }}</strong>
+                    </div>
+                    <div class="acao-details__fundamentus-row">
+                        <span class="label">
+                            Margem Bruta
+                            <app-help-tip *ngIf="hasHelp('Margem Bruta')" [text]="getHelp('Margem Bruta')"></app-help-tip>
+                        </span>
+                        <strong class="value">{{ fd.grossMargins ?? '-' }}</strong>
+                    </div>
+                    <div class="acao-details__fundamentus-row">
+                        <span class="label">
+                            Margem EBITDA
+                            <app-help-tip *ngIf="hasHelp('Margem EBITDA')" [text]="getHelp('Margem EBITDA')"></app-help-tip>
+                        </span>
+                        <strong class="value">{{ fd.ebitdaMargins ?? '-' }}</strong>
+                    </div>
+                    <div class="acao-details__fundamentus-row">
+                        <span class="label">
+                            Margem Operacional
+                            <app-help-tip *ngIf="hasHelp('Margem Operacional')" [text]="getHelp('Margem Operacional')"></app-help-tip>
+                        </span>
+                        <strong class="value">{{ fd.operatingMargins ?? '-' }}</strong>
+                    </div>
+                    <div class="acao-details__fundamentus-row">
+                        <span class="label">
+                            Margem Líquida
+                            <app-help-tip *ngIf="hasHelp('Margem Líquida')" [text]="getHelp('Margem Líquida')"></app-help-tip>
+                        </span>
+                        <strong class="value">{{ fd.profitMargins ?? '-' }}</strong>
+                    </div>
+                    <div class="acao-details__fundamentus-row">
+                        <span class="label">
+                            Dívida/Patrimônio
+                            <app-help-tip *ngIf="hasHelp('Dívida/Patrimônio')" [text]="getHelp('Dívida/Patrimônio')"></app-help-tip>
+                        </span>
+                        <strong class="value">{{ fd.debtToEquity ?? '-' }}</strong>
+                    </div>
+                    <div class="acao-details__fundamentus-row">
+                        <span class="label">
+                            ROE
+                            <app-help-tip *ngIf="hasHelp('ROE')" [text]="getHelp('ROE')"></app-help-tip>
+                        </span>
+                        <strong class="value">{{ fd.returnOnEquity ?? '-' }}</strong>
+                    </div>
+                    <div class="acao-details__fundamentus-row">
+                        <span class="label">
+                            ROA
+                            <app-help-tip *ngIf="hasHelp('ROA')" [text]="getHelp('ROA')"></app-help-tip>
+                        </span>
+                        <strong class="value">{{ fd.returnOnAssets ?? '-' }}</strong>
+                    </div>
+                    <div class="acao-details__fundamentus-row">
+                        <span class="label">
+                            Liquidez Corrente
+                            <app-help-tip *ngIf="hasHelp('Liquidez Corrente')" [text]="getHelp('Liquidez Corrente')"></app-help-tip>
+                        </span>
+                        <strong class="value">{{ fd.currentRatio ?? '-' }}</strong>
+                    </div>
+                    <div class="acao-details__fundamentus-row">
+                        <span class="label">
+                            Liquidez Imediata
+                            <app-help-tip *ngIf="hasHelp('Liquidez Imediata')" [text]="getHelp('Liquidez Imediata')"></app-help-tip>
+                        </span>
+                        <strong class="value">{{ fd.quickRatio ?? '-' }}</strong>
+                    </div>
+                    <div class="acao-details__fundamentus-row">
+                        <span class="label">
+                            Crescimento Receita
+                            <app-help-tip *ngIf="hasHelp('Crescimento Receita')" [text]="getHelp('Crescimento Receita')"></app-help-tip>
+                        </span>
+                        <strong class="value">{{ fd.revenueGrowth ?? '-' }}</strong>
+                    </div>
+                    <div class="acao-details__fundamentus-row">
+                        <span class="label">
+                            Crescimento Lucro
+                            <app-help-tip *ngIf="hasHelp('Crescimento Lucro')" [text]="getHelp('Crescimento Lucro')"></app-help-tip>
+                        </span>
+                        <strong class="value">{{ fd.earningsGrowth ?? '-' }}</strong>
+                    </div>
+                </div>
+            </article>
+
+            <article class="acao-details__card acao-details__card--full" *ngIf="yh.incomeStatements.length">
+                <header>
+                    <h3>{{ 'acaoDetails.cards.incomeStatements' | translate }}</h3>
+                    <p id="income-statements-description" class="acao-details__historico-description">{{ 'acaoDetails.cards.incomeStatementsDescription' | translate }}</p>
+                </header>
+
+                <div class="show-desktop">
+                    <div class="acao-details__financial-table-wrap">
+                        <table aria-describedby="income-statements-description" class="acao-details__financial-table">
+                            <thead>
+                                <tr>
+                                    <th></th>
+                                    <th *ngFor="let stmt of yh.incomeStatements">{{ stmt.endDate }}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr *ngFor="let field of incomeStatementFields">
+                                    <td class="col-label">
+                                        {{ field.label }}
+                                        <app-help-tip *ngIf="hasHelp(field.label)" [text]="getHelp(field.label)"></app-help-tip>
+                                    </td>
+                                    <td *ngFor="let stmt of yh.incomeStatements">{{ getFieldValue(stmt, field.key) ?? '-' }}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="show-mobile">
+                    <div class="acao-details__fundamentus-table">
+                        <ng-container *ngFor="let stmt of yh.incomeStatements">
+                            <div class="acao-details__fundamentus-row acao-details__fundamentus-row--period">
+                                <span class="label">{{ stmt.endDate }}</span>
+                                <strong class="value"></strong>
+                            </div>
+                            <div class="acao-details__fundamentus-row acao-details__fundamentus-row--sub">
+                                <span class="label">
+                                    Receita
+                                    <app-help-tip *ngIf="hasHelp('Receita')" [text]="getHelp('Receita')"></app-help-tip>
+                                </span>
+                                <strong class="value">{{ stmt.totalRevenue ?? '-' }}</strong>
+                            </div>
+                            <div class="acao-details__fundamentus-row acao-details__fundamentus-row--sub">
+                                <span class="label">
+                                    Custo
+                                    <app-help-tip *ngIf="hasHelp('Custo')" [text]="getHelp('Custo')"></app-help-tip>
+                                </span>
+                                <strong class="value">{{ stmt.costOfRevenue ?? '-' }}</strong>
+                            </div>
+                            <div class="acao-details__fundamentus-row acao-details__fundamentus-row--sub">
+                                <span class="label">
+                                    Lucro Bruto
+                                    <app-help-tip *ngIf="hasHelp('Lucro Bruto')" [text]="getHelp('Lucro Bruto')"></app-help-tip>
+                                </span>
+                                <strong class="value">{{ stmt.grossProfit ?? '-' }}</strong>
+                            </div>
+                            <div class="acao-details__fundamentus-row acao-details__fundamentus-row--sub">
+                                <span class="label">
+                                    EBIT
+                                    <app-help-tip *ngIf="hasHelp('EBIT')" [text]="getHelp('EBIT')"></app-help-tip>
+                                </span>
+                                <strong class="value">{{ stmt.ebit ?? '-' }}</strong>
+                            </div>
+                            <div class="acao-details__fundamentus-row acao-details__fundamentus-row--sub">
+                                <span class="label">
+                                    Resultado Operacional
+                                    <app-help-tip *ngIf="hasHelp('Resultado Operacional')" [text]="getHelp('Resultado Operacional')"></app-help-tip>
+                                </span>
+                                <strong class="value">{{ stmt.operatingIncome ?? '-' }}</strong>
+                            </div>
+                            <div class="acao-details__fundamentus-row acao-details__fundamentus-row--sub">
+                                <span class="label">
+                                    Desp. Financeira
+                                    <app-help-tip *ngIf="hasHelp('Desp. Financeira')" [text]="getHelp('Desp. Financeira')"></app-help-tip>
+                                </span>
+                                <strong class="value">{{ stmt.interestExpense ?? '-' }}</strong>
+                            </div>
+                            <div class="acao-details__fundamentus-row acao-details__fundamentus-row--sub">
+                                <span class="label">
+                                    Lucro Antes IR
+                                    <app-help-tip *ngIf="hasHelp('Lucro Antes IR')" [text]="getHelp('Lucro Antes IR')"></app-help-tip>
+                                </span>
+                                <strong class="value">{{ stmt.incomeBeforeTax ?? '-' }}</strong>
+                            </div>
+                            <div class="acao-details__fundamentus-row acao-details__fundamentus-row--sub">
+                                <span class="label">
+                                    IR
+                                    <app-help-tip *ngIf="hasHelp('IR')" [text]="getHelp('IR')"></app-help-tip>
+                                </span>
+                                <strong class="value">{{ stmt.incomeTaxExpense ?? '-' }}</strong>
+                            </div>
+                            <div class="acao-details__fundamentus-row acao-details__fundamentus-row--sub">
+                                <span class="label">
+                                    Lucro Líquido
+                                    <app-help-tip *ngIf="hasHelp('Lucro Líquido')" [text]="getHelp('Lucro Líquido')"></app-help-tip>
+                                </span>
+                                <strong class="value">{{ stmt.netIncome ?? '-' }}</strong>
+                            </div>
+                        </ng-container>
+                    </div>
+                </div>
+            </article>
+
+            <article class="acao-details__card acao-details__card--full" *ngIf="yh.balanceSheets.length">
+                <header>
+                    <h3>{{ 'acaoDetails.cards.balanceSheets' | translate }}</h3>
+                    <p id="balance-sheets-description" class="acao-details__historico-description">{{ 'acaoDetails.cards.balanceSheetsDescription' | translate }}</p>
+                </header>
+
+                <div class="show-desktop">
+                    <div class="acao-details__financial-table-wrap">
+                        <table aria-describedby="balance-sheets-description" class="acao-details__financial-table">
+                            <thead>
+                                <tr>
+                                    <th></th>
+                                    <th *ngFor="let bs of yh.balanceSheets">{{ bs.endDate }}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr *ngFor="let field of balanceSheetFields">
+                                    <td class="col-label">
+                                        {{ field.label }}
+                                        <app-help-tip *ngIf="hasHelp(field.label)" [text]="getHelp(field.label)"></app-help-tip>
+                                    </td>
+                                    <td *ngFor="let bs of yh.balanceSheets">{{ getFieldValue(bs, field.key) ?? '-' }}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="show-mobile">
+                    <div class="acao-details__fundamentus-table">
+                        <ng-container *ngFor="let bs of yh.balanceSheets">
+                            <div class="acao-details__fundamentus-row acao-details__fundamentus-row--period">
+                                <span class="label">{{ bs.endDate }}</span>
+                                <strong class="value"></strong>
+                            </div>
+                            <div class="acao-details__fundamentus-row acao-details__fundamentus-row--sub">
+                                <span class="label">
+                                    Ativo Total
+                                    <app-help-tip *ngIf="hasHelp('Ativo Total')" [text]="getHelp('Ativo Total')"></app-help-tip>
+                                </span>
+                                <strong class="value">{{ bs.totalAssets ?? '-' }}</strong>
+                            </div>
+                            <div class="acao-details__fundamentus-row acao-details__fundamentus-row--sub">
+                                <span class="label">
+                                    Ativo Circulante
+                                    <app-help-tip *ngIf="hasHelp('Ativo Circulante')" [text]="getHelp('Ativo Circulante')"></app-help-tip>
+                                </span>
+                                <strong class="value">{{ bs.totalCurrentAssets ?? '-' }}</strong>
+                            </div>
+                            <div class="acao-details__fundamentus-row acao-details__fundamentus-row--sub">
+                                <span class="label">
+                                    Caixa
+                                    <app-help-tip *ngIf="hasHelp('Caixa')" [text]="getHelp('Caixa')"></app-help-tip>
+                                </span>
+                                <strong class="value">{{ bs.cash ?? '-' }}</strong>
+                            </div>
+                            <div class="acao-details__fundamentus-row acao-details__fundamentus-row--sub">
+                                <span class="label">
+                                    Passivo Total
+                                    <app-help-tip *ngIf="hasHelp('Passivo Total')" [text]="getHelp('Passivo Total')"></app-help-tip>
+                                </span>
+                                <strong class="value">{{ bs.totalLiabilities ?? '-' }}</strong>
+                            </div>
+                            <div class="acao-details__fundamentus-row acao-details__fundamentus-row--sub">
+                                <span class="label">
+                                    Passivo Circulante
+                                    <app-help-tip *ngIf="hasHelp('Passivo Circulante')" [text]="getHelp('Passivo Circulante')"></app-help-tip>
+                                </span>
+                                <strong class="value">{{ bs.totalCurrentLiabilities ?? '-' }}</strong>
+                            </div>
+                            <div class="acao-details__fundamentus-row acao-details__fundamentus-row--sub">
+                                <span class="label">
+                                    Dívida LP
+                                    <app-help-tip *ngIf="hasHelp('Dívida LP')" [text]="getHelp('Dívida LP')"></app-help-tip>
+                                </span>
+                                <strong class="value">{{ bs.longTermDebt ?? '-' }}</strong>
+                            </div>
+                            <div class="acao-details__fundamentus-row acao-details__fundamentus-row--sub">
+                                <span class="label">
+                                    Dívida CP
+                                    <app-help-tip *ngIf="hasHelp('Dívida CP')" [text]="getHelp('Dívida CP')"></app-help-tip>
+                                </span>
+                                <strong class="value">{{ bs.shortLongTermDebt ?? '-' }}</strong>
+                            </div>
+                            <div class="acao-details__fundamentus-row acao-details__fundamentus-row--sub">
+                                <span class="label">
+                                    Patrimônio Líquido
+                                    <app-help-tip *ngIf="hasHelp('Patrimônio Líquido')" [text]="getHelp('Patrimônio Líquido')"></app-help-tip>
+                                </span>
+                                <strong class="value">{{ bs.totalShareholderEquity ?? '-' }}</strong>
+                            </div>
+                        </ng-container>
+                    </div>
+                </div>
+            </article>
+
+            <article class="acao-details__card acao-details__card--full" *ngIf="yh.cashflowStatements.length">
+                <header>
+                    <h3>{{ 'acaoDetails.cards.cashflowStatements' | translate }}</h3>
+                    <p id="cashflow-statements-description" class="acao-details__historico-description">{{ 'acaoDetails.cards.cashflowStatementsDescription' | translate }}</p>
+                </header>
+
+                <div class="show-desktop">
+                    <div class="acao-details__financial-table-wrap">
+                        <table aria-describedby="cashflow-statements-description" class="acao-details__financial-table">
+                            <thead>
+                                <tr>
+                                    <th></th>
+                                    <th *ngFor="let cf of yh.cashflowStatements">{{ cf.endDate }}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr *ngFor="let field of cashflowFields">
+                                    <td class="col-label">
+                                        {{ field.label }}
+                                        <app-help-tip *ngIf="hasHelp(field.label)" [text]="getHelp(field.label)"></app-help-tip>
+                                    </td>
+                                    <td *ngFor="let cf of yh.cashflowStatements">{{ getFieldValue(cf, field.key) ?? '-' }}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="show-mobile">
+                    <div class="acao-details__fundamentus-table">
+                        <ng-container *ngFor="let cf of yh.cashflowStatements">
+                            <div class="acao-details__fundamentus-row acao-details__fundamentus-row--period">
+                                <span class="label">{{ cf.endDate }}</span>
+                                <strong class="value"></strong>
+                            </div>
+                            <div class="acao-details__fundamentus-row acao-details__fundamentus-row--sub">
+                                <span class="label">
+                                    Lucro Líquido
+                                    <app-help-tip *ngIf="hasHelp('Lucro Líquido')" [text]="getHelp('Lucro Líquido')"></app-help-tip>
+                                </span>
+                                <strong class="value">{{ cf.netIncome ?? '-' }}</strong>
+                            </div>
+                            <div class="acao-details__fundamentus-row acao-details__fundamentus-row--sub">
+                                <span class="label">
+                                    Depreciação
+                                    <app-help-tip *ngIf="hasHelp('Depreciação')" [text]="getHelp('Depreciação')"></app-help-tip>
+                                </span>
+                                <strong class="value">{{ cf.depreciation ?? '-' }}</strong>
+                            </div>
+                            <div class="acao-details__fundamentus-row acao-details__fundamentus-row--sub">
+                                <span class="label">
+                                    FCO
+                                    <app-help-tip *ngIf="hasHelp('FCO')" [text]="getHelp('FCO')"></app-help-tip>
+                                </span>
+                                <strong class="value">{{ cf.totalCashFromOperatingActivities ?? '-' }}</strong>
+                            </div>
+                            <div class="acao-details__fundamentus-row acao-details__fundamentus-row--sub">
+                                <span class="label">
+                                    Capex
+                                    <app-help-tip *ngIf="hasHelp('Capex')" [text]="getHelp('Capex')"></app-help-tip>
+                                </span>
+                                <strong class="value">{{ cf.capitalExpenditures ?? '-' }}</strong>
+                            </div>
+                            <div class="acao-details__fundamentus-row acao-details__fundamentus-row--sub">
+                                <span class="label">
+                                    FCI
+                                    <app-help-tip *ngIf="hasHelp('FCI')" [text]="getHelp('FCI')"></app-help-tip>
+                                </span>
+                                <strong class="value">{{ cf.totalCashFromInvestingActivities ?? '-' }}</strong>
+                            </div>
+                            <div class="acao-details__fundamentus-row acao-details__fundamentus-row--sub">
+                                <span class="label">
+                                    Dividendos
+                                    <app-help-tip *ngIf="hasHelp('Dividendos')" [text]="getHelp('Dividendos')"></app-help-tip>
+                                </span>
+                                <strong class="value">{{ cf.dividendsPaid ?? '-' }}</strong>
+                            </div>
+                            <div class="acao-details__fundamentus-row acao-details__fundamentus-row--sub">
+                                <span class="label">
+                                    FCF
+                                    <app-help-tip *ngIf="hasHelp('FCF')" [text]="getHelp('FCF')"></app-help-tip>
+                                </span>
+                                <strong class="value">{{ cf.totalCashFromFinancingActivities ?? '-' }}</strong>
+                            </div>
+                        </ng-container>
+                    </div>
+                </div>
+            </article>
+
+            <article class="acao-details__card" *ngIf="yh.earningsHistory.length">
+                <header>
+                    <h3>{{ 'acaoDetails.cards.earningsHistory' | translate }}</h3>
+                </header>
+                <div class="acao-details__fundamentus-table">
+                    <div class="acao-details__fundamentus-row" *ngFor="let item of yh.earningsHistory">
+                        <span class="label">{{ item.quarter }}</span>
+                        <strong class="value">
+                            <span>Real: {{ item.epsActual ?? '-' }}</span>
+                            <span style="margin-left: 12px">Estimado: {{ item.epsEstimate ?? '-' }}</span>
+                            <span style="margin-left: 12px">Surpresa: {{ item.surprisePercent ?? '-' }}</span>
+                        </strong>
+                    </div>
+                </div>
+            </article>
+
+        </ng-container>
+
+        <article class="acao-details__card acao-details__card--chart">
+            <header class="acao-details__chart-header">
+                <h3>{{ 'acaoDetails.cards.priceChart' | translate }}</h3>
+                <div class="acao-details__chart-windows">
+                    <button *ngFor="let w of chartWindows"
+                            class="acao-details__chart-btn"
+                            [class.acao-details__chart-btn--active]="selectedChartWindow() === w"
+                            (click)="changeChartWindow(w)">
+                        {{ w }}
+                    </button>
+                </div>
+            </header>
+            <app-stock-chart
+                [points]="(googleFinance()?.chart?.points) ?? []"
+                [previousClose]="googleFinance()?.chart?.previousClose ?? null">
+            </app-stock-chart>
+        </article>
+
+        <article class="acao-details__card acao-details__card--proventos" *ngIf="selectedSourceProventos() as prov">
+            <header>
+                <h3>{{ 'acaoDetails.cards.proventos' | translate }}</h3>
+            </header>
+            <div class="acao-details__history">
+                <div class="acao-details__history-row acao-details__history-row--head">
+                    <span class="col-data">{{ 'proventos.date' | translate }}</span>
+                    <span class="col-tipo">{{ 'proventos.type' | translate }}</span>
+                    <span class="col-valor">{{ 'proventos.unitPrice' | translate }}</span>
+                </div>
+                <div class="acao-details__history-row" *ngFor="let item of prov.proventos">
+                    <span class="col-data">{{ item.data }}</span>
+                    <span class="col-tipo">{{ item.tipo }}</span>
+                    <span class="col-valor">{{ item.valor }}</span>
+                </div>
+            </div>
+        </article>
+
+    </div>
+
+    <div class="acao-details__modal-backdrop" *ngIf="isPersonalizarOpen()" (click)="closePersonalizar()">
+        <div class="acao-details__modal" (click)="$event.stopPropagation()">
+            <h3>{{ 'acaoDetails.personalizar.title' | translate }}</h3>
+
+            <div class="acao-details__modal-options">
+                <label class="acao-details__modal-option"
+                       *ngFor="let option of detailOptions"
+                       [class.acao-details__modal-option--active]="detailSource() === option"
+                       (click)="selectDetailSource(option)">
+                    <span class="acao-details__modal-option-label">{{ 'acaoDetails.personalizar.' + option | translate }}</span>
+                    <div class="acao-details__modal-radio"
+                         [class.acao-details__modal-radio--active]="detailSource() === option">
+                        <div class="acao-details__modal-radio-dot"></div>
+                    </div>
+                </label>
+            </div>
+
+            <div class="acao-details__modal-actions">
+                <app-simple-button variant="cancelar" (btnClick)="closePersonalizar()">
+                    {{ 'acaoDetails.personalizar.cancel' | translate }}
+                </app-simple-button>
+                <app-simple-button (btnClick)="closePersonalizar()">
+                    {{ 'acaoDetails.personalizar.save' | translate }}
+                </app-simple-button>
+            </div>
         </div>
-    </ng-container>
+    </div>
 </section>

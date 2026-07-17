@@ -32,6 +32,7 @@ describe('ExportacaoComponent', () => {
     createElementSpy?.mockRestore();
     appendChildSpy?.mockRestore();
     removeChildSpy?.mockRestore();
+    vi.useRealTimers();
   });
 
   beforeEach(async () => {
@@ -222,5 +223,145 @@ describe('ExportacaoComponent', () => {
     expect(component.alerts()[0].variant).toBe('error');
 
     getElementByIdSpy.mockRestore();
+  });
+
+  it('deve exportar acoes em PDF com sucesso', () => {
+    vi.useFakeTimers();
+
+    const mockPrint = vi.fn();
+    const mockFocus = vi.fn();
+    const mockFrame = {
+      contentWindow: { focus: mockFocus, print: mockPrint },
+      src: '',
+      addEventListener: vi.fn((_event: string, handler: () => void) => handler()),
+      removeEventListener: vi.fn(),
+    };
+    const getElementByIdSpy = vi.spyOn(document, 'getElementById').mockReturnValue(mockFrame as unknown as HTMLIFrameElement);
+
+    component.exportarAcoesEmPdf();
+
+    expect(component.isExportingAcoes()).toBe(true);
+    expect(mockFrame.src).toContain('/acoes?print=1');
+
+    vi.runAllTimers();
+
+    expect(mockFocus).toHaveBeenCalled();
+    expect(mockPrint).toHaveBeenCalled();
+    expect(component.isExportingAcoes()).toBe(false);
+    expect(component.alerts().length).toBe(1);
+    expect(component.alerts()[0].variant).toBe('info');
+
+    getElementByIdSpy.mockRestore();
+  });
+
+  it('deve tratar erro quando contentWindow e null no exportarAcoesEmPdf', () => {
+    vi.useFakeTimers();
+
+    const mockFrame = {
+      contentWindow: null,
+      src: '',
+      addEventListener: vi.fn((_event: string, handler: () => void) => handler()),
+      removeEventListener: vi.fn(),
+    };
+    const getElementByIdSpy = vi.spyOn(document, 'getElementById').mockReturnValue(mockFrame as unknown as HTMLIFrameElement);
+
+    component.exportarAcoesEmPdf();
+
+    vi.runAllTimers();
+
+    expect(component.isExportingAcoes()).toBe(false);
+    expect(component.alerts().length).toBe(1);
+    expect(component.alerts()[0].variant).toBe('error');
+    expect(component.alerts()[0].message).toBe('Não foi possível iniciar a exportação em PDF.');
+
+    getElementByIdSpy.mockRestore();
+  });
+
+  it('deve exportar order sell em PDF com sucesso', () => {
+    vi.useFakeTimers();
+
+    ordersServiceMock.getSellSnapshotsForPdf.mockReturnValue(of(baseRows));
+
+    const mockPrint = vi.fn();
+    const mockFocus = vi.fn();
+    const mockFrame = {
+      contentWindow: { focus: mockFocus, print: mockPrint },
+      srcdoc: '',
+      addEventListener: vi.fn((_event: string, handler: () => void) => handler()),
+      removeEventListener: vi.fn(),
+    };
+    const getElementByIdSpy = vi.spyOn(document, 'getElementById').mockReturnValue(mockFrame as unknown as HTMLIFrameElement);
+
+    component.exportarOrderSellPdf();
+
+    expect(component.isExportingOrderSellPdf()).toBe(true);
+    expect(ordersServiceMock.getSellSnapshotsForPdf).toHaveBeenCalled();
+    expect(mockFrame.srcdoc).toContain('OrderSell - Exportação PDF');
+
+    vi.runAllTimers();
+
+    expect(mockFocus).toHaveBeenCalled();
+    expect(mockPrint).toHaveBeenCalled();
+    expect(component.isExportingOrderSellPdf()).toBe(false);
+    expect(component.alerts().length).toBe(1);
+    expect(component.alerts()[0].variant).toBe('info');
+
+    getElementByIdSpy.mockRestore();
+  });
+
+  it('deve tratar erro quando contentWindow e null no exportarOrderSellPdf', () => {
+    vi.useFakeTimers();
+
+    ordersServiceMock.getSellSnapshotsForPdf.mockReturnValue(of(baseRows));
+
+    const mockFrame = {
+      contentWindow: null,
+      srcdoc: '',
+      addEventListener: vi.fn((_event: string, handler: () => void) => handler()),
+      removeEventListener: vi.fn(),
+    };
+    const getElementByIdSpy = vi.spyOn(document, 'getElementById').mockReturnValue(mockFrame as unknown as HTMLIFrameElement);
+
+    component.exportarOrderSellPdf();
+
+    vi.runAllTimers();
+
+    expect(component.isExportingOrderSellPdf()).toBe(false);
+    expect(component.alerts().length).toBe(1);
+    expect(component.alerts()[0].variant).toBe('error');
+    expect(component.alerts()[0].message).toBe('Não foi possível iniciar a exportação de OrderSell em PDF.');
+
+    getElementByIdSpy.mockRestore();
+  });
+
+  it('deve resetar isExportingOrderSellExcel apos conclusao', () => {
+    ordersServiceMock.exportSellSnapshotsSpreadsheet.mockReturnValue(of(new Blob()));
+
+    createElementSpy = vi.spyOn(document, 'createElement').mockImplementation((tag: string) => {
+      if (tag === 'a') {
+        return mockAnchor as unknown as HTMLElement;
+      }
+      return originalCreateElement(tag);
+    });
+    appendChildSpy = vi.spyOn(document.body, 'appendChild').mockReturnValue(mockAnchor as unknown as HTMLElement);
+    removeChildSpy = vi.spyOn(document.body, 'removeChild').mockReturnValue(mockAnchor as unknown as HTMLElement);
+    vi.spyOn(URL, 'createObjectURL').mockReturnValue('blob:url');
+    vi.spyOn(URL, 'revokeObjectURL').mockImplementation(() => {});
+
+    component.exportarOrderSellExcel();
+
+    expect(component.isExportingOrderSellExcel()).toBe(false);
+    expect(component.alerts().length).toBe(1);
+    expect(component.alerts()[0].variant).toBe('info');
+  });
+
+  it('deve manter todos os alerts quando nao encontra correspondencia no handleAlertDismiss', () => {
+    const alert1 = { variant: 'info', title: 'A', message: 'a', icon: '!' } as const;
+    const alert2 = { variant: 'error', title: 'B', message: 'b', icon: '✕' } as const;
+    component.alerts.set([alert1, alert2]);
+
+    component.handleAlertDismiss({ variant: 'warning', title: 'C', message: 'c', icon: '?' });
+
+    expect(component.alerts().length).toBe(2);
   });
 });

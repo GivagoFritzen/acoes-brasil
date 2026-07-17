@@ -1,4 +1,4 @@
-import { Request, Response } from "express";
+import { Response } from "express";
 import { ValidationError } from "../validators/OrderValidator";
 import { logger } from "../logger/Logger";
 
@@ -11,7 +11,7 @@ const SEQUELIZE_ERROR_NAMES = [
 ];
 
 export class ErrorHandler {
-  static handle(error: unknown, req: Request, res: Response): Response {
+  static handle(error: unknown, res: Response): Response {
     logger.error("Erro na requisição", { error: error instanceof Error ? error.message : String(error) });
 
     if (error instanceof ValidationError) {

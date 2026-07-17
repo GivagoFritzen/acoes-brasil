@@ -33,6 +33,19 @@
     </article>
 
     <article class="exportacao__card">
+      <h3>{{ 'exportacao.portfolioExcelTitle' | translate }}</h3>
+      <p class="exportacao__hint">
+        {{ 'exportacao.portfolioExcelHint' | translate }}
+      </p>
+
+      <div class="exportacao__actions">
+        <app-simple-button [disabled]="isExportingPortfolio()" (btnClick)="exportarPortfolioExcel()">
+          {{ isExportingPortfolio() ? ('exportacao.exporting' | translate) : ('exportacao.exportPortfolioExcel' | translate) }}
+        </app-simple-button>
+      </div>
+    </article>
+
+    <article class="exportacao__card">
       <h3>{{ 'exportacao.orderSellExcelTitle' | translate }}</h3>
       <p class="exportacao__hint">
         {{ 'exportacao.orderSellExcelHint' | translate }}

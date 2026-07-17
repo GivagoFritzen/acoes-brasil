@@ -12,13 +12,6 @@ import { ChangeDetectionService } from '../../services/ChangeDetectionService';
 import { ClickOutsideDirective } from '../../directives/ClickOutsideDirective';
 import { RouterModule } from '@angular/router';
 
-@Component({
-    selector: 'app-language-selector',
-    standalone: true,
-    template: '<div class="language-selector-mock"></div>'
-})
-class MockLanguageSelectorComponent {}
-
 describe('SidebarComponent', () => {
     let component: SidebarComponent;
     let fixture: ComponentFixture<SidebarComponent>;
@@ -68,7 +61,6 @@ describe('SidebarComponent', () => {
             imports: [
                 SidebarComponent,
                 TranslatePipe,
-                MockLanguageSelectorComponent,
                 ClickOutsideDirective,
                 RouterModule.forRoot([])
             ],
@@ -213,12 +205,6 @@ describe('SidebarComponent', () => {
             expect(toggleBtn).toBeTruthy();
         });
 
-        it('deve ocultar language selector quando showSidebar = false', () => {
-            component.showSidebar = false;
-            fixture.detectChanges();
-            const langSection = fixture.debugElement.query(By.css('.sidebar__language'));
-            expect(langSection).toBeFalsy();
-        });
     });
 
     describe('Interações', () => {

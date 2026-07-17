@@ -22,13 +22,13 @@
   }
 
   .grid-line {
-    stroke: $color-text-opacity-08;
+    stroke: var(--color-border);
     stroke-width: 1;
   }
 
   .grid-label {
     font-size: 11px;
-    fill: $color-text-opacity-50;
+    fill: var(--color-text-muted);
     font-family: 'Google Sans Text', sans-serif;
   }
 
@@ -56,12 +56,14 @@
     transition: fill 0.15s ease;
 
     &:hover {
-      fill: $color-text-opacity-12;
+      fill: var(--color-text-muted);
+      fill-opacity: 0.15;
     }
   }
 
   .crosshair-line {
-    stroke: $color-text-opacity-30;
+    stroke: var(--color-text-muted);
+    stroke-opacity: 0.4;
     stroke-width: 1;
     stroke-dasharray: 4 3;
     pointer-events: none;

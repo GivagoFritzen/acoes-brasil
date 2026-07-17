@@ -50,7 +50,7 @@ export class OrderController {
       const order = await this.createOrderService.executeAsync(dto);
       return res.status(201).json(order);
     } catch (error) {
-      return ErrorHandler.handle(error, req, res);
+      return ErrorHandler.handle(error, res);
     }
   }
 
@@ -63,7 +63,7 @@ export class OrderController {
       await this.deleteOrderService.executeAsync(String(id));
       return res.json({ message: "Ordem deletada com sucesso." });
     } catch (error) {
-      return ErrorHandler.handle(error, req, res);
+      return ErrorHandler.handle(error, res);
     }
   }
 
@@ -82,7 +82,7 @@ export class OrderController {
       const result = await this.listOrdersService.executeAsync(filters, Number(page) || 1, Number(limit) || 20);
       return res.json(result);
     } catch (error) {
-      return ErrorHandler.handle(error, req, res);
+      return ErrorHandler.handle(error, res);
     }
   }
 
@@ -92,7 +92,7 @@ export class OrderController {
       const rows = await this.getSellSnapshotsService.executeAsync(ano);
       return res.json(rows);
     } catch (error) {
-      return ErrorHandler.handle(error, req, res);
+      return ErrorHandler.handle(error, res);
     }
   }
 
@@ -104,7 +104,7 @@ export class OrderController {
       res.setHeader("Content-Disposition", `attachment; filename="${fileName}"`);
       return res.send(buffer);
     } catch (error) {
-      return ErrorHandler.handle(error, req, res);
+      return ErrorHandler.handle(error, res);
     }
   }
 }

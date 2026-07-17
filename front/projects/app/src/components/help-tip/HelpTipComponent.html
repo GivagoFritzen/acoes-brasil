@@ -3,7 +3,7 @@
     ?
   </span>
 
-  <div class="tip-content" [class.active]="showTip">
+  <div class="tip-content" [class.active]="showTip" [ngStyle]="tooltipStyles">
     {{ text }}
   </div>
 </div>

@@ -5,7 +5,10 @@ import { SequelizeOrderSellSnapshotRepository } from "../../infrastructure/repos
 import { SequelizeProventoRepository } from "../../infrastructure/repositories/SequelizeProventoRepository";
 import { FundamentusQuoteProvider } from "../../infrastructure/services/FundamentusQuoteProvider";
 import { FundamentusScraperService } from "../../infrastructure/services/FundamentusScraperService";
+import { FundamentusProventosScraperService } from "../../infrastructure/services/FundamentusProventosScraperService";
 import { GoogleFinanceService } from "../../infrastructure/services/GoogleFinanceService";
+import { Investidor10ScraperService } from "../../infrastructure/services/Investidor10ScraperService";
+import { YahooFinanceScraperService } from "../../infrastructure/services/YahooFinanceScraperService";
 import { SpreadsheetParserService } from "../../infrastructure/services/SpreadsheetParserService";
 import { ExcelExportService } from "../../infrastructure/services/ExcelExportService";
 import { SequelizeTransactionManager } from "../../infrastructure/database/SequelizeTransactionManager";
@@ -18,6 +21,8 @@ import { GetSellSnapshotsService } from "../../application/services/GetSellSnaps
 import { ExportSellSnapshotsService } from "../../application/services/ExportSellSnapshotsService";
 import { CreateOrUpdatePortfolioService } from "../../application/services/CreateOrUpdatePortfolioService";
 import { DeletePortfolioService } from "../../application/services/DeletePortfolioService";
+import { ExportPortfolioService } from "../../application/services/ExportPortfolioService";
+import { ImportPortfolioService } from "../../application/services/ImportPortfolioService";
 import { ListPortfolioService } from "../../application/services/ListPortfolioService";
 import { CreateProventoService } from "../../application/services/CreateProventoService";
 import { DeleteProventoService } from "../../application/services/DeleteProventoService";
@@ -44,8 +49,11 @@ function registerRepositories(): void {
 function registerExternalServices(): void {
   Container.register('quoteProvider', () => new FundamentusQuoteProvider());
   Container.register('fundamentusScraper', () => new FundamentusScraperService());
+  Container.register('fundamentusProventosScraper', () => new FundamentusProventosScraperService());
   Container.register('googleFinanceService', () => new GoogleFinanceService());
+  Container.register('investidor10Scraper', () => new Investidor10ScraperService());
   Container.register('spreadsheetParser', () => new SpreadsheetParserService());
+  Container.register('yahooFinanceScraper', () => new YahooFinanceScraperService());
   Container.register('ExcelExportService', () => new ExcelExportService());
 }
 
@@ -108,6 +116,16 @@ function registerPortfolioServices(): void {
 
   Container.register('ListPortfolioService', () => new ListPortfolioService(
     Container.get('portfolioRepository')
+  ));
+
+  Container.register('ExportPortfolioService', () => new ExportPortfolioService(
+    Container.get('portfolioRepository'),
+    Container.get('ExcelExportService')
+  ));
+
+  Container.register('ImportPortfolioService', () => new ImportPortfolioService(
+    Container.get('portfolioRepository'),
+    Container.get('transactionManager')
   ));
 }
 

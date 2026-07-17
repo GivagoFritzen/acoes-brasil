@@ -31,6 +31,29 @@
     </article>
 
     <article class="importacao__card">
+      <h3>{{ 'importacao.portfolioTitle' | translate }}</h3>
+      <p class="importacao__hint">
+        {{ 'importacao.portfolioHint' | translate }}
+      </p>
+
+      <app-file-input
+        label="{{ 'importacao.portfolioFileLabel' | translate }}"
+        buttonText="{{ 'importacao.browseFile' | translate }}"
+        placeholder="{{ 'importacao.noFileSelected' | translate }}"
+        accept=".xlsx,.xls"
+        [fileName]="portfolioFile()?.name ?? ''"
+        [disabled]="isImportingPortfolio()"
+        (fileSelected)="handlePortfolioFileChange($event)"
+      ></app-file-input>
+
+      <div class="importacao__actions">
+        <app-simple-button [disabled]="isImportingPortfolio()" (btnClick)="importarPortfolio()">
+          {{ isImportingPortfolio() ? ('importacao.importing' | translate) : ('importacao.importPortfolio' | translate) }}
+        </app-simple-button>
+      </div>
+    </article>
+
+    <article class="importacao__card">
       <h3>{{ 'importacao.proventosTitle' | translate }}</h3>
       <p class="importacao__hint">
         {{ 'importacao.proventosHint' | translate }}

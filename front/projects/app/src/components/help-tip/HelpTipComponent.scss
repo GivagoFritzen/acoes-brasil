@@ -55,7 +55,7 @@ $size: 16px;
   box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.2);
   z-index: 9999;
   transform: translateY(20px);
-  transition: all 0.3s ease-out;
+  transition: opacity 0.3s ease-out, transform 0.3s ease-out, visibility 0.3s ease-out;
 
   &::after {
     display: none;
@@ -70,17 +70,9 @@ $size: 16px;
 }
 
 @media (min-width: 768px) {
-  .tooltip-container {
-    position: relative;
-  }
-
   .tip-content {
-    position: absolute;
-    bottom: 150%;
-    left: 50%;
     right: auto;
     width: 250px;
-    transform: translateX(-50%) translateY(10px);
     border-radius: 6px;
     font-size: 12px;
     padding: 10px;
@@ -96,10 +88,6 @@ $size: 16px;
       border-width: 6px;
       border-style: solid;
       border-color: #1e293b transparent transparent transparent;
-    }
-
-    &.active {
-      transform: translateX(-50%) translateY(0);
     }
   }
 }
