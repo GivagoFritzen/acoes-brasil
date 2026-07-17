@@ -98,7 +98,7 @@ $sidebar-collapsed-width: 80px;
       padding: 12px 14px;
       border-radius: 10px;
       cursor: pointer;
-      color: rgba(42, 136, 242, 1);
+      color: $color-menu-item;
       transition: all 0.25s ease;
       text-decoration: none;
 
@@ -227,8 +227,8 @@ $sidebar-collapsed-width: 80px;
       flex-shrink: 0;
 
       &--open {
-        background: #22c55e;
-        box-shadow: 0 0 6px #22c55e;
+        background: $color-green-bright;
+        box-shadow: 0 0 6px $color-green-bright;
       }
 
       &--closed {

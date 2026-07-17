@@ -13,3 +13,8 @@ export { AddProventoModalComponent } from './add-provento-modal/AddProventoModal
 export { AddOrderModalComponent } from './add-order-modal/AddOrderModalComponent';
 export { AddPortfolioModalComponent } from './add-portfolio-modal/AddPortfolioModalComponent';
 export { AlertsComponent } from './alerts/AlertsComponent';
+export { HelpTipComponent } from './help-tip/HelpTipComponent';
+export { SimpleCheckboxComponent } from './simple-checkbox/SimpleCheckboxComponent';
+export { TourComponent } from './tour/TourComponent';
+export { StockChartComponent } from './stock-chart/StockChartComponent';
+export { PortfolioProfitLossChartComponent } from './portfolio-profit-loss-chart/PortfolioProfitLossChartComponent';

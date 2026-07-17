@@ -21,19 +21,19 @@
     background: rgba(255, 255, 255, 0.85);
     color: $color-red;
   }
-  background: #ff7893;
-  border-color: #f14f70;
-  color: #7b112b;
+  background: $color-danger-bg;
+  border-color: $color-danger-border;
+  color: $color-danger-text;
 }
 
 .alert--info {
   .alert__icon {
     background: rgba(255, 255, 255, 0.7);
-    color: #0f4c4d;
+    color: $color-info-text;
   }
-  background: #9bd2cf;
-  border-color: #6fbeb9;
-  color: #0f4c4d;
+  background: $color-info-bg;
+  border-color: $color-info-border;
+  color: $color-info-text;
 }
 
 .alert--warning {
@@ -41,9 +41,9 @@
     background: rgba(255, 255, 255, 0.8);
     color: #f59e0b;
   }
-  background: #ffe09b;
-  border-color: #f2c463;
-  color: #7c4a00;
+  background: $color-warning-bg;
+  border-color: $color-warning-border;
+  color: $color-warning-text;
 }
 
 .alert__close {

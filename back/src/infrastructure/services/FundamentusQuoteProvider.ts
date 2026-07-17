@@ -1,7 +1,7 @@
 import { IQuoteProvider } from "../../domain/interfaces/IQuoteProvider";
 import { normalizeCodigoForFundamentus } from "../../shared/utils/FundamentusUtils";
 import { logger } from "../../shared/logger/Logger";
-import { parseDecimal } from "../../../../common/utils/parseDecimal";
+import { parseDecimal } from "../../../../common/utils/ParseDecimal";
 import {
   FundamentusHttpService,
   LABEL_CLASS,

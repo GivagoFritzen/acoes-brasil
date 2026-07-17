@@ -19,7 +19,7 @@ import {
   ProventosResponse,
 } from '../../models';
 import { CreateProventoPayload } from '../../models/CreateProventoPayloadModel';
-import { SimpleCheckboxComponent } from '../../components/simple-checkobox/SimpleCheckboxComponent';
+import { SimpleCheckboxComponent } from '../../components/simple-checkbox/SimpleCheckboxComponent';
 import { AlertItem } from '../../models/alert/AlertItemModel';
 import type { SelectOption } from '../../../../../../common/models/SelectOptionModel';
 import { ProventosService } from '../../services/ProventosService';

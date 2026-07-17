@@ -1,7 +1,7 @@
 @use '../../colors.scss' as *;
 
-:host ::ng-deep input {
-  width: 100% !important;
+:host ::ng-deep app-simple-input input {
+  width: 100%;
 }
 
 .add-portfolio-modal-backdrop {

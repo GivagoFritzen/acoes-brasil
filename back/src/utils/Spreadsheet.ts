@@ -1,7 +1,7 @@
 import * as XLSX from "xlsx";
 
 export type SpreadsheetRow = Record<string, unknown>;
-export { parseDecimal } from "../../../common/utils/parseDecimal";
+export { parseDecimal } from "../../../common/utils/ParseDecimal";
 
 const normalizeHeader = (value: string): string =>
   value

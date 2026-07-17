@@ -1,7 +1,7 @@
 export type { FundamentusAcaoDetails, FundamentusIndicator, FundamentusProvento, FundamentusProventosResponse } from './FundamentusModel';
 export type { Investidor10AcaoDetails, Investidor10Indicator, Investidor10Provento, Investidor10ProventosResponse } from './Investidor10Model';
 export type { Order, OrderOperacao, OrderTipo } from './OrderModel';
-export type { OrdersResponse } from './OrdersRespondeModel';
+export type { OrdersResponse } from './OrdersResponseModel';
 export type { PortfolioPieSlice } from './PortfolioPieSliceModel';
 export type { PortfolioItem } from './PortfolioItemModel';
 export { ProventoTipos } from './ProventoModel';
@@ -22,7 +22,7 @@ export type {
   YahooFinanceEarningsHistoryItem,
   YahooFinanceCalendarEvents,
 } from './YahooFinanceModel';
-export type { ChartDimensions } from './googleGraphic';
-export type { GridLine } from './googleGraphic';
-export type { LinePoint } from './googleGraphic';
-export type { SelectedPointInfo } from './googleGraphic';
+export type { ChartDimensions } from './google-graphic';
+export type { GridLine } from './google-graphic';
+export type { LinePoint } from './google-graphic';
+export type { SelectedPointInfo } from './google-graphic';

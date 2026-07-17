@@ -10,7 +10,7 @@ $offset: 3px;
   --bg-hover: #c9cbcd;
   --checked-bg: #6e79d6;
   --checked-hover-bg: #535db3;
-  --circle-color: #ffffff;
+  --circle-color: $color-white;
 
   appearance: none;
   background-color: var(--bg);
@@ -26,9 +26,9 @@ $offset: 3px;
 :host-context(html[data-theme="dark"]) .simple-checkbox__track {
   --bg: rgba(226, 232, 240, 0.15);
   --bg-hover: rgba(226, 232, 240, 0.25);
-  --checked-bg: #4f8cff;
-  --checked-hover-bg: #3965b8;
-  --circle-color: #ffffff;
+  --checked-bg: $color-primary;
+  --checked-hover-bg: $color-primary-hover;
+  --circle-color: $color-white;
 }
 
 .simple-checkbox__track::before {
