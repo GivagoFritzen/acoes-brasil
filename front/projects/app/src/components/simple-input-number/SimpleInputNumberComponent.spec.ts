@@ -89,7 +89,7 @@ describe('SimpleInputNumberComponent', () => {
             const emitSpy = vi.spyOn(component.valueChange, 'emit');
             const input = fixture.debugElement.query(By.css('input')).nativeElement;
             input.value = '123';
-            const event = { target: input } as Event;
+            const event = { target: input } as unknown as Event;
             component.onInput(event);
             expect(emitSpy).toHaveBeenCalledWith('123');
         });
@@ -100,7 +100,7 @@ describe('SimpleInputNumberComponent', () => {
             const emitSpy = vi.spyOn(component.valueChange, 'emit');
             const input = fixture.debugElement.query(By.css('input')).nativeElement;
             input.value = '12,34';
-            const event = { target: input } as Event;
+            const event = { target: input } as unknown as Event;
             component.onInput(event);
             expect(emitSpy).toHaveBeenCalledWith('12.34');
         });
@@ -119,7 +119,7 @@ describe('SimpleInputNumberComponent', () => {
                     metaKey: false,
                     target: input,
                     preventDefault,
-                } as KeyboardEvent;
+                } as unknown as KeyboardEvent;
                 return { event, preventDefault };
             }
 
@@ -221,7 +221,7 @@ describe('SimpleInputNumberComponent', () => {
                 fixture.detectChanges();
                 const input = fixture.debugElement.query(By.css('input')).nativeElement;
                 input.value = '12a34';
-                const event = { target: input } as Event;
+                const event = { target: input } as unknown as Event;
                 component.onInput(event);
                 expect(input.value).toBe('1234');
             });
@@ -231,7 +231,7 @@ describe('SimpleInputNumberComponent', () => {
                 fixture.detectChanges();
                 const input = fixture.debugElement.query(By.css('input')).nativeElement;
                 input.value = '12-34';
-                const event = { target: input } as Event;
+                const event = { target: input } as unknown as Event;
                 component.onInput(event);
                 expect(input.value).toBe('1234');
             });
@@ -241,7 +241,7 @@ describe('SimpleInputNumberComponent', () => {
                 fixture.detectChanges();
                 const input = fixture.debugElement.query(By.css('input')).nativeElement;
                 input.value = '-123';
-                const event = { target: input } as Event;
+                const event = { target: input } as unknown as Event;
                 component.onInput(event);
                 expect(input.value).toBe('-123');
             });
@@ -251,7 +251,7 @@ describe('SimpleInputNumberComponent', () => {
                 fixture.detectChanges();
                 const input = fixture.debugElement.query(By.css('input')).nativeElement;
                 input.value = '-12-34';
-                const event = { target: input } as Event;
+                const event = { target: input } as unknown as Event;
                 component.onInput(event);
                 expect(input.value).toBe('-1234');
             });
@@ -261,7 +261,7 @@ describe('SimpleInputNumberComponent', () => {
                 fixture.detectChanges();
                 const input = fixture.debugElement.query(By.css('input')).nativeElement;
                 input.value = '12.34';
-                const event = { target: input } as Event;
+                const event = { target: input } as unknown as Event;
                 component.onInput(event);
                 expect(input.value).toBe('1234');
             });
@@ -271,7 +271,7 @@ describe('SimpleInputNumberComponent', () => {
                 fixture.detectChanges();
                 const input = fixture.debugElement.query(By.css('input')).nativeElement;
                 input.value = '12.34.56';
-                const event = { target: input } as Event;
+                const event = { target: input } as unknown as Event;
                 component.onInput(event);
                 expect(input.value).toBe('1234.56');
             });
@@ -285,7 +285,7 @@ describe('SimpleInputNumberComponent', () => {
                 return {
                     clipboardData,
                     preventDefault: vi.fn()
-                } as ClipboardEvent;
+                } as unknown as ClipboardEvent;
             }
 
             it('deve permitir paste de número quando allowDecimal = false e allowNegative = false', () => {

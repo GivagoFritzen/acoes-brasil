@@ -137,7 +137,7 @@ describe('FileInputComponent', () => {
             it('deve validar arquivo aceito em handleFileChange()', () => {
                 const file = new File(['content'], 'test.pdf', { type: 'application/pdf' });
                 const emitSpy = vi.spyOn(component.fileSelected, 'emit');
-                const event = { target: { files: [file] } } as Event;
+                const event = { target: { files: [file] } } as unknown as Event;
                 component.accept = '.pdf';
                 component.handleFileChange(event);
                 expect(emitSpy).toHaveBeenCalledWith(file);
@@ -146,7 +146,7 @@ describe('FileInputComponent', () => {
             it('NÃO deve aceitar arquivo não aceito em handleFileChange()', () => {
                 const file = new File(['content'], 'test.txt', { type: 'text/plain' });
                 const emitSpy = vi.spyOn(component.fileSelected, 'emit');
-                const event = { target: { files: [file] } } as Event;
+                const event = { target: { files: [file] } } as unknown as Event;
                 component.accept = '.pdf';
                 component.handleFileChange(event);
                 expect(emitSpy).toHaveBeenCalledWith(null);
@@ -154,14 +154,14 @@ describe('FileInputComponent', () => {
 
             it('deve mostrar success feedback após selecionar arquivo', () => {
                 const file = new File(['content'], 'test.pdf', { type: 'application/pdf' });
-                const event = { target: { files: [file] } } as Event;
+                const event = { target: { files: [file] } } as unknown as Event;
                 component.handleFileChange(event);
                 expect(component.isDropSuccess).toBe(true);
             });
 
             it('deve mostrar error feedback para tipo inválido', () => {
                 const file = new File(['content'], 'test.exe', { type: 'application/x-msdownload' });
-                const event = { target: { files: [file] } } as Event;
+                const event = { target: { files: [file] } } as unknown as Event;
                 component.accept = '.pdf';
                 component.handleFileChange(event);
                 expect(component.isDropError).toBe(true);
@@ -287,14 +287,14 @@ describe('FileInputComponent', () => {
 
         describe('handleFileChange com arquivo null', () => {
             it('deve emitir fileSelected null quando nenhum arquivo selecionado', () => {
-                const event = { target: { files: [] } } as Event;
+                const event = { target: { files: [] } } as unknown as Event;
                 const emitSpy = vi.spyOn(component.fileSelected, 'emit');
                 component.handleFileChange(event);
                 expect(emitSpy).toHaveBeenCalledWith(null);
             });
 
             it('deve emitir fileSelected null com event.target.files = null', () => {
-                const event = { target: { files: null } } as Event;
+                const event = { target: { files: null } } as unknown as Event;
                 const emitSpy = vi.spyOn(component.fileSelected, 'emit');
                 component.handleFileChange(event);
                 expect(emitSpy).toHaveBeenCalledWith(null);

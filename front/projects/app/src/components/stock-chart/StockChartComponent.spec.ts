@@ -23,7 +23,7 @@ function svgClickEvent(clientX: number): MouseEvent {
       getBoundingClientRect: () => ({ width: 700, left: 0 }) as DOMRect,
     },
     clientX,
-  } as MouseEvent;
+  } as unknown as MouseEvent;
 }
 
 describe('StockChartComponent', () => {
@@ -155,7 +155,16 @@ describe('StockChartComponent', () => {
     it('deve limpar selecao quando nao encontra ponto proximo', () => {
       component.points = makePoints(50, 100);
       component.ngOnChanges({} as SimpleChanges);
-      component.selectedPoint = { timestamp: 0, date: '', price: 0, volume: 0 };
+      component.selectedPoint = {
+        date: '',
+        price: 0,
+        formattedPrice: '',
+        formattedDate: '',
+        x: 0,
+        y: 0,
+        tooltipX: 0,
+        tooltipY: 0,
+      };
 
       component.onSvgClick(svgClickEvent(-9999));
 

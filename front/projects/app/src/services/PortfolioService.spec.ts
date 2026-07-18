@@ -47,8 +47,9 @@ describe('PortfolioService', () => {
       try {
         await promise;
         expect('não deveria chegar aqui').toBe(false);
-      } catch (error: HttpErrorResponse) {
-        expect(error.status).toBe(500);
+      } catch (error: unknown) {
+        const httpError = error as HttpErrorResponse;
+        expect(httpError.status).toBe(500);
       }
     });
 
@@ -61,9 +62,10 @@ describe('PortfolioService', () => {
       try {
         await promise;
         expect('não deveria chegar aqui').toBe(false);
-      } catch (error: HttpErrorResponse) {
-        expect(error.status).toBe(0);
-        expect(error.message).toBe('Não foi possível conectar ao servidor. Verifique sua conexão.');
+      } catch (error: unknown) {
+        const httpError = error as HttpErrorResponse;
+        expect(httpError.status).toBe(0);
+        expect(httpError.message).toBe('Não foi possível conectar ao servidor. Verifique sua conexão.');
       }
     });
 
@@ -76,9 +78,10 @@ describe('PortfolioService', () => {
       try {
         await promise;
         expect('não deveria chegar aqui').toBe(false);
-      } catch (error: HttpErrorResponse) {
-        expect(error.status).toBe(401);
-        expect(error.message).toBe('Não autorizado.');
+      } catch (error: unknown) {
+        const httpError = error as HttpErrorResponse;
+        expect(httpError.status).toBe(401);
+        expect(httpError.message).toBe('Não autorizado.');
       }
     });
 
@@ -91,9 +94,10 @@ describe('PortfolioService', () => {
       try {
         await promise;
         expect('não deveria chegar aqui').toBe(false);
-      } catch (error: HttpErrorResponse) {
-        expect(error.status).toBe(403);
-        expect(error.message).toBe('Acesso negado.');
+      } catch (error: unknown) {
+        const httpError = error as HttpErrorResponse;
+        expect(httpError.status).toBe(403);
+        expect(httpError.message).toBe('Acesso negado.');
       }
     });
 
@@ -106,9 +110,10 @@ describe('PortfolioService', () => {
       try {
         await promise;
         expect('não deveria chegar aqui').toBe(false);
-      } catch (error: HttpErrorResponse) {
-        expect(error.status).toBe(400);
-        expect(error.message).toBe('Erro customizado do servidor');
+      } catch (error: unknown) {
+        const httpError = error as HttpErrorResponse;
+        expect(httpError.status).toBe(400);
+        expect(httpError.message).toBe('Erro customizado do servidor');
       }
     });
   });
@@ -135,8 +140,9 @@ describe('PortfolioService', () => {
       try {
         await promise;
         expect('não deveria chegar aqui').toBe(false);
-      } catch (error: HttpErrorResponse) {
-        expect(error.status).toBe(400);
+      } catch (error: unknown) {
+        const httpError = error as HttpErrorResponse;
+        expect(httpError.status).toBe(400);
       }
     });
   });
@@ -163,8 +169,9 @@ describe('PortfolioService', () => {
       try {
         await promise;
         expect('não deveria chegar aqui').toBe(false);
-      } catch (error: HttpErrorResponse) {
-        expect(error.status).toBe(404);
+      } catch (error: unknown) {
+        const httpError = error as HttpErrorResponse;
+        expect(httpError.status).toBe(404);
       }
     });
   });

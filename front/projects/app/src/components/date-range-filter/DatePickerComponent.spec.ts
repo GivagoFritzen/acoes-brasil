@@ -395,7 +395,7 @@ describe('DatePickerComponent', () => {
         function createInputEvent(value: string): Event {
             const input = document.createElement('input');
             input.value = value;
-            return { target: input } as Event;
+            return { target: input } as unknown as Event;
         }
 
         it('deve mascarar 8 dígitos como DD/MM/YYYY', () => {
@@ -582,7 +582,7 @@ describe('DatePickerComponent', () => {
             component.isOpen = true;
             const mockEvent = {
                 target: component['eRef'].nativeElement
-            } as Event;
+            } as unknown as Event;
             component['clickout'](mockEvent);
             expect(component.isOpen).toBe(true);
         });

@@ -15,7 +15,9 @@ import { RouterModule } from '@angular/router';
 describe('SidebarComponent', () => {
     let component: SidebarComponent;
     let fixture: ComponentFixture<SidebarComponent>;
-    let mockTradingHoursService: Record<string, ReturnType<typeof vi.fn>>;
+    let mockTradingHoursService: {
+        getBvmfTradingHours: ReturnType<typeof vi.fn>;
+    };
     const createTradingHoursResponse = (isOpen: boolean) => ({
         success: true,
         data: {

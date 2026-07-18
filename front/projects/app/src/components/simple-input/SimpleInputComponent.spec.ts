@@ -197,7 +197,7 @@ describe('SimpleInputComponent', () => {
                 return {
                     clipboardData,
                     preventDefault: vi.fn()
-                } as ClipboardEvent;
+                } as unknown as ClipboardEvent;
             }
 
             it('deve permitir paste quando allowOnlyAlphanumeric = false', () => {

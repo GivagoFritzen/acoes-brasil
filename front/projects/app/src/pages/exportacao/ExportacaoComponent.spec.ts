@@ -41,7 +41,7 @@ describe('ExportacaoComponent', () => {
       download: '',
       click: vi.fn(),
       remove: vi.fn(),
-    } as HTMLAnchorElement;
+    } as unknown as HTMLAnchorElement;
     originalCreateElement = document.createElement.bind(document);
     ordersServiceMock = {
       exportSellSnapshotsSpreadsheet: vi.fn(),
@@ -140,13 +140,13 @@ describe('ExportacaoComponent', () => {
 
     createElementSpy = vi.spyOn(document, 'createElement').mockImplementation((tag: string) => {
       if (tag === 'a') {
-        return mockAnchor as HTMLAnchorElement;
+        return mockAnchor as unknown as HTMLAnchorElement;
       }
       return originalCreateElement(tag);
     });
 
-    appendChildSpy = vi.spyOn(document.body, 'appendChild').mockReturnValue(mockAnchor as HTMLAnchorElement);
-    removeChildSpy = vi.spyOn(document.body, 'removeChild').mockReturnValue(mockAnchor as HTMLAnchorElement);
+    appendChildSpy = vi.spyOn(document.body, 'appendChild').mockReturnValue(mockAnchor as unknown as HTMLAnchorElement);
+    removeChildSpy = vi.spyOn(document.body, 'removeChild').mockReturnValue(mockAnchor as unknown as HTMLAnchorElement);
     vi.spyOn(URL, 'createObjectURL').mockReturnValue('blob:url');
     vi.spyOn(URL, 'revokeObjectURL').mockImplementation(() => {});
 
@@ -236,7 +236,7 @@ describe('ExportacaoComponent', () => {
       addEventListener: vi.fn((_event: string, handler: () => void) => handler()),
       removeEventListener: vi.fn(),
     };
-    const getElementByIdSpy = vi.spyOn(document, 'getElementById').mockReturnValue(mockFrame as HTMLIFrameElement);
+    const getElementByIdSpy = vi.spyOn(document, 'getElementById').mockReturnValue(mockFrame as unknown as HTMLIFrameElement);
 
     component.exportarAcoesEmPdf();
 
@@ -263,7 +263,7 @@ describe('ExportacaoComponent', () => {
       addEventListener: vi.fn((_event: string, handler: () => void) => handler()),
       removeEventListener: vi.fn(),
     };
-    const getElementByIdSpy = vi.spyOn(document, 'getElementById').mockReturnValue(mockFrame as HTMLIFrameElement);
+    const getElementByIdSpy = vi.spyOn(document, 'getElementById').mockReturnValue(mockFrame as unknown as HTMLIFrameElement);
 
     component.exportarAcoesEmPdf();
 
@@ -290,7 +290,7 @@ describe('ExportacaoComponent', () => {
       addEventListener: vi.fn((_event: string, handler: () => void) => handler()),
       removeEventListener: vi.fn(),
     };
-    const getElementByIdSpy = vi.spyOn(document, 'getElementById').mockReturnValue(mockFrame as HTMLIFrameElement);
+    const getElementByIdSpy = vi.spyOn(document, 'getElementById').mockReturnValue(mockFrame as unknown as HTMLIFrameElement);
 
     component.exportarOrderSellPdf();
 
@@ -320,7 +320,7 @@ describe('ExportacaoComponent', () => {
       addEventListener: vi.fn((_event: string, handler: () => void) => handler()),
       removeEventListener: vi.fn(),
     };
-    const getElementByIdSpy = vi.spyOn(document, 'getElementById').mockReturnValue(mockFrame as HTMLIFrameElement);
+    const getElementByIdSpy = vi.spyOn(document, 'getElementById').mockReturnValue(mockFrame as unknown as HTMLIFrameElement);
 
     component.exportarOrderSellPdf();
 
@@ -339,12 +339,12 @@ describe('ExportacaoComponent', () => {
 
     createElementSpy = vi.spyOn(document, 'createElement').mockImplementation((tag: string) => {
       if (tag === 'a') {
-        return mockAnchor as HTMLAnchorElement;
+        return mockAnchor as unknown as HTMLAnchorElement;
       }
       return originalCreateElement(tag);
     });
-    appendChildSpy = vi.spyOn(document.body, 'appendChild').mockReturnValue(mockAnchor as HTMLAnchorElement);
-    removeChildSpy = vi.spyOn(document.body, 'removeChild').mockReturnValue(mockAnchor as HTMLAnchorElement);
+    appendChildSpy = vi.spyOn(document.body, 'appendChild').mockReturnValue(mockAnchor as unknown as HTMLAnchorElement);
+    removeChildSpy = vi.spyOn(document.body, 'removeChild').mockReturnValue(mockAnchor as unknown as HTMLAnchorElement);
     vi.spyOn(URL, 'createObjectURL').mockReturnValue('blob:url');
     vi.spyOn(URL, 'revokeObjectURL').mockImplementation(() => {});
 

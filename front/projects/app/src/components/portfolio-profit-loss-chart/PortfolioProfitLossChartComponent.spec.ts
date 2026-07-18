@@ -10,8 +10,12 @@ import { PortfolioItem, FundamentusAcaoDetails } from '../../models';
 describe('PortfolioProfitLossChartComponent', () => {
   let component: PortfolioProfitLossChartComponent;
   let fixture: ComponentFixture<PortfolioProfitLossChartComponent>;
-  let mockPortfolioService: Record<string, ReturnType<typeof vi.fn>>;
-  let mockFundamentusService: Record<string, ReturnType<typeof vi.fn>>;
+  let mockPortfolioService: {
+    getPortfolios: ReturnType<typeof vi.fn>;
+  };
+  let mockFundamentusService: {
+    getAcaoDetails: ReturnType<typeof vi.fn>;
+  };
 
   const mockPortfolioItems: PortfolioItem[] = [
     { id: '1', codigo: 'PETR4', precoMedio: 30, quantidade: 100 },

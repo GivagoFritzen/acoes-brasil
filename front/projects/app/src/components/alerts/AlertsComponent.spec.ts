@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { SimpleChange, SimpleChanges } from '@angular/core';
 import { By } from '@angular/platform-browser';
 import { vi } from 'vitest';
 import { AlertsComponent } from './AlertsComponent';
@@ -9,8 +10,10 @@ describe('AlertsComponent', () => {
   let component: AlertsComponent;
   let fixture: ComponentFixture<AlertsComponent>;
 
-  function triggerAlertsChange() {
-    return { alerts: {} };
+  function triggerAlertsChange(): SimpleChanges {
+    return {
+      alerts: new SimpleChange(undefined, component.alerts, true),
+    };
   }
 
   function createAlertItem(overrides: Partial<AlertViewItem> = {}): AlertViewItem {
@@ -86,7 +89,7 @@ describe('AlertsComponent', () => {
     });
 
     it('deve ignorar ngOnChanges quando alerts não mudou', () => {
-      const resetSpy = vi.spyOn(component as Record<string, () => void>, 'resetAlerts');
+      const resetSpy = vi.spyOn(component as unknown as { resetAlerts: () => void }, 'resetAlerts');
 
       component.ngOnChanges({});
 
@@ -94,7 +97,7 @@ describe('AlertsComponent', () => {
     });
 
     it('deve limpar timers anteriores ao resetar', () => {
-      const clearTimersSpy = vi.spyOn(component as Record<string, () => void>, 'clearTimers');
+      const clearTimersSpy = vi.spyOn(component as unknown as { clearTimers: () => void }, 'clearTimers');
 
       component.alerts = [{ variant: 'info', title: 'Teste', message: 'Msg', icon: 'i' }];
       component.ngOnChanges(triggerAlertsChange());
@@ -208,7 +211,7 @@ describe('AlertsComponent', () => {
       vi.useFakeTimers();
       component.alerts = [{ variant: 'info', title: 'Timer', message: 'Clean', icon: 'i' }];
       component.ngOnChanges(triggerAlertsChange());
-      const clearTimersSpy = vi.spyOn(component as Record<string, () => void>, 'clearTimers');
+      const clearTimersSpy = vi.spyOn(component as unknown as { clearTimers: () => void }, 'clearTimers');
 
       component.ngOnDestroy();
 

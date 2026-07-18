@@ -7,7 +7,7 @@ import { ChangeDetectionService } from './ChangeDetectionService';
 describe('TranslationService', () => {
   let service: TranslationService;
   let httpMock: { get: ReturnType<typeof vi.fn> };
-  let changeDetectionMock: { triggerChangeDetection: ReturnType<typeof vi.fn> };
+  let changeDetectionMock: ChangeDetectionService;
 
   beforeEach(() => {
     httpMock = {
@@ -16,7 +16,7 @@ describe('TranslationService', () => {
 
     changeDetectionMock = {
       triggerChangeDetection: vi.fn(),
-    } as ChangeDetectionService;
+    } as unknown as ChangeDetectionService;
 
     TestBed.configureTestingModule({
       providers: [
@@ -28,7 +28,7 @@ describe('TranslationService', () => {
 
     // Sobrescrever o http injetado
     service = TestBed.inject(TranslationService);
-    (service as { http: HttpClient }).http = httpMock as HttpClient;
+    (service as unknown as { http: HttpClient }).http = httpMock as unknown as HttpClient;
   });
 
   describe('loadLanguage', () => {
@@ -57,7 +57,7 @@ describe('TranslationService', () => {
   describe('get', () => {
     it('deve retornar string vazia para chave inexistente', async () => {
       httpMock.get.mockReturnValue(of({}));
-      const service2 = new TranslationService(httpMock as HttpClient, changeDetectionMock);
+      const service2 = new TranslationService(httpMock as unknown as HttpClient, changeDetectionMock);
       await service2.loadLanguage('pt-BR');
 
       expect(service2.get('inexistente.chave')).toBe('');
@@ -65,7 +65,7 @@ describe('TranslationService', () => {
 
     it('deve resolver chaves aninhadas profundamente', async () => {
       httpMock.get.mockReturnValue(of({ a: { b: { c: 'valor' } } }));
-      const service2 = new TranslationService(httpMock as HttpClient, changeDetectionMock);
+      const service2 = new TranslationService(httpMock as unknown as HttpClient, changeDetectionMock);
       await service2.loadLanguage('pt-BR');
 
       expect(service2.get('a.b.c')).toBe('valor');
@@ -75,7 +75,7 @@ describe('TranslationService', () => {
   describe('has', () => {
     it('deve retornar true para chave existente', async () => {
       httpMock.get.mockReturnValue(of({ existe: 'sim' }));
-      const service2 = new TranslationService(httpMock as HttpClient, changeDetectionMock);
+      const service2 = new TranslationService(httpMock as unknown as HttpClient, changeDetectionMock);
       await service2.loadLanguage('pt-BR');
 
       expect(service2.has('existe')).toBe(true);
@@ -83,7 +83,7 @@ describe('TranslationService', () => {
 
     it('deve retornar false para chave inexistente', async () => {
       httpMock.get.mockReturnValue(of({}));
-      const service2 = new TranslationService(httpMock as HttpClient, changeDetectionMock);
+      const service2 = new TranslationService(httpMock as unknown as HttpClient, changeDetectionMock);
       await service2.loadLanguage('pt-BR');
 
       expect(service2.has('naoexiste')).toBe(false);
@@ -93,14 +93,14 @@ describe('TranslationService', () => {
   describe('getCurrentLanguage', () => {
     it('deve retornar idioma atual após carregar', async () => {
       httpMock.get.mockReturnValue(of({}));
-      const service2 = new TranslationService(httpMock as HttpClient, changeDetectionMock);
+      const service2 = new TranslationService(httpMock as unknown as HttpClient, changeDetectionMock);
       await service2.loadLanguage('fr-FR');
 
       expect(service2.getCurrentLanguage()).toBe('fr-FR');
     });
 
     it('deve retornar idioma padrão antes de carregar', () => {
-      const service2 = new TranslationService(httpMock as HttpClient, changeDetectionMock);
+      const service2 = new TranslationService(httpMock as unknown as HttpClient, changeDetectionMock);
       expect(service2.getCurrentLanguage()).toBe('pt-BR');
     });
   });

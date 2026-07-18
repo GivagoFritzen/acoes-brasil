@@ -64,7 +64,7 @@ describe('HelpTipComponent', () => {
             it('deve alternar showTip para true quando false', () => {
                 component.showTip = false;
                 fixture.detectChanges();
-                const event = { stopPropagation: vi.fn() } as Event;
+                const event = { stopPropagation: vi.fn() } as unknown as Event;
                 component.toggleTip(event);
                 expect(component.showTip).toBe(true);
             });
@@ -72,7 +72,7 @@ describe('HelpTipComponent', () => {
             it('deve alternar showTip para false quando true', () => {
                 component.showTip = true;
                 fixture.detectChanges();
-                const event = { stopPropagation: vi.fn() } as Event;
+                const event = { stopPropagation: vi.fn() } as unknown as Event;
                 component.toggleTip(event);
                 expect(component.showTip).toBe(false);
             });
@@ -80,7 +80,7 @@ describe('HelpTipComponent', () => {
             it('deve parar propagação do evento no toggleTip()', () => {
                 fixture.detectChanges();
                 const stopPropagationSpy = vi.fn();
-                const event = { stopPropagation: stopPropagationSpy } as Event;
+                const event = { stopPropagation: stopPropagationSpy } as unknown as Event;
                 component.toggleTip(event);
                 expect(stopPropagationSpy).toHaveBeenCalled();
             });

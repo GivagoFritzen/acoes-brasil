@@ -10,7 +10,7 @@ describe('TourService', () => {
 
   beforeEach(() => {
     routerMock = { navigate: vi.fn() };
-    service = new TourService(routerMock as Router);
+    service = new TourService(routerMock as unknown as Router);
     localStorage.clear();
   });
 
