@@ -18,6 +18,7 @@ import type {
   RawEarningsItem,
   RawKeyStatistics,
 } from "../../models/yahoo";
+import type { JsonValue } from "../../models/JsonValue";
 
 const CRUMB_URL = "https://query2.finance.yahoo.com/v1/test/getcrumb";
 const QUOTE_SUMMARY_URL = "https://query2.finance.yahoo.com/v10/finance/quoteSummary";
@@ -110,8 +111,8 @@ export class YahooFinanceScraperService {
     const rawCashflowQuarterly = result.cashflowStatementHistoryQuarterly as { cashflowStatements?: RawCashflowStatement[] } | undefined;
     const rawCashflowAnnual = result.cashflowStatementHistory as { cashflowStatements?: RawCashflowStatement[] } | undefined;
     const rawEarningsHistory = result.earningsHistory as { history?: RawEarningsItem[] } | undefined;
-    const rawCalendarEvents = result.calendarEvents as Record<string, string | number | boolean | object | null> | undefined;
-    const rawPrice = result.price as Record<string, string | number | boolean | object | null> | undefined;
+    const rawCalendarEvents = result.calendarEvents as Record<string, JsonValue> | undefined;
+    const rawPrice = result.price as Record<string, JsonValue> | undefined;
 
     const keyStatistics = this.parseKeyStatistics(rawStats, rawPrice);
     const financialData = this.parseFinancialData(rawFinancialData);
@@ -288,7 +289,7 @@ export class YahooFinanceScraperService {
   private processFundamentalsEntry(
     entry: {
       timestamp?: number[];
-      meta?: Record<string, string | number | boolean | object | null>;
+      meta?: Record<string, JsonValue>;
     },
     grouped: Record<number, Record<string, { raw: number; fmt: string }>>
   ): void {
@@ -307,7 +308,7 @@ export class YahooFinanceScraperService {
     }
   }
 
-  private async fetchQuoteSummaryAsync(codigo: string): Promise<{ quoteSummary?: { result?: Record<string, string | number | boolean | object | null>[] } }> {
+  private async fetchQuoteSummaryAsync(codigo: string): Promise<{ quoteSummary?: { result?: Record<string, JsonValue>[] } }> {
     const abortController = new AbortController();
     const timeoutId = setTimeout(() => abortController.abort(), REQUEST_TIMEOUT_MS);
 

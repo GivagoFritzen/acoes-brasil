@@ -1,4 +1,5 @@
 import type { Investidor10AcaoDetails, Investidor10HistoricoIndicador, Investidor10Indicator, Investidor10Provento, Investidor10ProventosResponse, Investidor10ValorHistorico, Investidor10ReceitaAno, Investidor10SegmentoReceita, Investidor10RegiaoReceita } from "../../../../common/models/investidor10";
+import type { JsonValue } from "../../models/JsonValue";
 import { stripHtml } from "../../shared/utils/FundamentusUtils";
 
 const BASE_URL = "https://investidor10.com.br/acoes";
@@ -100,7 +101,7 @@ export class Investidor10ScraperService {
     return historico;
   }
 
-  private async fetchJsonAsync(url: string): Promise<Record<string, string | number | boolean | object | null> | null> {
+  private async fetchJsonAsync(url: string): Promise<Record<string, JsonValue> | null> {
     const abortController = new AbortController();
     const timeoutId = setTimeout(() => abortController.abort(), REQUEST_TIMEOUT_MS);
 
@@ -383,8 +384,8 @@ export class Investidor10ScraperService {
     const bussinesRaw = this.extractJSObject(html, "companyBussinesRevenues");
     if (!revenuesRaw || !bussinesRaw) return [];
 
-    let revenues: Record<string, string | number | boolean | object | null>;
-    let bussinesRevenues: Record<string, string | number | boolean | object | null>;
+    let revenues: Record<string, JsonValue>;
+    let bussinesRevenues: Record<string, JsonValue>;
 
     try {
       revenues = JSON.parse(this.sanitizeJSON(revenuesRaw));
