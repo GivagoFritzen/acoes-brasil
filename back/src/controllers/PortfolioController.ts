@@ -73,7 +73,7 @@ export class PortfolioController {
 
     try {
       const buffer = fs.readFileSync(file.path);
-      if (buffer.length < 4 || !XLSX_MAGIC.every((b, i) => buffer[i] === b)) {
+      if (buffer.length < 4 || !XLSX_MAGIC.every((byte, indice) => buffer[indice] === byte)) {
         return res.status(400).json({ message: "Tipo de arquivo inválido. Envie um arquivo .xlsx válido." });
       }
 

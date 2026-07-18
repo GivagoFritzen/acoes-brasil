@@ -34,7 +34,7 @@ export class SequelizePortfolioRepository implements IPortfolioRepository {
   async findAllAsync(tx?: object): Promise<PortfolioEntity[]> {
     const transaction = tx as Transaction | undefined;
     const models = await PortfolioModel.findAll({ order: [["createdAt", "DESC"]], transaction });
-    return models.map((m) => this.toEntity(m));
+    return models.map((model) => this.toEntity(model));
   }
 
   async saveAsync(portfolio: PortfolioEntity, tx?: object): Promise<PortfolioEntity> {

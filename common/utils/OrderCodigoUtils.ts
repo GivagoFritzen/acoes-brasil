@@ -41,9 +41,9 @@ export function mesclarPorCodigo<T extends MergeableItem>(items: T[]): T[] {
       return { ...grupo[0], codigo };
     }
 
-    const totalQtd = grupo.reduce((s, i) => s + i.quantidade, 0);
+    const totalQtd = grupo.reduce((somatorio, item) => somatorio + item.quantidade, 0);
     const precoMedio = totalQtd > 0
-      ? grupo.reduce((s, i) => s + i.quantidade * i.precoMedio, 0) / totalQtd
+      ? grupo.reduce((somatorio, item) => somatorio + item.quantidade * item.precoMedio, 0) / totalQtd
       : 0;
 
     return { ...grupo[0], codigo, quantidade: totalQtd, precoMedio };

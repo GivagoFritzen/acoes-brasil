@@ -12,14 +12,14 @@ export class Investidor10Controller extends BaseScrapingController {
   }
 
   async getAsync(req: Request, res: Response): Promise<Response> {
-    return this.executeAsync(req, res, (c) => this.investidor10Scraper.scrapeAsync(c), [
+    return this.executeAsync(req, res, (codigo) => this.investidor10Scraper.scrapeAsync(codigo), [
       { match: "Falha ao consultar Investidor10", httpStatus: 502 },
       { match: "Não foi possível extrair dados", httpStatus: 502 },
     ]);
   }
 
   async getProventosAsync(req: Request, res: Response): Promise<Response> {
-    return this.executeAsync(req, res, (c) => this.investidor10Scraper.scrapeDividendosAsync(c), [
+    return this.executeAsync(req, res, (codigo) => this.investidor10Scraper.scrapeDividendosAsync(codigo), [
       { match: "Falha ao consultar Investidor10", httpStatus: 502 },
       { match: "Não foi possível extrair dados", httpStatus: 502 },
     ]);

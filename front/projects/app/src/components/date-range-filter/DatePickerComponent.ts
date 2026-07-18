@@ -74,16 +74,17 @@ export class DatePickerComponent implements OnChanges {
         const lastDayOfMonth = new Date(year, month + 1, 0);
         const days: CalendarDay[] = [];
 
+        const TOTAL_DIAS_CALENDARIO = 42;
         const firstDayIndex = firstDayOfMonth.getDay();
-        for (let i = firstDayIndex - 1; i >= 0; i--) {
-            days.push({ date: new Date(year, month, -i), isCurrentMonth: false });
+        for (let indice = firstDayIndex - 1; indice >= 0; indice--) {
+            days.push({ date: new Date(year, month, -indice), isCurrentMonth: false });
         }
-        for (let i = 1; i <= lastDayOfMonth.getDate(); i++) {
-            days.push({ date: new Date(year, month, i), isCurrentMonth: true });
+        for (let indice = 1; indice <= lastDayOfMonth.getDate(); indice++) {
+            days.push({ date: new Date(year, month, indice), isCurrentMonth: true });
         }
-        const remainingDays = 42 - days.length;
-        for (let i = 1; i <= remainingDays; i++) {
-            days.push({ date: new Date(year, month + 1, i), isCurrentMonth: false });
+        const remainingDays = TOTAL_DIAS_CALENDARIO - days.length;
+        for (let indice = 1; indice <= remainingDays; indice++) {
+            days.push({ date: new Date(year, month + 1, indice), isCurrentMonth: false });
         }
         this.daysInMonth = days;
     }
@@ -114,10 +115,10 @@ export class DatePickerComponent implements OnChanges {
             this.inputValue = '';
             return;
         }
-        const d = date.getDate().toString().padStart(2, '0');
-        const m = (date.getMonth() + 1).toString().padStart(2, '0');
-        const y = date.getFullYear();
-        this.inputValue = `${d}/${m}/${y}`;
+        const dia = date.getDate().toString().padStart(2, '0');
+        const mes = (date.getMonth() + 1).toString().padStart(2, '0');
+        const ano = date.getFullYear();
+        this.inputValue = `${dia}/${mes}/${ano}`;
     }
 
     onKeyDown(event: KeyboardEvent): void {
@@ -131,7 +132,8 @@ export class DatePickerComponent implements OnChanges {
 
     onInput(event: Event): void {
         const input = event.target as HTMLInputElement;
-        const digits = input.value.replace(/[^0-9]/g, '').slice(0, 8);
+        const LIMITE_DIGITOS_DATA = 8;
+        const digits = input.value.replace(/[^0-9]/g, '').slice(0, LIMITE_DIGITOS_DATA);
 
         let masked = digits;
         if (digits.length > 4) {
@@ -184,10 +186,10 @@ export class DatePickerComponent implements OnChanges {
         this.isOpen = false;
 
         if (this.selectedDate) {
-            const y = this.selectedDate.getFullYear();
-            const m = (this.selectedDate.getMonth() + 1).toString().padStart(2, '0');
-            const d = this.selectedDate.getDate().toString().padStart(2, '0');
-            this.dateChange.emit(`${y}-${m}-${d}`);
+            const ano = this.selectedDate.getFullYear();
+            const mes = (this.selectedDate.getMonth() + 1).toString().padStart(2, '0');
+            const dia = this.selectedDate.getDate().toString().padStart(2, '0');
+            this.dateChange.emit(`${ano}-${mes}-${dia}`);
         } else {
             this.dateChange.emit('');
         }

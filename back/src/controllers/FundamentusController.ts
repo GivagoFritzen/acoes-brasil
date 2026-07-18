@@ -15,7 +15,7 @@ export class FundamentusController extends BaseScrapingController {
   }
 
   async getAsync(req: Request, res: Response): Promise<Response> {
-    return this.executeAsync(req, res, (c) => this.fundamentusScraper.scrapeAsync(c), [
+    return this.executeAsync(req, res, (codigo) => this.fundamentusScraper.scrapeAsync(codigo), [
       { match: "não encontrado no Fundamentus", httpStatus: 404 },
       { match: "Falha ao consultar Fundamentus", httpStatus: 502 },
       { match: "Não foi possível extrair dados", httpStatus: 502 },
@@ -23,7 +23,7 @@ export class FundamentusController extends BaseScrapingController {
   }
 
   async getProventosAsync(req: Request, res: Response): Promise<Response> {
-    return this.executeAsync(req, res, (c) => this.fundamentusProventosScraper.scrapeAsync(c), [
+    return this.executeAsync(req, res, (codigo) => this.fundamentusProventosScraper.scrapeAsync(codigo), [
       { match: "Falha ao consultar Fundamentus", httpStatus: 502 },
     ]);
   }

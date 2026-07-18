@@ -123,9 +123,9 @@ function buildQuoteSummaryResponse(overrides: object = {}): object {
 function generateTimestamps(count: number): number[] {
   const now = Date.now();
   const result: number[] = [];
-  for (let i = 0; i < count; i++) {
-    const d = new Date(now - (count - i) * 90 * 86400 * 1000);
-    result.push(Math.floor(d.getTime() / 1000));
+  for (let indice = 0; indice < count; indice++) {
+    const data = new Date(now - (count - indice) * 90 * 86400 * 1000);
+    result.push(Math.floor(data.getTime() / 1000));
   }
   return result;
 }

@@ -333,7 +333,7 @@ describe('PortfolioProfitLossChartComponent', () => {
 
       const items = await firstValueFrom(component.chartItems$);
       expect(items).toHaveLength(2);
-      const nomes = items.map(i => i.name);
+      const nomes = items.map(item => item.name);
       expect(nomes).toContain('PETR4');
       expect(nomes).toContain('VALE5');
     });

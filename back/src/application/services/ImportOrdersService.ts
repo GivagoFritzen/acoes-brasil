@@ -25,7 +25,7 @@ export class ImportOrdersService {
       throw new BusinessException("Planilha sem dados.");
     }
 
-    const uniqueCodigos = [...new Set(orders.map(o => normalizeOrderCodigo(o.codigo)).filter(Boolean))];
+    const uniqueCodigos = [...new Set(orders.map(order => normalizeOrderCodigo(order.codigo)).filter(Boolean))];
     const quotesMap = new Map<string, number | null>();
     for (const codigo of uniqueCodigos) {
       const quote = await this.quoteProvider.getQuoteAsync(codigo);

@@ -4,13 +4,13 @@ import { StockChartComponent } from './StockChartComponent';
 import type { GoogleFinanceChartPoint } from '../../../../../../common/models/google-finance';
 
 function makePoints(...prices: number[]): GoogleFinanceChartPoint[] {
-  return prices.map((price, i) => {
-    const date = new Date(2024, 0, 1 + i);
-    const m = String(date.getMonth() + 1).padStart(2, '0');
-    const d = String(date.getDate()).padStart(2, '0');
+  return prices.map((price, indice) => {
+    const date = new Date(2024, 0, 1 + indice);
+    const mes = String(date.getMonth() + 1).padStart(2, '0');
+    const dia = String(date.getDate()).padStart(2, '0');
     return {
       timestamp: date.getTime(),
-      date: `${date.getFullYear()}-${m}-${d}`,
+      date: `${date.getFullYear()}-${mes}-${dia}`,
       price,
       volume: 1000,
     };

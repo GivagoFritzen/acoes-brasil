@@ -92,7 +92,7 @@ export class SequelizeProventoRepository implements IProventoRepository {
       offset,
     });
 
-    return { rows: rows.map((m) => this.toEntity(m)), count };
+    return { rows: rows.map((model) => this.toEntity(model)), count };
   }
 
   private async findAllGroupedAsync(

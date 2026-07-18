@@ -49,8 +49,8 @@ export class AcaoDetailsComponent implements OnInit {
         if (!inv?.historicoIndicadores?.length) return [];
         const anos = new Set<number>();
         for (const item of inv.historicoIndicadores) {
-            for (const v of item.valores) {
-                if (v.ano !== null) anos.add(v.ano);
+            for (const valor of item.valores) {
+                if (valor.ano !== null) anos.add(valor.ano);
             }
         }
         return Array.from(anos).sort((a, b) => b - a);

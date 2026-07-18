@@ -73,7 +73,7 @@ export class Investidor10ScraperService {
   }
 
   private extractEmpresa(dados: Investidor10Indicator[]): string | null {
-    const nome = dados.find((d) => d.label === "Nome da Empresa");
+    const nome = dados.find((dado) => dado.label === "Nome da Empresa");
     return nome?.value ?? null;
   }
 
@@ -420,10 +420,10 @@ export class Investidor10ScraperService {
   }): Investidor10RegiaoReceita[] {
     if (!data?.company_revenue_country) return [];
     return data.company_revenue_country
-      .filter((c) => c && c.pivot && typeof c.pivot.percentage === "number")
-      .map((c) => ({
-        nome: String(c.name ?? ""),
-        porcentagem: c.pivot.percentage,
+      .filter((regiao) => regiao && regiao.pivot && typeof regiao.pivot.percentage === "number")
+      .map((regiao) => ({
+        nome: String(regiao.name ?? ""),
+        porcentagem: regiao.pivot.percentage,
       }));
   }
 
@@ -432,10 +432,10 @@ export class Investidor10ScraperService {
   } | undefined): Investidor10SegmentoReceita[] {
     if (!bussinesData?.company_revenue_bussines) return [];
     return bussinesData.company_revenue_bussines
-      .filter((b) => b && typeof b.percentage === "number")
-      .map((b) => ({
-        nome: String(b.bussines ?? ""),
-        porcentagem: b.percentage,
+      .filter((negocio) => negocio && typeof negocio.percentage === "number")
+      .map((negocio) => ({
+        nome: String(negocio.bussines ?? ""),
+        porcentagem: negocio.percentage,
       }));
   }
 
@@ -448,14 +448,14 @@ export class Investidor10ScraperService {
     if (objStart === -1) return null;
 
     let depth = 0;
-    let i = objStart;
+    let posicao = objStart;
 
-    while (i < html.length) {
-      const ch = html[i];
+    while (posicao < html.length) {
+      const ch = html[posicao];
 
       if (ch === '"') {
-        const endOfString = this.skipString(html, i + 1);
-        i = endOfString === i ? i + 1 : endOfString + 1;
+        const endOfString = this.skipString(html, posicao + 1);
+        posicao = endOfString === posicao ? posicao + 1 : endOfString + 1;
         continue;
       }
 
@@ -464,24 +464,24 @@ export class Investidor10ScraperService {
       } else if (ch === "}") {
         depth--;
         if (depth === 0) {
-          return html.substring(objStart, i + 1);
+          return html.substring(objStart, posicao + 1);
         }
       }
 
-      i++;
+      posicao++;
     }
 
     return null;
   }
 
   private skipString(html: string, start: number): number {
-    let i = start;
-    while (i < html.length) {
-      const char = html[i];
-      if (char === '"') return i;
-      i += char === "\\" ? 2 : 1;
+    let posicao = start;
+    while (posicao < html.length) {
+      const char = html[posicao];
+      if (char === '"') return posicao;
+      posicao += char === "\\" ? 2 : 1;
     }
-    return i;
+    return posicao;
   }
 
   private sanitizeJSON(str: string): string {

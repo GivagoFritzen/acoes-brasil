@@ -42,9 +42,9 @@ export class TranslationService {
         const keys = key.split('.');
         let value: TranslationValue | Record<string, TranslationValue> = this.translations();
 
-        for (const k of keys) {
-            if (value && typeof value === 'object' && k in value) {
-                value = (value as Record<string, TranslationValue>)[k];
+        for (const chave of keys) {
+            if (value && typeof value === 'object' && chave in value) {
+                value = (value as Record<string, TranslationValue>)[chave];
             } else {
                 return '';
             }

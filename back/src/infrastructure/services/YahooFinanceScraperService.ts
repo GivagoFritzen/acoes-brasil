@@ -256,7 +256,7 @@ export class YahooFinanceScraperService {
     try {
       const period2 = Math.floor(Date.now() / 1000);
       const period1 = Math.floor(new Date().getTime() / 1000 - yearsBack * 365.25 * 86400);
-      const typeParam = apiKeys.map((k) => `${periodType}${k}`).join(",");
+      const typeParam = apiKeys.map((apiKey) => `${periodType}${apiKey}`).join(",");
       const url = `${FUNDAMENTALS_TIMESERIES_URL}/${encodeURIComponent(symbol)}?period1=${period1}&period2=${period2}&type=${typeParam}`;
 
       const response = await fetch(url, {
@@ -292,15 +292,15 @@ export class YahooFinanceScraperService {
     },
     grouped: Record<number, Record<string, { raw: number; fmt: string }>>
   ): void {
-    const dataKey = Object.keys(entry).find((k) => k !== "meta" && k !== "timestamp");
+    const dataKey = Object.keys(entry).find((chave) => chave !== "meta" && chave !== "timestamp");
     if (!dataKey || !entry.timestamp?.length) return;
 
-    for (let i = 0; i < entry.timestamp.length; i++) {
-      const ts = entry.timestamp[i];
+    for (let indice = 0; indice < entry.timestamp.length; indice++) {
+      const ts = entry.timestamp[indice];
       if (!grouped[ts]) grouped[ts] = {};
       const entryWithDynamic = entry as Record<string, Array<{ reportedValue?: { raw: number; fmt: string } }> | undefined>;
       const values = entryWithDynamic[dataKey];
-      const rv = values?.[i]?.reportedValue;
+      const rv = values?.[indice]?.reportedValue;
       if (rv) {
         grouped[ts][dataKey] = rv;
       }
@@ -490,7 +490,8 @@ export class YahooFinanceScraperService {
     if (!grouped) return [];
     return Object.entries(grouped)
       .map(([ts, metrics]) => {
-        const endDate = new Date(parseInt(ts) * 1000).toISOString().split("T")[0];
+        const MILISSEGUNDOS_POR_SEGUNDO = 1000;
+        const endDate = new Date(parseInt(ts) * MILISSEGUNDOS_POR_SEGUNDO).toISOString().split("T")[0];
         const item: Record<string, string | null> = { endDate };
         for (const { apiKey, field } of fieldMappings) {
           item[field as string] = this.extractValue(metrics[`${prefix}${apiKey}`]);

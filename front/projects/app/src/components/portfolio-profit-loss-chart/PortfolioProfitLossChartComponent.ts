@@ -144,22 +144,24 @@ export class PortfolioProfitLossChartComponent implements OnInit {
       const barWidth = maxAbsValue > 0
         ? (Math.abs(item.value) / maxAbsValue) * (isPositive ? positiveWidth : negativeWidth)
         : 0;
-      const y = item.index * (this.barHeight + this.verticalMargin);
-      const x = isPositive ? this.yAxisX : this.yAxisX - barWidth;
+      const COR_POSITIVO = '#5AA454';
+      const COR_NEGATIVO = '#A10A28';
+      const posicaoY = item.index * (this.barHeight + this.verticalMargin);
+      const posicaoX = isPositive ? this.yAxisX : this.yAxisX - barWidth;
 
       return {
         name: item.name,
         value: item.value,
-        color: isPositive ? '#5AA454' : '#A10A28',
+        color: isPositive ? COR_POSITIVO : COR_NEGATIVO,
         width: barWidth,
         height: this.barHeight,
-        x,
-        y,
+        x: posicaoX,
+        y: posicaoY,
         labelX: isPositive ? this.yAxisX - 10 : this.yAxisX + 10,
-        labelY: y + this.barHeight / 2,
+        labelY: posicaoY + this.barHeight / 2,
         labelAnchor: isPositive ? 'end' : 'start',
-        valueX: isPositive ? x + barWidth + 5 : x - 5,
-        valueY: y + this.barHeight / 2,
+        valueX: isPositive ? posicaoX + barWidth + 5 : posicaoX - 5,
+        valueY: posicaoY + this.barHeight / 2,
         valueAnchor: isPositive ? 'start' : 'end',
       };
     });
@@ -183,24 +185,26 @@ export class PortfolioProfitLossChartComponent implements OnInit {
       const barHeight = maxAbsValue > 0
         ? (Math.abs(item.value) / maxAbsValue) * availableHalfHeight
         : 0;
-      const x = this.mobileLeftPadding + item.index * (this.mobileBarWidth + this.mobileGap);
-      const y = isPositive ? this.mobileXAxisY - barHeight : this.mobileXAxisY;
+      const COR_POSITIVO = '#5AA454';
+      const COR_NEGATIVO = '#A10A28';
+      const posicaoX = this.mobileLeftPadding + item.index * (this.mobileBarWidth + this.mobileGap);
+      const posicaoY = isPositive ? this.mobileXAxisY - barHeight : this.mobileXAxisY;
 
       return {
         name: item.name,
         value: item.value,
-        color: isPositive ? '#5AA454' : '#A10A28',
+        color: isPositive ? COR_POSITIVO : COR_NEGATIVO,
         width: this.mobileBarWidth,
         height: barHeight,
-        x,
-        y,
-        labelX: x + this.mobileBarWidth / 2,
+        x: posicaoX,
+        y: posicaoY,
+        labelX: posicaoX + this.mobileBarWidth / 2,
         labelY: isPositive
           ? this.mobileXAxisY + this.mobileLabelOffset
           : this.mobileXAxisY - this.mobileLabelOffset,
         labelAnchor: 'middle',
-        valueX: x + this.mobileBarWidth / 2,
-        valueY: isPositive ? y - this.mobileValueOffset : y + barHeight + this.mobileValueOffset,
+        valueX: posicaoX + this.mobileBarWidth / 2,
+        valueY: isPositive ? posicaoY - this.mobileValueOffset : posicaoY + barHeight + this.mobileValueOffset,
         valueAnchor: 'middle',
       };
     });

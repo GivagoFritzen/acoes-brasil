@@ -179,8 +179,9 @@ export class ExportacaoComponent {
   private gerarAnos(): SelectOption[] {
     const anoAtual = new Date().getFullYear();
     const anos: SelectOption[] = [];
-    for (let i = anoAtual; i >= 2020; i--) {
-      anos.push({ value: String(i), label: String(i) });
+    const ANO_MINIMO = 2020;
+    for (let ano = anoAtual; ano >= ANO_MINIMO; ano--) {
+      anos.push({ value: String(ano), label: String(ano) });
     }
     return anos;
   }

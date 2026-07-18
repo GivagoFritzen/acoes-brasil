@@ -135,7 +135,7 @@ describe('DatePickerComponent', () => {
         it('deve incluir dias do mês anterior', () => {
             component.currentMonth = new Date(2026, 4, 1);
             component.generateCalendar();
-            const outsideMonth = component.daysInMonth.filter(d => !d.isCurrentMonth);
+            const outsideMonth = component.daysInMonth.filter(dia => !dia.isCurrentMonth);
             expect(outsideMonth.length).toBeGreaterThan(0);
         });
 
@@ -143,7 +143,7 @@ describe('DatePickerComponent', () => {
             component.currentMonth = new Date(2026, 4, 1);
             component.generateCalendar();
             const lastDays = component.daysInMonth.slice(-7);
-            const outsideNextMonth = lastDays.filter(d => !d.isCurrentMonth);
+            const outsideNextMonth = lastDays.filter(dia => !dia.isCurrentMonth);
             expect(outsideNextMonth.length).toBeGreaterThan(0);
         });
     });

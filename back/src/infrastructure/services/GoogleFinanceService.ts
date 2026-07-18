@@ -65,11 +65,11 @@ export class GoogleFinanceService {
 
   private normalizeCodigo(codigo: string): string {
     const upper = codigo.trim().toUpperCase();
-    let i = upper.length - 1;
-    while (i >= 0 && upper[i] >= "A" && upper[i] <= "Z") i--;
-    const trailing = upper.length - 1 - i;
+    let indice = upper.length - 1;
+    while (indice >= 0 && upper[indice] >= "A" && upper[indice] <= "Z") indice--;
+    const trailing = upper.length - 1 - indice;
     if (trailing <= 1 && upper.length >= 5)
-      return upper.slice(0, i + 1);
+      return upper.slice(0, indice + 1);
     return upper;
   }
 
@@ -110,21 +110,23 @@ export class GoogleFinanceService {
 
     const points: GoogleFinanceChartPoint[] = [];
 
-    for (let i = 0; i < timestamps.length; i++) {
-      const ts = timestamps[i];
-      const close = closes[i];
+    const MILISSEGUNDOS_POR_SEGUNDO = 1000;
+
+    for (let indice = 0; indice < timestamps.length; indice++) {
+      const ts = timestamps[indice];
+      const close = closes[indice];
       if (!ts || close == null) continue;
 
-      const date = new Date(ts * 1000);
-      const y = date.getFullYear();
-      const m = String(date.getMonth() + 1).padStart(2, "0");
-      const d = String(date.getDate()).padStart(2, "0");
+      const date = new Date(ts * MILISSEGUNDOS_POR_SEGUNDO);
+      const ano = date.getFullYear();
+      const mes = String(date.getMonth() + 1).padStart(2, "0");
+      const dia = String(date.getDate()).padStart(2, "0");
 
       points.push({
-        timestamp: ts * 1000,
-        date: `${y}-${m}-${d}`,
+        timestamp: ts * MILISSEGUNDOS_POR_SEGUNDO,
+        date: `${ano}-${mes}-${dia}`,
         price: close,
-        volume: volumes[i] ?? null,
+        volume: volumes[indice] ?? null,
       });
     }
 

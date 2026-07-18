@@ -8,10 +8,11 @@ import { SpreadsheetParserService } from "../infrastructure/services/Spreadsheet
 import type { MulterRequest } from "../models/MulterRequest";
 
 const XLSX_MAGIC = [0x50, 0x4b, 0x03, 0x04];
+const LIMITE_TAMANHO_ARQUIVO = 1048576;
 const uploadDir = fs.mkdtempSync(path.join(os.tmpdir(), "acoes-upload-"));
 const upload = multer({
   dest: uploadDir,
-  limits: { fileSize: 1048576 },
+  limits: { fileSize: LIMITE_TAMANHO_ARQUIVO },
   fileFilter: (_req, file, cb) => {
     const ext = path.extname(file.originalname).toLowerCase();
     if (ext !== ".xlsx") {
@@ -40,7 +41,7 @@ export class ImportController {
 
     try {
       const buffer = fs.readFileSync(file.path);
-      if (buffer.length < 4 || !XLSX_MAGIC.every((b, i) => buffer[i] === b)) {
+      if (buffer.length < 4 || !XLSX_MAGIC.every((byte, indice) => buffer[indice] === byte)) {
         return res.status(400).json({ message: "Tipo de arquivo inválido. Envie um arquivo .xlsx válido." });
       }
       const ordersToImport = this.spreadsheetParser.parseOrderRowsAsync(buffer);

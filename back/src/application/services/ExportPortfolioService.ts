@@ -12,11 +12,11 @@ export class ExportPortfolioService {
   async executeAsync(): Promise<{ buffer: Buffer; fileName: string }> {
     const portfolios = await this.portfolioRepository.findAllAsync();
 
-    const rows: PortfolioExportRow[] = portfolios.map((p) => ({
-      Código: p.codigo,
-      Quantidade: p.quantidade,
-      "Preço Médio": p.precoMedio,
-      "Valor Total": p.quantidade * p.precoMedio,
+    const rows: PortfolioExportRow[] = portfolios.map((portfolio) => ({
+      Código: portfolio.codigo,
+      Quantidade: portfolio.quantidade,
+      "Preço Médio": portfolio.precoMedio,
+      "Valor Total": portfolio.quantidade * portfolio.precoMedio,
     }));
 
     const fileName = DateUtils.generateFileName("portfolio");
