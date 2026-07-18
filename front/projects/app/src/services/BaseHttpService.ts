@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 
-export interface ApiError {
+interface ApiError {
   message: string;
   status?: number;
   error?: Error | string | object | null;

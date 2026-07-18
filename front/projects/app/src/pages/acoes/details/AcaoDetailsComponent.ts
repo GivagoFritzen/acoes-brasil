@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, computed, OnInit, signal } from '@angular/core';
 import { ActivatedRoute, RouterModule } from '@angular/router';
-import { catchError, finalize, forkJoin, of } from 'rxjs';
+import { catchError, finalize, forkJoin, Observable, of } from 'rxjs';
 import { AlertsComponent } from '../../../components/alerts/AlertsComponent';
 import { SimpleButtonComponent } from '../../../components/simple-button/SimpleButtonComponent';
 import { StockChartComponent } from '../../../components/stock-chart/StockChartComponent';
@@ -209,7 +209,7 @@ export class AcaoDetailsComponent implements OnInit {
         this.investidor10Proventos.set(null);
         this.googleFinance.set(null);
 
-        const observables: Record<string, object> = {
+        const observables: Record<string, Observable<unknown>> = {
             googleFinance: this.googleFinanceService
                 .getData(normalizedCode)
                 .pipe(catchError(() => of(null))),
@@ -240,10 +240,10 @@ export class AcaoDetailsComponent implements OnInit {
         forkJoin(observables)
             .pipe(finalize(() => this.isLoading.set(false)))
             .subscribe({
-                next: (result: Record<string, string | number | boolean | object | null>) => {
+                next: (result) => {
                     if (source === 'investidor10') {
-                        this.investidor10.set(result['investidor10'] ?? null);
-                        this.investidor10Proventos.set(result['investidor10Proventos'] ?? null);
+                        this.investidor10.set(result['investidor10'] as Investidor10AcaoDetails ?? null);
+                        this.investidor10Proventos.set(result['investidor10Proventos'] as Investidor10ProventosResponse ?? null);
                         if (!result['investidor10']) {
                             this.pushAlert(
                                 'warning',
@@ -253,7 +253,7 @@ export class AcaoDetailsComponent implements OnInit {
                             );
                         }
                     } else if (source === 'yahoo') {
-                        this.yahooFinance.set(result['yahooFinance'] ?? null);
+                        this.yahooFinance.set(result['yahooFinance'] as YahooFinanceDetails ?? null);
                         if (!result['yahooFinance']) {
                             this.pushAlert(
                                 'warning',
@@ -263,8 +263,8 @@ export class AcaoDetailsComponent implements OnInit {
                             );
                         }
                     } else {
-                        this.fundamentus.set(result['fundamentus'] ?? null);
-                        this.fundamentusProventos.set(result['fundamentusProventos'] ?? null);
+                        this.fundamentus.set(result['fundamentus'] as FundamentusAcaoDetails ?? null);
+                        this.fundamentusProventos.set(result['fundamentusProventos'] as FundamentusProventosResponse ?? null);
                         if (!result['fundamentus']) {
                             this.pushAlert(
                                 'warning',
@@ -275,7 +275,7 @@ export class AcaoDetailsComponent implements OnInit {
                         }
                     }
 
-                    this.googleFinance.set(result['googleFinance'] ?? null);
+                    this.googleFinance.set(result['googleFinance'] as GoogleFinanceResponse ?? null);
 
                     if (source === 'fundamentus' && !result['fundamentusProventos']) {
                         this.pushAlert(
@@ -345,8 +345,8 @@ export class AcaoDetailsComponent implements OnInit {
         { label: 'FCF', key: 'totalCashFromFinancingActivities' },
     ];
 
-    getFieldValue(item: Record<string, string | number | boolean | object | null>, key: string): string | null {
-        return (item?.[key] as string) ?? null;
+    getFieldValue(item: object, key: string): string | null {
+        return (item as Record<string, unknown>)?.[key] as string ?? null;
     }
 
     private pushAlert(
