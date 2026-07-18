@@ -8,6 +8,7 @@ import { PortfolioDomainService } from "../../domain/services/PortfolioDomainSer
 import { CreateOrderDto } from "../dto/CreateOrderDto";
 import { DateUtils } from "../../shared/utils/DateUtils";
 import { normalizeOrderCodigo } from "../../../../common/utils/OrderCodigoUtils";
+import { ValidationException } from "../../shared/exceptions/ValidationException";
 
 export class CreateOrderService {
   constructor(
@@ -24,16 +25,18 @@ export class CreateOrderService {
     const codigoNormalizado = normalizeOrderCodigo(input.codigo);
 
     if (!codigoNormalizado || !quantidade || !valor || !data) {
-      throw new Error("Dados inválidos para criar order. Informe código, quantidade, valor e data.");
+      throw new ValidationException("Dados inválidos para criar order. Informe código, quantidade, valor e data.");
     }
 
-    if (DateUtils.isFutureBrDate(data)) {
-      throw new Error("A data da ordem não pode ser futura.");
+    if (DateUtils.isFutureDate(data)) {
+      throw new ValidationException("A data da ordem não pode ser futura.");
     }
 
     if (operacao !== "Compra" && operacao !== "Venda") {
-      throw new Error("Operação inválida para portfolio. Use Compra ou Venda.");
+      throw new ValidationException("Operação inválida para portfolio. Use Compra ou Venda.");
     }
+
+    const quote = await this.quoteProvider.getQuoteAsync(codigoNormalizado);
 
     return await this.transactionManager.executeAsync(async (tx) => {
       const codigo = await this.portfolioDomainService.resolveCodigoForPortfolioAsync(codigoNormalizado, tx, this.portfolioRepository);
@@ -65,7 +68,7 @@ export class CreateOrderService {
         tx,
         this.portfolioRepository,
         this.orderSellSnapshotRepository,
-        this.quoteProvider
+        quote
       );
 
       return order;

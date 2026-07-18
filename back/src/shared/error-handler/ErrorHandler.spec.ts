@@ -1,6 +1,9 @@
 import { Response } from "express";
 import { ErrorHandler } from "./ErrorHandler";
 import { ValidationError } from "../validators/OrderValidator";
+import { NotFoundException } from "../exceptions/NotFoundException";
+import { BusinessException } from "../exceptions/BusinessException";
+import { ValidationException } from "../exceptions/ValidationException";
 
 function createMockRes(): Partial<Response> {
   const res: Partial<Response> = {};
@@ -30,72 +33,34 @@ describe("ErrorHandler", () => {
     expect(res.json).toHaveBeenCalledWith({ message: "Dados inválidos" });
   });
 
-  it("Deve retornar 404 quando mensagem conter Ordem nao encontrada", () => {
-    const error = new Error("Ordem não encontrada");
+  it("Deve retornar 404 quando erro for NotFoundException", () => {
+    const error = new NotFoundException("Ordem não encontrada.");
 
     ErrorHandler.handle(error, res as Response);
 
     expect(res.status).toHaveBeenCalledWith(404);
-    expect(res.json).toHaveBeenCalledWith({ message: "Ordem não encontrada" });
+    expect(res.json).toHaveBeenCalledWith({ message: "Ordem não encontrada." });
   });
 
-  it("Deve retornar 404 quando mensagem conter Ativo do portfolio nao encontrado", () => {
-    const error = new Error("Ativo do portfólio não encontrado");
-
-    ErrorHandler.handle(error, res as Response);
-
-    expect(res.status).toHaveBeenCalledWith(404);
-  });
-
-  it("Deve retornar 404 quando mensagem conter provento nao encontrado", () => {
-    const error = new Error("provento não encontrado");
-
-    ErrorHandler.handle(error, res as Response);
-
-    expect(res.status).toHaveBeenCalledWith(404);
-  });
-
-  it("Deve retornar 400 quando mensagem conter invalidos para criar order", () => {
-    const error = new Error("Dados inválidos para criar order");
+  it("Deve retornar 400 quando erro for BusinessException", () => {
+    const error = new BusinessException("A remoção da ordem deixaria o portfolio inconsistente.");
 
     ErrorHandler.handle(error, res as Response);
 
     expect(res.status).toHaveBeenCalledWith(400);
+    expect(res.json).toHaveBeenCalledWith({ message: "A remoção da ordem deixaria o portfolio inconsistente." });
   });
 
-  it("Deve retornar 400 quando mensagem conter futura", () => {
-    const error = new Error("data futura");
+  it("Deve retornar 400 quando erro for ValidationException", () => {
+    const error = new ValidationException("Dados inválidos para criar order.");
 
     ErrorHandler.handle(error, res as Response);
 
     expect(res.status).toHaveBeenCalledWith(400);
+    expect(res.json).toHaveBeenCalledWith({ message: "Dados inválidos para criar order." });
   });
 
-  it("Deve retornar 400 quando mensagem conter Operacao invalida", () => {
-    const error = new Error("Operação inválida");
-
-    ErrorHandler.handle(error, res as Response);
-
-    expect(res.status).toHaveBeenCalledWith(400);
-  });
-
-  it("Deve retornar 400 quando mensagem conter Nao e possivel vender", () => {
-    const error = new Error("Não é possível vender");
-
-    ErrorHandler.handle(error, res as Response);
-
-    expect(res.status).toHaveBeenCalledWith(400);
-  });
-
-  it("Deve retornar 400 quando mensagem conter inconsistente", () => {
-    const error = new Error("dados inconsistentes");
-
-    ErrorHandler.handle(error, res as Response);
-
-    expect(res.status).toHaveBeenCalledWith(400);
-  });
-
-  it("Deve retornar 500 quando erro generico sem mensagem especifica", () => {
+  it("Deve retornar 500 quando erro generico sem heranca de AppException", () => {
     const error = new Error("Erro qualquer");
 
     ErrorHandler.handle(error, res as Response);

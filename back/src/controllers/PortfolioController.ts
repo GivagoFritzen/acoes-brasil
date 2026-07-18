@@ -7,28 +7,19 @@ import { CreateOrUpdatePortfolioService } from "../application/services/CreateOr
 import { DeletePortfolioService } from "../application/services/DeletePortfolioService";
 import { ListPortfolioService } from "../application/services/ListPortfolioService";
 import { SpreadsheetParserService } from "../infrastructure/services/SpreadsheetParserService";
-import { Container } from "../shared/dependency-injection/Container";
 import { ErrorHandler } from "../shared/error-handler/ErrorHandler";
-import { isValidUuid } from "../shared/validators/IdValidator";
 
 const XLSX_MAGIC = [0x50, 0x4b, 0x03, 0x04];
 
 export class PortfolioController {
-  private createOrUpdatePortfolioService: CreateOrUpdatePortfolioService;
-  private deletePortfolioService: DeletePortfolioService;
-  private listPortfolioService: ListPortfolioService;
-  private exportPortfolioService: ExportPortfolioService;
-  private importPortfolioService: ImportPortfolioService;
-  private spreadsheetParser: SpreadsheetParserService;
-
-  constructor() {
-    this.createOrUpdatePortfolioService = Container.get("CreateOrUpdatePortfolioService");
-    this.deletePortfolioService = Container.get("DeletePortfolioService");
-    this.listPortfolioService = Container.get("ListPortfolioService");
-    this.exportPortfolioService = Container.get("ExportPortfolioService");
-    this.importPortfolioService = Container.get("ImportPortfolioService");
-    this.spreadsheetParser = Container.get("spreadsheetParser");
-  }
+  constructor(
+    private createOrUpdatePortfolioService: CreateOrUpdatePortfolioService,
+    private deletePortfolioService: DeletePortfolioService,
+    private listPortfolioService: ListPortfolioService,
+    private exportPortfolioService: ExportPortfolioService,
+    private importPortfolioService: ImportPortfolioService,
+    private spreadsheetParser: SpreadsheetParserService
+  ) { }
 
   async createOrUpdateAsync(req: Request, res: Response): Promise<Response> {
     try {
@@ -46,9 +37,6 @@ export class PortfolioController {
   async deleteAsync(req: Request, res: Response): Promise<Response> {
     try {
       const id = String(req.params.id);
-      if (!isValidUuid(id)) {
-        return res.status(400).json({ message: "ID inválido." });
-      }
       await this.deletePortfolioService.executeAsync(id);
       return res.json({ message: "Ativo do portfólio deletado com sucesso." });
     } catch (error) {

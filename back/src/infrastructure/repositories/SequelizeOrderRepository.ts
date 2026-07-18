@@ -1,6 +1,4 @@
 import { Op, Transaction, WhereOptions } from "sequelize";
-import { sequelize } from "../../database";
-import { buildBrDateOrderExpression } from "../../database/DateExpression";
 import { Order as OrderModel } from "../../models/order/Order";
 import { OrderEntity } from "../../domain/entities/OrderEntity";
 import { IOrderRepository } from "../../domain/interfaces/IOrderRepository";
@@ -36,7 +34,7 @@ export class SequelizeOrderRepository implements IOrderRepository {
     const transaction = tx as Transaction | undefined;
     const models = await OrderModel.findAll({
       where: { codigo },
-      order: [[buildBrDateOrderExpression("order"), "ASC"], ["createdAt", "ASC"]],
+      order: [["data", "ASC"], ["createdAt", "ASC"]],
       transaction,
     });
     return models.map(this.toEntity);
@@ -50,7 +48,7 @@ export class SequelizeOrderRepository implements IOrderRepository {
 
     const { rows, count } = await OrderModel.findAndCountAll({
       where,
-      order: [[buildBrDateOrderExpression("order"), "DESC"]],
+      order: [["data", "DESC"]],
       limit,
       offset,
       transaction,
@@ -80,14 +78,13 @@ export class SequelizeOrderRepository implements IOrderRepository {
 
     const startDate = normalizedDataInicial ?? normalizedData;
     const endDate = normalizedDataFinal;
-    const dataAsDate = buildBrDateOrderExpression("order");
 
     if (startDate && endDate) {
-      andConditions.push(sequelize.where(dataAsDate, { [Op.between]: [startDate, endDate] }));
+      andConditions.push({ data: { [Op.between]: [startDate, endDate] } });
     } else if (startDate) {
-      andConditions.push(sequelize.where(dataAsDate, { [Op.gte]: startDate }));
+      andConditions.push({ data: { [Op.gte]: startDate } });
     } else if (endDate) {
-      andConditions.push(sequelize.where(dataAsDate, { [Op.lte]: endDate }));
+      andConditions.push({ data: { [Op.lte]: endDate } });
     }
 
     if (filters.codigo?.trim()) {

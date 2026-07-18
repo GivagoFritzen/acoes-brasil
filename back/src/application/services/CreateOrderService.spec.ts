@@ -46,7 +46,7 @@ describe("CreateOrderService", () => {
     } as jest.Mocked<IOrderSellSnapshotRepository>;
 
     quoteProviderMock = {
-      getQuoteAsync: jest.fn(),
+      getQuoteAsync: jest.fn().mockResolvedValue(null),
     } as jest.Mocked<IQuoteProvider>;
 
     transactionManagerMock = {

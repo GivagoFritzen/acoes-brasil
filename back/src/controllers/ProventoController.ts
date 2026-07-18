@@ -7,24 +7,16 @@ import { DeleteProventoService } from "../application/services/DeleteProventoSer
 import { ImportProventosService } from "../application/services/ImportProventosService";
 import { ListProventosService } from "../application/services/ListProventosService";
 import { SpreadsheetParserService } from "../infrastructure/services/SpreadsheetParserService";
-import { Container } from "../shared/dependency-injection/Container";
 import { ErrorHandler } from "../shared/error-handler/ErrorHandler";
-import { isValidUuid } from "../shared/validators/IdValidator";
 
 export class ProventoController {
-  private createProventoService: CreateProventoService;
-  private deleteProventoService: DeleteProventoService;
-  private importProventosService: ImportProventosService;
-  private listProventosService: ListProventosService;
-  private spreadsheetParserService: SpreadsheetParserService;
-
-  constructor() {
-    this.createProventoService = Container.get("CreateProventoService");
-    this.deleteProventoService = Container.get("DeleteProventoService");
-    this.importProventosService = Container.get("ImportProventosService");
-    this.listProventosService = Container.get("ListProventosService");
-    this.spreadsheetParserService = Container.get("spreadsheetParser");
-  }
+  constructor(
+    private createProventoService: CreateProventoService,
+    private deleteProventoService: DeleteProventoService,
+    private importProventosService: ImportProventosService,
+    private listProventosService: ListProventosService,
+    private spreadsheetParserService: SpreadsheetParserService
+  ) { }
 
   async createAsync(req: Request, res: Response): Promise<Response> {
     try {
@@ -46,9 +38,6 @@ export class ProventoController {
   async deleteAsync(req: Request, res: Response): Promise<Response> {
     try {
       const id = String(req.params.id);
-      if (!isValidUuid(id)) {
-        return res.status(400).json({ message: "ID inválido." });
-      }
       await this.deleteProventoService.executeAsync(id);
       return res.json({ message: "provento deletado com sucesso." });
     } catch (error) {

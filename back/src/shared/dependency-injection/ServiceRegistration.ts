@@ -28,6 +28,10 @@ import { CreateProventoService } from "../../application/services/CreateProvento
 import { DeleteProventoService } from "../../application/services/DeleteProventoService";
 import { ImportProventosService } from "../../application/services/ImportProventosService";
 import { ListProventosService } from "../../application/services/ListProventosService";
+import { OrderController } from "../../controllers/OrderController";
+import { PortfolioController } from "../../controllers/PortfolioController";
+import { ProventoController } from "../../controllers/ProventoController";
+import { ImportController } from "../../controllers/ImportController";
 
 export function registerServices(): void {
   registerRepositories();
@@ -37,6 +41,7 @@ export function registerServices(): void {
   registerOrderServices();
   registerPortfolioServices();
   registerProventoServices();
+  registerControllers();
 }
 
 function registerRepositories(): void {
@@ -145,5 +150,37 @@ function registerProventoServices(): void {
 
   Container.register('ListProventosService', () => new ListProventosService(
     Container.get('proventoRepository')
+  ));
+}
+
+function registerControllers(): void {
+  Container.register('OrderController', () => new OrderController(
+    Container.get('CreateOrderService'),
+    Container.get('DeleteOrderService'),
+    Container.get('ListOrdersService'),
+    Container.get('GetSellSnapshotsService'),
+    Container.get('ExportSellSnapshotsService')
+  ));
+
+  Container.register('PortfolioController', () => new PortfolioController(
+    Container.get('CreateOrUpdatePortfolioService'),
+    Container.get('DeletePortfolioService'),
+    Container.get('ListPortfolioService'),
+    Container.get('ExportPortfolioService'),
+    Container.get('ImportPortfolioService'),
+    Container.get('spreadsheetParser')
+  ));
+
+  Container.register('ProventoController', () => new ProventoController(
+    Container.get('CreateProventoService'),
+    Container.get('DeleteProventoService'),
+    Container.get('ImportProventosService'),
+    Container.get('ListProventosService'),
+    Container.get('spreadsheetParser')
+  ));
+
+  Container.register('ImportController', () => new ImportController(
+    Container.get('ImportOrdersService'),
+    Container.get('spreadsheetParser')
   ));
 }

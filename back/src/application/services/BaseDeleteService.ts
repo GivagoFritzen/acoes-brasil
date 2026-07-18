@@ -1,3 +1,5 @@
+import { NotFoundException } from "../../shared/exceptions/NotFoundException";
+
 export abstract class BaseDeleteService<TEntity> {
   protected abstract getNotFoundMessage(): string;
   protected abstract findEntityAsync(id: string): Promise<TEntity | null>;
@@ -7,7 +9,7 @@ export abstract class BaseDeleteService<TEntity> {
     const entity = await this.findEntityAsync(id);
 
     if (!entity) {
-      throw new Error(this.getNotFoundMessage());
+      throw new NotFoundException(this.getNotFoundMessage());
     }
 
     await this.performDeleteAsync(entity);

@@ -7,6 +7,8 @@ import { ITransactionManager } from "../../domain/interfaces/ITransactionManager
 import { PortfolioDomainService } from "../../domain/services/PortfolioDomainService";
 import { DateUtils } from "../../shared/utils/DateUtils";
 import { normalizeOrderCodigo } from "../../../../common/utils/OrderCodigoUtils";
+import { BusinessException } from "../../shared/exceptions/BusinessException";
+import { ValidationException } from "../../shared/exceptions/ValidationException";
 
 export class ImportOrdersService {
   constructor(
@@ -20,7 +22,14 @@ export class ImportOrdersService {
 
   public async executeAsync(orders: CreateOrderDto[]): Promise<number> {
     if (!orders.length) {
-      throw new Error("Planilha sem dados.");
+      throw new BusinessException("Planilha sem dados.");
+    }
+
+    const uniqueCodigos = [...new Set(orders.map(o => normalizeOrderCodigo(o.codigo)).filter(Boolean))];
+    const quotesMap = new Map<string, number | null>();
+    for (const codigo of uniqueCodigos) {
+      const quote = await this.quoteProvider.getQuoteAsync(codigo);
+      quotesMap.set(codigo, quote);
     }
 
     return await this.transactionManager.executeAsync(async (tx) => {
@@ -28,11 +37,11 @@ export class ImportOrdersService {
 
       for (const orderDto of orders) {
         if (!orderDto.codigo || !orderDto.quantidade || !orderDto.valor || !orderDto.data) {
-          throw new Error("Dados obrigatórios inválidos para importação de negociação.");
+          throw new ValidationException("Dados obrigatórios inválidos para importação de negociação.");
         }
 
-        if (DateUtils.isFutureBrDate(orderDto.data)) {
-          throw new Error("Data futura não é permitida para negociação.");
+        if (DateUtils.isFutureDate(orderDto.data)) {
+          throw new ValidationException("Data futura não é permitida para negociação.");
         }
 
         const codigoNormalizado = normalizeOrderCodigo(orderDto.codigo);
@@ -60,7 +69,7 @@ export class ImportOrdersService {
           tx,
           this.portfolioRepository,
           this.orderSellSnapshotRepository,
-          this.quoteProvider
+          quotesMap.get(codigoNormalizado) ?? null
         );
 
         imported++;

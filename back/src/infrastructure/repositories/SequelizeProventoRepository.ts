@@ -1,6 +1,4 @@
 import { Op, Transaction, WhereOptions } from "sequelize";
-import { sequelize } from "../../database";
-import { buildBrDateOrderExpression } from "../../database/DateExpression";
 import { Provento as ProventoModel } from "../../models/provento/Provento";
 import { ProventoEntity } from "../../domain/entities/ProventoEntity";
 import { IProventoRepository } from "../../domain/interfaces/IProventoRepository";
@@ -59,17 +57,16 @@ export class SequelizeProventoRepository implements IProventoRepository {
 
     const where: Record<string | symbol, object | string | number | Date | boolean | null> = {};
     const andConditions: object[] = [];
-    const dataAsDate = buildBrDateOrderExpression("provento");
 
     const startDate = DateUtils.normalizeToIsoDate(filters.dataInicial) ?? DateUtils.normalizeToIsoDate(filters.data);
     const endDate = DateUtils.normalizeToIsoDate(filters.dataFinal);
 
     if (startDate && endDate) {
-      andConditions.push(sequelize.where(dataAsDate, { [Op.between]: [startDate, endDate] }));
+      andConditions.push({ data: { [Op.between]: [startDate, endDate] } });
     } else if (startDate) {
-      andConditions.push(sequelize.where(dataAsDate, { [Op.gte]: startDate }));
+      andConditions.push({ data: { [Op.gte]: startDate } });
     } else if (endDate) {
-      andConditions.push(sequelize.where(dataAsDate, { [Op.lte]: endDate }));
+      andConditions.push({ data: { [Op.lte]: endDate } });
     }
 
     if (filters.codigo) {
@@ -85,12 +82,12 @@ export class SequelizeProventoRepository implements IProventoRepository {
     }
 
     if (filters.agruparPorCodigo) {
-      return this.findAllGroupedAsync(where, dataAsDate, offset, limitNumber);
+      return this.findAllGroupedAsync(where, offset, limitNumber);
     }
 
     const { rows, count } = await ProventoModel.findAndCountAll({
       where,
-      order: [[dataAsDate, "DESC"]],
+      order: [["data", "DESC"]],
       limit: limitNumber,
       offset,
     });
@@ -100,13 +97,12 @@ export class SequelizeProventoRepository implements IProventoRepository {
 
   private async findAllGroupedAsync(
     where: WhereOptions,
-    dataAsDate: ReturnType<typeof buildBrDateOrderExpression>,
     offset: number,
     limit: number
   ): Promise<{ rows: ProventoEntity[]; count: number }> {
     const allRows = await ProventoModel.findAll({
       where,
-      order: [[dataAsDate, "DESC"]],
+      order: [["data", "DESC"]],
     });
 
     const groupedMap = new Map<string, ProventoEntity>();

@@ -1,6 +1,7 @@
 import { PortfolioImportRowDto } from "../dto/PortfolioImportRowDto";
 import { IPortfolioRepository } from "../../domain/interfaces/IPortfolioRepository";
 import { ITransactionManager } from "../../domain/interfaces/ITransactionManager";
+import { BusinessException } from "../../shared/exceptions/BusinessException";
 
 export class ImportPortfolioService {
   constructor(
@@ -10,7 +11,7 @@ export class ImportPortfolioService {
 
   async executeAsync(rows: PortfolioImportRowDto[]): Promise<number> {
     if (!rows.length) {
-      throw new Error("Nenhuma linha para importar.");
+      throw new BusinessException("Nenhuma linha para importar.");
     }
 
     return this.transactionManager.executeAsync(async (tx) => {

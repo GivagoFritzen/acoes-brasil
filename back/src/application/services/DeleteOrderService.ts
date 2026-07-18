@@ -2,6 +2,7 @@ import { IOrderRepository } from "../../domain/interfaces/IOrderRepository";
 import { IPortfolioRepository } from "../../domain/interfaces/IPortfolioRepository";
 import { ITransactionManager } from "../../domain/interfaces/ITransactionManager";
 import { PortfolioDomainService } from "../../domain/services/PortfolioDomainService";
+import { NotFoundException } from "../../shared/exceptions/NotFoundException";
 
 export class DeleteOrderService {
   constructor(
@@ -16,7 +17,7 @@ export class DeleteOrderService {
       const order = await this.orderRepository.findByIdAsync(orderId, tx);
 
       if (!order) {
-        throw new Error("Ordem não encontrada.");
+        throw new NotFoundException("Ordem não encontrada.");
       }
 
       const codigo = order.codigo;

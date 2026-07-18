@@ -3,7 +3,9 @@ import os from "os";
 import path from "path";
 import multer from "multer";
 import { Router } from "express";
+import { Container } from "../shared/dependency-injection/Container";
 import { PortfolioController } from "../controllers/PortfolioController";
+import { ValidationMiddleware } from "../middlewares/ValidationMiddleware";
 
 const uploadDir = fs.mkdtempSync(path.join(os.tmpdir(), "acoes-portfolio-upload-"));
 const upload = multer({
@@ -20,7 +22,7 @@ const upload = multer({
 
 export const portfolioRoutes = Router();
 
-const getController = () => new PortfolioController();
+const getController = (): PortfolioController => Container.get<PortfolioController>('PortfolioController');
 
 portfolioRoutes.post("/", (req, res) => {
   return getController().createOrUpdateAsync(req, res);
@@ -38,6 +40,6 @@ portfolioRoutes.post("/import", upload.single("file"), (req, res) => {
   return getController().importPortfolioAsync(req, res);
 });
 
-portfolioRoutes.delete("/:id", (req, res) => {
+portfolioRoutes.delete("/:id", ValidationMiddleware.validateUuidParam("id"), (req, res) => {
   return getController().deleteAsync(req, res);
 });

@@ -93,7 +93,7 @@ describe("SequelizeOrderSellSnapshotRepository", () => {
 
       expect(resultado).toHaveLength(1);
       expect(findAllSpy).toHaveBeenCalledWith({
-        where: { data: { [Op.endsWith]: "-2024" } },
+        where: { data: { [Op.startsWith]: "2024-" } },
         order: expect.any(Array),
         transaction: undefined,
       });

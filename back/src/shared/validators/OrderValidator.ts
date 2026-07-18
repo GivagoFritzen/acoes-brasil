@@ -2,8 +2,9 @@ import type { OrderOperacao as orderOperacao, OrderTipo as orderTipo } from "../
 import { CreateOrderDto } from "../../application/dto/CreateOrderDto";
 import { DateUtils } from "../utils/DateUtils";
 import { detectSupportedAssetTypeFromTicker } from "../../../../common/utils/AssetTypeUtils";
+import { BusinessException } from "../exceptions/BusinessException";
 
-export class ValidationError extends Error {
+export class ValidationError extends BusinessException {
   constructor(message: string) {
     super(message);
     this.name = 'ValidationError';
@@ -30,7 +31,7 @@ export class OrderValidator {
   }
 
   static validateOrderDate(dateStr: string): void {
-    if (DateUtils.isFutureBrDate(dateStr)) {
+    if (DateUtils.isFutureDate(dateStr)) {
       throw new ValidationError("A data da ordem não pode ser futura.");
     }
   }

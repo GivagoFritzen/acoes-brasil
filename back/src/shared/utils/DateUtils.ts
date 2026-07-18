@@ -25,14 +25,19 @@ export class DateUtils {
     return null;
   }
 
-  static isFutureBrDate(value: string): boolean {
-    const parsedDate = this.parseBrDateString(value);
-    if (!parsedDate) return false;
+  static isFutureDate(value: string): boolean {
+    const iso = this.normalizeToIsoDate(value) || value;
+    const parsed = new Date(`${iso}T00:00:00`);
+    if (Number.isNaN(parsed.getTime())) return false;
 
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
-    return parsedDate.getTime() > today.getTime();
+    return parsed.getTime() > today.getTime();
+  }
+
+  static isFutureBrDate(value: string): boolean {
+    return this.isFutureDate(value);
   }
 
   static isValidBrDate(value: string): boolean {
@@ -45,6 +50,14 @@ export class DateUtils {
     const daysInMonth = new Date(year, month, 0).getDate();
     if (day < 1 || day > daysInMonth) return false;
     return true;
+  }
+
+  static getCurrentDate(): string {
+    const now = new Date();
+    const day = String(now.getDate()).padStart(2, "0");
+    const month = String(now.getMonth() + 1).padStart(2, "0");
+    const year = now.getFullYear();
+    return `${year}-${month}-${day}`;
   }
 
   static getCurrentBrDate(): string {
@@ -61,23 +74,4 @@ export class DateUtils {
     return `${prefix}-${dateStr}.${extension}`;
   }
 
-  private static parseBrDateString(value: string): Date | null {
-    const match = value.match(/^(\d{2})-(\d{2})-(\d{4})$/);
-    if (!match) return null;
-
-    const [, day, month, year] = match;
-    const parsed = new Date(Number(year), Number(month) - 1, Number(day));
-
-    if (
-      Number.isNaN(parsed.getTime())
-      || parsed.getDate() !== Number(day)
-      || parsed.getMonth() !== Number(month) - 1
-      || parsed.getFullYear() !== Number(year)
-    ) {
-      return null;
-    }
-
-    parsed.setHours(0, 0, 0, 0);
-    return parsed;
-  }
 }

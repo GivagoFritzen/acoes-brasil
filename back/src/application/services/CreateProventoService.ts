@@ -24,7 +24,7 @@ export class CreateProventoService {
       throw new ValidationError("Data inválida para provento.");
     }
 
-    if (DateUtils.isFutureBrDate(dto.data)) {
+    if (DateUtils.isFutureDate(dto.data)) {
       throw new ValidationError("A data do provento não pode ser futura.");
     }
 

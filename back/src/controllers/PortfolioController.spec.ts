@@ -1,6 +1,7 @@
 import { Response } from "express";
 import fs from "fs";
 import { PortfolioController } from "./PortfolioController";
+import { NotFoundException } from "../shared/exceptions/NotFoundException";
 
 const mockCreateOrUpdateService = { executeAsync: jest.fn() };
 const mockDeleteService = { executeAsync: jest.fn() };
@@ -8,22 +9,6 @@ const mockListService = { executeAsync: jest.fn() };
 const mockExportService = { executeAsync: jest.fn() };
 const mockImportService = { executeAsync: jest.fn() };
 const mockSpreadsheetParser = { parsePortfolioRowsAsync: jest.fn() };
-
-jest.mock("../shared/dependency-injection/Container", () => ({
-  Container: {
-    get: jest.fn((name: string) => {
-      switch (name) {
-        case "CreateOrUpdatePortfolioService": return mockCreateOrUpdateService;
-        case "DeletePortfolioService": return mockDeleteService;
-        case "ListPortfolioService": return mockListService;
-        case "ExportPortfolioService": return mockExportService;
-        case "ImportPortfolioService": return mockImportService;
-        case "spreadsheetParser": return mockSpreadsheetParser;
-        default: return {};
-      }
-    }),
-  },
-}));
 
 const XLSX_MAGIC = Buffer.from([0x50, 0x4b, 0x03, 0x04]);
 
@@ -45,7 +30,14 @@ describe("PortfolioController", () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    controller = new PortfolioController();
+    controller = new PortfolioController(
+      mockCreateOrUpdateService as any,
+      mockDeleteService as any,
+      mockListService as any,
+      mockExportService as any,
+      mockImportService as any,
+      mockSpreadsheetParser as any
+    );
   });
 
   describe("createOrUpdateAsync", () => {
@@ -97,19 +89,8 @@ describe("PortfolioController", () => {
       expect(res.json).toHaveBeenCalledWith({ message: "Ativo do portfólio deletado com sucesso." });
     });
 
-    it("deve retornar 400 quando ID invalido", async () => {
-      const req = createMockReq({ params: { id: "invalido" } });
-      const res = createMockRes();
-
-      await controller.deleteAsync(req, res);
-
-      expect(res.status).toHaveBeenCalledWith(400);
-      expect(res.json).toHaveBeenCalledWith({ message: "ID inválido." });
-      expect(mockDeleteService.executeAsync).not.toHaveBeenCalled();
-    });
-
     it("deve retornar 404 quando ativo nao encontrado", async () => {
-      mockDeleteService.executeAsync.mockRejectedValue(new Error("Ativo do portfólio não encontrado"));
+      mockDeleteService.executeAsync.mockRejectedValue(new NotFoundException("Ativo do portfólio não encontrado"));
 
       const req = createMockReq({ params: { id: "550e8400-e29b-41d4-a716-446655440001" } });
       const res = createMockRes();

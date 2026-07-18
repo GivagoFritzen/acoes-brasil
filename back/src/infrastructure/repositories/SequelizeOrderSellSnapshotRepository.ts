@@ -1,5 +1,4 @@
 import { Op, Transaction } from "sequelize";
-import { buildBrDateOrderExpression } from "../../database/DateExpression";
 import { OrderSellSnapshot as OrderSellSnapshotModel } from "../../models/order/OrderSellSnapshot";
 import { OrderSellSnapshotEntity } from "../../domain/entities/OrderSellSnapshotEntity";
 import { IOrderSellSnapshotRepository } from "../../domain/interfaces/IOrderSellSnapshotRepository";
@@ -28,12 +27,12 @@ export class SequelizeOrderSellSnapshotRepository implements IOrderSellSnapshotR
     try {
       const where: Record<string, string | object> = {};
       if (ano) {
-        where.data = { [Op.endsWith]: `-${ano}` };
+        where.data = { [Op.startsWith]: `${ano}-` };
       }
 
       const models = await OrderSellSnapshotModel.findAll({
         where,
-        order: [[buildBrDateOrderExpression("OrderSellSnapshot"), "DESC"], ["createdAt", "DESC"]],
+        order: [["data", "DESC"], ["createdAt", "DESC"]],
         transaction,
       });
       return models.map(this.toEntity);

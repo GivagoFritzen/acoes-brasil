@@ -1,26 +1,12 @@
 import { Response } from "express";
 import { OrderController } from "./OrderController";
+import { NotFoundException } from "../shared/exceptions/NotFoundException";
 
 const mockCreateService = { executeAsync: jest.fn() };
 const mockDeleteService = { executeAsync: jest.fn() };
 const mockListService = { executeAsync: jest.fn() };
 const mockGetSellSnapshotsService = { executeAsync: jest.fn() };
 const mockExportSellSnapshotsService = { executeAsync: jest.fn() };
-
-jest.mock("../shared/dependency-injection/Container", () => ({
-  Container: {
-    get: jest.fn((name: string) => {
-      switch (name) {
-        case "CreateOrderService": return mockCreateService;
-        case "DeleteOrderService": return mockDeleteService;
-        case "ListOrdersService": return mockListService;
-        case "GetSellSnapshotsService": return mockGetSellSnapshotsService;
-        case "ExportSellSnapshotsService": return mockExportSellSnapshotsService;
-        default: return {};
-      }
-    }),
-  },
-}));
 
 function createMockReq(overrides: object = {}): object {
   return {
@@ -45,16 +31,21 @@ describe("OrderController", () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    controller = new OrderController();
+    controller = new OrderController(
+      mockCreateService as any,
+      mockDeleteService as any,
+      mockListService as any,
+      mockGetSellSnapshotsService as any,
+      mockExportSellSnapshotsService as any
+    );
   });
 
   describe("createAsync", () => {
     it("deve retornar 201 ao criar ordem", async () => {
       mockCreateService.executeAsync.mockResolvedValue({ id: "1" });
 
-      const req = createMockReq({
-        body: { codigo: "VALE3", quantidade: 100, valor: 50, data: "01-01-2024", tipo: "ACAO", operacao: "Compra" },
-      });
+      const req = createMockReq();
+      (req as any).validatedBody = { codigo: "VALE3", quantidade: 100, valor: 50, data: "01-01-2024", tipo: "ACAO", operacao: "Compra" };
       const res = createMockRes();
 
       await controller.createAsync(req, res);
@@ -63,38 +54,11 @@ describe("OrderController", () => {
       expect(res.json).toHaveBeenCalledWith({ id: "1" });
     });
 
-    it("deve retornar 400 para dados invalidos", async () => {
-      const req = createMockReq({ body: {} });
-      const res = createMockRes();
-
-      await controller.createAsync(req, res);
-
-      expect(res.status).toHaveBeenCalledWith(400);
-    });
-
-    it("deve retornar 400 para data futura", async () => {
-      const futureDate = new Date();
-      futureDate.setFullYear(futureDate.getFullYear() + 1);
-      const day = String(futureDate.getDate()).padStart(2, "0");
-      const month = String(futureDate.getMonth() + 1).padStart(2, "0");
-      const year = futureDate.getFullYear();
-
-      const req = createMockReq({
-        body: { codigo: "VALE3", quantidade: 100, valor: 50, data: `${day}-${month}-${year}`, tipo: "ACAO", operacao: "Compra" },
-      });
-      const res = createMockRes();
-
-      await controller.createAsync(req, res);
-
-      expect(res.status).toHaveBeenCalledWith(400);
-    });
-
     it("deve retornar 500 quando servico lanca erro generico", async () => {
       mockCreateService.executeAsync.mockRejectedValue(new Error("erro no banco"));
 
-      const req = createMockReq({
-        body: { codigo: "VALE3", quantidade: 100, valor: 50, data: "01-01-2024", tipo: "ACAO", operacao: "Compra" },
-      });
+      const req = createMockReq();
+      (req as any).validatedBody = { codigo: "VALE3", quantidade: 100, valor: 50, data: "01-01-2024", tipo: "ACAO", operacao: "Compra" };
       const res = createMockRes();
 
       await controller.createAsync(req, res);
@@ -119,7 +83,7 @@ describe("OrderController", () => {
     });
 
     it("deve retornar 404 quando ordem nao encontrada", async () => {
-      mockDeleteService.executeAsync.mockRejectedValue(new Error("Ordem não encontrada"));
+      mockDeleteService.executeAsync.mockRejectedValue(new NotFoundException("Ordem não encontrada"));
 
       const req = createMockReq({ params: { id: "550e8400-e29b-41d4-a716-446655440001" } });
       const res = createMockRes();

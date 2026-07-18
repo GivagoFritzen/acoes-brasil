@@ -5,7 +5,6 @@ import multer from "multer";
 import { Request, Response } from "express";
 import { ImportOrdersService } from "../application/services/ImportOrdersService";
 import { SpreadsheetParserService } from "../infrastructure/services/SpreadsheetParserService";
-import { Container } from "../shared/dependency-injection/Container";
 import type { MulterRequest } from "../models/MulterRequest";
 
 const XLSX_MAGIC = [0x50, 0x4b, 0x03, 0x04];
@@ -23,13 +22,10 @@ const upload = multer({
 });
 
 export class ImportController {
-  private ImportOrdersService: ImportOrdersService;
-  private spreadsheetParser: SpreadsheetParserService;
-
-  constructor() {
-    this.ImportOrdersService = Container.get('ImportOrdersService');
-    this.spreadsheetParser = Container.get('spreadsheetParser');
-  }
+  constructor(
+    private importOrdersService: ImportOrdersService,
+    private spreadsheetParser: SpreadsheetParserService
+  ) { }
 
   public getMiddleware() {
     return upload.single("file");
@@ -53,7 +49,7 @@ export class ImportController {
         return res.status(400).json({ message: "Planilha sem dados." });
       }
 
-      const importedCount = await this.ImportOrdersService.executeAsync(ordersToImport);
+      const importedCount = await this.importOrdersService.executeAsync(ordersToImport);
       return res.status(201).json({ imported: importedCount });
     } catch (error) {
       const err = error as Error;
