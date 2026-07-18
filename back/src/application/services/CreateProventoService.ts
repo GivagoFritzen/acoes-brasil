@@ -1,6 +1,6 @@
 import { ProventoEntity } from "../../domain/entities/ProventoEntity";
 import { IProventoRepository } from "../../domain/interfaces/IProventoRepository";
-import { ValidationError } from "../../shared/validators/OrderValidator";
+import { ValidationError } from "../../shared/exceptions/ValidationError";
 import { CreateProventoDto } from "../dto/CreateProventoDto";
 import { DateUtils } from "../../shared/utils/DateUtils";
 import { isSupportedB3Ticker } from "../../../../common/utils/AssetTypeUtils";

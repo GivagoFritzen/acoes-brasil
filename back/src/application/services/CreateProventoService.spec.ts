@@ -1,7 +1,7 @@
 import { CreateProventoService } from "./CreateProventoService";
 import { IProventoRepository } from "../../domain/interfaces/IProventoRepository";
 import { ProventoEntity } from "../../domain/entities/ProventoEntity";
-import { ValidationError } from "../../shared/validators/OrderValidator";
+import { ValidationError } from "../../shared/exceptions/ValidationError";
 import { ProventoTipo as proventoTipo } from "../../../../common/models/provento/ProventoTipoModel";
 
 describe("CreateProventoService", () => {

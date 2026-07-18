@@ -1,5 +1,5 @@
 import { IPortfolioRepository } from "../../domain/interfaces/IPortfolioRepository";
-import { ValidationError } from "../../shared/validators/OrderValidator";
+import { ValidationError } from "../../shared/exceptions/ValidationError";
 import { CreateOrUpdatePortfolioDto } from "../dto/CreateOrUpdatePortfolioDto";
 import { CreateOrUpdatePortfolioResult } from "../dto/CreateOrUpdatePortfolioResult";
 import { normalizeOrderCodigo } from "../../../../common/utils/OrderCodigoUtils";

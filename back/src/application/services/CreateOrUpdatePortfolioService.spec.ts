@@ -1,7 +1,7 @@
 import { CreateOrUpdatePortfolioService } from "./CreateOrUpdatePortfolioService";
 import { IPortfolioRepository } from "../../domain/interfaces/IPortfolioRepository";
 import { PortfolioEntity } from "../../domain/entities/PortfolioEntity";
-import { ValidationError } from "../../shared/validators/OrderValidator";
+import { ValidationError } from "../../shared/exceptions/ValidationError";
 
 describe("CreateOrUpdatePortfolioService", () => {
   let portfolioRepositoryMock: jest.Mocked<IPortfolioRepository>;

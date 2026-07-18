@@ -1,4 +1,5 @@
-import { OrderValidator, ValidationError } from "./OrderValidator";
+import { OrderValidator } from "./OrderValidator";
+import { ValidationError } from "../exceptions/ValidationError";
 import type { OrderOperacao as orderOperacao } from "../../../common/models/order";
 
 describe("OrderValidator", () => {

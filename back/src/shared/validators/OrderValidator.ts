@@ -2,15 +2,7 @@ import type { OrderOperacao as orderOperacao, OrderTipo as orderTipo } from "../
 import { CreateOrderDto } from "../../application/dto/CreateOrderDto";
 import { DateUtils } from "../utils/DateUtils";
 import { detectSupportedAssetTypeFromTicker } from "../../../../common/utils/AssetTypeUtils";
-import { BusinessException } from "../exceptions/BusinessException";
-
-export class ValidationError extends BusinessException {
-  constructor(message: string) {
-    super(message);
-    this.name = 'ValidationError';
-  }
-}
-
+import { ValidationError } from "../exceptions/ValidationError";
 export class OrderValidator {
   static validateCreateOrderDto(dto: CreateOrderDto): void {
     if (!dto.codigo?.trim() || !dto.quantidade || !dto.valor || !dto.data?.trim()) {

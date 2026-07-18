@@ -1,6 +1,6 @@
 import { Response } from "express";
 import { ErrorHandler } from "./ErrorHandler";
-import { ValidationError } from "../validators/OrderValidator";
+import { ValidationError } from "../exceptions/ValidationError";
 import { NotFoundException } from "../exceptions/NotFoundException";
 import { BusinessException } from "../exceptions/BusinessException";
 import { ValidationException } from "../exceptions/ValidationException";
