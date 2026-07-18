@@ -1,8 +1,7 @@
 import { Request, Response } from "express";
 import fs from "fs";
 import { ImportPortfolioService } from "../application/services/ImportPortfolioService";
-
-type MulterRequest = Request & { file?: Express.Multer.File };
+import type { MulterRequest } from "../models/MulterRequest";
 import { ExportPortfolioService } from "../application/services/ExportPortfolioService";
 import { CreateOrUpdatePortfolioService } from "../application/services/CreateOrUpdatePortfolioService";
 import { DeletePortfolioService } from "../application/services/DeletePortfolioService";

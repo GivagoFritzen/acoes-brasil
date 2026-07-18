@@ -1,7 +1,6 @@
 import type { GoogleFinanceChartPoint, GoogleFinanceResponse } from "../../../../common/models/google-finance";
 import { logger } from "../../shared/logger/Logger";
-
-type JsonValue = string | number | boolean | null | JsonValue[] | { [key: string]: JsonValue };
+import type { JsonValue } from "../../models/JsonValue";
 
 const YAHOO_BASE = "https://query1.finance.yahoo.com/v8/finance/chart";
 const REQUEST_TIMEOUT_MS = 10_000;

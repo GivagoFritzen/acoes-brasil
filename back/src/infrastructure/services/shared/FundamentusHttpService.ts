@@ -7,11 +7,7 @@ export const MAX_REGEX_ITERATIONS = 1_000;
 export const LABEL_CLASS = 'class="label';
 export const DATA_CLASS = 'class="data';
 const NOT_FOUND_PATTERN = /papel\s+inexistente|nenhum\s+resultado/i;
-
-export interface FetchResult {
-  html: string;
-  found: boolean;
-}
+import type { FetchResult } from "../../../models/FetchResult";
 
 export abstract class FundamentusHttpService {
   protected async fetchHtmlAsync(codigo: string): Promise<FetchResult> {

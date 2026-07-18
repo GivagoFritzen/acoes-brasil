@@ -1,12 +1,6 @@
 import { Injectable, signal } from '@angular/core';
-
-export type Theme = 'light' | 'dark';
-
-export interface VisibleModules {
-  wallet: boolean;
-  composition: boolean;
-  profitability: boolean;
-}
+import type { Theme } from '../models/ThemeType';
+import type { VisibleModules } from '../models/VisibleModules';
 
 const STORAGE_KEY_LANG = 'app_language';
 const STORAGE_KEY_THEME = 'app_theme';

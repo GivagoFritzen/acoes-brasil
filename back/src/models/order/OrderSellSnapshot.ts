@@ -1,9 +1,7 @@
 import { DataTypes, Model } from "sequelize";
 import { sequelize } from "../../database";
-import {
-  OrderSellSnapshotAttributes,
-  OrderSellSnapshotCreationAttributes,
-} from "./OrderSellSnapshotAttributes";
+import { OrderSellSnapshotAttributes } from "./OrderSellSnapshotAttributes";
+import { OrderSellSnapshotCreationAttributes } from "./OrderSellSnapshotCreationAttributes";
 import { DateUtils } from "../../shared/utils/DateUtils";
 
 export class OrderSellSnapshot

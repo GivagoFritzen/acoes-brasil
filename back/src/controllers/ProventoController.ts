@@ -1,8 +1,7 @@
 import fs from "fs";
 import { Request, Response } from "express";
 import type { ProventoTipo as proventoTipo } from "../../../common/models/provento";
-
-type MulterRequest = Request & { file?: Express.Multer.File };
+import type { MulterRequest } from "../models/MulterRequest";
 import { CreateProventoService } from "../application/services/CreateProventoService";
 import { DeleteProventoService } from "../application/services/DeleteProventoService";
 import { ImportProventosService } from "../application/services/ImportProventosService";

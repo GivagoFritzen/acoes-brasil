@@ -2,7 +2,7 @@ import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { TranslatePipe } from '../../pipes/TranslatePipe';
-import type { VisibleModules } from '../../services/SettingsService';
+import type { VisibleModules } from '../../models/VisibleModules';
 import { SettingsService } from '../../services/SettingsService';
 
 @Component({

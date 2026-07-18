@@ -6,8 +6,7 @@ import { Request, Response } from "express";
 import { ImportOrdersService } from "../application/services/ImportOrdersService";
 import { SpreadsheetParserService } from "../infrastructure/services/SpreadsheetParserService";
 import { Container } from "../shared/dependency-injection/Container";
-
-type MulterRequest = Request & { file?: Express.Multer.File };
+import type { MulterRequest } from "../models/MulterRequest";
 
 const XLSX_MAGIC = [0x50, 0x4b, 0x03, 0x04];
 const uploadDir = fs.mkdtempSync(path.join(os.tmpdir(), "acoes-upload-"));

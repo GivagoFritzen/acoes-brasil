@@ -2,11 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { vi } from 'vitest';
 import { SimpleSelectComponent } from './SimpleSelectComponent';
-
-interface SelectOption {
-    value: string;
-    label: string;
-}
+import type { SelectOption } from '../../models/SelectOption';
 
 describe('SimpleSelectComponent', () => {
     let component: SimpleSelectComponent;

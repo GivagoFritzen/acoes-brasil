@@ -1,10 +1,6 @@
 import { Request, Response } from "express";
 import { ErrorHandler } from "../../shared/error-handler/ErrorHandler";
-
-export interface ErrorRule {
-  match: string;
-  httpStatus: number;
-}
+import type { ErrorRule } from "../../models/ErrorRule";
 
 export abstract class BaseScrapingController {
   protected async executeAsync<T>(

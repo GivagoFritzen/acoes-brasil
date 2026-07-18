@@ -1,5 +1,3 @@
-import { Optional } from "sequelize";
-
 export interface OrderSellSnapshotAttributes {
   id: string;
   orderId: string;
@@ -13,8 +11,3 @@ export interface OrderSellSnapshotAttributes {
   createdAt?: Date;
   updatedAt?: Date;
 }
-
-export type OrderSellSnapshotCreationAttributes = Optional<
-  OrderSellSnapshotAttributes,
-  "id" | "createdAt" | "updatedAt"
->;

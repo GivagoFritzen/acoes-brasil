@@ -1,12 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
-
-interface ApiError {
-  message: string;
-  status?: number;
-  error?: Error | string | object | null;
-}
+import type { ApiError } from '../models/ApiError';
 
 @Injectable({
   providedIn: 'root'

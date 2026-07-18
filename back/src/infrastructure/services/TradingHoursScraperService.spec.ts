@@ -1,4 +1,5 @@
 import { TradingHoursScraperService } from "./TradingHoursScraperService";
+import type { TradingHoursServiceTest } from "../../models/TradingHoursServiceTest";
 
 const mockHtmlOpen = `
 <html>
@@ -19,13 +20,6 @@ const mockHtmlClosed = `
 </body>
 </html>
 `;
-
-interface TradingHoursServiceTest {
-  parseHtml(html: string): object;
-  extractStatus(html: string): string | null;
-  extractHoursText(html: string): string | null;
-  parseHoursFromText(text: string): object | null;
-}
 
 describe("TradingHoursScraperService", () => {
   let service: TradingHoursScraperService;

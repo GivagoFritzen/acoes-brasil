@@ -1,4 +1,5 @@
-import { SpreadsheetRow, extractField, parseDecimal, readSpreadsheetRows, toBrDateString } from "../../utils/Spreadsheet";
+import type { SpreadsheetRow } from "../../models/SpreadsheetRow";
+import { extractField, parseDecimal, readSpreadsheetRows, toBrDateString } from "../../utils/Spreadsheet";
 import type { ProventoTipo as proventoTipo } from "../../../../common/models/provento";
 import { CreateOrderDto } from "../../application/dto/CreateOrderDto";
 import { CreateProventoDto } from "../../application/dto/CreateProventoDto";

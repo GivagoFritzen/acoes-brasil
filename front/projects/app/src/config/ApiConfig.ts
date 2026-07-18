@@ -1,9 +1,5 @@
 import type { ApiEndpoints } from './ApiEndpointsConfig';
-
-export interface ApiConfig {
-  baseUrl: string;
-  endpoints: ApiEndpoints;
-}
+import type { ApiConfig } from '../models/ApiConfigModel';
 
 export const API_CONFIG: ApiConfig = {
   baseUrl: 'http://localhost:3000',

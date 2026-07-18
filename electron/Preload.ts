@@ -1,5 +1,5 @@
 import { contextBridge } from 'electron';
-import { ElectronAPI } from './types/PreloadTypes';
+import { ElectronAPI } from './interfaces/ElectronAPI';
 
 const electronAPI: ElectronAPI = {
   ping(): string {

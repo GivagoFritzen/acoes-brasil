@@ -1,16 +1,7 @@
 import { Investidor10ScraperService } from "./Investidor10ScraperService";
+import type { Investidor10ServiceTest } from "../../models/Investidor10ServiceTest";
 
 global.fetch = jest.fn() as jest.Mock;
-
-interface Investidor10ServiceTest {
-  parseRevenueData(html: string): object[];
-  extractStockId(html: string): string | null;
-  fetchHistoricoIndicadoresAsync(stockId: string): object[];
-  extractJSObject(html: string, varName: string): string | null;
-  sanitizeJSON(json: string): string;
-  mapRegioes(data: object | null): object[];
-  mapNegocios(data: object | null): object[];
-}
 
 describe("Investidor10ScraperService", () => {
   let service: Investidor10ScraperService;

@@ -2,12 +2,7 @@ import { Component, OnDestroy, PLATFORM_ID, inject, signal, effect } from '@angu
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { TourService } from '../../services/TourService';
 import { TranslatePipe } from '../../pipes/TranslatePipe';
-
-interface TooltipState {
-  spotlight: { top: number; left: number; width: number; height: number };
-  card: { top: number; left: number };
-  placement: 'top' | 'bottom' | 'left' | 'right' | 'center';
-}
+import type { TooltipState } from '../../models/TooltipState';
 
 @Component({
   selector: 'app-tour',

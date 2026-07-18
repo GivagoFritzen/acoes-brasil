@@ -1,13 +1,6 @@
 import { Injectable, signal } from '@angular/core';
 import { Router } from '@angular/router';
-
-export interface TourStep {
-  route: string;
-  titleKey: string;
-  descKey: string;
-  elementSelector?: string;
-  position?: 'top' | 'bottom' | 'left' | 'right' | 'center';
-}
+import type { TourStep } from '../models/TourStep';
 
 const STORAGE_KEY = 'tour_was_shown';
 
