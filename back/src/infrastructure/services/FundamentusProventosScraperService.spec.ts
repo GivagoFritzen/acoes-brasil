@@ -1,6 +1,6 @@
 import { FundamentusProventosScraperService } from "./FundamentusProventosScraperService";
 
-global.fetch = jest.fn() as any;
+global.fetch = jest.fn() as jest.Mock;
 
 function htmlComProventos(rows: string[]): string {
   return `<html><body><table><tbody>${rows.join("")}</tbody></table></body></html>`;

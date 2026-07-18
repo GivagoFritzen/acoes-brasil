@@ -14,7 +14,7 @@ import { HelpTipComponent } from '../../../components/help-tip/HelpTipComponent'
 import { TranslatePipe } from '../../../pipes/TranslatePipe';
 import { TranslationService } from '../../../services/TranslationService';
 import { AlertItem } from '../../../models/alert/AlertItemModel';
-import { FundamentusAcaoDetails, FundamentusIndicator, FundamentusProventosResponse, Investidor10AcaoDetails, Investidor10ProventosResponse, ProventosResponse, YahooFinanceDetails } from '../../../models';
+import { FundamentusAcaoDetails, FundamentusIndicator, FundamentusProventosResponse, Investidor10AcaoDetails, Investidor10HistoricoIndicador, Investidor10ProventosResponse, Investidor10ValorHistorico, ProventosResponse, YahooFinanceDetails } from '../../../models';
 import { CHART_WINDOWS, GoogleFinanceChartWindow, GoogleFinanceResponse } from '../../../../../../../common/models/google-finance';
 
 @Component({
@@ -209,7 +209,7 @@ export class AcaoDetailsComponent implements OnInit {
         this.investidor10Proventos.set(null);
         this.googleFinance.set(null);
 
-        const observables: Record<string, any> = {
+        const observables: Record<string, object> = {
             googleFinance: this.googleFinanceService
                 .getData(normalizedCode)
                 .pipe(catchError(() => of(null))),
@@ -240,7 +240,7 @@ export class AcaoDetailsComponent implements OnInit {
         forkJoin(observables)
             .pipe(finalize(() => this.isLoading.set(false)))
             .subscribe({
-                next: (result: any) => {
+                next: (result: Record<string, string | number | boolean | object | null>) => {
                     if (source === 'investidor10') {
                         this.investidor10.set(result['investidor10'] ?? null);
                         this.investidor10Proventos.set(result['investidor10Proventos'] ?? null);
@@ -305,9 +305,8 @@ export class AcaoDetailsComponent implements OnInit {
         this.pushAlert('error', this.translationService.get('acaoDetails.errors.error'), message, '✕');
     }
 
-    getValorHistorico(indicador: any, ano: number): string {
-        const item = indicador as { valores: { ano: number; valor: number; tipo: string }[] };
-        const valor = item.valores.find((v: any) => v.ano === ano);
+    getValorHistorico(indicador: Investidor10HistoricoIndicador, ano: number): string {
+        const valor = indicador.valores.find((v: Investidor10ValorHistorico) => v.ano === ano);
         if (!valor) return '-';
         const formatted = valor.valor.toFixed(2).replace('.', ',');
         return valor.tipo === 'percent' ? `${formatted}%` : formatted;
@@ -346,8 +345,8 @@ export class AcaoDetailsComponent implements OnInit {
         { label: 'FCF', key: 'totalCashFromFinancingActivities' },
     ];
 
-    getFieldValue(item: any, key: string): string | null {
-        return item?.[key] ?? null;
+    getFieldValue(item: Record<string, string | number | boolean | object | null>, key: string): string | null {
+        return (item?.[key] as string) ?? null;
     }
 
     private pushAlert(

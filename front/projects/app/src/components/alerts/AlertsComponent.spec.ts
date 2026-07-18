@@ -9,7 +9,7 @@ describe('AlertsComponent', () => {
   let component: AlertsComponent;
   let fixture: ComponentFixture<AlertsComponent>;
 
-  function triggerAlertsChange(): any {
+  function triggerAlertsChange() {
     return { alerts: {} };
   }
 
@@ -86,7 +86,7 @@ describe('AlertsComponent', () => {
     });
 
     it('deve ignorar ngOnChanges quando alerts não mudou', () => {
-      const resetSpy = vi.spyOn(component as any, 'resetAlerts');
+      const resetSpy = vi.spyOn(component as Record<string, () => void>, 'resetAlerts');
 
       component.ngOnChanges({});
 
@@ -94,7 +94,7 @@ describe('AlertsComponent', () => {
     });
 
     it('deve limpar timers anteriores ao resetar', () => {
-      const clearTimersSpy = vi.spyOn(component as any, 'clearTimers');
+      const clearTimersSpy = vi.spyOn(component as Record<string, () => void>, 'clearTimers');
 
       component.alerts = [{ variant: 'info', title: 'Teste', message: 'Msg', icon: 'i' }];
       component.ngOnChanges(triggerAlertsChange());
@@ -208,7 +208,7 @@ describe('AlertsComponent', () => {
       vi.useFakeTimers();
       component.alerts = [{ variant: 'info', title: 'Timer', message: 'Clean', icon: 'i' }];
       component.ngOnChanges(triggerAlertsChange());
-      const clearTimersSpy = vi.spyOn(component as any, 'clearTimers');
+      const clearTimersSpy = vi.spyOn(component as Record<string, () => void>, 'clearTimers');
 
       component.ngOnDestroy();
 

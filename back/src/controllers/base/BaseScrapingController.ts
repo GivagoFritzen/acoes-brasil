@@ -30,7 +30,7 @@ export abstract class BaseScrapingController {
           }
         }
       }
-      return ErrorHandler.handle(error, res);
+      return ErrorHandler.handle(error as Error, res);
     }
   }
 }

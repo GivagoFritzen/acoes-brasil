@@ -22,7 +22,16 @@ describe('AcaoDetailsComponent', () => {
     get: ReturnType<typeof vi.fn>;
     has: ReturnType<typeof vi.fn>;
   };
-  let routeMock: any;
+  let routeMock: {
+    paramMap: {
+      subscribe: ReturnType<typeof vi.fn>;
+    };
+    snapshot: {
+      paramMap: {
+        get: ReturnType<typeof vi.fn>;
+      };
+    };
+  };
 
   const baseInvestidor10: Investidor10AcaoDetails = {
     codigo: 'VIVT3',
@@ -422,7 +431,7 @@ describe('AcaoDetailsComponent', () => {
     });
 
     it('deve retornar fundamentusProventos quando source for fundamentus', () => {
-      component.fundamentusProventos.set(baseFundamentusProventos as any);
+      component.fundamentusProventos.set(baseFundamentusProventos);
 
       expect(component.selectedSourceProventos()).toEqual(baseFundamentusProventos);
     });
@@ -533,19 +542,19 @@ describe('AcaoDetailsComponent', () => {
 
   describe('normalize (privado)', () => {
     it('deve remover acentos', () => {
-      const result = (component as any).normalize('Ação');
+      const result = component['normalize']('Ação');
 
       expect(result).toBe('Acao');
     });
 
     it('deve remover barras, parenteses, espacos e cifrao', () => {
-      const result = (component as any).normalize('P/L (12m) $');
+      const result = component['normalize']('P/L (12m) $');
 
       expect(result).toBe('PL12m');
     });
 
     it('deve remover hifen, porcento, virgula e dois pontos', () => {
-      const result = (component as any).normalize('VAR-1% ,:');
+      const result = component['normalize']('VAR-1% ,:');
 
       expect(result).toBe('VAR1');
     });
@@ -555,7 +564,7 @@ describe('AcaoDetailsComponent', () => {
     it('deve retornar fundamentus quando nada salvo no localStorage', () => {
       localStorage.removeItem('app_acao_details_source');
 
-      const result = (component as any).loadSavedSource();
+      const result = component['loadSavedSource']();
 
       expect(result).toBe('fundamentus');
     });
@@ -563,7 +572,7 @@ describe('AcaoDetailsComponent', () => {
     it('deve retornar valor salvo quando for investidor10', () => {
       localStorage.setItem('app_acao_details_source', 'investidor10');
 
-      const result = (component as any).loadSavedSource();
+      const result = component['loadSavedSource']();
 
       expect(result).toBe('investidor10');
     });
@@ -571,7 +580,7 @@ describe('AcaoDetailsComponent', () => {
     it('deve retornar valor salvo quando for fundamentus', () => {
       localStorage.setItem('app_acao_details_source', 'fundamentus');
 
-      const result = (component as any).loadSavedSource();
+      const result = component['loadSavedSource']();
 
       expect(result).toBe('fundamentus');
     });
@@ -579,7 +588,7 @@ describe('AcaoDetailsComponent', () => {
     it('deve retornar valor salvo quando for yahoo', () => {
       localStorage.setItem('app_acao_details_source', 'yahoo');
 
-      const result = (component as any).loadSavedSource();
+      const result = component['loadSavedSource']();
 
       expect(result).toBe('yahoo');
     });
@@ -587,7 +596,7 @@ describe('AcaoDetailsComponent', () => {
     it('deve retornar fundamentus quando localStorage tiver valor invalido', () => {
       localStorage.setItem('app_acao_details_source', 'invalido');
 
-      const result = (component as any).loadSavedSource();
+      const result = component['loadSavedSource']();
 
       expect(result).toBe('fundamentus');
     });

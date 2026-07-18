@@ -5,7 +5,7 @@ import { Observable, throwError } from 'rxjs';
 export interface ApiError {
   message: string;
   status?: number;
-  error?: any;
+  error?: Error | string | object | null;
 }
 
 @Injectable({

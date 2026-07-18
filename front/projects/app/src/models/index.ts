@@ -1,5 +1,5 @@
 export type { FundamentusAcaoDetails, FundamentusIndicator, FundamentusProvento, FundamentusProventosResponse } from './FundamentusModel';
-export type { Investidor10AcaoDetails, Investidor10Indicator, Investidor10Provento, Investidor10ProventosResponse } from './Investidor10Model';
+export type { Investidor10AcaoDetails, Investidor10Indicator, Investidor10Provento, Investidor10ProventosResponse, Investidor10HistoricoIndicador, Investidor10ValorHistorico } from './Investidor10Model';
 export type { Order, OrderOperacao, OrderTipo } from './OrderModel';
 export type { OrdersResponse } from './OrdersResponseModel';
 export type { PortfolioPieSlice } from './PortfolioPieSliceModel';

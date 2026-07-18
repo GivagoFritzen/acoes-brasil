@@ -14,7 +14,7 @@ describe("ListProventosService", () => {
       findByIdAsync: jest.fn(),
       findAllAsync: jest.fn(),
       deleteAsync: jest.fn(),
-    } as unknown as jest.Mocked<IProventoRepository>;
+    } as jest.Mocked<IProventoRepository>;
 
     service = new ListProventosService(proventoRepositoryMock);
   });
@@ -49,8 +49,8 @@ describe("ListProventosService", () => {
 
   it("Deve retornar dados quando repository retorna proventos", async () => {
     const proventosFakes: ProventoEntity[] = [
-      { id: "1", codigo: "VALE3", tipo: "Dividendo" as proventoTipo, data: "2024-01-01", valor: 100.0, createdAt: new Date(), updatedAt: new Date() },
-    ] as unknown as ProventoEntity[];
+      new ProventoEntity("1", "VALE3", "2024-01-01", "Dividendo", "Banco", 100, 5.0, 500.0),
+    ];
     const resultadoFake = {
       rows: proventosFakes,
       count: 1,

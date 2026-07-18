@@ -110,8 +110,8 @@ export class YahooFinanceScraperService {
     const rawCashflowQuarterly = result.cashflowStatementHistoryQuarterly as { cashflowStatements?: RawCashflowStatement[] } | undefined;
     const rawCashflowAnnual = result.cashflowStatementHistory as { cashflowStatements?: RawCashflowStatement[] } | undefined;
     const rawEarningsHistory = result.earningsHistory as { history?: RawEarningsItem[] } | undefined;
-    const rawCalendarEvents = result.calendarEvents as Record<string, any> | undefined;
-    const rawPrice = result.price as Record<string, any> | undefined;
+    const rawCalendarEvents = result.calendarEvents as Record<string, string | number | boolean | object | null> | undefined;
+    const rawPrice = result.price as Record<string, string | number | boolean | object | null> | undefined;
 
     const keyStatistics = this.parseKeyStatistics(rawStats, rawPrice);
     const financialData = this.parseFinancialData(rawFinancialData);
@@ -286,22 +286,28 @@ export class YahooFinanceScraperService {
   }
 
   private processFundamentalsEntry(
-    entry: any,
+    entry: {
+      timestamp?: number[];
+      meta?: Record<string, string | number | boolean | object | null>;
+    },
     grouped: Record<number, Record<string, { raw: number; fmt: string }>>
   ): void {
     const dataKey = Object.keys(entry).find((k) => k !== "meta" && k !== "timestamp");
     if (!dataKey || !entry.timestamp?.length) return;
 
     for (let i = 0; i < entry.timestamp.length; i++) {
-      const ts = entry.timestamp[i] as number;
+      const ts = entry.timestamp[i];
       if (!grouped[ts]) grouped[ts] = {};
-      if (entry[dataKey]?.[i]?.reportedValue) {
-        grouped[ts][dataKey] = entry[dataKey][i].reportedValue;
+      const entryWithDynamic = entry as Record<string, Array<{ reportedValue?: { raw: number; fmt: string } }> | undefined>;
+      const values = entryWithDynamic[dataKey];
+      const rv = values?.[i]?.reportedValue;
+      if (rv) {
+        grouped[ts][dataKey] = rv;
       }
     }
   }
 
-  private async fetchQuoteSummaryAsync(codigo: string): Promise<any> {
+  private async fetchQuoteSummaryAsync(codigo: string): Promise<{ quoteSummary?: { result?: Record<string, string | number | boolean | object | null>[] } }> {
     const abortController = new AbortController();
     const timeoutId = setTimeout(() => abortController.abort(), REQUEST_TIMEOUT_MS);
 
@@ -340,7 +346,7 @@ export class YahooFinanceScraperService {
     return date.fmt;
   }
 
-  private parseKeyStatistics(raw: RawKeyStatistics | undefined, rawPrice?: Record<string, any>): YahooFinanceKeyStatistics | null {
+  private parseKeyStatistics(raw: RawKeyStatistics | undefined, rawPrice?: { marketCap?: RawValue }): YahooFinanceKeyStatistics | null {
     if (!raw) return null;
     return {
       enterpriseValue: this.extractValue(raw.enterpriseValue),
@@ -489,7 +495,7 @@ export class YahooFinanceScraperService {
         for (const { apiKey, field } of fieldMappings) {
           item[field as string] = this.extractValue(metrics[`${prefix}${apiKey}`]);
         }
-        return item as unknown as T;
+        return item as T;
       })
       .sort((a, b) => (b.endDate ?? "").localeCompare(a.endDate ?? ""));
   }
@@ -560,15 +566,29 @@ export class YahooFinanceScraperService {
     }));
   }
 
-  private parseCalendarEvents(raw: Record<string, any> | undefined): YahooFinanceCalendarEvents | null {
+  private parseCalendarEvents(raw: {
+    earnings?: {
+      earningsDate?: RawDate[];
+      earningsCallDate?: RawDate[];
+      isEarningsDateEstimate?: boolean;
+      earningsAverage?: RawValue;
+      earningsLow?: RawValue;
+      earningsHigh?: RawValue;
+      revenueAverage?: RawValue;
+      revenueLow?: RawValue;
+      revenueHigh?: RawValue;
+    };
+    exDividendDate?: RawDate;
+    dividendDate?: RawDate;
+  } | undefined): YahooFinanceCalendarEvents | null {
     if (!raw) return null;
 
     const earnings = raw.earnings ?? {};
 
-    const earningsDateRaw = earnings.earningsDate?.[0] as RawDate | undefined;
-    const earningsCallDateRaw = earnings.earningsCallDate?.[0] as RawDate | undefined;
-    const exDividendDateRaw = raw.exDividendDate as RawDate | undefined;
-    const dividendDateRaw = raw.dividendDate as RawDate | undefined;
+    const earningsDateRaw = earnings.earningsDate?.[0];
+    const earningsCallDateRaw = earnings.earningsCallDate?.[0];
+    const exDividendDateRaw = raw.exDividendDate;
+    const dividendDateRaw = raw.dividendDate;
 
     return {
       earningsDate: this.extractDate(earningsDateRaw),

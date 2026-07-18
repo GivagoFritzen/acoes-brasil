@@ -9,7 +9,7 @@ describe('TradingHoursService', () => {
 
   beforeEach(() => {
     mockHttp = { get: vi.fn() };
-    service = new TradingHoursService(mockHttp as unknown as HttpClient);
+    service = new TradingHoursService(mockHttp as HttpClient);
   });
 
   afterEach(() => {

@@ -7,7 +7,7 @@ import { TranslationService } from '../../services/TranslationService';
 describe('FileInputComponent', () => {
     let component: FileInputComponent;
     let fixture: ComponentFixture<FileInputComponent>;
-    let mockTranslationService: any;
+    let mockTranslationService: Record<string, ReturnType<typeof vi.fn>>;
 
     beforeEach(async () => {
         mockTranslationService = {
@@ -36,7 +36,7 @@ describe('FileInputComponent', () => {
 
         const mockInput = document.createElement('input');
         mockInput.type = 'file';
-        component.desktopInput = { nativeElement: mockInput } as any;
+        component.desktopInput = { nativeElement: mockInput };
     });
 
     describe('Criação', () => {
@@ -137,7 +137,7 @@ describe('FileInputComponent', () => {
             it('deve validar arquivo aceito em handleFileChange()', () => {
                 const file = new File(['content'], 'test.pdf', { type: 'application/pdf' });
                 const emitSpy = vi.spyOn(component.fileSelected, 'emit');
-                const event = { target: { files: [file] } } as any;
+                const event = { target: { files: [file] } } as Event;
                 component.accept = '.pdf';
                 component.handleFileChange(event);
                 expect(emitSpy).toHaveBeenCalledWith(file);
@@ -146,7 +146,7 @@ describe('FileInputComponent', () => {
             it('NÃO deve aceitar arquivo não aceito em handleFileChange()', () => {
                 const file = new File(['content'], 'test.txt', { type: 'text/plain' });
                 const emitSpy = vi.spyOn(component.fileSelected, 'emit');
-                const event = { target: { files: [file] } } as any;
+                const event = { target: { files: [file] } } as Event;
                 component.accept = '.pdf';
                 component.handleFileChange(event);
                 expect(emitSpy).toHaveBeenCalledWith(null);
@@ -154,14 +154,14 @@ describe('FileInputComponent', () => {
 
             it('deve mostrar success feedback após selecionar arquivo', () => {
                 const file = new File(['content'], 'test.pdf', { type: 'application/pdf' });
-                const event = { target: { files: [file] } } as any;
+                const event = { target: { files: [file] } } as Event;
                 component.handleFileChange(event);
                 expect(component.isDropSuccess).toBe(true);
             });
 
             it('deve mostrar error feedback para tipo inválido', () => {
                 const file = new File(['content'], 'test.exe', { type: 'application/x-msdownload' });
-                const event = { target: { files: [file] } } as any;
+                const event = { target: { files: [file] } } as Event;
                 component.accept = '.pdf';
                 component.handleFileChange(event);
                 expect(component.isDropError).toBe(true);
@@ -287,14 +287,14 @@ describe('FileInputComponent', () => {
 
         describe('handleFileChange com arquivo null', () => {
             it('deve emitir fileSelected null quando nenhum arquivo selecionado', () => {
-                const event = { target: { files: [] } } as any;
+                const event = { target: { files: [] } } as Event;
                 const emitSpy = vi.spyOn(component.fileSelected, 'emit');
                 component.handleFileChange(event);
                 expect(emitSpy).toHaveBeenCalledWith(null);
             });
 
             it('deve emitir fileSelected null com event.target.files = null', () => {
-                const event = { target: { files: null } } as any;
+                const event = { target: { files: null } } as Event;
                 const emitSpy = vi.spyOn(component.fileSelected, 'emit');
                 component.handleFileChange(event);
                 expect(emitSpy).toHaveBeenCalledWith(null);
@@ -340,8 +340,8 @@ describe('FileInputComponent', () => {
         describe('ngOnDestroy', () => {
             it('deve limpar timeouts no ngOnDestroy()', () => {
                 vi.useFakeTimers();
-                component['successTimeoutId'] = setTimeout(() => {}, 1000) as any;
-                component['errorTimeoutId'] = setTimeout(() => {}, 1000) as any;
+                component['successTimeoutId'] = setTimeout(() => {}, 1000);
+                component['errorTimeoutId'] = setTimeout(() => {}, 1000);
                 const clearTimeoutSpy = vi.spyOn(globalThis, 'clearTimeout');
                 component.ngOnDestroy();
                 expect(clearTimeoutSpy).toHaveBeenCalledTimes(2);

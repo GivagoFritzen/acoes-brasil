@@ -1,4 +1,4 @@
-export const parseDecimal = (value: unknown): number | null => {
+export const parseDecimal = (value: string | number | null | undefined): number | null => {
   if (typeof value === "number" && Number.isFinite(value)) {
     return value;
   }

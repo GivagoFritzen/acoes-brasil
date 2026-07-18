@@ -395,7 +395,7 @@ describe('DatePickerComponent', () => {
         function createInputEvent(value: string): Event {
             const input = document.createElement('input');
             input.value = value;
-            return { target: input } as unknown as Event;
+            return { target: input } as Event;
         }
 
         it('deve mascarar 8 dígitos como DD/MM/YYYY', () => {

@@ -107,15 +107,15 @@ describe("ErrorHandler", () => {
     });
   });
 
-  it("Deve retornar 500 quando erro nao for instancia de Error", () => {
-    const error = "string error";
+  it("Deve retornar 500 quando erro nao for mapeado", () => {
+    const error = new Error("erro desconhecido");
 
     ErrorHandler.handle(error, res as Response);
 
     expect(res.status).toHaveBeenCalledWith(500);
     expect(res.json).toHaveBeenCalledWith({
       message: "Erro interno do servidor",
-      error: "string error",
+      error: "erro desconhecido",
     });
   });
 });

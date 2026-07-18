@@ -18,13 +18,13 @@ async function test() {
       operacao: "Compra",
     });
     console.log("SUCCESS:", order.toJSON());
-  } catch (err: any) {
+  } catch (err: Error) {
     console.error("ERROR_NAME:", err.name);
     console.error("ERROR_MESSAGE:", err.message);
-    if (err.errors) {
-      err.errors.forEach((e: any) =>
-        console.error("  FIELD:", e.path, "TYPE:", e.type, "MSG:", e.message, "VALUE:", e.value)
-      );
+    if ("errors" in err && Array.isArray((err as Error & { errors: Array<{ path: string; type: string; message: string; value: string }> }).errors)) {
+      for (const e of (err as Error & { errors: Array<{ path: string; type: string; message: string; value: string }> }).errors) {
+        console.error("  FIELD:", e.path, "TYPE:", e.type, "MSG:", e.message, "VALUE:", e.value);
+      }
     } else {
       console.error("STACK:", err.stack);
     }

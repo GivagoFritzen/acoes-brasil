@@ -1,6 +1,8 @@
 import type { GoogleFinanceChartPoint, GoogleFinanceResponse } from "../../../../common/models/google-finance";
 import { logger } from "../../shared/logger/Logger";
 
+type JsonValue = string | number | boolean | null | JsonValue[] | { [key: string]: JsonValue };
+
 const YAHOO_BASE = "https://query1.finance.yahoo.com/v8/finance/chart";
 const REQUEST_TIMEOUT_MS = 10_000;
 
@@ -76,7 +78,8 @@ export class GoogleFinanceService {
     const json = this.tryParseJson(text);
     if (!json) return this.emptyResponse();
 
-    const result = json?.chart?.result?.[0];
+    const chartJson = json as { chart?: { result?: Array<{ timestamp?: number[]; indicators?: { quote?: Array<{ close?: (number | null)[]; volume?: (number | null)[] }> }; meta?: { chartPreviousClose?: number | null; regularMarketPrice?: number | null; symbol?: string; currency?: string; timezone?: string } }> } };
+    const result = chartJson.chart?.result?.[0];
     if (!result) {
       logger.warn(`Yahoo Finance: sem dados para ${codigo}`);
       return this.emptyResponse();
@@ -88,7 +91,7 @@ export class GoogleFinanceService {
     return this.buildResponse(result, codigo, points);
   }
 
-  private tryParseJson(text: string): any | null {
+  private tryParseJson(text: string): JsonValue | null {
     try {
       return JSON.parse(text);
     } catch (err) {
@@ -100,7 +103,7 @@ export class GoogleFinanceService {
     }
   }
 
-  private buildChartPoints(result: any): GoogleFinanceChartPoint[] {
+  private buildChartPoints(result: { timestamp?: number[]; indicators?: { quote?: Array<{ close?: (number | null)[]; volume?: (number | null)[] }> } }): GoogleFinanceChartPoint[] {
     const timestamps: number[] = result.timestamp ?? [];
     const quotes = result.indicators?.quote?.[0] ?? {};
     const closes: (number | null)[] = quotes.close ?? [];
@@ -129,7 +132,7 @@ export class GoogleFinanceService {
     return points;
   }
 
-  private buildResponse(result: any, codigo: string, points: GoogleFinanceChartPoint[]): GoogleFinanceResponse {
+  private buildResponse(result: { meta?: { chartPreviousClose?: number | null; regularMarketPrice?: number | null; symbol?: string; currency?: string; timezone?: string } }, codigo: string, points: GoogleFinanceChartPoint[]): GoogleFinanceResponse {
     const meta = result.meta ?? {};
     const previousClose = meta.chartPreviousClose ?? null;
     const currentPrice = meta.regularMarketPrice ?? null;

@@ -7,6 +7,8 @@ import { ImportOrdersService } from "../application/services/ImportOrdersService
 import { SpreadsheetParserService } from "../infrastructure/services/SpreadsheetParserService";
 import { Container } from "../shared/dependency-injection/Container";
 
+type MulterRequest = Request & { file?: Express.Multer.File };
+
 const XLSX_MAGIC = [0x50, 0x4b, 0x03, 0x04];
 const uploadDir = fs.mkdtempSync(path.join(os.tmpdir(), "acoes-upload-"));
 const upload = multer({
@@ -35,7 +37,7 @@ export class ImportController {
   }
 
   public async importAsync(req: Request, res: Response) {
-    const file = (req as any).file as Express.Multer.File | undefined;
+    const file = (req as MulterRequest).file;
 
     if (!file) {
       return res.status(400).json({ message: "Arquivo não enviado. Use o campo 'file'." });
@@ -54,10 +56,11 @@ export class ImportController {
 
       const importedCount = await this.ImportOrdersService.executeAsync(ordersToImport);
       return res.status(201).json({ imported: importedCount });
-    } catch (error: any) {
+    } catch (error) {
+      const err = error as Error;
       return res.status(400).json({
         message: "Erro ao importar planilha de negociação",
-        error: error.message || error,
+        error: err.message,
       });
     } finally {
       if (file.path) fs.unlink(file.path, () => {});

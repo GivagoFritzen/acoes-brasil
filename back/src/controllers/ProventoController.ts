@@ -1,6 +1,8 @@
 import fs from "fs";
 import { Request, Response } from "express";
 import type { ProventoTipo as proventoTipo } from "../../../common/models/provento";
+
+type MulterRequest = Request & { file?: Express.Multer.File };
 import { CreateProventoService } from "../application/services/CreateProventoService";
 import { DeleteProventoService } from "../application/services/DeleteProventoService";
 import { ImportProventosService } from "../application/services/ImportProventosService";
@@ -38,7 +40,7 @@ export class ProventoController {
       });
       return res.status(201).json(result);
     } catch (error) {
-      return ErrorHandler.handle(error, res);
+      return ErrorHandler.handle(error as Error, res);
     }
   }
 
@@ -51,12 +53,12 @@ export class ProventoController {
       await this.deleteProventoService.executeAsync(id);
       return res.json({ message: "provento deletado com sucesso." });
     } catch (error) {
-      return ErrorHandler.handle(error, res);
+      return ErrorHandler.handle(error as Error, res);
     }
   }
 
   async importAsync(req: Request, res: Response): Promise<Response> {
-    const file = (req as any).file as Express.Multer.File | undefined;
+    const file = (req as MulterRequest).file;
 
     if (!file) {
       return res.status(400).json({ message: "Arquivo não enviado. Use o campo 'file'." });
@@ -73,7 +75,7 @@ export class ProventoController {
       const result = await this.importProventosService.executeAsync(validRows);
       return res.status(201).json({ ...result, invalidLineNumbers });
     } catch (error) {
-      return ErrorHandler.handle(error, res);
+      return ErrorHandler.handle(error as Error, res);
     } finally {
       if (file?.path) fs.unlink(file.path, () => {});
     }
@@ -93,7 +95,7 @@ export class ProventoController {
       });
       return res.json(result);
     } catch (error) {
-      return ErrorHandler.handle(error, res);
+      return ErrorHandler.handle(error as Error, res);
     }
   }
 }

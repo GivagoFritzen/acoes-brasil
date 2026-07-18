@@ -1,4 +1,5 @@
 import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
+import { Router } from '@angular/router';
 import { TourService } from './TourService';
 
 const STORAGE_KEY = 'tour_was_shown';
@@ -9,7 +10,7 @@ describe('TourService', () => {
 
   beforeEach(() => {
     routerMock = { navigate: vi.fn() };
-    service = new TourService(routerMock as any);
+    service = new TourService(routerMock as Router);
     localStorage.clear();
   });
 

@@ -48,7 +48,7 @@ describe('SimpleCheckboxComponent', () => {
         it('deve emitir checkedChange com true quando onChange() chamado com checked = true', () => {
             fixture.detectChanges();
             const emitSpy = vi.spyOn(component.checkedChange, 'emit');
-            const event = { target: { checked: true } } as unknown as Event;
+            const event = { target: { checked: true } } as Event;
             component.onChange(event);
             expect(emitSpy).toHaveBeenCalledWith(true);
         });
@@ -56,7 +56,7 @@ describe('SimpleCheckboxComponent', () => {
         it('deve emitir checkedChange com false quando onChange() chamado com checked = false', () => {
             fixture.detectChanges();
             const emitSpy = vi.spyOn(component.checkedChange, 'emit');
-            const event = { target: { checked: false } } as unknown as Event;
+            const event = { target: { checked: false } } as Event;
             component.onChange(event);
             expect(emitSpy).toHaveBeenCalledWith(false);
         });

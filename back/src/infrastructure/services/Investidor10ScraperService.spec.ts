@@ -1,6 +1,16 @@
 import { Investidor10ScraperService } from "./Investidor10ScraperService";
 
-global.fetch = jest.fn() as any;
+global.fetch = jest.fn() as jest.Mock;
+
+interface Investidor10ServiceTest {
+  parseRevenueData(html: string): object[];
+  extractStockId(html: string): string | null;
+  fetchHistoricoIndicadoresAsync(stockId: string): object[];
+  extractJSObject(html: string, varName: string): string | null;
+  sanitizeJSON(json: string): string;
+  mapRegioes(data: object | null): object[];
+  mapNegocios(data: object | null): object[];
+}
 
 describe("Investidor10ScraperService", () => {
   let service: Investidor10ScraperService;
@@ -181,7 +191,7 @@ describe("Investidor10ScraperService", () => {
           let companyBussinesRevenues = {"2023":{"company_revenue_bussines":[{"bussines":"Telecom","percentage":70},{"bussines":"Digital","percentage":30}]}};
         </script>
       `;
-      const resultado = (service as any).parseRevenueData(html);
+      const resultado = (service as Investidor10ServiceTest).parseRevenueData(html);
 
       expect(resultado.length).toBe(1);
       expect(resultado[0].ano).toBe(2023);
@@ -195,7 +205,7 @@ describe("Investidor10ScraperService", () => {
     });
 
     it("deve retornar array vazio quando JS objects nao encontrados", () => {
-      const resultado = (service as any).parseRevenueData("<html></html>");
+      const resultado = (service as Investidor10ServiceTest).parseRevenueData("<html></html>");
       expect(resultado).toEqual([]);
     });
 
@@ -206,7 +216,7 @@ describe("Investidor10ScraperService", () => {
           let companyBussinesRevenues = {invalid};
         </script>
       `;
-      const resultado = (service as any).parseRevenueData(html);
+      const resultado = (service as Investidor10ServiceTest).parseRevenueData(html);
       expect(resultado).toEqual([]);
     });
 
@@ -217,7 +227,7 @@ describe("Investidor10ScraperService", () => {
           let companyBussinesRevenues = {"2023":null};
         </script>
       `;
-      const resultado = (service as any).parseRevenueData(html);
+      const resultado = (service as Investidor10ServiceTest).parseRevenueData(html);
       expect(resultado).toEqual([]);
     });
 
@@ -228,7 +238,7 @@ describe("Investidor10ScraperService", () => {
           let companyBussinesRevenues = {"2023":{"company_revenue_bussines":[]}};
         </script>
       `;
-      const resultado = (service as any).parseRevenueData(html);
+      const resultado = (service as Investidor10ServiceTest).parseRevenueData(html);
       expect(resultado.length).toBe(1);
       expect(resultado[0].regioes).toEqual([]);
     });
@@ -240,7 +250,7 @@ describe("Investidor10ScraperService", () => {
           let companyBussinesRevenues = {"2023":{}};
         </script>
       `;
-      const resultado = (service as any).parseRevenueData(html);
+      const resultado = (service as Investidor10ServiceTest).parseRevenueData(html);
       expect(resultado.length).toBe(1);
       expect(resultado[0].negocios).toEqual([]);
     });
@@ -252,8 +262,8 @@ describe("Investidor10ScraperService", () => {
           let companyBussinesRevenues = {"2022":[],"2024":[],"2023":[]};
         </script>
       `;
-      const resultado = (service as any).parseRevenueData(html);
-      expect(resultado.map((r: any) => r.ano)).toEqual([2024, 2023, 2022]);
+      const resultado = (service as Investidor10ServiceTest).parseRevenueData(html);
+      expect(resultado.map((r: object) => (r as Record<string, object>).ano)).toEqual([2024, 2023, 2022]);
     });
   });
 
@@ -327,7 +337,7 @@ describe("Investidor10ScraperService", () => {
     });
 
     it("deve pular entradas que nao sao array no JSON", async () => {
-      const stockId = (service as any).extractStockId(`<div data-id="12345">`);
+      const stockId = (service as Investidor10ServiceTest).extractStockId(`<div data-id="12345">`);
 
       (global.fetch as jest.Mock).mockResolvedValue({
         ok: true,
@@ -337,7 +347,7 @@ describe("Investidor10ScraperService", () => {
         }),
       });
 
-      const resultado = await (service as any).fetchHistoricoIndicadoresAsync(stockId);
+      const resultado = await (service as Investidor10ServiceTest).fetchHistoricoIndicadoresAsync(stockId);
 
       expect(resultado.length).toBe(1);
       expect(resultado[0].indicador).toBe("VPA");
@@ -346,37 +356,37 @@ describe("Investidor10ScraperService", () => {
 
   describe("extractJSObject", () => {
     it("deve retornar null quando varName nao encontrado", () => {
-      const resultado = (service as any).extractJSObject("<html></html>", "inexistente");
+      const resultado = (service as Investidor10ServiceTest).extractJSObject("<html></html>", "inexistente");
       expect(resultado).toBeNull();
     });
 
     it("deve retornar null quando chave de abertura nao encontrada", () => {
-      const resultado = (service as any).extractJSObject("let foo = bar", "foo");
+      const resultado = (service as Investidor10ServiceTest).extractJSObject("let foo = bar", "foo");
       expect(resultado).toBeNull();
     });
 
     it("deve extrair objeto JS com strings escapadas", () => {
       const html = `let foo = {"key":"value with \\"quote\\" inside"}`;
-      const resultado = (service as any).extractJSObject(html, "foo");
+      const resultado = (service as Investidor10ServiceTest).extractJSObject(html, "foo");
       expect(resultado).toBe('{"key":"value with \\"quote\\" inside"}');
     });
   });
 
   describe("sanitizeJSON", () => {
     it("deve remover virgula antes de colchete de fechamento", () => {
-      const resultado = (service as any).sanitizeJSON('{"a":1,}');
+      const resultado = (service as Investidor10ServiceTest).sanitizeJSON('{"a":1,}');
       expect(resultado).toBe('{"a":1}');
     });
 
     it("deve remover virgula antes de chave de fechamento", () => {
-      const resultado = (service as any).sanitizeJSON('[1,2,3,]');
+      const resultado = (service as Investidor10ServiceTest).sanitizeJSON('[1,2,3,]');
       expect(resultado).toBe('[1,2,3]');
     });
   });
 
   describe("mapRegioes", () => {
     it("deve retornar array vazio quando data e null", () => {
-      const resultado = (service as any).mapRegioes(null);
+      const resultado = (service as Investidor10ServiceTest).mapRegioes(null);
       expect(resultado).toEqual([]);
     });
 
@@ -388,7 +398,7 @@ describe("Investidor10ScraperService", () => {
           { name: "SemPercentage", pivot: {} },
         ],
       };
-      const resultado = (service as any).mapRegioes(data);
+      const resultado = (service as Investidor10ServiceTest).mapRegioes(data);
       expect(resultado.length).toBe(1);
       expect(resultado[0].nome).toBe("Brasil");
     });
@@ -396,19 +406,19 @@ describe("Investidor10ScraperService", () => {
 
   describe("mapNegocios", () => {
     it("deve retornar array vazio quando bussinesData e null", () => {
-      const resultado = (service as any).mapNegocios(null);
+      const resultado = (service as Investidor10ServiceTest).mapNegocios(null);
       expect(resultado).toEqual([]);
     });
 
     it("deve retornar array vazio quando company_revenue_bussines nao e array", () => {
-      const resultado = (service as any).mapNegocios({});
+      const resultado = (service as Investidor10ServiceTest).mapNegocios({});
       expect(resultado).toEqual([]);
     });
   });
 
   describe("extractStockId", () => {
     it("deve retornar null quando nao ha data-id", () => {
-      const resultado = (service as any).extractStockId("<html></html>");
+      const resultado = (service as Investidor10ServiceTest).extractStockId("<html></html>");
       expect(resultado).toBeNull();
     });
   });

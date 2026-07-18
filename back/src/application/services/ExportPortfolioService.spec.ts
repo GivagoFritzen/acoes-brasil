@@ -16,11 +16,11 @@ describe("ExportPortfolioService", () => {
       findAllAsync: jest.fn(),
       saveAsync: jest.fn(),
       deleteByCodigoAsync: jest.fn(),
-    } as unknown as jest.Mocked<IPortfolioRepository>;
+    } as jest.Mocked<IPortfolioRepository>;
 
     excelExportServiceMock = {
       generateAsync: jest.fn(),
-    } as unknown as jest.Mocked<ExcelExportService>;
+    } as jest.Mocked<ExcelExportService>;
 
     service = new ExportPortfolioService(portfolioRepositoryMock, excelExportServiceMock);
   });

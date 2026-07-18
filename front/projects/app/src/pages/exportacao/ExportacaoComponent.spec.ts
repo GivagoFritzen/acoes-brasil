@@ -26,7 +26,7 @@ describe('ExportacaoComponent', () => {
   let appendChildSpy: ReturnType<typeof vi.spyOn>;
   let removeChildSpy: ReturnType<typeof vi.spyOn>;
   let originalCreateElement: (tag: string) => HTMLElement;
-  let mockAnchor: { href: string; download: string; click: ReturnType<typeof vi.fn>; remove: ReturnType<typeof vi.fn> };
+    let mockAnchor: HTMLAnchorElement;
 
   afterEach(() => {
     createElementSpy?.mockRestore();
@@ -41,7 +41,7 @@ describe('ExportacaoComponent', () => {
       download: '',
       click: vi.fn(),
       remove: vi.fn(),
-    };
+    } as HTMLAnchorElement;
     originalCreateElement = document.createElement.bind(document);
     ordersServiceMock = {
       exportSellSnapshotsSpreadsheet: vi.fn(),
@@ -135,18 +135,18 @@ describe('ExportacaoComponent', () => {
   });
 
   it('deve exportar ordem venda em Excel com sucesso', () => {
-    const mockBlob = new Blob(['test'], { type: 'application/vnd.ms-excel' }) as any;
+    const mockBlob = new Blob(['test'], { type: 'application/vnd.ms-excel' });
     ordersServiceMock.exportSellSnapshotsSpreadsheet.mockReturnValue(of(mockBlob));
 
     createElementSpy = vi.spyOn(document, 'createElement').mockImplementation((tag: string) => {
       if (tag === 'a') {
-        return mockAnchor as unknown as HTMLElement;
+        return mockAnchor as HTMLAnchorElement;
       }
       return originalCreateElement(tag);
     });
 
-    appendChildSpy = vi.spyOn(document.body, 'appendChild').mockReturnValue(mockAnchor as unknown as HTMLElement);
-    removeChildSpy = vi.spyOn(document.body, 'removeChild').mockReturnValue(mockAnchor as unknown as HTMLElement);
+    appendChildSpy = vi.spyOn(document.body, 'appendChild').mockReturnValue(mockAnchor as HTMLAnchorElement);
+    removeChildSpy = vi.spyOn(document.body, 'removeChild').mockReturnValue(mockAnchor as HTMLAnchorElement);
     vi.spyOn(URL, 'createObjectURL').mockReturnValue('blob:url');
     vi.spyOn(URL, 'revokeObjectURL').mockImplementation(() => {});
 
@@ -236,7 +236,7 @@ describe('ExportacaoComponent', () => {
       addEventListener: vi.fn((_event: string, handler: () => void) => handler()),
       removeEventListener: vi.fn(),
     };
-    const getElementByIdSpy = vi.spyOn(document, 'getElementById').mockReturnValue(mockFrame as unknown as HTMLIFrameElement);
+    const getElementByIdSpy = vi.spyOn(document, 'getElementById').mockReturnValue(mockFrame as HTMLIFrameElement);
 
     component.exportarAcoesEmPdf();
 
@@ -263,7 +263,7 @@ describe('ExportacaoComponent', () => {
       addEventListener: vi.fn((_event: string, handler: () => void) => handler()),
       removeEventListener: vi.fn(),
     };
-    const getElementByIdSpy = vi.spyOn(document, 'getElementById').mockReturnValue(mockFrame as unknown as HTMLIFrameElement);
+    const getElementByIdSpy = vi.spyOn(document, 'getElementById').mockReturnValue(mockFrame as HTMLIFrameElement);
 
     component.exportarAcoesEmPdf();
 
@@ -290,7 +290,7 @@ describe('ExportacaoComponent', () => {
       addEventListener: vi.fn((_event: string, handler: () => void) => handler()),
       removeEventListener: vi.fn(),
     };
-    const getElementByIdSpy = vi.spyOn(document, 'getElementById').mockReturnValue(mockFrame as unknown as HTMLIFrameElement);
+    const getElementByIdSpy = vi.spyOn(document, 'getElementById').mockReturnValue(mockFrame as HTMLIFrameElement);
 
     component.exportarOrderSellPdf();
 
@@ -320,7 +320,7 @@ describe('ExportacaoComponent', () => {
       addEventListener: vi.fn((_event: string, handler: () => void) => handler()),
       removeEventListener: vi.fn(),
     };
-    const getElementByIdSpy = vi.spyOn(document, 'getElementById').mockReturnValue(mockFrame as unknown as HTMLIFrameElement);
+    const getElementByIdSpy = vi.spyOn(document, 'getElementById').mockReturnValue(mockFrame as HTMLIFrameElement);
 
     component.exportarOrderSellPdf();
 
@@ -339,12 +339,12 @@ describe('ExportacaoComponent', () => {
 
     createElementSpy = vi.spyOn(document, 'createElement').mockImplementation((tag: string) => {
       if (tag === 'a') {
-        return mockAnchor as unknown as HTMLElement;
+        return mockAnchor as HTMLAnchorElement;
       }
       return originalCreateElement(tag);
     });
-    appendChildSpy = vi.spyOn(document.body, 'appendChild').mockReturnValue(mockAnchor as unknown as HTMLElement);
-    removeChildSpy = vi.spyOn(document.body, 'removeChild').mockReturnValue(mockAnchor as unknown as HTMLElement);
+    appendChildSpy = vi.spyOn(document.body, 'appendChild').mockReturnValue(mockAnchor as HTMLAnchorElement);
+    removeChildSpy = vi.spyOn(document.body, 'removeChild').mockReturnValue(mockAnchor as HTMLAnchorElement);
     vi.spyOn(URL, 'createObjectURL').mockReturnValue('blob:url');
     vi.spyOn(URL, 'revokeObjectURL').mockImplementation(() => {});
 

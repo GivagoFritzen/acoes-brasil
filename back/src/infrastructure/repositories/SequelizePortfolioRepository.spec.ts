@@ -5,7 +5,7 @@ import { beforeEach, describe, expect, it, jest } from "@jest/globals";
 
 describe("SequelizePortfolioRepository", () => {
   let repository: SequelizePortfolioRepository;
-  let modelMock: any;
+  let modelMock: Record<string, string | number | Date>;
 
   beforeEach(() => {
     repository = new SequelizePortfolioRepository();

@@ -9,7 +9,7 @@ import { IPaginatedOrders } from "../../domain/interfaces/IPaginatedOrders";
 import { DateUtils } from "../../shared/utils/DateUtils";
 
 export class SequelizeOrderRepository implements IOrderRepository {
-  async createAsync(orderData: Omit<OrderEntity, "id" | "createdAt" | "updatedAt" | "isCompra" | "isVenda">, tx?: unknown): Promise<OrderEntity> {
+  async createAsync(orderData: Omit<OrderEntity, "id" | "createdAt" | "updatedAt" | "isCompra" | "isVenda">, tx?: object): Promise<OrderEntity> {
     const transaction = tx as Transaction | undefined;
     const model = await OrderModel.create(
       {
@@ -25,14 +25,14 @@ export class SequelizeOrderRepository implements IOrderRepository {
     return this.toEntity(model);
   }
 
-  async findByIdAsync(id: string, tx?: unknown): Promise<OrderEntity | null> {
+  async findByIdAsync(id: string, tx?: object): Promise<OrderEntity | null> {
     const transaction = tx as Transaction | undefined;
     const model = await OrderModel.findByPk(id, { transaction });
     if (!model) return null;
     return this.toEntity(model);
   }
 
-  async findAllByCodigoAsync(codigo: string, tx?: unknown): Promise<OrderEntity[]> {
+  async findAllByCodigoAsync(codigo: string, tx?: object): Promise<OrderEntity[]> {
     const transaction = tx as Transaction | undefined;
     const models = await OrderModel.findAll({
       where: { codigo },
@@ -42,7 +42,7 @@ export class SequelizeOrderRepository implements IOrderRepository {
     return models.map(this.toEntity);
   }
 
-  async findAllPaginatedAsync(filters: IOrderFilters, page: number, limit: number, tx?: unknown): Promise<IPaginatedOrders> {
+  async findAllPaginatedAsync(filters: IOrderFilters, page: number, limit: number, tx?: object): Promise<IPaginatedOrders> {
     const transaction = tx as Transaction | undefined;
     const offset = (page - 1) * limit;
 
@@ -65,14 +65,14 @@ export class SequelizeOrderRepository implements IOrderRepository {
     };
   }
 
-  async deleteAsync(id: string, tx?: unknown): Promise<void> {
+  async deleteAsync(id: string, tx?: object): Promise<void> {
     const transaction = tx as Transaction | undefined;
     await OrderModel.destroy({ where: { id }, transaction });
   }
 
   private buildWhereClause(filters: IOrderFilters): WhereOptions {
-    const where: any = {};
-    const andConditions: unknown[] = [];
+    const where: Record<string | symbol, object | string | number | Date | boolean | null> = {};
+    const andConditions: object[] = [];
 
     const normalizedDataInicial = DateUtils.normalizeToIsoDate(filters.dataInicial);
     const normalizedData = DateUtils.normalizeToIsoDate(filters.data);

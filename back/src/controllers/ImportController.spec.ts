@@ -10,7 +10,7 @@ import { Response } from "express";
 import { ImportController } from "./ImportController";
 import * as fs from "fs";
 
-const fsMock = fs as unknown as { readFileSync: jest.Mock };
+const fsMock = fs as { readFileSync: jest.Mock };
 
 const mockParser = { parseOrderRowsAsync: jest.fn() };
 const mockImportService = { executeAsync: jest.fn() };
@@ -27,12 +27,12 @@ jest.mock("../shared/dependency-injection/Container", () => ({
   },
 }));
 
-function createMockReq(overrides: Partial<any> = {}): any {
+function createMockReq(overrides: object = {}): object {
   return { params: {}, query: {}, body: {}, file: undefined, ...overrides };
 }
 
 function createMockRes(): Response {
-  const res = {} as any;
+  const res = {} as Response;
   res.status = jest.fn().mockReturnThis();
   res.json = jest.fn().mockReturnThis();
   return res;

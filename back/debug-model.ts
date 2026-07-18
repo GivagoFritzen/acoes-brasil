@@ -20,13 +20,17 @@ async function main() {
       operacao: "Compra",
     });
     console.log("OK:", result.toJSON());
-  } catch (e: any) {
+  } catch (e: Error) {
     console.log("FAIL:", e.name, e.message);
-    if (e.errors) e.errors.forEach((x: any) => console.log("  E:", x.path, x.type, x.message, x.value));
+    if ("errors" in e && Array.isArray((e as Error & { errors: Array<{ path: string; type: string; message: string; value: string }> }).errors)) {
+      for (const x of (e as Error & { errors: Array<{ path: string; type: string; message: string; value: string }> }).errors) {
+        console.log("  E:", x.path, x.type, x.message, x.value);
+      }
+    }
   }
 }
 
-function OrderModel(seq: any) {
+function OrderModel(seq: object) {
   const { DataTypes } = require("sequelize");
   const Order = seq.define("Order", {
     id: { type: DataTypes.UUID, defaultValue: DataTypes.UUIDV4, primaryKey: true },

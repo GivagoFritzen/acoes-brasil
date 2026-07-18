@@ -1,6 +1,6 @@
 import * as XLSX from "xlsx";
 
-export type SpreadsheetRow = Record<string, unknown>;
+export type SpreadsheetRow = Record<string, string>;
 export { parseDecimal } from "../../../common/utils/ParseDecimal";
 
 const normalizeHeader = (value: string): string =>
@@ -24,8 +24,8 @@ export const readSpreadsheetRows = (fileBuffer: Buffer): SpreadsheetRow[] => {
   });
 };
 
-export const extractField = (row: SpreadsheetRow, possibleHeaders: string[]): unknown => {
-  const normalizedMap = new Map<string, unknown>();
+export const extractField = (row: SpreadsheetRow, possibleHeaders: string[]): string | undefined => {
+  const normalizedMap = new Map<string, string>();
 
   for (const [key, value] of Object.entries(row)) {
     normalizedMap.set(normalizeHeader(key), value);
@@ -45,7 +45,7 @@ const pad = (value: number): string => String(value).padStart(2, "0");
 
 const fromDate = (date: Date): string => `${pad(date.getDate())}-${pad(date.getMonth() + 1)}-${date.getFullYear()}`;
 
-export const toBrDateString = (value: unknown): string | null => {
+export const toBrDateString = (value: string | Date | number | null | undefined): string | null => {
   if (value instanceof Date && !Number.isNaN(value.getTime())) {
     return fromDate(value);
   }

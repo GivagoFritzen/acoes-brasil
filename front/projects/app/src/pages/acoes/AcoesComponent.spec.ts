@@ -263,7 +263,7 @@ describe('AcoesComponent', () => {
   });
 
   it('deve aplicar response undefined como array vazio', () => {
-    portfolioServiceMock.getPortfolios.mockReturnValue(of(undefined as unknown as PortfolioItem[]));
+    portfolioServiceMock.getPortfolios.mockReturnValue(of(undefined! as PortfolioItem[]));
 
     component.loadPortfolios();
 

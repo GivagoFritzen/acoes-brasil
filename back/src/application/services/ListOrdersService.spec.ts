@@ -1,6 +1,7 @@
 import { ListOrdersService } from "./ListOrdersService";
 import { IOrderRepository } from "../../domain/interfaces/IOrderRepository";
 import { IPaginatedOrders } from "../../domain/interfaces/IPaginatedOrders";
+import { OrderEntity } from "../../domain/entities/OrderEntity";
 
 describe("ListOrdersService", () => {
   let orderRepositoryMock: jest.Mocked<IOrderRepository>;
@@ -13,7 +14,7 @@ describe("ListOrdersService", () => {
       findAllByCodigoAsync: jest.fn(),
       findAllPaginatedAsync: jest.fn(),
       deleteAsync: jest.fn(),
-    } as unknown as jest.Mocked<IOrderRepository>;
+    } as jest.Mocked<IOrderRepository>;
 
     service = new ListOrdersService(orderRepositoryMock);
   });
@@ -68,8 +69,8 @@ describe("ListOrdersService", () => {
   it("Deve retornar dados quando repository retorna ordens", async () => {
     const resultadoFake: IPaginatedOrders = {
       data: [
-        { id: "1", codigo: "VALE3", quantidade: 100, valor: 50.0, data: "2024-01-01", tipo: " Ordinário", operacao: "Compra", createdAt: new Date(), updatedAt: new Date() },
-      ] as unknown as any[],
+        new OrderEntity("1", "VALE3", 50.0, 100, "2024-01-01", "ACAO", "Compra"),
+      ],
       page: 1,
       limit: 20,
       total: 1,

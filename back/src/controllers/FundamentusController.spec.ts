@@ -16,7 +16,7 @@ jest.mock("../shared/dependency-injection/Container", () => ({
 }));
 
 function createMockRes(): Response {
-  const res = {} as any;
+  const res = {} as Response;
   res.status = jest.fn().mockReturnThis();
   res.json = jest.fn().mockReturnThis();
   return res;
@@ -34,7 +34,7 @@ describe("FundamentusController", () => {
     it("deve retornar json com dados quando ativo encontrado", async () => {
       mockScrapeAsync.mockResolvedValue({ codigo: "PETR4", cotacao: 50.0 });
 
-      const req = { params: { codigo: "PETR4" } } as unknown as Request;
+      const req = { params: { codigo: "PETR4" } } as Request;
       const res = createMockRes();
 
       await controller.getAsync(req, res);
@@ -43,7 +43,7 @@ describe("FundamentusController", () => {
     });
 
     it("deve retornar 400 quando codigo vazio", async () => {
-      const req = { params: { codigo: "" } } as unknown as Request;
+      const req = { params: { codigo: "" } } as Request;
       const res = createMockRes();
 
       await controller.getAsync(req, res);
@@ -55,7 +55,7 @@ describe("FundamentusController", () => {
     it("deve retornar 404 quando ativo nao encontrado no Fundamentus", async () => {
       mockScrapeAsync.mockRejectedValue(new Error("PETR4 não encontrado no Fundamentus"));
 
-      const req = { params: { codigo: "PETR4" } } as unknown as Request;
+      const req = { params: { codigo: "PETR4" } } as Request;
       const res = createMockRes();
 
       await controller.getAsync(req, res);
@@ -67,7 +67,7 @@ describe("FundamentusController", () => {
     it("deve retornar 502 quando falha ao consultar Fundamentus", async () => {
       mockScrapeAsync.mockRejectedValue(new Error("Falha ao consultar Fundamentus"));
 
-      const req = { params: { codigo: "PETR4" } } as unknown as Request;
+      const req = { params: { codigo: "PETR4" } } as Request;
       const res = createMockRes();
 
       await controller.getAsync(req, res);
@@ -79,7 +79,7 @@ describe("FundamentusController", () => {
     it("deve retornar 502 quando nao foi possivel extrair dados", async () => {
       mockScrapeAsync.mockRejectedValue(new Error("Não foi possível extrair dados"));
 
-      const req = { params: { codigo: "PETR4" } } as unknown as Request;
+      const req = { params: { codigo: "PETR4" } } as Request;
       const res = createMockRes();
 
       await controller.getAsync(req, res);
@@ -91,7 +91,7 @@ describe("FundamentusController", () => {
     it("deve retornar 500 para erro generico", async () => {
       mockScrapeAsync.mockRejectedValue(new Error("erro inesperado"));
 
-      const req = { params: { codigo: "PETR4" } } as unknown as Request;
+      const req = { params: { codigo: "PETR4" } } as Request;
       const res = createMockRes();
 
       await controller.getAsync(req, res);
@@ -110,7 +110,7 @@ describe("FundamentusController", () => {
         proventos: [{ data: "01/01/2024", tipo: "DIVIDENDO", valor: "1.50" }],
       });
 
-      const req = { params: { codigo: "PETR4" } } as unknown as Request;
+      const req = { params: { codigo: "PETR4" } } as Request;
       const res = createMockRes();
 
       await controller.getProventosAsync(req, res);
@@ -122,7 +122,7 @@ describe("FundamentusController", () => {
     });
 
     it("deve retornar 400 quando codigo vazio", async () => {
-      const req = { params: { codigo: "" } } as unknown as Request;
+      const req = { params: { codigo: "" } } as Request;
       const res = createMockRes();
 
       await controller.getProventosAsync(req, res);
@@ -134,7 +134,7 @@ describe("FundamentusController", () => {
     it("deve retornar 502 quando falha ao consultar Fundamentus", async () => {
       mockProventosScrapeAsync.mockRejectedValue(new Error("Falha ao consultar Fundamentus para o ativo PETR4."));
 
-      const req = { params: { codigo: "PETR4" } } as unknown as Request;
+      const req = { params: { codigo: "PETR4" } } as Request;
       const res = createMockRes();
 
       await controller.getProventosAsync(req, res);
@@ -146,7 +146,7 @@ describe("FundamentusController", () => {
     it("deve retornar 500 para erro generico", async () => {
       mockProventosScrapeAsync.mockRejectedValue(new Error("erro inesperado"));
 
-      const req = { params: { codigo: "PETR4" } } as unknown as Request;
+      const req = { params: { codigo: "PETR4" } } as Request;
       const res = createMockRes();
 
       await controller.getProventosAsync(req, res);

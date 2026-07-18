@@ -4,7 +4,7 @@ import type { OrderTipo as orderTipo, OrderOperacao as orderOperacao } from "../
 
 describe("SequelizeOrderRepository", () => {
   let repository: SequelizeOrderRepository;
-  let modelMock: any;
+  let modelMock: Record<string, string | number | Date>;
 
   beforeEach(() => {
     repository = new SequelizeOrderRepository();
@@ -105,7 +105,7 @@ describe("SequelizeOrderRepository", () => {
       jest.spyOn(OrderModel, "findAndCountAll").mockResolvedValue({
         rows: [modelMock],
         count: 1,
-      } as any);
+      } as object);
 
       const resultado = await repository.findAllPaginatedAsync({}, 1, 10);
 
@@ -119,7 +119,7 @@ describe("SequelizeOrderRepository", () => {
       jest.spyOn(OrderModel, "findAndCountAll").mockResolvedValue({
         rows: [],
         count: 25,
-      } as any);
+      } as object);
 
       const resultado = await repository.findAllPaginatedAsync({}, 1, 10);
 
@@ -130,7 +130,7 @@ describe("SequelizeOrderRepository", () => {
       jest.spyOn(OrderModel, "findAndCountAll").mockResolvedValue({
         rows: [],
         count: 0,
-      } as any);
+      } as object);
 
       await repository.findAllPaginatedAsync({}, 3, 10);
 

@@ -42,7 +42,7 @@ describe('Investidor10Service', () => {
     });
 
     it('deve normalizar código lowercase para uppercase', () => {
-      const responseMock = { codigo: 'VIVT3' } as any;
+      const responseMock = { codigo: 'VIVT3', empresa: null, dadosSobreEmpresa: [], informacoesSobreEmpresa: [], indicadoresFundamentalistas: [], historicoIndicadores: [], receitas: [], updatedAt: '' };
 
       service.getAcaoDetails('vivt3').subscribe(response => {
         expect(response).toEqual(responseMock);
@@ -61,14 +61,11 @@ describe('Investidor10Service', () => {
       const req = httpMock.expectOne(`${API_CONFIG.baseUrl}${API_CONFIG.endpoints.investidor10}/XXXX`);
       req.flush(apiErrorResponse, { status: 404, statusText: 'Not Found' });
 
-      try {
-        await promise;
-        expect('não deveria chegar aqui').toBe(false);
-      } catch (error: any) {
-        expect(error.message).toBe('Ticker inválido');
-        expect(error.status).toBe(404);
-        expect(error.error).toEqual(apiErrorResponse);
-      }
+      await expect(promise).rejects.toMatchObject({
+        message: 'Ticker inválido',
+        status: 404,
+        error: apiErrorResponse,
+      });
     });
   });
 
@@ -108,14 +105,11 @@ describe('Investidor10Service', () => {
       const req = httpMock.expectOne(`${API_CONFIG.baseUrl}${API_CONFIG.endpoints.investidor10}/VIVT3/proventos`);
       req.flush(apiErrorResponse, { status: 500, statusText: 'Server Error' });
 
-      try {
-        await promise;
-        expect('não deveria chegar aqui').toBe(false);
-      } catch (error: any) {
-        expect(error.message).toBe('Erro ao buscar proventos');
-        expect(error.status).toBe(500);
-        expect(error.error).toEqual(apiErrorResponse);
-      }
+      await expect(promise).rejects.toMatchObject({
+        message: 'Erro ao buscar proventos',
+        status: 500,
+        error: apiErrorResponse,
+      });
     });
   });
 });

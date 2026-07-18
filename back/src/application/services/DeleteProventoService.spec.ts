@@ -13,23 +13,13 @@ describe("DeleteProventoService", () => {
       findByIdAsync: jest.fn(),
       findAllAsync: jest.fn(),
       deleteAsync: jest.fn(),
-    } as unknown as jest.Mocked<IProventoRepository>;
+    } as jest.Mocked<IProventoRepository>;
 
     service = new DeleteProventoService(proventoRepositoryMock);
   });
 
   it("Deve excluir provento quando existe", async () => {
-    const provento: ProventoEntity = {
-      id: "1",
-      codigo: "VALE3",
-      tipo: "Juros",
-      data: "2024-01-01",
-      quantidade: 100,
-      precoUnitario: 1.0,
-      valorLiquido: 100.0,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    } as unknown as ProventoEntity;
+    const provento = new ProventoEntity("1", "VALE3", "2024-01-01", "Dividendo", "Instituicao", 100, 1.0, 100.0);
     proventoRepositoryMock.findByIdAsync.mockResolvedValue(provento);
 
     await service.executeAsync("1");

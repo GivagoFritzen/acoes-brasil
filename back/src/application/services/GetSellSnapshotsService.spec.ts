@@ -12,7 +12,7 @@ describe("GetSellSnapshotsService", () => {
       findByIdAsync: jest.fn(),
       findAllAsync: jest.fn(),
       deleteAsync: jest.fn(),
-    } as unknown as jest.Mocked<IOrderSellSnapshotRepository>;
+    } as jest.Mocked<IOrderSellSnapshotRepository>;
 
     service = new GetSellSnapshotsService(sellSnapshotRepositoryMock);
   });
@@ -27,8 +27,8 @@ describe("GetSellSnapshotsService", () => {
 
   it("Deve retornar snapshots quando repository retorna dados", async () => {
     const snapshotsFakes: OrderSellSnapshotEntity[] = [
-      { id: "1", codigo: "VALE3", precoMedioAtual: 50.0, quantidade: 100, valorAtualAcao: 60.0, ganhos: 1000.0, data: "01-01-2024", createdAt: new Date(), updatedAt: new Date() },
-    ] as unknown as OrderSellSnapshotEntity[];
+      new OrderSellSnapshotEntity("1", "order1", "VALE3", 50.0, 100, 60.0, 1000.0, true, "01-01-2024"),
+    ];
     sellSnapshotRepositoryMock.findAllAsync.mockResolvedValue(snapshotsFakes);
 
     const resultado = await service.executeAsync();

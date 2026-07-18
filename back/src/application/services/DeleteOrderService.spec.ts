@@ -4,6 +4,7 @@ import { IPortfolioRepository } from "../../domain/interfaces/IPortfolioReposito
 import { ITransactionManager } from "../../domain/interfaces/ITransactionManager";
 import { PortfolioDomainService } from "../../domain/services/PortfolioDomainService";
 import { OrderEntity } from "../../domain/entities/OrderEntity";
+import { PortfolioEntity } from "../../domain/entities/PortfolioEntity";
 
 describe("DeleteOrderService", () => {
   let orderRepositoryMock: jest.Mocked<IOrderRepository>;
@@ -18,7 +19,7 @@ describe("DeleteOrderService", () => {
       findAllByCodigoAsync: jest.fn(),
       findAllPaginatedAsync: jest.fn(),
       deleteAsync: jest.fn(),
-    } as unknown as jest.Mocked<IOrderRepository>;
+    } as jest.Mocked<IOrderRepository>;
 
     portfolioRepositoryMock = {
       createAsync: jest.fn(),
@@ -27,11 +28,11 @@ describe("DeleteOrderService", () => {
       findAllAsync: jest.fn(),
       saveAsync: jest.fn(),
       deleteByCodigoAsync: jest.fn(),
-    } as unknown as jest.Mocked<IPortfolioRepository>;
+    } as jest.Mocked<IPortfolioRepository>;
 
     transactionManagerMock = {
       executeAsync: jest.fn((fn) => fn(undefined)),
-    } as unknown as jest.Mocked<ITransactionManager>;
+    } as jest.Mocked<ITransactionManager>;
 
     service = new DeleteOrderService(
       orderRepositoryMock,
@@ -42,17 +43,7 @@ describe("DeleteOrderService", () => {
   });
 
   it("Deve excluir ordem quando existe", async () => {
-    const ordem: OrderEntity = {
-      id: "1",
-      codigo: "VALE3",
-      quantidade: 100,
-      valor: 50.0,
-      data: "2024-01-01",
-      tipo: "ordinario",
-      operacao: "Compra",
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    } as unknown as OrderEntity;
+    const ordem = new OrderEntity("1", "VALE3", 50.0, 100, "2024-01-01", "ACAO" as orderTipo, "Compra");
     orderRepositoryMock.findByIdAsync.mockResolvedValue(ordem);
     orderRepositoryMock.findAllByCodigoAsync.mockResolvedValue([]);
     orderRepositoryMock.deleteAsync.mockResolvedValue();
@@ -69,21 +60,11 @@ describe("DeleteOrderService", () => {
   });
 
   it("Deve deletar portfolio quando ultima ordem for removida", async () => {
-    const ordem: OrderEntity = {
-      id: "1",
-      codigo: "VALE3",
-      quantidade: 100,
-      valor: 50.0,
-      data: "2024-01-01",
-      tipo: "ordinario",
-      operacao: "Compra",
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    } as unknown as OrderEntity;
+    const ordem = new OrderEntity("1", "VALE3", 50.0, 100, "2024-01-01", "ACAO" as orderTipo, "Compra");
     orderRepositoryMock.findByIdAsync.mockResolvedValue(ordem);
     orderRepositoryMock.findAllByCodigoAsync.mockResolvedValue([]);
     orderRepositoryMock.deleteAsync.mockResolvedValue();
-    portfolioRepositoryMock.findByCodigoAsync.mockResolvedValue({} as any);
+    portfolioRepositoryMock.findByCodigoAsync.mockResolvedValue(new PortfolioEntity("1", "VALE3", 100, 50));
     portfolioRepositoryMock.deleteByCodigoAsync.mockResolvedValue();
 
     await service.executeAsync("1");

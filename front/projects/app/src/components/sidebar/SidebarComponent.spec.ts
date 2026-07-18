@@ -15,7 +15,7 @@ import { RouterModule } from '@angular/router';
 describe('SidebarComponent', () => {
     let component: SidebarComponent;
     let fixture: ComponentFixture<SidebarComponent>;
-    let mockTradingHoursService: any;
+    let mockTradingHoursService: Record<string, ReturnType<typeof vi.fn>>;
     const createTradingHoursResponse = (isOpen: boolean) => ({
         success: true,
         data: {
@@ -35,7 +35,7 @@ describe('SidebarComponent', () => {
             holidays: [],
             tradingDays: [1, 2, 3, 4, 5],
             nextOpenTime: '',
-            currentStatus: 'open' as any,
+            currentStatus: 'open',
             upcomingHolidays: []
         }
     });

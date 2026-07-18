@@ -11,7 +11,7 @@ jest.mock("../../shared/logger/Logger", () => ({
 const mockFetch = jest.spyOn(global, "fetch") as jest.Mock;
 
 function buildYahooJson(overrides?: {
-  meta?: Record<string, any>;
+  meta?: object;
   timestamps?: number[];
   closes?: (number | null)[];
   volumes?: (number | null)[];
@@ -205,7 +205,7 @@ describe("GoogleFinanceService", () => {
       const abortError = new Error("The operation was aborted");
       abortError.name = "AbortError";
       mockFetch.mockImplementation(
-        (_url: string, opts: any) =>
+        (_url: string, opts: { signal?: { addEventListener: (...args: never[]) => void } }) =>
           new Promise((_resolve, reject) => {
             opts?.signal?.addEventListener("abort", () => reject(abortError));
           })

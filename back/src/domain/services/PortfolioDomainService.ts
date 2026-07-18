@@ -5,7 +5,7 @@ import { IQuoteProvider } from "../interfaces/IQuoteProvider";
 import { normalizeOrderCodigo } from "../../../../common/utils/OrderCodigoUtils";
 
 export class PortfolioDomainService {
-  async resolveCodigoForPortfolioAsync(codigoBase: string, tx: unknown, portfolioRepository: IPortfolioRepository): Promise<string> {
+  async resolveCodigoForPortfolioAsync(codigoBase: string, tx: object | undefined, portfolioRepository: IPortfolioRepository): Promise<string> {
     const codigo = normalizeOrderCodigo(codigoBase);
 
     const portfolioPadrao = await portfolioRepository.findByCodigoAsync(codigo, tx);
@@ -18,7 +18,7 @@ export class PortfolioDomainService {
 
   async rebuildPortfolioByCodigoAsync(
     codigo: string,
-    tx: unknown,
+    tx: object | undefined,
     orderRepository: IOrderRepository,
     portfolioRepository: IPortfolioRepository
   ): Promise<void> {
@@ -87,7 +87,7 @@ export class PortfolioDomainService {
       operacao: "Compra" | "Venda";
       data: string;
     },
-    tx: unknown,
+    tx: object | undefined,
     portfolioRepository: IPortfolioRepository,
     orderSellSnapshotRepository: IOrderSellSnapshotRepository,
     quoteProvider: IQuoteProvider

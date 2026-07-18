@@ -1,5 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
+import { HttpErrorResponse } from '@angular/common/http';
 import { OrdersService } from './OrdersService';
 import { API_CONFIG } from '../config/ApiConfig';
 import { OrdersResponse } from '../models';
@@ -72,7 +73,7 @@ describe('OrdersService', () => {
       try {
         await promise;
         expect('não deveria chegar aqui').toBe(false);
-      } catch (error: any) {
+      } catch (error: HttpErrorResponse) {
         expect(error.status).toBe(500);
       }
     });
@@ -86,7 +87,7 @@ describe('OrdersService', () => {
       try {
         await promise;
         expect('não deveria chegar aqui').toBe(false);
-      } catch (error: any) {
+      } catch (error: HttpErrorResponse) {
         expect(error.status).toBe(0);
         expect(error.message).toBe('Não foi possível conectar ao servidor. Verifique sua conexão.');
       }
@@ -101,7 +102,7 @@ describe('OrdersService', () => {
       try {
         await promise;
         expect('não deveria chegar aqui').toBe(false);
-      } catch (error: any) {
+      } catch (error: HttpErrorResponse) {
         expect(error.status).toBe(401);
         expect(error.message).toBe('Não autorizado.');
       }
@@ -116,7 +117,7 @@ describe('OrdersService', () => {
       try {
         await promise;
         expect('não deveria chegar aqui').toBe(false);
-      } catch (error: any) {
+      } catch (error: HttpErrorResponse) {
         expect(error.status).toBe(403);
         expect(error.message).toBe('Acesso negado.');
       }
@@ -131,7 +132,7 @@ describe('OrdersService', () => {
       try {
         await promise;
         expect('não deveria chegar aqui').toBe(false);
-      } catch (error: any) {
+      } catch (error: HttpErrorResponse) {
         expect(error.status).toBe(400);
         expect(error.message).toBe('Erro customizado do servidor');
       }
@@ -160,7 +161,7 @@ describe('OrdersService', () => {
       try {
         await promise;
         expect('não deveria chegar aqui').toBe(false);
-      } catch (error: any) {
+      } catch (error: HttpErrorResponse) {
         expect(error.status).toBe(400);
       }
     });
@@ -188,7 +189,7 @@ describe('OrdersService', () => {
       try {
         await promise;
         expect('não deveria chegar aqui').toBe(false);
-      } catch (error: any) {
+      } catch (error: HttpErrorResponse) {
         expect(error.status).toBe(404);
       }
     });
@@ -217,7 +218,7 @@ describe('OrdersService', () => {
       try {
         await promise;
         expect('não deveria chegar aqui').toBe(false);
-      } catch (error: any) {
+      } catch (error: HttpErrorResponse) {
         expect(error.status).toBe(500);
       }
     });
@@ -246,7 +247,7 @@ describe('OrdersService', () => {
       try {
         await promise;
         expect('não deveria chegar aqui').toBe(false);
-      } catch (error: any) {
+      } catch (error: HttpErrorResponse) {
         expect(error.status).toBe(500);
       }
     });
@@ -272,7 +273,7 @@ describe('OrdersService', () => {
       try {
         await promise;
         expect('não deveria chegar aqui').toBe(false);
-      } catch (error: any) {
+      } catch (error: HttpErrorResponse) {
         expect(error.status).toBe(500);
       }
     });

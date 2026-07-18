@@ -27,12 +27,12 @@ jest.mock("../shared/dependency-injection/Container", () => ({
 
 const XLSX_MAGIC = Buffer.from([0x50, 0x4b, 0x03, 0x04]);
 
-function createMockReq(overrides: Partial<any> = {}): any {
+function createMockReq(overrides: object = {}): object {
   return { params: {}, query: {}, body: {}, file: undefined, ...overrides };
 }
 
 function createMockRes(): Response {
-  const res = {} as any;
+  const res = {} as Response;
   res.status = jest.fn().mockReturnThis();
   res.json = jest.fn().mockReturnThis();
   res.setHeader = jest.fn().mockReturnThis();
@@ -197,7 +197,7 @@ describe("PortfolioController", () => {
       ]);
       mockImportService.executeAsync.mockResolvedValue(1);
 
-      const req = createMockReq({ file: { path: filePath } as any });
+      const req = createMockReq({ file: { path: filePath } });
       const res = createMockRes();
 
       await controller.importPortfolioAsync(req, res);
@@ -219,7 +219,7 @@ describe("PortfolioController", () => {
     it("deve retornar 400 quando tipo de arquivo invalido", async () => {
       jest.spyOn(fs, "readFileSync").mockReturnValue(Buffer.from([0x00, 0x00, 0x00, 0x00]));
 
-      const req = createMockReq({ file: { path: filePath } as any });
+      const req = createMockReq({ file: { path: filePath } });
       const res = createMockRes();
 
       await controller.importPortfolioAsync(req, res);
@@ -232,7 +232,7 @@ describe("PortfolioController", () => {
       jest.spyOn(fs, "readFileSync").mockReturnValue(XLSX_MAGIC);
       mockSpreadsheetParser.parsePortfolioRowsAsync.mockReturnValue([]);
 
-      const req = createMockReq({ file: { path: filePath } as any });
+      const req = createMockReq({ file: { path: filePath } });
       const res = createMockRes();
 
       await controller.importPortfolioAsync(req, res);
@@ -248,7 +248,7 @@ describe("PortfolioController", () => {
       ]);
       mockImportService.executeAsync.mockRejectedValue(new Error("erro na importacao"));
 
-      const req = createMockReq({ file: { path: filePath } as any });
+      const req = createMockReq({ file: { path: filePath } });
       const res = createMockRes();
 
       await controller.importPortfolioAsync(req, res);
@@ -258,11 +258,11 @@ describe("PortfolioController", () => {
     });
 
     it("deve deletar arquivo temporario apos importacao bem sucedida", async () => {
-      const unlinkSpy = jest.spyOn(fs, "unlink").mockImplementation((_path, cb) => (cb as any)());
+      const unlinkSpy = jest.spyOn(fs, "unlink").mockImplementation((_path, cb) => cb());
       jest.spyOn(fs, "readFileSync").mockReturnValue(XLSX_MAGIC);
       mockSpreadsheetParser.parsePortfolioRowsAsync.mockReturnValue([]);
 
-      const req = createMockReq({ file: { path: filePath } as any });
+      const req = createMockReq({ file: { path: filePath } });
       const res = createMockRes();
 
       await controller.importPortfolioAsync(req, res);

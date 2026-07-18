@@ -3,14 +3,14 @@ import { normalizeOrderCodigo, isCodigoFormatoValido, removerSufixoF, mesclarPor
 describe('normalizeOrderCodigo', () => {
   describe('Deve_retornar_string_vazia_quando_receber_null', () => {
     it('deve retornar string vazia quando input for null', () => {
-      const resultado = normalizeOrderCodigo(null as unknown as string);
+      const resultado = normalizeOrderCodigo(null!);
       expect(resultado).toBe('');
     });
   });
 
   describe('Deve_retornar_string_vazia_quando_receber_undefined', () => {
     it('deve retornar string vazia quando input for undefined', () => {
-      const resultado = normalizeOrderCodigo(undefined as unknown as string);
+      const resultado = normalizeOrderCodigo(undefined!);
       expect(resultado).toBe('');
     });
   });
@@ -140,7 +140,7 @@ describe('removerSufixoF', () => {
 
   describe('Deve_retornar_string_vazia_quando_receber_null', () => {
     it('deve retornar string vazia para null', () => {
-      const resultado = removerSufixoF(null as unknown as string);
+      const resultado = removerSufixoF(null!);
       expect(resultado).toBe('');
     });
   });

@@ -17,11 +17,11 @@ describe("ImportPortfolioService", () => {
       findAllAsync: jest.fn(),
       saveAsync: jest.fn(),
       deleteByCodigoAsync: jest.fn(),
-    } as unknown as jest.Mocked<IPortfolioRepository>;
+    } as jest.Mocked<IPortfolioRepository>;
 
     transactionManagerMock = {
       executeAsync: jest.fn((fn) => fn(undefined)),
-    } as unknown as jest.Mocked<ITransactionManager>;
+    } as jest.Mocked<ITransactionManager>;
 
     service = new ImportPortfolioService(portfolioRepositoryMock, transactionManagerMock);
   });

@@ -84,7 +84,7 @@ describe('ProventosComponent', () => {
       totalPages: 1,
     }));
 
-    (component as any).loadProventos();
+    component['loadProventos']();
 
     expect(component.proventos()).toEqual(proventosList);
     expect(component.page()).toBe(2);
@@ -96,7 +96,7 @@ describe('ProventosComponent', () => {
   it('deve tratar erro ao carregar proventos', () => {
     proventosServiceMock.getProventos.mockReturnValue(throwError(() => new Error('erro')));
 
-    (component as any).loadProventos();
+    component['loadProventos']();
 
     expect(component.errorMessage()).toBe('Não foi possível carregar os proventos.');
     expect(component.alerts()[0].variant).toBe('error');
@@ -388,7 +388,7 @@ it('previousPage deve tentar decrementar e carregar proventos', () => {
   it('deve aplicar response com data indefinida como array vazio', () => {
     proventosServiceMock.getProventos.mockReturnValue(
       of({
-        data: undefined as unknown as Provento[],
+        data: undefined! as Provento[],
         page: 2,
         limit: 5,
         total: 0,
@@ -396,7 +396,7 @@ it('previousPage deve tentar decrementar e carregar proventos', () => {
       }),
     );
 
-    (component as any).loadProventos();
+    component['loadProventos']();
 
     expect(component.proventos()).toEqual([]);
     expect(component.page()).toBe(2);

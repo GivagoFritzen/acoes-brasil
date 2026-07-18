@@ -10,7 +10,7 @@ jest.mock("../infrastructure/services/TradingHoursScraperService", () => ({
 }));
 
 function createMockRes(): Response {
-  const res = {} as any;
+  const res = {} as Response;
   res.status = jest.fn().mockReturnThis();
   res.json = jest.fn().mockReturnThis();
   return res;

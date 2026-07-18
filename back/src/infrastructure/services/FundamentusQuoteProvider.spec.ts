@@ -32,9 +32,9 @@ function createMockResponse(overrides: Partial<{
     headers: {
       get: (_name: string) => overrides.contentType ?? "text/html",
       has: () => true,
-    } as unknown as Headers,
+    } as Headers,
     arrayBuffer: async () => buffer,
-  } as unknown as Response;
+  } as Response;
 }
 
 describe("FundamentusQuoteProvider", () => {
@@ -235,7 +235,7 @@ describe("FundamentusQuoteProvider", () => {
     const abortError = new Error("AbortError");
     abortError.name = "AbortError";
     mockFetch.mockImplementation(
-      (_url: string, opts: any) =>
+      (_url: string, opts: { signal?: { addEventListener: (...args: never[]) => void } }) =>
         new Promise((_resolve, reject) => {
           opts?.signal?.addEventListener("abort", () => reject(abortError));
         })

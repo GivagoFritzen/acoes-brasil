@@ -15,7 +15,7 @@ jest.mock("../shared/dependency-injection/Container", () => ({
 }));
 
 function createMockRes(): Response {
-  const res = {} as any;
+  const res = {} as Response;
   res.status = jest.fn().mockReturnThis();
   res.json = jest.fn().mockReturnThis();
   return res;
@@ -38,7 +38,7 @@ describe("Investidor10Controller", () => {
       indicadoresFundamentalistas: [],
     });
 
-    const req = { params: { codigo: "VIVT3" } } as unknown as Request;
+    const req = { params: { codigo: "VIVT3" } } as Request;
     const res = createMockRes();
 
     await controller.getAsync(req, res);
@@ -53,7 +53,7 @@ describe("Investidor10Controller", () => {
   });
 
   it("deve retornar 400 quando codigo vazio", async () => {
-    const req = { params: { codigo: "" } } as unknown as Request;
+    const req = { params: { codigo: "" } } as Request;
     const res = createMockRes();
 
     await controller.getAsync(req, res);
@@ -65,7 +65,7 @@ describe("Investidor10Controller", () => {
   it("deve retornar 502 quando falha ao consultar Investidor10", async () => {
     mockScrapeAsync.mockRejectedValue(new Error("Falha ao consultar Investidor10"));
 
-    const req = { params: { codigo: "VIVT3" } } as unknown as Request;
+    const req = { params: { codigo: "VIVT3" } } as Request;
     const res = createMockRes();
 
     await controller.getAsync(req, res);
@@ -77,7 +77,7 @@ describe("Investidor10Controller", () => {
   it("deve retornar 502 quando nao foi possivel extrair dados", async () => {
     mockScrapeAsync.mockRejectedValue(new Error("Não foi possível extrair dados"));
 
-    const req = { params: { codigo: "VIVT3" } } as unknown as Request;
+    const req = { params: { codigo: "VIVT3" } } as Request;
     const res = createMockRes();
 
     await controller.getAsync(req, res);
@@ -89,7 +89,7 @@ describe("Investidor10Controller", () => {
   it("deve retornar 500 para erro generico", async () => {
     mockScrapeAsync.mockRejectedValue(new Error("erro inesperado"));
 
-    const req = { params: { codigo: "VIVT3" } } as unknown as Request;
+    const req = { params: { codigo: "VIVT3" } } as Request;
     const res = createMockRes();
 
     await controller.getAsync(req, res);
@@ -109,7 +109,7 @@ describe("Investidor10Controller", () => {
         ],
       });
 
-      const req = { params: { codigo: "VIVT3" } } as unknown as Request;
+      const req = { params: { codigo: "VIVT3" } } as Request;
       const res = createMockRes();
 
       await controller.getProventosAsync(req, res);
@@ -123,7 +123,7 @@ describe("Investidor10Controller", () => {
     });
 
     it("deve retornar 400 quando codigo vazio", async () => {
-      const req = { params: { codigo: "" } } as unknown as Request;
+      const req = { params: { codigo: "" } } as Request;
       const res = createMockRes();
 
       await controller.getProventosAsync(req, res);
@@ -137,7 +137,7 @@ describe("Investidor10Controller", () => {
         new Error("Falha ao consultar Investidor10 para o ativo VIVT3.")
       );
 
-      const req = { params: { codigo: "VIVT3" } } as unknown as Request;
+      const req = { params: { codigo: "VIVT3" } } as Request;
       const res = createMockRes();
 
       await controller.getProventosAsync(req, res);
@@ -151,7 +151,7 @@ describe("Investidor10Controller", () => {
         new Error("Não foi possível extrair dados")
       );
 
-      const req = { params: { codigo: "VIVT3" } } as unknown as Request;
+      const req = { params: { codigo: "VIVT3" } } as Request;
       const res = createMockRes();
 
       await controller.getProventosAsync(req, res);
@@ -163,7 +163,7 @@ describe("Investidor10Controller", () => {
     it("deve retornar 500 para erro generico", async () => {
       mockScrapeDividendosAsync.mockRejectedValue(new Error("erro inesperado"));
 
-      const req = { params: { codigo: "VIVT3" } } as unknown as Request;
+      const req = { params: { codigo: "VIVT3" } } as Request;
       const res = createMockRes();
 
       await controller.getProventosAsync(req, res);

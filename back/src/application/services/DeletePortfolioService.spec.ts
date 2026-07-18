@@ -14,20 +14,13 @@ describe("DeletePortfolioService", () => {
       findAllAsync: jest.fn(),
       saveAsync: jest.fn(),
       deleteByCodigoAsync: jest.fn(),
-    } as unknown as jest.Mocked<IPortfolioRepository>;
+    } as jest.Mocked<IPortfolioRepository>;
 
     service = new DeletePortfolioService(portfolioRepositoryMock);
   });
 
   it("Deve excluir portfolio quando existe", async () => {
-    const portfolio: PortfolioEntity = {
-      id: "1",
-      codigo: "VALE3",
-      quantidade: 100,
-      precoMedio: 50.0,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    } as unknown as PortfolioEntity;
+    const portfolio = new PortfolioEntity("1", "VALE3", 100, 50.0);
     portfolioRepositoryMock.findByIdAsync.mockResolvedValue(portfolio);
 
     await service.executeAsync("1");

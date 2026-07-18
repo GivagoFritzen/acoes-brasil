@@ -5,7 +5,7 @@ import { OrderSellSnapshotEntity } from "../../domain/entities/OrderSellSnapshot
 import { IOrderSellSnapshotRepository } from "../../domain/interfaces/IOrderSellSnapshotRepository";
 
 export class SequelizeOrderSellSnapshotRepository implements IOrderSellSnapshotRepository {
-  async createAsync(snapshot: Omit<OrderSellSnapshotEntity, "id" | "createdAt" | "updatedAt">, tx?: unknown): Promise<OrderSellSnapshotEntity> {
+  async createAsync(snapshot: Omit<OrderSellSnapshotEntity, "id" | "createdAt" | "updatedAt">, tx?: object): Promise<OrderSellSnapshotEntity> {
     const transaction = tx as Transaction | undefined;
     const model = await OrderSellSnapshotModel.create(
       {
@@ -23,10 +23,10 @@ export class SequelizeOrderSellSnapshotRepository implements IOrderSellSnapshotR
     return this.toEntity(model);
   }
 
-  async findAllAsync(ano?: string, tx?: unknown): Promise<OrderSellSnapshotEntity[]> {
+  async findAllAsync(ano?: string, tx?: object): Promise<OrderSellSnapshotEntity[]> {
     const transaction = tx as Transaction | undefined;
     try {
-      const where: any = {};
+      const where: Record<string, string | object> = {};
       if (ano) {
         where.data = { [Op.endsWith]: `-${ano}` };
       }
@@ -37,15 +37,16 @@ export class SequelizeOrderSellSnapshotRepository implements IOrderSellSnapshotR
         transaction,
       });
       return models.map(this.toEntity);
-    } catch (error: any) {
-      if (this.isMissingTableError(error)) {
+    } catch (error) {
+      const err = error as Error;
+      if (this.isMissingTableError(err)) {
         return [];
       }
-      throw error;
+      throw err;
     }
   }
 
-  private isMissingTableError(error: unknown): boolean {
+  private isMissingTableError(error: Error): boolean {
     const message = error instanceof Error ? error.message : String(error ?? "");
     const normalizedMessage = message.toLowerCase();
     return (

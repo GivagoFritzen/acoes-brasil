@@ -45,7 +45,7 @@ describe('PortfolioPieChartComponent', () => {
     });
 
     it('deve gerar slices vazias quando portfolios null', () => {
-      component.portfolios = null as any;
+      component.portfolios = null!;
       component.ngOnChanges();
       expect(component.slices).toEqual([]);
     });
@@ -218,7 +218,7 @@ describe('PortfolioPieChartComponent', () => {
   describe('Edge Cases', () => {
     it('deve lidar com portfolios com precoMedio null', () => {
       component.portfolios = [
-        { codigo: 'PETR4', precoMedio: null as any, quantidade: 100 },
+        { codigo: 'PETR4', precoMedio: null!, quantidade: 100 },
         { codigo: 'VALE5', precoMedio: 50, quantidade: 100 },
       ] as PortfolioItem[];
       component.ngOnChanges();
@@ -228,7 +228,7 @@ describe('PortfolioPieChartComponent', () => {
 
     it('deve lidar com portfolios com quantidade null', () => {
       component.portfolios = [
-        { codigo: 'PETR4', precoMedio: 30, quantidade: null as any },
+        { codigo: 'PETR4', precoMedio: 30, quantidade: null! },
         { codigo: 'VALE5', precoMedio: 50, quantidade: 100 },
       ] as PortfolioItem[];
       component.ngOnChanges();

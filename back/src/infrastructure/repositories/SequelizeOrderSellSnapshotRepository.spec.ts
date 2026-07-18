@@ -4,7 +4,7 @@ import { OrderSellSnapshot as OrderSellSnapshotModel } from "../../models/order/
 
 describe("SequelizeOrderSellSnapshotRepository", () => {
   let repository: SequelizeOrderSellSnapshotRepository;
-  let modelMock: any;
+  let modelMock: Record<string, string | number | Date | boolean>;
 
   beforeEach(() => {
     repository = new SequelizeOrderSellSnapshotRepository();

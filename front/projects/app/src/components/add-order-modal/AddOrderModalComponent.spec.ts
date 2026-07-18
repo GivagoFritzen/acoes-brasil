@@ -81,7 +81,7 @@ describe('AddOrderModalComponent', () => {
           previousValue: false,
           firstChange: false,
           isFirstChange: () => false,
-        } as any,
+        }
       });
 
       expect(component.codigo()).toBe('');
@@ -102,7 +102,7 @@ describe('AddOrderModalComponent', () => {
           previousValue: true,
           firstChange: false,
           isFirstChange: () => true,
-        } as any,
+        }
       });
 
       expect(component.codigo()).toBe('TEST11');
@@ -117,7 +117,7 @@ describe('AddOrderModalComponent', () => {
           previousValue: true,
           firstChange: false,
           isFirstChange: () => false,
-        } as any,
+        }
       });
 
       expect(component.codigo()).toBe('TEST11');

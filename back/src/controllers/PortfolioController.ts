@@ -1,6 +1,8 @@
 import { Request, Response } from "express";
 import fs from "fs";
 import { ImportPortfolioService } from "../application/services/ImportPortfolioService";
+
+type MulterRequest = Request & { file?: Express.Multer.File };
 import { ExportPortfolioService } from "../application/services/ExportPortfolioService";
 import { CreateOrUpdatePortfolioService } from "../application/services/CreateOrUpdatePortfolioService";
 import { DeletePortfolioService } from "../application/services/DeletePortfolioService";
@@ -38,7 +40,7 @@ export class PortfolioController {
       });
       return res.status(result.created ? 201 : 200).json(result.portfolio);
     } catch (error) {
-      return ErrorHandler.handle(error, res);
+      return ErrorHandler.handle(error as Error, res);
     }
   }
 
@@ -51,7 +53,7 @@ export class PortfolioController {
       await this.deletePortfolioService.executeAsync(id);
       return res.json({ message: "Ativo do portfólio deletado com sucesso." });
     } catch (error) {
-      return ErrorHandler.handle(error, res);
+      return ErrorHandler.handle(error as Error, res);
     }
   }
 
@@ -60,7 +62,7 @@ export class PortfolioController {
       const portfolios = await this.listPortfolioService.executeAsync();
       return res.json(portfolios);
     } catch (error) {
-      return ErrorHandler.handle(error, res);
+      return ErrorHandler.handle(error as Error, res);
     }
   }
 
@@ -71,12 +73,12 @@ export class PortfolioController {
       res.setHeader("Content-Disposition", `attachment; filename="${fileName}"`);
       return res.send(buffer);
     } catch (error) {
-      return ErrorHandler.handle(error, res);
+      return ErrorHandler.handle(error as Error, res);
     }
   }
 
   async importPortfolioAsync(req: Request, res: Response): Promise<Response> {
-    const file = (req as any).file as Express.Multer.File | undefined;
+    const file = (req as MulterRequest).file;
 
     if (!file) {
       return res.status(400).json({ message: "Arquivo não enviado. Use o campo 'file'." });
@@ -96,10 +98,11 @@ export class PortfolioController {
 
       const importedCount = await this.importPortfolioService.executeAsync(rows);
       return res.status(201).json({ imported: importedCount });
-    } catch (error: any) {
+    } catch (error) {
+      const err = error as Error;
       return res.status(400).json({
         message: "Erro ao importar planilha de portfólio",
-        error: error.message || error,
+        error: err.message,
       });
     } finally {
       if (file.path) fs.unlink(file.path, () => {});

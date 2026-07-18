@@ -14,7 +14,7 @@ describe("ListPortfolioService", () => {
       findAllAsync: jest.fn(),
       saveAsync: jest.fn(),
       deleteByCodigoAsync: jest.fn(),
-    } as unknown as jest.Mocked<IPortfolioRepository>;
+    } as jest.Mocked<IPortfolioRepository>;
 
     service = new ListPortfolioService(portfolioRepositoryMock);
   });
@@ -30,9 +30,9 @@ describe("ListPortfolioService", () => {
 
   it("Deve retornar lista de portfolios quando repository retorna dados", async () => {
     const portfoliosFakes: PortfolioEntity[] = [
-      { id: "1", codigo: "VALE3", quantidade: 100, precoMedio: 50.0, createdAt: new Date(), updatedAt: new Date() },
-      { id: "2", codigo: "PETR4", quantidade: 200, precoMedio: 30.0, createdAt: new Date(), updatedAt: new Date() },
-    ] as unknown as PortfolioEntity[];
+      new PortfolioEntity("1", "VALE3", 100, 50.0),
+      new PortfolioEntity("2", "PETR4", 200, 30.0),
+    ];
     portfolioRepositoryMock.findAllAsync.mockResolvedValue(portfoliosFakes);
 
     const resultado = await service.executeAsync();

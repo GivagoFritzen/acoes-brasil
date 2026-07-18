@@ -1,5 +1,5 @@
 export class DateUtils {
-  static normalizeToBrDateString(val: unknown): string {
+  static normalizeToBrDateString(val: string | number | boolean | null | undefined): string {
     if (!val) return "";
     const str = String(val).trim();
     const brDatePattern = /^(\d{2})-(\d{2})-(\d{4})$/;
@@ -11,7 +11,7 @@ export class DateUtils {
     return str;
   }
 
-  static normalizeToIsoDate(value: unknown): string | null {
+  static normalizeToIsoDate(value: string | null | undefined): string | null {
     if (typeof value !== "string") return null;
     const trimmedValue = value.trim();
     const brDateMatch = trimmedValue.match(/^(\d{2})-(\d{2})-(\d{4})$/);

@@ -6,6 +6,8 @@ import { IQuoteProvider } from "../../domain/interfaces/IQuoteProvider";
 import { ITransactionManager } from "../../domain/interfaces/ITransactionManager";
 import { PortfolioDomainService } from "../../domain/services/PortfolioDomainService";
 import { CreateOrderDto } from "../dto/CreateOrderDto";
+import { OrderEntity } from "../../domain/entities/OrderEntity";
+import { PortfolioEntity } from "../../domain/entities/PortfolioEntity";
 
 describe("ImportOrdersService", () => {
   let orderRepositoryMock: jest.Mocked<IOrderRepository>;
@@ -17,36 +19,36 @@ describe("ImportOrdersService", () => {
 
   beforeEach(() => {
     orderRepositoryMock = {
-      createAsync: jest.fn().mockResolvedValue({ id: "1" } as any),
+      createAsync: jest.fn().mockResolvedValue(new OrderEntity("1", "VALE3", 0, 0, "", "ACAO", "Compra")),
       findByIdAsync: jest.fn(),
       findAllByCodigoAsync: jest.fn().mockResolvedValue([]),
       findAllPaginatedAsync: jest.fn(),
       deleteAsync: jest.fn(),
-    } as unknown as jest.Mocked<IOrderRepository>;
+    } as jest.Mocked<IOrderRepository>;
 
     portfolioRepositoryMock = {
-      createAsync: jest.fn().mockResolvedValue({} as any),
+      createAsync: jest.fn().mockResolvedValue(new PortfolioEntity("1", "VALE3", 0, 0)),
       findByIdAsync: jest.fn(),
       findByCodigoAsync: jest.fn().mockResolvedValue(null),
       findAllAsync: jest.fn(),
-      saveAsync: jest.fn().mockResolvedValue({} as any),
+      saveAsync: jest.fn().mockResolvedValue(new PortfolioEntity("1", "VALE3", 0, 0)),
       deleteByCodigoAsync: jest.fn(),
-    } as unknown as jest.Mocked<IPortfolioRepository>;
+    } as jest.Mocked<IPortfolioRepository>;
 
     orderSellSnapshotRepositoryMock = {
       createAsync: jest.fn(),
       findByIdAsync: jest.fn(),
       findAllAsync: jest.fn(),
       deleteAsync: jest.fn(),
-    } as unknown as jest.Mocked<IOrderSellSnapshotRepository>;
+    } as jest.Mocked<IOrderSellSnapshotRepository>;
 
     quoteProviderMock = {
       getQuoteAsync: jest.fn().mockResolvedValue(null),
-    } as unknown as jest.Mocked<IQuoteProvider>;
+    } as jest.Mocked<IQuoteProvider>;
 
     transactionManagerMock = {
       executeAsync: jest.fn((fn) => fn(undefined)),
-    } as unknown as jest.Mocked<ITransactionManager>;
+    } as jest.Mocked<ITransactionManager>;
 
     service = new ImportOrdersService(
       orderRepositoryMock,

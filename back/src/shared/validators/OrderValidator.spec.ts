@@ -1,4 +1,5 @@
 import { OrderValidator, ValidationError } from "./OrderValidator";
+import type { OrderOperacao as orderOperacao } from "../../../common/models/order";
 
 describe("OrderValidator", () => {
   describe("validateCreateOrderDto", () => {
@@ -75,7 +76,7 @@ describe("OrderValidator", () => {
           valor: 50,
           data: "01-01-2024",
           tipo: "ACAO",
-          operacao: "Invalida" as any,
+          operacao: "Invalida" as orderOperacao,
         })
       ).toThrow("Operação inválida para portfolio. Use Compra ou Venda.");
     });

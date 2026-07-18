@@ -1,4 +1,4 @@
-import { Op, Transaction } from "sequelize";
+import { Op, Transaction, WhereOptions } from "sequelize";
 import { sequelize } from "../../database";
 import { buildBrDateOrderExpression } from "../../database/DateExpression";
 import { Provento as ProventoModel } from "../../models/provento/Provento";
@@ -11,7 +11,7 @@ import { normalizeOrderCodigo } from "../../../../common/utils/OrderCodigoUtils"
 export class SequelizeProventoRepository implements IProventoRepository {
   async createAsync(
     proventoData: Omit<ProventoEntity, "id" | "createdAt" | "updatedAt">,
-    tx?: unknown
+    tx?: object
   ): Promise<ProventoEntity> {
     const transaction = tx as Transaction | undefined;
     const model = await ProventoModel.create(
@@ -31,7 +31,7 @@ export class SequelizeProventoRepository implements IProventoRepository {
 
   async createManyAsync(
     proventos: Omit<ProventoEntity, "id" | "createdAt" | "updatedAt">[],
-    tx?: unknown
+    tx?: object
   ): Promise<ProventoEntity[]> {
     const results: ProventoEntity[] = [];
     for (const provento of proventos) {
@@ -40,14 +40,14 @@ export class SequelizeProventoRepository implements IProventoRepository {
     return results;
   }
 
-  async findByIdAsync(id: string, tx?: unknown): Promise<ProventoEntity | null> {
+  async findByIdAsync(id: string, tx?: object): Promise<ProventoEntity | null> {
     const transaction = tx as Transaction | undefined;
     const model = await ProventoModel.findByPk(id, { transaction });
     if (!model) return null;
     return this.toEntity(model);
   }
 
-  async deleteAsync(id: string, tx?: unknown): Promise<void> {
+  async deleteAsync(id: string, tx?: object): Promise<void> {
     const transaction = tx as Transaction | undefined;
     await ProventoModel.destroy({ where: { id }, transaction });
   }
@@ -57,8 +57,8 @@ export class SequelizeProventoRepository implements IProventoRepository {
     const limitNumber = Math.max(filters.limit ?? 20, 1);
     const offset = (pageNumber - 1) * limitNumber;
 
-    const where: any = {};
-    const andConditions: unknown[] = [];
+    const where: Record<string | symbol, object | string | number | Date | boolean | null> = {};
+    const andConditions: object[] = [];
     const dataAsDate = buildBrDateOrderExpression("provento");
 
     const startDate = DateUtils.normalizeToIsoDate(filters.dataInicial) ?? DateUtils.normalizeToIsoDate(filters.data);
@@ -99,7 +99,7 @@ export class SequelizeProventoRepository implements IProventoRepository {
   }
 
   private async findAllGroupedAsync(
-    where: any,
+    where: WhereOptions,
     dataAsDate: ReturnType<typeof buildBrDateOrderExpression>,
     offset: number,
     limit: number

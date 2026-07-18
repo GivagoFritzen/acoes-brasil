@@ -9,7 +9,7 @@ jest.mock("../../database", () => ({
 
 describe("SequelizeTransactionManager", () => {
   let manager: SequelizeTransactionManager;
-  let transacaoMock: any;
+  let transacaoMock: { commit: jest.Mock; rollback: jest.Mock };
 
   beforeEach(() => {
     manager = new SequelizeTransactionManager();

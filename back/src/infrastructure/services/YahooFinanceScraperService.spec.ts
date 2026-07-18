@@ -1,9 +1,9 @@
 import { YahooFinanceScraperService } from "./YahooFinanceScraperService";
 
 const mockFetch = jest.fn();
-global.fetch = mockFetch as any;
+global.fetch = mockFetch as jest.Mock;
 
-function buildQuoteSummaryResponse(overrides: Record<string, any> = {}): any {
+function buildQuoteSummaryResponse(overrides: object = {}): object {
   return {
     quoteSummary: {
       result: [
@@ -130,7 +130,7 @@ function generateTimestamps(count: number): number[] {
   return result;
 }
 
-function buildFundamentalsResponse(apiKeys: string[], numPeriods: number): any {
+function buildFundamentalsResponse(apiKeys: string[], numPeriods: number): object {
   const timestamps = generateTimestamps(numPeriods);
   const result = apiKeys.map((key) => {
     const typeKey = `quarterly${key}`;
@@ -155,17 +155,17 @@ function createTextResponse(text: string, ok = true): Response {
     status: ok ? 200 : 500,
     text: async () => text,
     json: async () => JSON.parse(text),
-    headers: new Map() as any,
+    headers: {} as Headers,
   } as Response;
 }
 
-function createJsonResponse(data: any, ok = true): Response {
+function createJsonResponse(data: object, ok = true): Response {
   return {
     ok,
     status: ok ? 200 : 500,
     json: async () => data,
     text: async () => JSON.stringify(data),
-    headers: new Map() as any,
+    headers: {} as Headers,
   } as Response;
 }
 
@@ -181,7 +181,7 @@ function createConsentResponse(): Response {
         return null;
       },
       forEach: () => {},
-    } as any,
+    } as Headers,
   } as Response;
 }
 

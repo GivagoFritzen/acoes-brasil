@@ -22,7 +22,7 @@ jest.mock("../shared/dependency-injection/Container", () => ({
   },
 }));
 
-function createMockReq(overrides: Partial<any> = {}): any {
+function createMockReq(overrides: object = {}): object {
   return {
     params: {},
     query: {},
@@ -32,7 +32,7 @@ function createMockReq(overrides: Partial<any> = {}): any {
 }
 
 function createMockRes(): Response {
-  const res = {} as any;
+  const res = {} as Response;
   res.status = jest.fn().mockReturnThis();
   res.json = jest.fn().mockReturnThis();
   res.send = jest.fn().mockReturnThis();

@@ -190,7 +190,7 @@ export class ExportacaoComponent {
   }
 
   private buildOrderSellPrintHtml(rows: SellSnapshotExportRow[]): string {
-    const escapeHtml = (value: unknown): string =>
+    const escapeHtml = (value: string | number): string =>
       String(value ?? '')
         .replace(/&/g, '&amp;')
         .replace(/</g, '&lt;')

@@ -90,7 +90,7 @@ export class Investidor10ScraperService {
     const historico: Investidor10HistoricoIndicador[] = [];
     for (const [indicador, valores] of Object.entries(json)) {
       if (!Array.isArray(valores)) continue;
-      const valoresTipados: Investidor10ValorHistorico[] = valores.map((v: any) => ({
+      const valoresTipados: Investidor10ValorHistorico[] = valores.map((v: { year: string; value: string; type: string }) => ({
         ano: Number(v.year),
         valor: Number(v.value),
         tipo: v.type === "percent" ? "percent" : "numeric",
@@ -100,7 +100,7 @@ export class Investidor10ScraperService {
     return historico;
   }
 
-  private async fetchJsonAsync(url: string): Promise<any | null> {
+  private async fetchJsonAsync(url: string): Promise<Record<string, string | number | boolean | object | null> | null> {
     const abortController = new AbortController();
     const timeoutId = setTimeout(() => abortController.abort(), REQUEST_TIMEOUT_MS);
 
@@ -383,8 +383,8 @@ export class Investidor10ScraperService {
     const bussinesRaw = this.extractJSObject(html, "companyBussinesRevenues");
     if (!revenuesRaw || !bussinesRaw) return [];
 
-    let revenues: Record<string, any>;
-    let bussinesRevenues: Record<string, any>;
+    let revenues: Record<string, string | number | boolean | object | null>;
+    let bussinesRevenues: Record<string, string | number | boolean | object | null>;
 
     try {
       revenues = JSON.parse(this.sanitizeJSON(revenuesRaw));
@@ -397,14 +397,15 @@ export class Investidor10ScraperService {
 
     for (const [ano, data] of Object.entries(revenues)) {
       if (!data || typeof data !== "object") continue;
+      const revenueData = data as { totalRevenue?: string; company_revenue_country?: { name?: string; pivot: { percentage: number } }[] };
 
-      const bussinesData = bussinesRevenues[ano];
-      const regioes = this.mapRegioes(data);
+      const bussinesData = bussinesRevenues[ano] as { company_revenue_bussines?: { bussines?: string; percentage: number }[] } | undefined;
+      const regioes = this.mapRegioes(revenueData);
       const negocios = this.mapNegocios(bussinesData);
 
       result.push({
         ano: Number(ano),
-        receitaTotal: String(data.totalRevenue ?? ""),
+        receitaTotal: String(revenueData.totalRevenue ?? ""),
         regioes,
         negocios,
       });
@@ -413,21 +414,26 @@ export class Investidor10ScraperService {
     return result.sort((a, b) => b.ano - a.ano);
   }
 
-  private mapRegioes(data: any): Investidor10RegiaoReceita[] {
-    if (!data || !Array.isArray(data.company_revenue_country)) return [];
+  private mapRegioes(data: {
+    totalRevenue?: string;
+    company_revenue_country?: { name?: string; pivot: { percentage: number } }[];
+  }): Investidor10RegiaoReceita[] {
+    if (!data?.company_revenue_country) return [];
     return data.company_revenue_country
-      .filter((c: any) => c && c.pivot && typeof c.pivot.percentage === "number")
-      .map((c: any) => ({
+      .filter((c) => c && c.pivot && typeof c.pivot.percentage === "number")
+      .map((c) => ({
         nome: String(c.name ?? ""),
         porcentagem: c.pivot.percentage,
       }));
   }
 
-  private mapNegocios(bussinesData: any): Investidor10SegmentoReceita[] {
-    if (!bussinesData || !Array.isArray(bussinesData.company_revenue_bussines)) return [];
+  private mapNegocios(bussinesData: {
+    company_revenue_bussines?: { bussines?: string; percentage: number }[];
+  } | undefined): Investidor10SegmentoReceita[] {
+    if (!bussinesData?.company_revenue_bussines) return [];
     return bussinesData.company_revenue_bussines
-      .filter((b: any) => b && typeof b.percentage === "number")
-      .map((b: any) => ({
+      .filter((b) => b && typeof b.percentage === "number")
+      .map((b) => ({
         nome: String(b.bussines ?? ""),
         porcentagem: b.percentage,
       }));

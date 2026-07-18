@@ -15,20 +15,13 @@ describe("CreateOrUpdatePortfolioService", () => {
       findAllAsync: jest.fn(),
       saveAsync: jest.fn(),
       deleteByCodigoAsync: jest.fn(),
-    } as unknown as jest.Mocked<IPortfolioRepository>;
+    } as jest.Mocked<IPortfolioRepository>;
 
     service = new CreateOrUpdatePortfolioService(portfolioRepositoryMock);
   });
 
   it("Deve criar portfolio quando dados validos e nao existe", async () => {
-    const portfolioCriado: PortfolioEntity = {
-      id: "1",
-      codigo: "VALE3",
-      quantidade: 100,
-      precoMedio: 50.0,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    } as unknown as PortfolioEntity;
+    const portfolioCriado = new PortfolioEntity("1", "VALE3", 100, 50.0);
     portfolioRepositoryMock.findByCodigoAsync.mockResolvedValue(null);
     portfolioRepositoryMock.createAsync.mockResolvedValue(portfolioCriado);
 
@@ -43,20 +36,8 @@ describe("CreateOrUpdatePortfolioService", () => {
   });
 
   it("Deve atualizar portfolio quando ja existe", async () => {
-    const portfolioExistente: PortfolioEntity = {
-      id: "1",
-      codigo: "VALE3",
-      quantidade: 100,
-      precoMedio: 50.0,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-      registerCompra: jest.fn(),
-    } as unknown as PortfolioEntity;
-    const portfolioAtualizado: PortfolioEntity = {
-      ...portfolioExistente,
-      quantidade: 200,
-      precoMedio: 55.0,
-    } as unknown as PortfolioEntity;
+    const portfolioExistente = new PortfolioEntity("1", "VALE3", 100, 50.0);
+    const portfolioAtualizado = new PortfolioEntity("1", "VALE3", 200, 55.0);
     portfolioRepositoryMock.findByCodigoAsync.mockResolvedValue(portfolioExistente);
     portfolioRepositoryMock.saveAsync.mockResolvedValue(portfolioAtualizado);
 
