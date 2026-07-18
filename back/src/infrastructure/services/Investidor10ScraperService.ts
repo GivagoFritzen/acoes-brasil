@@ -2,7 +2,6 @@ import type { Investidor10AcaoDetails, Investidor10HistoricoIndicador, Investido
 import type { JsonValue } from "../../models/JsonValue";
 import { stripHtml } from "../../shared/utils/FundamentusUtils";
 
-const BASE_URL = "https://investidor10.com.br/acoes";
 const REQUEST_TIMEOUT_MS = 15_000;
 const MAX_HTML_LENGTH = 2_000_000;
 
@@ -11,7 +10,7 @@ const API_BASE = "https://investidor10.com.br";
 export class Investidor10ScraperService {
   async scrapeAsync(codigo: string): Promise<Investidor10AcaoDetails> {
     const codigoNormalized = codigo.trim().toUpperCase();
-    const url = `${BASE_URL}/${encodeURIComponent(codigoNormalized)}/`;
+    const url = `${this.getBaseUrl(codigoNormalized)}/${encodeURIComponent(codigoNormalized)}/`;
 
     const html = await this.fetchHtmlAsync(url);
 
@@ -43,6 +42,10 @@ export class Investidor10ScraperService {
       receitas,
       updatedAt: new Date().toISOString(),
     };
+  }
+
+  private getBaseUrl(codigo: string): string {
+    return codigo.endsWith("11") ? `${API_BASE}/fiis` : `${API_BASE}/acoes`;
   }
 
   private async fetchHtmlAsync(url: string): Promise<string | null> {
@@ -134,7 +137,7 @@ export class Investidor10ScraperService {
 
   async scrapeDividendosAsync(codigo: string): Promise<Investidor10ProventosResponse> {
     const codigoNormalized = codigo.trim().toUpperCase();
-    const url = `${BASE_URL}/${encodeURIComponent(codigoNormalized)}/`;
+    const url = `${this.getBaseUrl(codigoNormalized)}/${encodeURIComponent(codigoNormalized)}/`;
 
     const html = await this.fetchHtmlAsync(url);
 
