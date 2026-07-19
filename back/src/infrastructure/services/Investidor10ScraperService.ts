@@ -69,6 +69,25 @@ export class Investidor10ScraperService {
     };
   }
 
+  async scrapeDividendosAsync(codigo: string): Promise<Investidor10ProventosResponse> {
+    const codigoNormalized = codigo.trim().toUpperCase();
+    const url = `${this.getBaseUrl(codigoNormalized)}/${encodeURIComponent(codigoNormalized)}/`;
+
+    const html = await this.fetchHtmlAsync(url);
+
+    if (!html) {
+      throw new Error(`Falha ao consultar Investidor10 para o ativo ${codigo}.`);
+    }
+
+    const proventos = this.parseDividendos(html);
+
+    return {
+      codigo: codigoNormalized,
+      proventos,
+      updatedAt: new Date().toISOString(),
+    };
+  }
+
   private isFii(codigo: string): boolean {
     return codigo.endsWith("11");
   }
@@ -106,7 +125,7 @@ export class Investidor10ScraperService {
   }
 
   private extractEmpresa(dados: Investidor10Indicator[]): string | null {
-    const nome = dados.find((dado) => 
+    const nome = dados.find((dado) =>
       dado.label === "Nome da Empresa" || dado.label === "Nome do Fundo"
     );
     return nome?.value ?? null;
@@ -167,25 +186,6 @@ export class Investidor10ScraperService {
     } finally {
       clearTimeout(timeoutId);
     }
-  }
-
-  async scrapeDividendosAsync(codigo: string): Promise<Investidor10ProventosResponse> {
-    const codigoNormalized = codigo.trim().toUpperCase();
-    const url = `${this.getBaseUrl(codigoNormalized)}/${encodeURIComponent(codigoNormalized)}/`;
-
-    const html = await this.fetchHtmlAsync(url);
-
-    if (!html) {
-      throw new Error(`Falha ao consultar Investidor10 para o ativo ${codigo}.`);
-    }
-
-    const proventos = this.parseDividendos(html);
-
-    return {
-      codigo: codigoNormalized,
-      proventos,
-      updatedAt: new Date().toISOString(),
-    };
   }
 
   private parseDividendos(html: string): Investidor10Provento[] {

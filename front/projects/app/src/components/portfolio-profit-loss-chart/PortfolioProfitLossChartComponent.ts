@@ -258,5 +258,4 @@ export class PortfolioProfitLossChartComponent implements OnInit {
     this.isMobileLayout = nextIsMobile;
     this.isMobileLayout$.next(nextIsMobile);
   }
-
 }

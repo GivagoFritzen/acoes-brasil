@@ -15,7 +15,7 @@ export class HelpTipComponent {
   tooltipStyles: Record<string, string | null> = {};
   private closeTimeout: ReturnType<typeof setTimeout> | null = null;
 
-  constructor(private elementRef: ElementRef) {}
+  constructor(private elementRef: ElementRef) { }
 
   toggleTip(event: Event): void {
     event.stopPropagation();
@@ -34,28 +34,6 @@ export class HelpTipComponent {
     if (this.showTip && window.innerWidth >= 768) {
       this.positionTooltip();
     }
-  }
-
-  private positionTooltip(): void {
-    const trigger = this.elementRef.nativeElement.querySelector('.help-tip') as HTMLElement;
-    if (!trigger) return;
-
-    const triggerRect = trigger.getBoundingClientRect();
-    const tooltipWidth = 250;
-    const gap = 8;
-
-    let left = triggerRect.left + triggerRect.width / 2 - tooltipWidth / 2;
-
-    if (left < gap) left = gap;
-    if (left + tooltipWidth > window.innerWidth - gap) {
-      left = window.innerWidth - tooltipWidth - gap;
-    }
-
-    this.tooltipStyles = {
-      position: 'fixed',
-      bottom: `${window.innerHeight - triggerRect.top + gap}px`,
-      left: `${left}px`
-    };
   }
 
   closeTip(): void {
@@ -82,5 +60,27 @@ export class HelpTipComponent {
   @HostListener('window:resize')
   onWindowEvent(): void {
     this.closeTip();
+  }
+
+  private positionTooltip(): void {
+    const trigger = this.elementRef.nativeElement.querySelector('.help-tip') as HTMLElement;
+    if (!trigger) return;
+
+    const triggerRect = trigger.getBoundingClientRect();
+    const tooltipWidth = 250;
+    const gap = 8;
+
+    let left = triggerRect.left + triggerRect.width / 2 - tooltipWidth / 2;
+
+    if (left < gap) left = gap;
+    if (left + tooltipWidth > window.innerWidth - gap) {
+      left = window.innerWidth - tooltipWidth - gap;
+    }
+
+    this.tooltipStyles = {
+      position: 'fixed',
+      bottom: `${window.innerHeight - triggerRect.top + gap}px`,
+      left: `${left}px`
+    };
   }
 }

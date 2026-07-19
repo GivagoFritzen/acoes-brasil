@@ -107,24 +107,6 @@ export class AcaoDetailsComponent implements OnInit {
         }
     }
 
-    private loadSavedSource(): 'fundamentus' | 'investidor10' | 'yahoo' {
-        try {
-            const saved = localStorage.getItem(this.STORAGE_KEY);
-            if (saved === 'fundamentus' || saved === 'investidor10' || saved === 'yahoo') {
-                return saved;
-            }
-        } catch {
-        }
-        return 'fundamentus';
-    }
-
-    private persistSource(source: 'fundamentus' | 'investidor10' | 'yahoo'): void {
-        try {
-            localStorage.setItem(this.STORAGE_KEY, source);
-        } catch {
-        }
-    }
-
     handleAlertDismiss(alert: AlertItem): void {
         this.alerts.update(items =>
             items.filter(item =>
@@ -153,6 +135,24 @@ export class AcaoDetailsComponent implements OnInit {
                 );
             }
         });
+    }
+
+    private loadSavedSource(): 'fundamentus' | 'investidor10' | 'yahoo' {
+        try {
+            const saved = localStorage.getItem(this.STORAGE_KEY);
+            if (saved === 'fundamentus' || saved === 'investidor10' || saved === 'yahoo') {
+                return saved;
+            }
+        } catch {
+        }
+        return 'fundamentus';
+    }
+
+    private persistSource(source: 'fundamentus' | 'investidor10' | 'yahoo'): void {
+        try {
+            localStorage.setItem(this.STORAGE_KEY, source);
+        } catch {
+        }
     }
 
     private loadAcaoDetails(codigo: string): void {
