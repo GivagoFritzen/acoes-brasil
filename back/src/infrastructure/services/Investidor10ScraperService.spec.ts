@@ -625,6 +625,39 @@ describe("Investidor10ScraperService", () => {
       expect(resultado.length).toBe(1);
       expect(resultado[0].indicador).toBe("VPA");
     });
+
+    it("deve filtrar entradas com year Atual para evitar NaN", async () => {
+      const stockId = (service as Investidor10ServiceTest).extractStockId(`<div data-id="12345">`);
+
+      (global.fetch as jest.Mock).mockResolvedValue({
+        ok: true,
+        text: async () => JSON.stringify({
+          "P/VP": [
+            { year: "Atual", key: "p_vp", value: 0.87, type: "decimal" },
+            { year: "2025", value: "0.85", type: "numeric" },
+            { year: "2024", value: "1.00", type: "numeric" },
+          ],
+          "Dividend Yield": [
+            { year: "Atual", key: "dy", value: 10.74, type: "percent" },
+            { year: "2025", value: "10.5", type: "percent" },
+          ],
+        }),
+      });
+
+      const resultado = await (service as Investidor10ServiceTest).fetchHistoricoIndicadoresAsync(stockId);
+
+      expect(resultado).toHaveLength(2);
+      expect(resultado[0].indicador).toBe("P/VP");
+      expect(resultado[0].valores).toHaveLength(2);
+      expect(resultado[0].valores[0].ano).toBe(2025);
+      expect(resultado[0].valores[0].valor).toBe(0.85);
+      expect(resultado[0].valores[1].ano).toBe(2024);
+      expect(resultado[0].valores[1].valor).toBe(1);
+      expect(resultado[1].indicador).toBe("Dividend Yield");
+      expect(resultado[1].valores).toHaveLength(1);
+      expect(resultado[1].valores[0].ano).toBe(2025);
+      expect(resultado[1].valores[0].valor).toBe(10.5);
+    });
   });
 
   describe("extractJSObject", () => {
@@ -839,7 +872,7 @@ describe("Investidor10ScraperService", () => {
       }
     });
 
-    it("deve usar '-' para periodos sem dados historicos em indicadores sem chaveApi", () => {
+    it("deve usar '-' quando nao ha dados disponiveis", () => {
       const resultado = (service as Investidor10ServiceTest).parseFiiIndicadoresFundamentalistas(
         "<html></html>", [], []
       );
@@ -1020,19 +1053,77 @@ describe("Investidor10ScraperService", () => {
         .mockResolvedValueOnce({
           ok: true,
           text: async () => JSON.stringify({
+            "Valor de Mercado": [
+              { year: "Atual", key: "enterprise_value", value: 4690887050.08, type: "money_abbr" },
+              { year: "2025", value: "3299035854.4", type: "numeric" },
+              { year: "2024", value: "2933654072", type: "numeric" },
+              { year: "2023", value: "3224879875.8", type: "numeric" },
+              { year: "2022", value: "2665117257", type: "numeric" },
+              { year: "2021", value: "2421478817.5", type: "numeric" },
+            ],
             "P/VP": [
-              { year: "2025", value: "0.85", type: "numeric" },
-              { year: "2024", value: "1.00", type: "numeric" },
-              { year: "2023", value: "0.84", type: "numeric" },
-              { year: "2022", value: "0.98", type: "numeric" },
-              { year: "2021", value: "0.86", type: "numeric" },
+              { year: "Atual", key: "p_vp", value: 0.87, type: "decimal" },
+              { year: "2025", value: "0.99913313012628", type: "numeric" },
+              { year: "2024", value: "0.8392557711254", type: "numeric" },
+              { year: "2023", value: "0.98250399076678", type: "numeric" },
+              { year: "2022", value: "0.85841060133961", type: "numeric" },
+              { year: "2021", value: "0.80282273868326", type: "numeric" },
             ],
             "Dividend Yield": [
-              { year: "2025", value: "10.5", type: "percent" },
-              { year: "2024", value: "9.9", type: "percent" },
-              { year: "2023", value: "9.14", type: "percent" },
-              { year: "2022", value: "8.73", type: "percent" },
-              { year: "2021", value: "8.42", type: "percent" },
+              { year: "Atual", key: "dividend_yield_last_12_months", value: 10.74, type: "percent" },
+              { year: "2025", value: "9.9", type: "percent" },
+              { year: "2024", value: "9.14", type: "percent" },
+              { year: "2023", value: "8.73", type: "percent" },
+              { year: "2022", value: "8.42", type: "percent" },
+              { year: "2021", value: "6.94", type: "percent" },
+            ],
+            "Liquidez Diária": [
+              { year: "Atual", key: "daily_liquidity", value: 11174027, type: "money_abbr" },
+              { year: "2025", value: "3647137", type: "numeric" },
+              { year: "2024", value: "5370722", type: "numeric" },
+              { year: "2023", value: "5600000", type: "numeric" },
+              { year: "2022", value: "3600000", type: "numeric" },
+              { year: "2021", value: "0", type: "numeric" },
+            ],
+            "Valor Patrimonial": [
+              { year: "Atual", key: "equity_value", value: 5397457621, type: "money_abbr" },
+              { year: "2025", value: "3301899335.48", type: "numeric" },
+              { year: "2024", value: "3495543561.37", type: "numeric" },
+              { year: "2023", value: "3282308371.27", type: "numeric" },
+              { year: "2022", value: "3104712750.03", type: "numeric" },
+              { year: "2021", value: "3016207294.18", type: "numeric" },
+            ],
+            "Val. Patrimonial p/ Cota": [
+              { year: "Atual", key: "equity_value_account", value: 105.029, type: "money" },
+              { year: "2025", value: "105.91181175889", type: "numeric" },
+              { year: "2024", value: "112.12314914894", type: "numeric" },
+              { year: "2023", value: "110.8392444442", type: "numeric" },
+              { year: "2022", value: "114.56056093265", type: "numeric" },
+              { year: "2021", value: "111.29480481152", type: "numeric" },
+            ],
+            "Vacância": [
+              { year: "Atual", key: "occupancy_rate", value: 8.1, type: "percent" },
+              { year: "2025", value: "4.6", type: "percent" },
+              { year: "2024", value: "1.5", type: "percent" },
+              { year: "2023", value: "2.3", type: "percent" },
+              { year: "2022", value: "6.8", type: "percent" },
+              { year: "2021", value: "9", type: "percent" },
+            ],
+            "Número de Cotistas": [
+              { year: "Atual", key: "shareholders_count", value: 347299, type: "number_abbr" },
+              { year: "2025", value: "334818", type: "numeric" },
+              { year: "2024", value: "344321", type: "numeric" },
+              { year: "2023", value: "314750", type: "numeric" },
+              { year: "2022", value: "303174", type: "numeric" },
+              { year: "2021", value: "275484", type: "numeric" },
+            ],
+            "Cotas Emitidas": [
+              { year: "Atual", key: "quote_count", value: 51390086, type: "number_abbr" },
+              { year: "2025", value: "31175920", type: "numeric" },
+              { year: "2024", value: "31175920", type: "numeric" },
+              { year: "2023", value: "29613222", type: "numeric" },
+              { year: "2022", value: "27101050", type: "numeric" },
+              { year: "2021", value: "27101050", type: "numeric" },
             ],
           }),
         });
@@ -1043,16 +1134,30 @@ describe("Investidor10ScraperService", () => {
       expect(fiiResult.indicadoresFundamentalistasFii).toHaveLength(9);
       expect(fiiResult.indicadoresFundamentalistasFii[0].nome).toBe("Valor de Mercado");
       expect(fiiResult.indicadoresFundamentalistasFii[0].valores[0].periodo).toBe("Atual");
+      expect(fiiResult.indicadoresFundamentalistasFii[0].valores[1].periodo).toBe("2025");
+      expect(fiiResult.indicadoresFundamentalistasFii[0].valores[1].valor).toBe("3299035854.4");
+      expect(fiiResult.indicadoresFundamentalistasFii[0].valores[2].periodo).toBe("2024");
+      expect(fiiResult.indicadoresFundamentalistasFii[0].valores[2].valor).toBe("2933654072");
       expect(fiiResult.indicadoresFundamentalistasFii[1].nome).toBe("P/VP");
       expect(fiiResult.indicadoresFundamentalistasFii[1].valores[0].valor).toBe("0,87");
-      expect(fiiResult.indicadoresFundamentalistasFii[1].valores[1].valor).toBe("0.85");
+      expect(fiiResult.indicadoresFundamentalistasFii[1].valores[1].valor).toBe("0.99913313012628");
       expect(fiiResult.indicadoresFundamentalistasFii[2].nome).toBe("Dividend Yield");
+      expect(fiiResult.indicadoresFundamentalistasFii[2].valores[1].valor).toBe("9.9");
+      expect(fiiResult.indicadoresFundamentalistasFii[3].nome).toBe("Liquidez Diária");
+      expect(fiiResult.indicadoresFundamentalistasFii[3].valores[1].valor).toBe("3647137");
+      expect(fiiResult.indicadoresFundamentalistasFii[4].nome).toBe("Valor Patrimonial");
+      expect(fiiResult.indicadoresFundamentalistasFii[4].valores[1].valor).toBe("3301899335.48");
+      expect(fiiResult.indicadoresFundamentalistasFii[5].nome).toBe("Val. Patrimonial p/ Cota");
+      expect(fiiResult.indicadoresFundamentalistasFii[5].valores[1].valor).toBe("105.91181175889");
       expect(fiiResult.indicadoresFundamentalistasFii[6].nome).toBe("Vacância");
       expect(fiiResult.indicadoresFundamentalistasFii[6].valores[0].valor).toBe("8,10%");
+      expect(fiiResult.indicadoresFundamentalistasFii[6].valores[1].valor).toBe("4.6");
       expect(fiiResult.indicadoresFundamentalistasFii[7].nome).toBe("Nº Cotistas");
       expect(fiiResult.indicadoresFundamentalistasFii[7].valores[0].valor).toBe("347.299");
+      expect(fiiResult.indicadoresFundamentalistasFii[7].valores[1].valor).toBe("334818");
       expect(fiiResult.indicadoresFundamentalistasFii[8].nome).toBe("Cotas Emitidas");
       expect(fiiResult.indicadoresFundamentalistasFii[8].valores[0].valor).toBe("51.390.086");
+      expect(fiiResult.indicadoresFundamentalistasFii[8].valores[1].valor).toBe("31175920");
     });
 
     it("deve retornar indicadoresFundamentalistasFii vazio quando sem cards", async () => {

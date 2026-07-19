@@ -113,7 +113,9 @@ export class Investidor10ScraperService {
   }
 
   private async fetchHistoricoIndicadoresAsync(stockId: string, isFii: boolean): Promise<Investidor10HistoricoIndicador[]> {
-    const url = `${API_BASE}/api/historico-indicadores/${stockId}/5/?v=2`;
+    const url = isFii
+      ? `${API_BASE}/api/fii/historico-indicadores/${stockId}/5`
+      : `${API_BASE}/api/historico-indicadores/${stockId}/5/?v=2`;
     const json = await this.fetchJsonAsync(url, isFii);
     if (!json || typeof json !== "object") return [];
 
@@ -123,6 +125,7 @@ export class Investidor10ScraperService {
       const validValues = valores.filter(
         (item): item is { year: string; value: string; type: string } =>
           typeof item === "object" && item !== null && "year" in item && "value" in item && "type" in item
+          && item.year !== "Atual" && !isNaN(Number(item.year))
       );
       const valoresTipados: Investidor10ValorHistorico[] = validValues.map((item) => ({
         ano: Number(item.year),
@@ -412,15 +415,15 @@ export class Investidor10ScraperService {
     };
 
     const indicadores: { nome: string; chaveApi: string | null; tipo: Investidor10FiiIndicadorFundamentalista["tipo"]; valorAtual: string | null }[] = [
-      { nome: "Valor de Mercado", chaveApi: null, tipo: "moeda", valorAtual: null },
+      { nome: "Valor de Mercado", chaveApi: "Valor de Mercado", tipo: "moeda", valorAtual: null },
       { nome: "P/VP", chaveApi: "P/VP", tipo: "decimal", valorAtual: cards.get("vp") ?? null },
       { nome: "Dividend Yield", chaveApi: "Dividend Yield", tipo: "percentual", valorAtual: cards.get("dy") ?? null },
-      { nome: "Liquidez Diária", chaveApi: null, tipo: "moeda", valorAtual: cards.get("val") ?? null },
-      { nome: "Valor Patrimonial", chaveApi: null, tipo: "moeda", valorAtual: getFiiInfo("VALOR PATRIMONIAL") },
-      { nome: "Val. Patrimonial p/ Cota", chaveApi: null, tipo: "moeda", valorAtual: getFiiInfo("VAL. PATRIMONIAL P/ COTA") },
-      { nome: "Vacância", chaveApi: null, tipo: "percentual", valorAtual: getFiiInfo("VACÂNCIA") },
-      { nome: "Nº Cotistas", chaveApi: null, tipo: "numerico", valorAtual: getFiiInfo("NUMERO DE COTISTAS") },
-      { nome: "Cotas Emitidas", chaveApi: null, tipo: "numerico", valorAtual: getFiiInfo("COTAS EMITIDAS") },
+      { nome: "Liquidez Diária", chaveApi: "Liquidez Diária", tipo: "moeda", valorAtual: cards.get("val") ?? null },
+      { nome: "Valor Patrimonial", chaveApi: "Valor Patrimonial", tipo: "moeda", valorAtual: getFiiInfo("VALOR PATRIMONIAL") },
+      { nome: "Val. Patrimonial p/ Cota", chaveApi: "Val. Patrimonial p/ Cota", tipo: "moeda", valorAtual: getFiiInfo("VAL. PATRIMONIAL P/ COTA") },
+      { nome: "Vacância", chaveApi: "Vacância", tipo: "percentual", valorAtual: getFiiInfo("VACÂNCIA") },
+      { nome: "Nº Cotistas", chaveApi: "Número de Cotistas", tipo: "numerico", valorAtual: getFiiInfo("NUMERO DE COTISTAS") },
+      { nome: "Cotas Emitidas", chaveApi: "Cotas Emitidas", tipo: "numerico", valorAtual: getFiiInfo("COTAS EMITIDAS") },
     ];
 
     if (cotacao && cotasEmitidas) {

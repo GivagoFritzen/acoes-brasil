@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, computed, OnInit, signal } from '@angular/core';
+import { Component, computed, OnInit, signal, ViewEncapsulation } from '@angular/core';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { catchError, finalize, forkJoin, Observable, of } from 'rxjs';
 import { AlertsComponent } from '../../../components/alerts/AlertsComponent';
@@ -10,19 +10,22 @@ import { Investidor10Service } from '../../../services/Investidor10Service';
 import { YahooFinanceService } from '../../../services/YahooFinanceService';
 import { GoogleFinanceService } from '../../../services/GoogleFinanceService';
 import { ProventosService } from '../../../services/ProventosService';
-import { HelpTipComponent } from '../../../components/help-tip/HelpTipComponent';
 import { TranslatePipe } from '../../../pipes/TranslatePipe';
 import { TranslationService } from '../../../services/TranslationService';
 import { AlertItem } from '../../../models/alert/AlertItemModel';
-import { FundamentusAcaoDetails, FundamentusIndicator, FundamentusProventosResponse, Investidor10AcaoDetails, Investidor10FiiDetails, Investidor10HistoricoIndicador, Investidor10ProventosResponse, Investidor10ValorHistorico, ProventosResponse, YahooFinanceDetails } from '../../../models';
+import { FundamentusAcaoDetails, FundamentusProventosResponse, Investidor10AcaoDetails, Investidor10FiiDetails, Investidor10ProventosResponse, ProventosResponse, YahooFinanceDetails } from '../../../models';
 import { CHART_WINDOWS, GoogleFinanceChartWindow, GoogleFinanceResponse } from '../../../../../../../common/models/google-finance';
+import { FundamentusDetailsComponent } from './fundamentus-details/FundamentusDetailsComponent';
+import { Investidor10DetailsComponent } from './investidor10-details/Investidor10DetailsComponent';
+import { YahooFinanceDetailsComponent } from './yahoo-finance-details/YahooFinanceDetailsComponent';
 
 @Component({
     selector: 'app-acao-details',
     standalone: true,
-    imports: [CommonModule, RouterModule, AlertsComponent, SimpleButtonComponent, StockChartComponent, HelpTipComponent, TranslatePipe],
+    imports: [CommonModule, RouterModule, AlertsComponent, SimpleButtonComponent, StockChartComponent, TranslatePipe, FundamentusDetailsComponent, Investidor10DetailsComponent, YahooFinanceDetailsComponent],
     templateUrl: './AcaoDetailsComponent.html',
     styleUrls: ['./AcaoDetailsComponent.scss'],
+    encapsulation: ViewEncapsulation.None,
 })
 export class AcaoDetailsComponent implements OnInit {
 
@@ -44,50 +47,6 @@ export class AcaoDetailsComponent implements OnInit {
     googleFinance = signal<GoogleFinanceResponse | null>(null);
     chartWindows = CHART_WINDOWS;
     selectedChartWindow = signal<GoogleFinanceChartWindow>('1Y');
-    historicoAnos = computed(() => {
-        const inv = this.investidor10();
-        if (!inv?.historicoIndicadores?.length) return [];
-        const anos = new Set<number>();
-        for (const item of inv.historicoIndicadores) {
-            for (const valor of item.valores) {
-                if (valor.ano !== null) anos.add(valor.ano);
-            }
-        }
-        return Array.from(anos).sort((a, b) => b - a);
-    });
-
-    isFii = computed(() => {
-        const inv = this.investidor10();
-        if (!inv) return false;
-        return 'imoveis' in inv;
-    });
-
-    imoveis = computed(() => {
-        if (!this.isFii()) return [];
-        return (this.investidor10() as Investidor10FiiDetails).imoveis ?? [];
-    });
-
-    informacoesFii = computed(() => {
-        if (!this.isFii()) return [];
-        return (this.investidor10() as Investidor10FiiDetails).informacoesFii ?? [];
-    });
-
-    investidor10FiiIndicadores = computed(() => {
-        if (!this.isFii()) return [];
-        return (this.investidor10() as Investidor10FiiDetails).indicadoresFundamentalistasFii ?? [];
-    });
-
-    periodosFiiIndicadores = computed(() => {
-        const indicadores = this.investidor10FiiIndicadores();
-        if (!indicadores.length) return [];
-        return indicadores[0].valores.map((v) => v.periodo);
-    });
-
-    acaoDetails = computed(() => {
-        const inv = this.investidor10();
-        if (!inv || this.isFii()) return null;
-        return inv as Investidor10AcaoDetails;
-    });
 
     isLoading = signal(false);
     errorMessage = signal('');
@@ -177,24 +136,6 @@ export class AcaoDetailsComponent implements OnInit {
         );
     }
 
-    getIndicator(fund: FundamentusAcaoDetails, label: string): string | null {
-        const indicator = fund.indicadores.find(
-            (item: FundamentusIndicator) => item.label === label
-        );
-
-        return indicator?.value ?? null;
-    }
-
-    hasHelp(label: string): boolean {
-        const key = this.normalize(label);
-        return this.translationService.has(`indicators.${key}`);
-    }
-
-    getHelp(label: string): string {
-        const key = this.normalize(label);
-        return this.translationService.get(`indicators.${key}`);
-    }
-
     changeChartWindow(window: GoogleFinanceChartWindow): void {
         this.selectedChartWindow.set(window);
 
@@ -212,18 +153,6 @@ export class AcaoDetailsComponent implements OnInit {
                 );
             }
         });
-    }
-
-    private normalize(label: string): string {
-        return label
-            .normalize('NFD')
-            .replace(/[\u0300-\u036f]/g, '')
-            .replace(/[\/\s.()$º]/g, '')
-            .replace(/-/g, '')
-            .replace(/%/g, '')
-            .replace(/,/g, '')
-            .replace(/:/g, '')
-            .replace(/ /g, '');
     }
 
     private loadAcaoDetails(codigo: string): void {
@@ -336,50 +265,6 @@ export class AcaoDetailsComponent implements OnInit {
     private setError(message: string): void {
         this.errorMessage.set(message);
         this.pushAlert('error', this.translationService.get('acaoDetails.errors.error'), message, '✕');
-    }
-
-    getValorHistorico(indicador: Investidor10HistoricoIndicador, ano: number): string {
-        const valor = indicador.valores.find((v: Investidor10ValorHistorico) => v.ano === ano);
-        if (!valor) return '-';
-        const formatted = valor.valor.toFixed(2).replace('.', ',');
-        return valor.tipo === 'percent' ? `${formatted}%` : formatted;
-    }
-
-    readonly incomeStatementFields = [
-        { label: 'Receita', key: 'totalRevenue' },
-        { label: 'Custo', key: 'costOfRevenue' },
-        { label: 'Lucro Bruto', key: 'grossProfit' },
-        { label: 'Resultado Operacional', key: 'operatingIncome' },
-        { label: 'EBIT', key: 'ebit' },
-        { label: 'Desp. Financeira', key: 'interestExpense' },
-        { label: 'Lucro Antes IR', key: 'incomeBeforeTax' },
-        { label: 'IR', key: 'incomeTaxExpense' },
-        { label: 'Lucro Líquido', key: 'netIncome' },
-    ];
-
-    readonly balanceSheetFields = [
-        { label: 'Ativo Total', key: 'totalAssets' },
-        { label: 'Ativo Circulante', key: 'totalCurrentAssets' },
-        { label: 'Caixa', key: 'cash' },
-        { label: 'Passivo Total', key: 'totalLiabilities' },
-        { label: 'Passivo Circulante', key: 'totalCurrentLiabilities' },
-        { label: 'Dívida LP', key: 'longTermDebt' },
-        { label: 'Dívida CP', key: 'shortLongTermDebt' },
-        { label: 'Patrimônio Líquido', key: 'totalShareholderEquity' },
-    ];
-
-    readonly cashflowFields = [
-        { label: 'Lucro Líquido', key: 'netIncome' },
-        { label: 'Depreciação', key: 'depreciation' },
-        { label: 'FCO', key: 'totalCashFromOperatingActivities' },
-        { label: 'Capex', key: 'capitalExpenditures' },
-        { label: 'FCI', key: 'totalCashFromInvestingActivities' },
-        { label: 'Dividendos', key: 'dividendsPaid' },
-        { label: 'FCF', key: 'totalCashFromFinancingActivities' },
-    ];
-
-    getFieldValue(item: object, key: string): string | null {
-        return (item as Record<string, unknown>)?.[key] as string ?? null;
     }
 
     private pushAlert(

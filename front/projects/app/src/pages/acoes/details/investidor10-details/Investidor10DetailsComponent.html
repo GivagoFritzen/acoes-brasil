@@ -1,0 +1,167 @@
+<ng-container *ngIf="investidor10Value() as inv">
+    <article class="acao-details__card acao-details__card--info-2cols" *ngIf="isFii() && informacoesFii().length">
+        <header>
+            <h3>{{ 'acaoDetails.cards.investidor10FiiInfo' | translate }}</h3>
+        </header>
+        <div class="acao-details__fundamentus-table">
+            <div class="acao-details__fundamentus-row" *ngFor="let item of informacoesFii()">
+                <span class="label">
+                    {{ item.label }}
+                </span>
+                <strong class="value">{{ item.value }}</strong>
+            </div>
+        </div>
+    </article>
+
+    <article class="acao-details__card acao-details__card--full" *ngIf="!isFii()">
+        <header>
+            <h3>{{ 'acaoDetails.cards.investidor10CompanyData' | translate }}</h3>
+        </header>
+        <div class="acao-details__fundamentus-table">
+            <div class="acao-details__fundamentus-row" *ngFor="let item of inv.dadosSobreEmpresa">
+                <span class="label">
+                    {{ item.label }}
+                    <app-help-tip *ngIf="hasHelp(item.label)" [text]="getHelp(item.label)"></app-help-tip>
+                </span>
+                <strong class="value">{{ item.value }}</strong>
+            </div>
+        </div>
+    </article>
+
+    <article class="acao-details__card acao-details__card--info-2cols" *ngIf="!isFii()">
+        <header>
+            <h3>{{ 'acaoDetails.cards.investidor10CompanyInfo' | translate }}</h3>
+        </header>
+        <div class="acao-details__fundamentus-table">
+            <div class="acao-details__fundamentus-row" *ngFor="let item of inv.informacoesSobreEmpresa">
+                <span class="label">
+                    {{ item.label }}
+                    <app-help-tip *ngIf="hasHelp(item.label)" [text]="getHelp(item.label)"></app-help-tip>
+                </span>
+                <strong class="value">{{ item.value }}</strong>
+            </div>
+        </div>
+    </article>
+
+    <article class="acao-details__card acao-details__card--full">
+        <header>
+            <h3>{{ 'acaoDetails.cards.investidor10FundamentalIndicators' | translate }}</h3>
+        </header>
+        <div class="acao-details__fundamentus-table">
+            <div class="acao-details__fundamentus-row" *ngFor="let item of inv.indicadoresFundamentalistas">
+                <span class="label">
+                    {{ item.label }}
+                    <app-help-tip *ngIf="hasHelp(item.label)" [text]="getHelp(item.label)"></app-help-tip>
+                </span>
+                <strong class="value">{{ item.value }}</strong>
+            </div>
+        </div>
+    </article>
+
+    <article class="acao-details__card acao-details__card--full" *ngIf="isFii() && imoveis().length">
+        <header>
+            <h3>{{ 'acaoDetails.cards.investidor10Properties' | translate }}</h3>
+        </header>
+        <div class="acao-details__fundamentus-table">
+            <ng-container *ngFor="let imovel of imoveis()">
+                <div class="acao-details__fundamentus-row">
+                    <span class="label">
+                        {{ imovel.nome }}
+                    </span>
+                    <strong class="value">{{ imovel.estado }}</strong>
+                </div>
+                <div class="acao-details__fundamentus-row acao-details__fundamentus-row--sub" *ngIf="imovel.areaBrutaLocavel">
+                    <span class="label">{{ 'acaoDetails.cards.gla' | translate }}</span>
+                    <strong class="value">{{ imovel.areaBrutaLocavel }}</strong>
+                </div>
+            </ng-container>
+        </div>
+    </article>
+
+    <article class="acao-details__card acao-details__card--full" *ngIf="isFii() && investidor10FiiIndicadores().length">
+        <header>
+            <h3>{{ 'acaoDetails.cards.investidor10HistoricalIndicators' | translate }}</h3>
+            <p id="fii-historico-description" class="acao-details__historico-description">{{ 'acaoDetails.historical.description' | translate }}</p>
+        </header>
+        <div class="acao-details__historico-table">
+            <table aria-describedby="fii-historico-description" class="acao-details__historico-table-inner">
+                <thead>
+                    <tr>
+                        <th class="col-indicador">{{ 'acaoDetails.historical.indicator' | translate }}</th>
+                        <th class="col-ano" *ngFor="let periodo of periodosFiiIndicadores()">{{ periodo }}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let item of investidor10FiiIndicadores()">
+                        <td class="col-indicador">{{ item.nome }}</td>
+                        <td class="col-valor" *ngFor="let valor of item.valores">{{ valor.valor }}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </article>
+
+    <article class="acao-details__card acao-details__card--full" *ngIf="!isFii() && inv.historicoIndicadores.length">
+        <header>
+            <h3>{{ 'acaoDetails.cards.investidor10HistoricalIndicators' | translate }}</h3>
+            <p id="historico-description" class="acao-details__historico-description">{{ 'acaoDetails.historical.description' | translate }}</p>
+        </header>
+        <div class="acao-details__historico-table">
+            <table aria-describedby="historico-description" class="acao-details__historico-table-inner">
+                <thead>
+                    <tr>
+                        <th class="col-indicador">{{ 'acaoDetails.historical.indicator' | translate }}</th>
+                        <th class="col-ano" *ngFor="let ano of historicoAnos()">{{ ano }}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let item of inv.historicoIndicadores">
+                        <td class="col-indicador">{{ item.indicador }}</td>
+                        <td class="col-valor" *ngFor="let ano of historicoAnos()">{{ getValorHistorico(item, ano) }}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </article>
+
+    <ng-container *ngIf="acaoDetails() as acao">
+        <div class="acao-details__revenue-grid">
+            <ng-template #revenueCard let-titleKey="titleKey" let-data="data" let-total="total" let-descLabelKey="descLabelKey" let-year="year">
+                <article class="acao-details__card">
+                    <header>
+                        <h3>{{ titleKey | translate }} ({{ year }})</h3>
+                    </header>
+                    <div class="acao-details__fundamentus-table">
+                        <div class="acao-details__revenue-total">
+                            <span class="label">{{ 'acaoDetails.revenue.totalRevenue' | translate }}</span>
+                            <strong class="value">{{ total }}</strong>
+                        </div>
+                        <div class="acao-details__fundamentus-row acao-details__revenue-desc">
+                            <span class="label">{{ descLabelKey | translate }}</span>
+                            <strong class="value">{{ 'acaoDetails.revenue.percentage' | translate }}</strong>
+                        </div>
+                        <div class="acao-details__fundamentus-row" *ngFor="let item of data">
+                            <span class="label">{{ item.nome }}</span>
+                            <strong class="value">{{ item.porcentagem }}%</strong>
+                        </div>
+                    </div>
+                </article>
+            </ng-template>
+
+            <ng-container *ngTemplateOutlet="revenueCard; context: {
+                titleKey: 'acaoDetails.cards.investidor10Revenue',
+                data: acao.receitas[0].regioes,
+                total: acao.receitas[0].receitaTotal,
+                descLabelKey: 'acaoDetails.revenue.region',
+                year: acao.receitas[0].ano
+            }"></ng-container>
+            <ng-container *ngTemplateOutlet="revenueCard; context: {
+                titleKey: 'acaoDetails.cards.investidor10BussinesRevenue',
+                data: acao.receitas[0].negocios,
+                total: acao.receitas[0].receitaTotal,
+                descLabelKey: 'acaoDetails.revenue.business',
+                year: acao.receitas[0].ano
+            }"></ng-container>
+        </div>
+    </ng-container>
+</ng-container>

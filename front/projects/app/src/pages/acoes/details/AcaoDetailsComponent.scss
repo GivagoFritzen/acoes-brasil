@@ -1,6 +1,12 @@
 @use '../../../colors.scss' as *;
 
 .acao-details {
+  app-fundamentus-details,
+  app-investidor10-details,
+  app-yahoo-finance-details {
+    display: contents;
+  }
+
   margin: 24px;
   padding: 24px;
   display: flex;
@@ -293,8 +299,10 @@
 
   .acao-details__historico-table {
     overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
 
     .acao-details__historico-table-inner {
+      min-width: max-content;
       width: 100%;
       border-collapse: collapse;
       font-size: 13px;
@@ -322,6 +330,11 @@
         position: sticky;
         left: 0;
         background: var(--color-surface);
+        min-width: 120px;
+      }
+
+      .col-ano {
+        min-width: 90px;
       }
 
       .col-valor {

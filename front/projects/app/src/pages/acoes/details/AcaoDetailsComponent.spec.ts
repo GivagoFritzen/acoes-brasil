@@ -1,3 +1,4 @@
+import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { ActivatedRoute } from '@angular/router';
 import { of, throwError } from 'rxjs';
@@ -212,6 +213,7 @@ describe('AcaoDetailsComponent', () => {
         { provide: ProventosService, useValue: proventosServiceMock },
         { provide: TranslationService, useValue: translationServiceMock },
       ],
+      schemas: [CUSTOM_ELEMENTS_SCHEMA],
     }).compileComponents();
 
     const fixture = TestBed.createComponent(AcaoDetailsComponent);
@@ -468,47 +470,6 @@ describe('AcaoDetailsComponent', () => {
     });
   });
 
-  describe('getIndicator', () => {
-    it('deve retornar valor do indicador quando encontrado', () => {
-      const result = component.getIndicator(baseFundamentus, 'P/L');
-
-      expect(result).toBe('10.5');
-    });
-
-    it('deve retornar null quando indicador nao encontrado', () => {
-      const result = component.getIndicator(baseFundamentus, 'Inexistente');
-
-      expect(result).toBeNull();
-    });
-  });
-
-  describe('hasHelp / getHelp', () => {
-    it('deve retornar true quando translationService.has retorna true', () => {
-      translationServiceMock.has.mockReturnValue(true);
-
-      expect(component.hasHelp('P/L')).toBe(true);
-    });
-
-    it('deve retornar false quando translationService.has retorna false', () => {
-      translationServiceMock.has.mockReturnValue(false);
-
-      const result = component.hasHelp('P/L');
-
-      expect(result).toBe(false);
-      expect(translationServiceMock.has).toHaveBeenCalledWith('indicators.PL');
-    });
-
-    it('deve retornar help text do translationService.get', () => {
-      translationServiceMock.has.mockReturnValue(true);
-      translationServiceMock.get.mockReturnValue('Help text');
-
-      const result = component.getHelp('P/L');
-
-      expect(result).toBe('Help text');
-      expect(translationServiceMock.get).toHaveBeenCalledWith('indicators.PL');
-    });
-  });
-
   describe('changeChartWindow', () => {
     it('deve atualizar selectedChartWindow e buscar dados', () => {
       googleFinanceServiceMock.getData.mockReturnValue(of(baseGoogleFinance));
@@ -537,26 +498,6 @@ describe('AcaoDetailsComponent', () => {
 
       expect(component.alerts().length).toBe(1);
       expect(component.alerts()[0].variant).toBe('warning');
-    });
-  });
-
-  describe('normalize (privado)', () => {
-    it('deve remover acentos', () => {
-      const result = component['normalize']('Ação');
-
-      expect(result).toBe('Acao');
-    });
-
-    it('deve remover barras, parenteses, espacos e cifrao', () => {
-      const result = component['normalize']('P/L (12m) $');
-
-      expect(result).toBe('PL12m');
-    });
-
-    it('deve remover hifen, porcento, virgula e dois pontos', () => {
-      const result = component['normalize']('VAR-1% ,:');
-
-      expect(result).toBe('VAR1');
     });
   });
 
