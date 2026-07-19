@@ -198,7 +198,32 @@
                 </div>
             </article>
 
-            <article class="acao-details__card acao-details__card--full" *ngIf="inv.historicoIndicadores.length">
+            <!-- FII: Tabela de Indicadores Fundamentalistas Específicos -->
+            <article class="acao-details__card acao-details__card--full" *ngIf="isFii() && investidor10FiiIndicadores().length">
+                <header>
+                    <h3>{{ 'acaoDetails.cards.investidor10HistoricalIndicators' | translate }}</h3>
+                    <p id="fii-historico-description" class="acao-details__historico-description">{{ 'acaoDetails.historical.description' | translate }}</p>
+                </header>
+                <div class="acao-details__historico-table">
+                <table aria-describedby="fii-historico-description" class="acao-details__historico-table-inner">
+                    <thead>
+                            <tr>
+                                <th class="col-indicador">{{ 'acaoDetails.historical.indicator' | translate }}</th>
+                                <th class="col-ano" *ngFor="let periodo of periodosFiiIndicadores()">{{ periodo }}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let item of investidor10FiiIndicadores()">
+                                <td class="col-indicador">{{ item.nome }}</td>
+                                <td class="col-valor" *ngFor="let valor of item.valores">{{ valor.valor }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </article>
+
+            <!-- Ações: Tabela de Histórico de Indicadores Genérica (não aparece para FIIs) -->
+            <article class="acao-details__card acao-details__card--full" *ngIf="!isFii() && inv.historicoIndicadores.length">
                 <header>
                     <h3>{{ 'acaoDetails.cards.investidor10HistoricalIndicators' | translate }}</h3>
                     <p id="historico-description" class="acao-details__historico-description">{{ 'acaoDetails.historical.description' | translate }}</p>

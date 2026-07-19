@@ -72,6 +72,17 @@ export class AcaoDetailsComponent implements OnInit {
         return (this.investidor10() as Investidor10FiiDetails).informacoesFii ?? [];
     });
 
+    investidor10FiiIndicadores = computed(() => {
+        if (!this.isFii()) return [];
+        return (this.investidor10() as Investidor10FiiDetails).indicadoresFundamentalistasFii ?? [];
+    });
+
+    periodosFiiIndicadores = computed(() => {
+        const indicadores = this.investidor10FiiIndicadores();
+        if (!indicadores.length) return [];
+        return indicadores[0].valores.map((v) => v.periodo);
+    });
+
     acaoDetails = computed(() => {
         const inv = this.investidor10();
         if (!inv || this.isFii()) return null;

@@ -695,4 +695,395 @@ describe("Investidor10ScraperService", () => {
       expect(resultado).toBeNull();
     });
   });
+
+  describe("parseFiiCardsTicker", () => {
+    it("deve extrair cotacao, dy, pvp e liquidez dos cards", () => {
+      const html = `
+        <section id="cards-ticker">
+          <div class="_card cotacao">
+            <div class="_card-header"><div><span>XPLG11 Cotação</span></div></div>
+            <div class="_card-body">
+              <div><span class="value">R$ 91,28</span></div>
+              <span class="daily-variation-badge">0,33%</span>
+            </div>
+          </div>
+          <div class="_card dy">
+            <div class="_card-header"><div><span>XPLG11 DY (12M)</span></div></div>
+            <div class="_card-body"><div><span>10,74%</span></div><i class="fas fa-question-circle"></i></div>
+          </div>
+          <div class="_card vp">
+            <div class="_card-header"><div><span>P/VP</span></div></div>
+            <div class="_card-body"><span>0,87</span><i class="fas fa-question-circle"></i></div>
+          </div>
+          <div class="_card val">
+            <div class="_card-header"><div><span>Liquidez Diária</span></div></div>
+            <div class="_card-body"><span>R$ 11,17 M</span><i class="fas fa-question-circle"></i></div>
+          </div>
+        </section>
+      `;
+      const resultado = (service as Investidor10ServiceTest).parseFiiCardsTicker(html);
+      expect(resultado.get("cotacao")).toBe("R$ 91,28");
+      expect(resultado.get("dy")).toBe("10,74%");
+      expect(resultado.get("vp")).toBe("0,87");
+      expect(resultado.get("val")).toBe("R$ 11,17 M");
+    });
+
+    it("deve retornar Map vazio quando secao cards-ticker nao existe", () => {
+      const resultado = (service as Investidor10ServiceTest).parseFiiCardsTicker("<html></html>");
+      expect(resultado.size).toBe(0);
+    });
+
+    it("deve ignorar cards com body vazio", () => {
+      const html = `
+        <section id="cards-ticker">
+          <div class="_card cotacao">
+            <div class="_card-header"><span>Cotação</span></div>
+            <div class="_card-body"></div>
+          </div>
+        </section>
+      `;
+      const resultado = (service as Investidor10ServiceTest).parseFiiCardsTicker(html);
+      expect(resultado.size).toBe(0);
+    });
+  });
+
+  describe("parseFiiIndicadoresFundamentalistas", () => {
+    
+    it("deve retornar 9 indicadores com dados completos", () => {
+      const html = `
+        <section id="cards-ticker">
+          <div class="_card cotacao">
+            <div class="_card-body"><div><span class="value">R$ 91,28</span></div></div>
+          </div>
+          <div class="_card dy">
+            <div class="_card-body"><span>10,74%</span></div>
+          </div>
+          <div class="_card vp">
+            <div class="_card-body"><span>0,87</span></div>
+          </div>
+          <div class="_card val">
+            <div class="_card-body"><span>R$ 11,17 M</span></div>
+          </div>
+        </section>
+      `;
+      const informacoesFii: Investidor10InformacaoFii[] = [
+        { label: "VACÂNCIA", value: "8,10%" },
+        { label: "NUMERO DE COTISTAS", value: "347.299" },
+        { label: "COTAS EMITIDAS", value: "51.390.086" },
+        { label: "VAL. PATRIMONIAL P/ COTA", value: "R$ 105,03" },
+        { label: "VALOR PATRIMONIAL", value: "R$ 5,40 Bilhões" },
+      ];
+      const historicoIndicadores: Investidor10HistoricoIndicador[] = [
+        {
+          indicador: "P/VP",
+          valores: [
+            { ano: 2025, valor: 0.85, tipo: "numeric" },
+            { ano: 2024, valor: 1.00, tipo: "numeric" },
+            { ano: 2023, valor: 0.84, tipo: "numeric" },
+            { ano: 2022, valor: 0.98, tipo: "numeric" },
+            { ano: 2021, valor: 0.86, tipo: "numeric" },
+          ],
+        },
+        {
+          indicador: "Dividend Yield",
+          valores: [
+            { ano: 2025, valor: 10.5, tipo: "percent" },
+            { ano: 2024, valor: 9.9, tipo: "percent" },
+            { ano: 2023, valor: 9.14, tipo: "percent" },
+            { ano: 2022, valor: 8.73, tipo: "percent" },
+            { ano: 2021, valor: 8.42, tipo: "percent" },
+          ],
+        },
+      ];
+
+      const resultado = (service as Investidor10ServiceTest).parseFiiIndicadoresFundamentalistas(
+        html, informacoesFii, historicoIndicadores
+      );
+
+      expect(resultado).toHaveLength(9);
+      expect(resultado[0].nome).toBe("Valor de Mercado");
+      expect(resultado[1].nome).toBe("P/VP");
+      expect(resultado[2].nome).toBe("Dividend Yield");
+      expect(resultado[3].nome).toBe("Liquidez Diária");
+      expect(resultado[4].nome).toBe("Valor Patrimonial");
+      expect(resultado[5].nome).toBe("Val. Patrimonial p/ Cota");
+      expect(resultado[6].nome).toBe("Vacância");
+      expect(resultado[7].nome).toBe("Nº Cotistas");
+      expect(resultado[8].nome).toBe("Cotas Emitidas");
+    });
+
+    it("deve ter periodo Atual quando historico esta vazio", () => {
+      const html = `
+        <section id="cards-ticker">
+          <div class="_card cotacao"><div class="_card-body"><span class="value">R$ 91,28</span></div></div>
+          <div class="_card dy"><div class="_card-body"><span>10,74%</span></div></div>
+          <div class="_card vp"><div class="_card-body"><span>0,87</span></div></div>
+          <div class="_card val"><div class="_card-body"><span>R$ 11,17 M</span></div></div>
+        </section>
+      `;
+      const informacoesFii: Investidor10InformacaoFii[] = [
+        { label: "VACÂNCIA", value: "8,10%" },
+        { label: "NUMERO DE COTISTAS", value: "347.299" },
+        { label: "COTAS EMITIDAS", value: "51.390.086" },
+        { label: "VAL. PATRIMONIAL P/ COTA", value: "R$ 105,03" },
+        { label: "VALOR PATRIMONIAL", value: "R$ 5,40 Bilhões" },
+      ];
+
+      const resultado = (service as Investidor10ServiceTest).parseFiiIndicadoresFundamentalistas(
+        html, informacoesFii, []
+      );
+
+      for (const indicador of resultado) {
+        expect(indicador.valores).toHaveLength(1);
+        expect(indicador.valores[0].periodo).toBe("Atual");
+      }
+    });
+
+    it("deve usar '-' para periodos sem dados historicos em indicadores sem chaveApi", () => {
+      const resultado = (service as Investidor10ServiceTest).parseFiiIndicadoresFundamentalistas(
+        "<html></html>", [], []
+      );
+
+      expect(resultado[0].nome).toBe("Valor de Mercado");
+      expect(resultado[0].valores).toHaveLength(1);
+      expect(resultado[0].valores[0].valor).toBe("-");
+      expect(resultado[0].valores[0].periodo).toBe("Atual");
+
+      expect(resultado[6].nome).toBe("Vacância");
+      expect(resultado[6].valores[0].valor).toBe("-");
+    });
+
+    it("deve calcular valor de mercado quando cotacao e cotas emitidas disponiveis", () => {
+      const html = `
+        <section id="cards-ticker">
+          <div class="_card cotacao">
+            <div class="_card-body"><div><span class="value">R$ 100,00</span></div></div>
+          </div>
+        </section>
+      `;
+      const informacoesFii: Investidor10InformacaoFii[] = [
+        { label: "COTAS EMITIDAS", value: "1.000.000" },
+      ];
+
+      const resultado = (service as Investidor10ServiceTest).parseFiiIndicadoresFundamentalistas(
+        html, informacoesFii, []
+      );
+
+      const valorMercado = resultado[0];
+      expect(valorMercado.valores[0].valor).toBe("R$ 100,00 M");
+    });
+
+    it("deve cruzar dados historicos para P/VP e Dividend Yield", () => {
+      const html = `
+        <section id="cards-ticker">
+          <div class="_card vp"><div class="_card-body"><span>0,87</span></div></div>
+          <div class="_card dy"><div class="_card-body"><span>10,74%</span></div></div>
+        </section>
+      `;
+      const historicoIndicadores: Investidor10HistoricoIndicador[] = [
+        {
+          indicador: "P/VP",
+          valores: [
+            { ano: 2025, valor: 0.85, tipo: "numeric" },
+            { ano: 2024, valor: 1.00, tipo: "numeric" },
+          ],
+        },
+        {
+          indicador: "Dividend Yield",
+          valores: [
+            { ano: 2025, valor: 10.5, tipo: "percent" },
+            { ano: 2024, valor: 9.9, tipo: "percent" },
+          ],
+        },
+      ];
+
+      const resultado = (service as Investidor10ServiceTest).parseFiiIndicadoresFundamentalistas(
+        html, [], historicoIndicadores
+      );
+
+      expect(resultado[1].valores).toHaveLength(3);
+      expect(resultado[1].valores[0].periodo).toBe("Atual");
+      expect(resultado[1].valores[0].valor).toBe("0,87");
+      expect(resultado[1].valores[1].periodo).toBe("2025");
+      expect(resultado[1].valores[1].valor).toBe("0.85");
+      expect(resultado[1].valores[2].periodo).toBe("2024");
+      expect(resultado[1].valores[2].valor).toBe("1");
+
+      expect(resultado[2].valores).toHaveLength(3);
+      expect(resultado[2].valores[0].periodo).toBe("Atual");
+      expect(resultado[2].valores[0].valor).toBe("10,74%");
+      expect(resultado[2].valores[1].periodo).toBe("2025");
+      expect(resultado[2].valores[1].valor).toBe("10.5");
+      expect(resultado[2].valores[2].periodo).toBe("2024");
+      expect(resultado[2].valores[2].valor).toBe("9.9");
+    });
+  });
+
+  describe("parseMonetaryValue", () => {
+    it("deve converter R$ 91,28 para 91.28", () => {
+      const resultado = (service as Investidor10ServiceTest).parseMonetaryValue("R$ 91,28");
+      expect(resultado).toBe(91.28);
+    });
+
+    it("deve converter R$ 11,17 M para 11.17", () => {
+      const resultado = (service as Investidor10ServiceTest).parseMonetaryValue("R$ 11,17 M");
+      expect(resultado).toBe(11.17);
+    });
+
+    it("deve converter 1.234,56 para 1234.56", () => {
+      const resultado = (service as Investidor10ServiceTest).parseMonetaryValue("R$ 1.234,56");
+      expect(resultado).toBe(1234.56);
+    });
+  });
+
+  describe("formatMonetaryValue", () => {
+    it("deve formatar valores em bilhoes", () => {
+      const resultado = (service as Investidor10ServiceTest).formatMonetaryValue(4690000000);
+      expect(resultado).toBe("R$ 4,69 Bilhões");
+    });
+
+    it("deve formatar valores em milhoes", () => {
+      const resultado = (service as Investidor10ServiceTest).formatMonetaryValue(11170000);
+      expect(resultado).toBe("R$ 11,17 M");
+    });
+
+    it("deve formatar valores pequenos", () => {
+      const resultado = (service as Investidor10ServiceTest).formatMonetaryValue(91.28);
+      expect(resultado).toBe("R$ 91,28");
+    });
+  });
+
+  describe("indicadoresFundamentalistasFii no scrapeAsync", () => {
+    it("deve retornar campo indicadoresFundamentalistasFii para FII", async () => {
+      const htmlResposta = `
+        <div class="sub-especial" id="data_about">
+          <div class="content">
+            <table><tr><td>Nome do Fundo:</td><td class='value'>XP LOG</td></tr></table>
+          </div>
+        </div>
+        <div class="sub-especial" id="info_about">
+          <div class="content">
+            <div class="table grid-3" id="table-indicators-company">
+              <div class="cell"><span class="title">Valor</span><span class="value">R$ 100</span></div>
+            </div>
+          </div>
+        </div>
+        <div id="table-indicators" class="table">
+          <div class="cell"><span class="d-flex">P/VP</span><div class="value"><span>0,87</span></div></div>
+        </div>
+        <section id="cards-ticker">
+          <div class="_card cotacao">
+            <div class="_card-body"><div><span class="value">R$ 91,28</span></div></div>
+          </div>
+          <div class="_card dy">
+            <div class="_card-body"><span>10,74%</span></div>
+          </div>
+          <div class="_card vp">
+            <div class="_card-body"><span>0,87</span></div>
+          </div>
+          <div class="_card val">
+            <div class="_card-body"><span>R$ 11,17 M</span></div>
+          </div>
+        </section>
+        <div id="about-company">
+          <div id="table-indicators" class="table table-info-fii">
+            <div class="cell">
+              <span class="name">VACÂNCIA</span>
+              <div class="value"><span>8,10%</span></div>
+            </div>
+            <div class="cell">
+              <span class="name">NUMERO DE COTISTAS</span>
+              <div class="value"><span>347.299</span></div>
+            </div>
+            <div class="cell">
+              <span class="name">COTAS EMITIDAS</span>
+              <div class="value"><span>51.390.086</span></div>
+            </div>
+            <div class="cell">
+              <span class="name">VAL. PATRIMONIAL P/ COTA</span>
+              <div class="value"><span>R$ 105,03</span></div>
+            </div>
+            <div class="cell">
+              <span class="name">VALOR PATRIMONIAL</span>
+              <div class="value"><span>R$ 5,40 Bilhões</span></div>
+            </div>
+          </div>
+        </div>
+        <div data-id="99999"></div>
+      `;
+      (global.fetch as jest.Mock)
+        .mockResolvedValueOnce({
+          ok: true,
+          headers: { get: () => "text/html" },
+          text: async () => htmlResposta,
+        })
+        .mockResolvedValueOnce({
+          ok: true,
+          text: async () => JSON.stringify({
+            "P/VP": [
+              { year: "2025", value: "0.85", type: "numeric" },
+              { year: "2024", value: "1.00", type: "numeric" },
+              { year: "2023", value: "0.84", type: "numeric" },
+              { year: "2022", value: "0.98", type: "numeric" },
+              { year: "2021", value: "0.86", type: "numeric" },
+            ],
+            "Dividend Yield": [
+              { year: "2025", value: "10.5", type: "percent" },
+              { year: "2024", value: "9.9", type: "percent" },
+              { year: "2023", value: "9.14", type: "percent" },
+              { year: "2022", value: "8.73", type: "percent" },
+              { year: "2021", value: "8.42", type: "percent" },
+            ],
+          }),
+        });
+
+      const resultado = await service.scrapeAsync("XPLG11");
+      const fiiResult = resultado as Investidor10FiiDetails;
+
+      expect(fiiResult.indicadoresFundamentalistasFii).toHaveLength(9);
+      expect(fiiResult.indicadoresFundamentalistasFii[0].nome).toBe("Valor de Mercado");
+      expect(fiiResult.indicadoresFundamentalistasFii[0].valores[0].periodo).toBe("Atual");
+      expect(fiiResult.indicadoresFundamentalistasFii[1].nome).toBe("P/VP");
+      expect(fiiResult.indicadoresFundamentalistasFii[1].valores[0].valor).toBe("0,87");
+      expect(fiiResult.indicadoresFundamentalistasFii[1].valores[1].valor).toBe("0.85");
+      expect(fiiResult.indicadoresFundamentalistasFii[2].nome).toBe("Dividend Yield");
+      expect(fiiResult.indicadoresFundamentalistasFii[6].nome).toBe("Vacância");
+      expect(fiiResult.indicadoresFundamentalistasFii[6].valores[0].valor).toBe("8,10%");
+      expect(fiiResult.indicadoresFundamentalistasFii[7].nome).toBe("Nº Cotistas");
+      expect(fiiResult.indicadoresFundamentalistasFii[7].valores[0].valor).toBe("347.299");
+      expect(fiiResult.indicadoresFundamentalistasFii[8].nome).toBe("Cotas Emitidas");
+      expect(fiiResult.indicadoresFundamentalistasFii[8].valores[0].valor).toBe("51.390.086");
+    });
+
+    it("deve retornar indicadoresFundamentalistasFii vazio quando sem cards", async () => {
+      const htmlResposta = `
+        <div class="sub-especial" id="data_about">
+          <div class="content">
+            <table><tr><td>Nome do Fundo:</td><td class='value'>XP LOG</td></tr></table>
+          </div>
+        </div>
+        <div class="sub-especial" id="info_about">
+          <div class="content">
+            <div class="table grid-3" id="table-indicators-company">
+              <div class="cell"><span class="title">Valor</span><span class="value">R$ 100</span></div>
+            </div>
+          </div>
+        </div>
+        <div id="table-indicators" class="table">
+          <div class="cell"><span class="d-flex">P/VP</span><div class="value"><span>0,87</span></div></div>
+        </div>
+      `;
+      (global.fetch as jest.Mock).mockResolvedValue({
+        ok: true,
+        headers: { get: () => "text/html" },
+        text: async () => htmlResposta,
+      });
+
+      const resultado = await service.scrapeAsync("XPLG11");
+      const fiiResult = resultado as Investidor10FiiDetails;
+
+      expect(fiiResult.indicadoresFundamentalistasFii).toHaveLength(9);
+      expect(fiiResult.indicadoresFundamentalistasFii[0].valores[0].valor).toBe("-");
+    });
+  });
 });

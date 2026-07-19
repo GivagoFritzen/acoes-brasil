@@ -6,4 +6,6 @@ export type {
   Investidor10ValorHistorico,
   Investidor10Imovel,
   Investidor10InformacaoFii,
+  Investidor10FiiIndicadorFundamentalista,
+  Investidor10ValorPorPeriodo,
 } from '../../../../../common/models/investidor10';
