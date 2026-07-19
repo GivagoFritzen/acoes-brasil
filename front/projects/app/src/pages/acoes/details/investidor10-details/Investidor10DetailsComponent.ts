@@ -65,6 +65,12 @@ export class Investidor10DetailsComponent {
         return inv as Investidor10AcaoDetails;
     });
 
+    receitaAtual = computed(() => {
+        const acao = this.acaoDetails();
+        if (!acao?.receitas?.length) return null;
+        return acao.receitas[0];
+    });
+
     historicoAnos = computed(() => {
         const inv = this.investidor10Value();
         if (!inv?.historicoIndicadores?.length) return [];

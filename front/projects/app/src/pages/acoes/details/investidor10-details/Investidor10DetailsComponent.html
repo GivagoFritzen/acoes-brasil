@@ -124,7 +124,7 @@
         </div>
     </article>
 
-    <ng-container *ngIf="acaoDetails() as acao">
+    <ng-container *ngIf="receitaAtual() as receita">
         <div class="acao-details__revenue-grid">
             <ng-template #revenueCard let-titleKey="titleKey" let-data="data" let-total="total" let-descLabelKey="descLabelKey" let-year="year">
                 <article class="acao-details__card">
@@ -150,17 +150,17 @@
 
             <ng-container *ngTemplateOutlet="revenueCard; context: {
                 titleKey: 'acaoDetails.cards.investidor10Revenue',
-                data: acao.receitas[0].regioes,
-                total: acao.receitas[0].receitaTotal,
+                data: receita.regioes,
+                total: receita.receitaTotal,
                 descLabelKey: 'acaoDetails.revenue.region',
-                year: acao.receitas[0].ano
+                year: receita.ano
             }"></ng-container>
             <ng-container *ngTemplateOutlet="revenueCard; context: {
                 titleKey: 'acaoDetails.cards.investidor10BussinesRevenue',
-                data: acao.receitas[0].negocios,
-                total: acao.receitas[0].receitaTotal,
+                data: receita.negocios,
+                total: receita.receitaTotal,
                 descLabelKey: 'acaoDetails.revenue.business',
-                year: acao.receitas[0].ano
+                year: receita.ano
             }"></ng-container>
         </div>
     </ng-container>

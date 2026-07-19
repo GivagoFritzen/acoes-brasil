@@ -193,4 +193,40 @@ describe('Investidor10DetailsComponent', () => {
             expect(result).toBe('Help text');
         });
     });
+
+    describe('receitaAtual', () => {
+        it('deve retornar null quando acao nao tem receitas', () => {
+            const fixture = TestBed.createComponent(Investidor10DetailsComponent);
+            fixture.componentRef.setInput('investidor10', baseAcao);
+            const comp = fixture.componentInstance;
+
+            expect(comp.receitaAtual()).toBeNull();
+        });
+
+        it('deve retornar primeira receita quando acao possui receitas', () => {
+            const acaoComReceitas: Investidor10AcaoDetails = {
+                ...baseAcao,
+                receitas: [
+                    {
+                        ano: 2023,
+                        receitaTotal: '100',
+                        regioes: [{ nome: 'Sudeste', porcentagem: 60 }],
+                        negocios: [{ nome: 'Varejo', porcentagem: 40 }],
+                    },
+                ],
+            };
+            const fixture = TestBed.createComponent(Investidor10DetailsComponent);
+            fixture.componentRef.setInput('investidor10', acaoComReceitas);
+            const comp = fixture.componentInstance;
+
+            expect(comp.receitaAtual()?.ano).toBe(2023);
+        });
+
+        it('deve renderizar sem erro quando acao nao tem receitas', () => {
+            const fixture = TestBed.createComponent(Investidor10DetailsComponent);
+            fixture.componentRef.setInput('investidor10', baseAcao);
+
+            expect(() => fixture.detectChanges()).not.toThrow();
+        });
+    });
 });
