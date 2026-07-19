@@ -526,10 +526,14 @@ export class Investidor10ScraperService {
     const cleaned = value
       .replace(/^R\$\s*/, "")
       .replace(/\./g, "")
-      .replace(",", ".")
-      .replace(/\s.*$/, "")
-      .trim();
-    return Number(cleaned);
+      .replace(",", ".");
+
+    const firstSpace = cleaned.indexOf(" ");
+    const result = firstSpace >= 0
+      ? cleaned.slice(0, firstSpace)
+      : cleaned;
+
+    return Number(result.trim());
   }
 
   private formatMonetaryValue(value: number): string {

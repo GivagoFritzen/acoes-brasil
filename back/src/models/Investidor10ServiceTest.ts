@@ -1,5 +1,9 @@
-import type { Investidor10Indicator } from "../../../common/models/investidor10";
-import type { Investidor10FiiIndicadorFundamentalista, Investidor10InformacaoFii, Investidor10HistoricoIndicador } from "../../../common/models/investidor10";
+import type {
+  Investidor10FiiIndicadorFundamentalista,
+  Investidor10Indicator, 
+  Investidor10InformacaoFii,
+   Investidor10HistoricoIndicador
+} from "../../../common/models/investidor10";
 
 export interface Investidor10ServiceTest {
   parseRevenueData(html: string): object[];

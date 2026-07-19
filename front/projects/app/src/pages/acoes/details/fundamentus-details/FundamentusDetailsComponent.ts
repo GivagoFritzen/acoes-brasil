@@ -10,7 +10,6 @@ import { FundamentusAcaoDetails } from '../../../../models';
     standalone: true,
     imports: [CommonModule, HelpTipComponent, TranslatePipe],
     templateUrl: './FundamentusDetailsComponent.html',
-    styleUrls: ['./FundamentusDetailsComponent.scss'],
     encapsulation: ViewEncapsulation.None,
 })
 export class FundamentusDetailsComponent {
