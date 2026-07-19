@@ -119,13 +119,13 @@ export class Investidor10ScraperService {
     for (const [indicador, valores] of Object.entries(json)) {
       if (!Array.isArray(valores)) continue;
       const validValues = valores.filter(
-        (v): v is { year: string; value: string; type: string } =>
-          typeof v === "object" && v !== null && "year" in v && "value" in v && "type" in v
+        (item): item is { year: string; value: string; type: string } =>
+          typeof item === "object" && item !== null && "year" in item && "value" in item && "type" in item
       );
-      const valoresTipados: Investidor10ValorHistorico[] = validValues.map((v) => ({
-        ano: Number(v.year),
-        valor: Number(v.value),
-        tipo: v.type === "percent" ? "percent" : "numeric",
+      const valoresTipados: Investidor10ValorHistorico[] = validValues.map((item) => ({
+        ano: Number(item.year),
+        valor: Number(item.value),
+        tipo: item.type === "percent" ? "percent" : "numeric",
       }));
       historico.push({ indicador, valores: valoresTipados });
     }
