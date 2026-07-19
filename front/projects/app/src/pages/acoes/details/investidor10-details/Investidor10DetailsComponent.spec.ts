@@ -17,6 +17,7 @@ describe('Investidor10DetailsComponent', () => {
         informacoesSobreEmpresa: [],
         indicadoresFundamentalistas: [],
         historicoIndicadores: [],
+        indicadoresFundamentalistasComHistorico: [],
         receitas: [],
         updatedAt: '2024-01-01',
     };
