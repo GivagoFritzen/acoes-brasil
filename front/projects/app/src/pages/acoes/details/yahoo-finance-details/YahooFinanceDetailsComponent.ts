@@ -10,7 +10,6 @@ import { YahooFinanceDetails } from '../../../../models';
     standalone: true,
     imports: [CommonModule, HelpTipComponent, TranslatePipe],
     templateUrl: './YahooFinanceDetailsComponent.html',
-    styleUrls: ['./YahooFinanceDetailsComponent.scss'],
     encapsulation: ViewEncapsulation.None,
 })
 export class YahooFinanceDetailsComponent {

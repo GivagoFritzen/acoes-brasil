@@ -10,7 +10,6 @@ import { Investidor10AcaoDetails, Investidor10FiiDetails, Investidor10FiiIndicad
     standalone: true,
     imports: [CommonModule, HelpTipComponent, TranslatePipe],
     templateUrl: './Investidor10DetailsComponent.html',
-    styleUrls: ['./Investidor10DetailsComponent.scss'],
     encapsulation: ViewEncapsulation.None,
 })
 export class Investidor10DetailsComponent {
