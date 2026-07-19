@@ -1,4 +1,4 @@
-import type { Investidor10AcaoDetails, Investidor10HistoricoIndicador, Investidor10Indicator, Investidor10Provento, Investidor10ProventosResponse, Investidor10ValorHistorico, Investidor10ReceitaAno, Investidor10SegmentoReceita, Investidor10RegiaoReceita } from "../../../../common/models/investidor10";
+import type { Investidor10AcaoDetails, Investidor10FiiDetails, Investidor10HistoricoIndicador, Investidor10Indicator, Investidor10Provento, Investidor10ProventosResponse, Investidor10ValorHistorico, Investidor10ReceitaAno, Investidor10SegmentoReceita, Investidor10RegiaoReceita, Investidor10Imovel, Investidor10InformacaoFii } from "../../../../common/models/investidor10";
 import type { JsonValue } from "../../models/JsonValue";
 import { stripHtml } from "../../shared/utils/FundamentusUtils";
 
@@ -8,8 +8,9 @@ const MAX_HTML_LENGTH = 2_000_000;
 const API_BASE = "https://investidor10.com.br";
 
 export class Investidor10ScraperService {
-  async scrapeAsync(codigo: string): Promise<Investidor10AcaoDetails> {
+  async scrapeAsync(codigo: string): Promise<Investidor10AcaoDetails | Investidor10FiiDetails> {
     const codigoNormalized = codigo.trim().toUpperCase();
+    const isFii = this.isFii(codigoNormalized);
     const url = `${this.getBaseUrl(codigoNormalized)}/${encodeURIComponent(codigoNormalized)}/`;
 
     const html = await this.fetchHtmlAsync(url);
@@ -29,7 +30,24 @@ export class Investidor10ScraperService {
     }
 
     const stockId = this.extractStockId(html);
-    const historicoIndicadores = stockId ? await this.fetchHistoricoIndicadoresAsync(stockId) : [];
+    const historicoIndicadores = stockId ? await this.fetchHistoricoIndicadoresAsync(stockId, isFii) : [];
+
+    if (isFii) {
+      const imoveis = this.parseImoveis(html);
+      const informacoesFii = this.parseInformacoesFii(html);
+      return {
+        codigo: codigoNormalized,
+        empresa,
+        dadosSobreEmpresa,
+        informacoesSobreEmpresa,
+        indicadoresFundamentalistas,
+        historicoIndicadores,
+        imoveis,
+        informacoesFii,
+        updatedAt: new Date().toISOString(),
+      };
+    }
+
     const receitas = this.parseRevenueData(html);
 
     return {
@@ -44,8 +62,12 @@ export class Investidor10ScraperService {
     };
   }
 
+  private isFii(codigo: string): boolean {
+    return codigo.endsWith("11");
+  }
+
   private getBaseUrl(codigo: string): string {
-    return codigo.endsWith("11") ? `${API_BASE}/fiis` : `${API_BASE}/acoes`;
+    return this.isFii(codigo) ? `${API_BASE}/fiis` : `${API_BASE}/acoes`;
   }
 
   private async fetchHtmlAsync(url: string): Promise<string | null> {
@@ -77,7 +99,9 @@ export class Investidor10ScraperService {
   }
 
   private extractEmpresa(dados: Investidor10Indicator[]): string | null {
-    const nome = dados.find((dado) => dado.label === "Nome da Empresa");
+    const nome = dados.find((dado) => 
+      dado.label === "Nome da Empresa" || dado.label === "Nome do Fundo"
+    );
     return nome?.value ?? null;
   }
 
@@ -86,9 +110,9 @@ export class Investidor10ScraperService {
     return match ? match[1] : null;
   }
 
-  private async fetchHistoricoIndicadoresAsync(stockId: string): Promise<Investidor10HistoricoIndicador[]> {
+  private async fetchHistoricoIndicadoresAsync(stockId: string, isFii: boolean): Promise<Investidor10HistoricoIndicador[]> {
     const url = `${API_BASE}/api/historico-indicadores/${stockId}/5/?v=2`;
-    const json = await this.fetchJsonAsync(url);
+    const json = await this.fetchJsonAsync(url, isFii);
     if (!json || typeof json !== "object") return [];
 
     const historico: Investidor10HistoricoIndicador[] = [];
@@ -108,7 +132,7 @@ export class Investidor10ScraperService {
     return historico;
   }
 
-  private async fetchJsonAsync(url: string): Promise<Record<string, JsonValue> | null> {
+  private async fetchJsonAsync(url: string, isFii: boolean = false): Promise<Record<string, JsonValue> | null> {
     const abortController = new AbortController();
     const timeoutId = setTimeout(() => abortController.abort(), REQUEST_TIMEOUT_MS);
 
@@ -117,7 +141,7 @@ export class Investidor10ScraperService {
         signal: abortController.signal,
         headers: {
           "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-          Referer: `${API_BASE}/acoes/`,
+          Referer: isFii ? `${API_BASE}/fiis/` : `${API_BASE}/acoes/`,
           Accept: "application/json, text/javascript, */*; q=0.01",
           "X-Requested-With": "XMLHttpRequest",
         },
@@ -262,6 +286,74 @@ export class Investidor10ScraperService {
     }
 
     return indicators;
+  }
+
+  private parseImoveis(html: string): Investidor10Imovel[] {
+    const section = this.extractTagById(html, "properties-section");
+    if (!section) return [];
+
+    const imoveis: Investidor10Imovel[] = [];
+    const container = this.extractTagById(section.html, "container-properties");
+    if (!container) return [];
+
+    const propertyCards = this.extractAllTags(container.html, "div", "card-propertie");
+
+    for (const card of propertyCards) {
+      const nomeTag = this.extractTag(card.html, "h3");
+      const smallTags = this.extractAllTags(card.html, "small");
+
+      const nome = nomeTag ? stripHtml(nomeTag.html).trim() : "";
+      let estado = "";
+      let areaBrutaLocavel: string | null = null;
+
+      for (const small of smallTags) {
+        const text = stripHtml(small.html).trim();
+        if (text.startsWith("Estado:")) {
+          estado = text.replace("Estado:", "").trim();
+        } else if (text.startsWith("Área bruta locável:")) {
+          areaBrutaLocavel = text.replace("Área bruta locável:", "").trim();
+        }
+      }
+
+      if (nome) {
+        imoveis.push({ nome, estado, areaBrutaLocavel });
+      }
+    }
+
+    return imoveis;
+  }
+
+  private parseInformacoesFii(html: string): Investidor10InformacaoFii[] {
+    const section = this.extractTagById(html, "about-company");
+    if (!section) return [];
+
+    const table = this.extractTagById(section.html, "table-indicators");
+    if (!table) return [];
+
+    const informacoes: Investidor10InformacaoFii[] = [];
+    const cells = this.extractAllTags(table.html, "div", "cell");
+
+    for (const cell of cells) {
+      const nameTag = this.extractTag(cell.html, "span", "name");
+      if (!nameTag) continue;
+
+      const label = stripHtml(nameTag.html).trim();
+      let value = "";
+
+      const valueTag = this.extractTag(cell.html, "div", "value");
+      if (valueTag) {
+        const valueSpan = this.extractTag(valueTag.html, "span");
+        if (valueSpan) {
+          value = stripHtml(valueSpan.html).trim();
+        }
+      }
+
+      if (label && value) {
+        informacoes.push({ label, value });
+      }
+    }
+
+    return informacoes;
   }
 
   private extractAllCells(html: string, tagName: string, className: string): { html: string }[] {

@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { catchError } from 'rxjs/operators';
-import { Investidor10AcaoDetails, Investidor10ProventosResponse } from '../models';
+import { Investidor10AcaoDetails, Investidor10FiiDetails, Investidor10ProventosResponse } from '../models';
 import { getApiUrl } from '../config/ApiConfig';
 import { BaseHttpService } from './BaseHttpService';
 
@@ -16,9 +16,9 @@ export class Investidor10Service extends BaseHttpService {
     super(http);
   }
 
-  getAcaoDetails(codigo: string): Observable<Investidor10AcaoDetails> {
+  getAcaoDetails(codigo: string): Observable<Investidor10AcaoDetails | Investidor10FiiDetails> {
     const normalizedCode = codigo.trim().toUpperCase();
-    return this.http.get<Investidor10AcaoDetails>(`${this.baseUrl}/${normalizedCode}`).pipe(
+    return this.http.get<Investidor10AcaoDetails | Investidor10FiiDetails>(`${this.baseUrl}/${normalizedCode}`).pipe(
       catchError(error => this.handleError(error))
     );
   }

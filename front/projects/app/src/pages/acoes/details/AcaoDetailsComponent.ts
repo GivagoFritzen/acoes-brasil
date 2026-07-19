@@ -14,7 +14,7 @@ import { HelpTipComponent } from '../../../components/help-tip/HelpTipComponent'
 import { TranslatePipe } from '../../../pipes/TranslatePipe';
 import { TranslationService } from '../../../services/TranslationService';
 import { AlertItem } from '../../../models/alert/AlertItemModel';
-import { FundamentusAcaoDetails, FundamentusIndicator, FundamentusProventosResponse, Investidor10AcaoDetails, Investidor10HistoricoIndicador, Investidor10ProventosResponse, Investidor10ValorHistorico, ProventosResponse, YahooFinanceDetails } from '../../../models';
+import { FundamentusAcaoDetails, FundamentusIndicator, FundamentusProventosResponse, Investidor10AcaoDetails, Investidor10FiiDetails, Investidor10HistoricoIndicador, Investidor10ProventosResponse, Investidor10ValorHistorico, ProventosResponse, YahooFinanceDetails } from '../../../models';
 import { CHART_WINDOWS, GoogleFinanceChartWindow, GoogleFinanceResponse } from '../../../../../../../common/models/google-finance';
 
 @Component({
@@ -27,7 +27,7 @@ import { CHART_WINDOWS, GoogleFinanceChartWindow, GoogleFinanceResponse } from '
 export class AcaoDetailsComponent implements OnInit {
 
     fundamentus = signal<FundamentusAcaoDetails | null>(null);
-    investidor10 = signal<Investidor10AcaoDetails | null>(null);
+    investidor10 = signal<Investidor10AcaoDetails | Investidor10FiiDetails | null>(null);
     yahooFinance = signal<YahooFinanceDetails | null>(null);
     proventos = signal<ProventosResponse | null>(null);
     fundamentusProventos = signal<FundamentusProventosResponse | null>(null);
@@ -54,6 +54,28 @@ export class AcaoDetailsComponent implements OnInit {
             }
         }
         return Array.from(anos).sort((a, b) => b - a);
+    });
+
+    isFii = computed(() => {
+        const inv = this.investidor10();
+        if (!inv) return false;
+        return 'imoveis' in inv;
+    });
+
+    imoveis = computed(() => {
+        if (!this.isFii()) return [];
+        return (this.investidor10() as Investidor10FiiDetails).imoveis ?? [];
+    });
+
+    informacoesFii = computed(() => {
+        if (!this.isFii()) return [];
+        return (this.investidor10() as Investidor10FiiDetails).informacoesFii ?? [];
+    });
+
+    acaoDetails = computed(() => {
+        const inv = this.investidor10();
+        if (!inv || this.isFii()) return null;
+        return inv as Investidor10AcaoDetails;
     });
 
     isLoading = signal(false);

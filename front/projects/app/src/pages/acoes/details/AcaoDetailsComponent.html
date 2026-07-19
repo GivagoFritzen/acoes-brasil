@@ -115,7 +115,23 @@
 
         <ng-container *ngIf="detailSource() === 'investidor10' && investidor10() as inv">
 
-            <article class="acao-details__card acao-details__card--full">
+            <!-- FII: Informações do FII (aparece no topo para FIIs) -->
+            <article class="acao-details__card acao-details__card--info-2cols" *ngIf="isFii() && informacoesFii().length">
+                <header>
+                    <h3>{{ 'acaoDetails.cards.investidor10FiiInfo' | translate }}</h3>
+                </header>
+                <div class="acao-details__fundamentus-table">
+                    <div class="acao-details__fundamentus-row" *ngFor="let item of informacoesFii()">
+                        <span class="label">
+                            {{ item.label }}
+                        </span>
+                        <strong class="value">{{ item.value }}</strong>
+                    </div>
+                </div>
+            </article>
+
+            <!-- Ações: Dados Sobre a Empresa (não aparece para FIIs) -->
+            <article class="acao-details__card acao-details__card--full" *ngIf="!isFii()">
                 <header>
                     <h3>{{ 'acaoDetails.cards.investidor10CompanyData' | translate }}</h3>
                 </header>
@@ -130,7 +146,8 @@
                 </div>
             </article>
 
-            <article class="acao-details__card acao-details__card--info-2cols">
+            <!-- Ações: Informações Sobre a Empresa (não aparece para FIIs) -->
+            <article class="acao-details__card acao-details__card--info-2cols" *ngIf="!isFii()">
                 <header>
                     <h3>{{ 'acaoDetails.cards.investidor10CompanyInfo' | translate }}</h3>
                 </header>
@@ -160,6 +177,27 @@
                 </div>
             </article>
 
+            <!-- FII: Lista de Imóveis -->
+            <article class="acao-details__card acao-details__card--full" *ngIf="isFii() && imoveis().length">
+                <header>
+                    <h3>{{ 'acaoDetails.cards.investidor10Properties' | translate }}</h3>
+                </header>
+                <div class="acao-details__fundamentus-table">
+                    <ng-container *ngFor="let imovel of imoveis()">
+                        <div class="acao-details__fundamentus-row">
+                            <span class="label">
+                                {{ imovel.nome }}
+                            </span>
+                            <strong class="value">{{ imovel.estado }}</strong>
+                        </div>
+                        <div class="acao-details__fundamentus-row acao-details__fundamentus-row--sub" *ngIf="imovel.areaBrutaLocavel">
+                            <span class="label">{{ 'acaoDetails.cards.gla' | translate }}</span>
+                            <strong class="value">{{ imovel.areaBrutaLocavel }}</strong>
+                        </div>
+                    </ng-container>
+                </div>
+            </article>
+
             <article class="acao-details__card acao-details__card--full" *ngIf="inv.historicoIndicadores.length">
                 <header>
                     <h3>{{ 'acaoDetails.cards.investidor10HistoricalIndicators' | translate }}</h3>
@@ -183,7 +221,7 @@
                 </div>
             </article>
 
-            <ng-container *ngIf="inv.receitas.length">
+            <ng-container *ngIf="acaoDetails() as acao">
                 <div class="acao-details__revenue-grid">
                     <ng-template #revenueCard let-titleKey="titleKey" let-data="data" let-total="total" let-descLabelKey="descLabelKey" let-year="year">
                         <article class="acao-details__card">
@@ -209,17 +247,17 @@
 
                     <ng-container *ngTemplateOutlet="revenueCard; context: {
                         titleKey: 'acaoDetails.cards.investidor10Revenue',
-                        data: inv.receitas[0].regioes,
-                        total: inv.receitas[0].receitaTotal,
+                        data: acao.receitas[0].regioes,
+                        total: acao.receitas[0].receitaTotal,
                         descLabelKey: 'acaoDetails.revenue.region',
-                        year: inv.receitas[0].ano
+                        year: acao.receitas[0].ano
                     }"></ng-container>
                     <ng-container *ngTemplateOutlet="revenueCard; context: {
                         titleKey: 'acaoDetails.cards.investidor10BussinesRevenue',
-                        data: inv.receitas[0].negocios,
-                        total: inv.receitas[0].receitaTotal,
+                        data: acao.receitas[0].negocios,
+                        total: acao.receitas[0].receitaTotal,
                         descLabelKey: 'acaoDetails.revenue.business',
-                        year: inv.receitas[0].ano
+                        year: acao.receitas[0].ano
                     }"></ng-container>
 
                 </div>

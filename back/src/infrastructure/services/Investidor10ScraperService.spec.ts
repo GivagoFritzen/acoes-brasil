@@ -1,5 +1,6 @@
 import { Investidor10ScraperService } from "./Investidor10ScraperService";
 import type { Investidor10ServiceTest } from "../../models/Investidor10ServiceTest";
+import type { Investidor10FiiDetails } from "../../../../common/models/investidor10";
 
 global.fetch = jest.fn() as jest.Mock;
 
@@ -68,7 +69,288 @@ describe("Investidor10ScraperService", () => {
     expect(resultado.indicadoresFundamentalistas.length).toBe(3);
     expect(resultado.indicadoresFundamentalistas[0].label).toBe("P/L");
     expect(resultado.indicadoresFundamentalistas[0].value).toBe("17,57");
-    expect(resultado.receitas).toEqual([]);
+    expect((resultado as any).receitas).toEqual([]);
+  });
+
+  it("Deve retornar detalhes de FII quando codigo termina com 11", async () => {
+    const htmlResposta = `
+      <div class="sub-especial" id="data_about">
+        <div class="header"><h2>DADOS SOBRE O FUNDO</h2></div>
+        <div class="content">
+          <table>
+            <tr><td>Nome do Fundo:</td><td class='value'>XP LOG FUNDO DE INVESTIMENTO IMOBILIÁRIO</td></tr>
+            <tr><td>CNPJ:</td><td class='value'>26.502.794/0001-85</td></tr>
+          </table>
+        </div>
+      </div>
+      <div class="sub-especial" id="info_about">
+        <div class="header"><h2>INFORMAÇÕES SOBRE O FUNDO</h2></div>
+        <div class="content">
+          <div class="table grid-3" id="table-indicators-company">
+            <div class="cell"><span class="title">Valor de mercado</span><span class="value"><div class="simple-value">R$ 5,4 Bi</div></span></div>
+            <div class="cell"><span class="title">Valor patrimonial</span><span class="value"><div class="simple-value">R$ 5,4 Bi</div></span></div>
+          </div>
+        </div>
+      </div>
+      <div class="box especial" id="indicators_basileia">
+        <div id="indicators">
+          <header><h2>INDICADORES <span class="desktop">FUNDAMENTALISTAS</span> XPLG11</h2></header>
+          <div class="content">
+            <div id="table-indicators" class="table table-bordered outter-borderless">
+              <div class="cell" style="padding: 15px 0px 20px 15px;">
+                <span class="d-flex" style="color: #999; font-size: 14px; width: 100%">P/VP</span>
+                <div class="value" style="margin-top: 10px; width: 100%; padding-right: 0px"><span>0,87</span></div>
+              </div>
+              <div class="cell" style="padding: 15px 0px 20px 15px;">
+                <span class="d-flex" style="color: #999; font-size: 14px; width: 100%">Dividend Yield</span>
+                <div class="value" style="margin-top: 10px; width: 100%; padding-right: 0px"><span>9,50%</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="sub-especial" id="properties-section" style="padding-bottom: 15px">
+        <div class="header">
+          <span class="icon"><img src="" alt="Cotação"></span>
+          <h2>Lista de Imóveis</h2>
+        </div>
+        <div class="content">
+          <div class="read-more" id="container-properties">
+            <div class="row">
+              <div class="col-6">
+                <div class="card-propertie">
+                  <i class="fas fa-building"></i>
+                  <div>
+                    <h3>CD PIRACICABA II</h3>
+                    <small>Estado: São Paulo</small><br/>
+                    <small>Área bruta locável: 161.340,00 m²</small>
+                  </div>
+                </div>
+              </div>
+              <div class="col-6">
+                <div class="card-propertie">
+                  <i class="fas fa-building"></i>
+                  <div>
+                    <h3>CD LEROY</h3>
+                    <small>Estado: Minas Gerais</small><br/>
+                    <small>Área bruta locável: 85.000,00 m²</small>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div id="about-company" style="padding-bottom: 20px">
+        <header>
+          <span class="icon"><img src="" alt="Sobre a empresa"></span>
+          <h2>INFORMAÇÕES SOBRE XPLG11</h2>
+        </header>
+        <div class="content">
+          <div id="table-indicators" class="table table-bordered outter-borderless table-info-fii" style="--column-count: 2">
+            <div class="cell">
+              <div class="icon"><i class="fas fa-info-circle"></i></div>
+              <div class="desc">
+                <span class="d-flex justify-content-between align-items-center name">Razão Social</span>
+                <div class="value"><span>XP LOG FUNDO DE INVESTIMENTO IMOBILIÁRIO</span></div>
+              </div>
+            </div>
+            <div class="cell">
+              <div class="icon"><i class="fas fa-info-circle"></i></div>
+              <div class="desc">
+                <span class="d-flex justify-content-between align-items-center name">CNPJ</span>
+                <div class="value"><span>26.502.794/0001-85</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+    (global.fetch as jest.Mock).mockResolvedValue({
+      ok: true,
+      headers: { get: () => "text/html" },
+      text: async () => htmlResposta,
+    });
+
+    const resultado = await service.scrapeAsync("XPLG11");
+
+    expect(resultado.codigo).toBe("XPLG11");
+    expect(resultado.empresa).toBe("XP LOG FUNDO DE INVESTIMENTO IMOBILIÁRIO");
+    expect(resultado.dadosSobreEmpresa.length).toBe(2);
+    expect(resultado.informacoesSobreEmpresa.length).toBe(2);
+    expect(resultado.indicadoresFundamentalistas.length).toBe(2);
+    expect(resultado.indicadoresFundamentalistas[0].label).toBe("P/VP");
+    expect(resultado.indicadoresFundamentalistas[0].value).toBe("0,87");
+
+    const fiiResultado = resultado as Investidor10FiiDetails;
+    expect(fiiResultado.imoveis).toHaveLength(2);
+    expect(fiiResultado.imoveis[0].nome).toBe("CD PIRACICABA II");
+    expect(fiiResultado.imoveis[0].estado).toBe("São Paulo");
+    expect(fiiResultado.imoveis[0].areaBrutaLocavel).toBe("161.340,00 m²");
+    expect(fiiResultado.imoveis[1].nome).toBe("CD LEROY");
+    expect(fiiResultado.imoveis[1].estado).toBe("Minas Gerais");
+    expect(fiiResultado.imoveis[1].areaBrutaLocavel).toBe("85.000,00 m²");
+
+    expect(fiiResultado.informacoesFii).toHaveLength(3);
+    expect(fiiResultado.informacoesFii[0].label).toBe("Razão Social");
+    expect(fiiResultado.informacoesFii[0].value).toBe("XP LOG FUNDO DE INVESTIMENTO IMOBILIÁRIO");
+    expect(fiiResultado.informacoesFii[1].label).toBe("CNPJ");
+    expect(fiiResultado.informacoesFii[1].value).toBe("26.502.794/0001-85");
+    expect(fiiResultado.informacoesFii[2].label).toBe("CNPJ");
+    expect(fiiResultado.informacoesFii[2].value).toBe("26.502.794/0001-85");
+
+    expect((fiiResultado as any).receitas).toBeUndefined();
+  });
+
+  it("Deve retornar historico de indicadores para FII quando data-id e fetch de JSON funcionam", async () => {
+    const htmlResposta = `
+      <div class="sub-especial" id="data_about">
+        <div class="content">
+          <table><tr><td>Nome do Fundo:</td><td class='value'>Teste</td></tr></table>
+        </div>
+      </div>
+      <div class="sub-especial" id="info_about">
+        <div class="content">
+          <div class="table grid-3" id="table-indicators-company">
+            <div class="cell"><span class="title">Valor</span><span class="value">R$ 100</span></div>
+          </div>
+        </div>
+      </div>
+      <div id="table-indicators" class="table">
+        <div class="cell"><span class="d-flex">P/VP</span><div class="value"><span>1</span></div></div>
+      </div>
+      <div data-id="12345"></div>
+    `;
+    (global.fetch as jest.Mock)
+      .mockResolvedValueOnce({
+        ok: true,
+        headers: { get: () => "text/html" },
+        text: async () => htmlResposta,
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        text: async () => JSON.stringify({
+          "Valor de Mercado": [
+            { year: "2025", value: "4690000000", type: "numeric" },
+            { year: "2024", value: "3300000000", type: "numeric" },
+            { year: "2023", value: "2930000000", type: "numeric" },
+            { year: "2022", value: "3220000000", type: "numeric" },
+            { year: "2021", value: "2670000000", type: "numeric" },
+            { year: "2020", value: "2420000000", type: "numeric" },
+          ],
+          "P/VP": [
+            { year: "2025", value: "0.87", type: "numeric" },
+            { year: "2024", value: "1.00", type: "numeric" },
+            { year: "2023", value: "0.84", type: "numeric" },
+            { year: "2022", value: "0.98", type: "numeric" },
+            { year: "2021", value: "0.86", type: "numeric" },
+            { year: "2020", value: "0.80", type: "numeric" },
+          ],
+          "Dividend Yield": [
+            { year: "2025", value: "10.74", type: "percent" },
+            { year: "2024", value: "9.90", type: "percent" },
+            { year: "2023", value: "9.14", type: "percent" },
+            { year: "2022", value: "8.73", type: "percent" },
+            { year: "2021", value: "8.42", type: "percent" },
+            { year: "2020", value: "6.94", type: "percent" },
+          ],
+          "Liquidez Diária": [
+            { year: "2025", value: "11170000", type: "numeric" },
+            { year: "2024", value: "3650000", type: "numeric" },
+            { year: "2023", value: "5370000", type: "numeric" },
+            { year: "2022", value: "5600000", type: "numeric" },
+            { year: "2021", value: "3600000", type: "numeric" },
+            { year: "2020", value: "0", type: "numeric" },
+          ],
+          "Valor Patrimonial": [
+            { year: "2025", value: "5400000000", type: "numeric" },
+            { year: "2024", value: "3300000000", type: "numeric" },
+            { year: "2023", value: "3500000000", type: "numeric" },
+            { year: "2022", value: "3280000000", type: "numeric" },
+            { year: "2021", value: "3100000000", type: "numeric" },
+            { year: "2020", value: "3020000000", type: "numeric" },
+          ],
+          "Val. Patrimonial p/ Cota": [
+            { year: "2025", value: "105.03", type: "numeric" },
+            { year: "2024", value: "105.91", type: "numeric" },
+            { year: "2023", value: "112.12", type: "numeric" },
+            { year: "2022", value: "110.84", type: "numeric" },
+            { year: "2021", value: "114.56", type: "numeric" },
+            { year: "2020", value: "111.29", type: "numeric" },
+          ],
+          "Vacância": [
+            { year: "2025", value: "8.10", type: "percent" },
+            { year: "2024", value: "4.60", type: "percent" },
+            { year: "2023", value: "1.50", type: "percent" },
+            { year: "2022", value: "2.30", type: "percent" },
+            { year: "2021", value: "6.80", type: "percent" },
+            { year: "2020", value: "9.00", type: "percent" },
+          ],
+          "Número de Cotistas": [
+            { year: "2025", value: "347000", type: "numeric" },
+            { year: "2024", value: "335000", type: "numeric" },
+            { year: "2023", value: "344000", type: "numeric" },
+            { year: "2022", value: "315000", type: "numeric" },
+            { year: "2021", value: "303000", type: "numeric" },
+            { year: "2020", value: "275000", type: "numeric" },
+          ],
+          "Cotas Emitidas": [
+            { year: "2025", value: "51000000", type: "numeric" },
+            { year: "2024", value: "31000000", type: "numeric" },
+            { year: "2023", value: "31000000", type: "numeric" },
+            { year: "2022", value: "30000000", type: "numeric" },
+            { year: "2021", value: "27000000", type: "numeric" },
+          ],
+        }),
+      });
+
+    const resultado = await service.scrapeAsync("XPLG11");
+
+    expect(resultado.historicoIndicadores.length).toBe(9);
+    expect(resultado.historicoIndicadores[0].indicador).toBe("Valor de Mercado");
+    expect(resultado.historicoIndicadores[0].valores.length).toBe(6);
+    expect(resultado.historicoIndicadores[0].valores[0].ano).toBe(2025);
+    expect(resultado.historicoIndicadores[0].valores[0].valor).toBe(4690000000);
+    expect(resultado.historicoIndicadores[0].valores[0].tipo).toBe("numeric");
+    expect(resultado.historicoIndicadores[1].indicador).toBe("P/VP");
+    expect(resultado.historicoIndicadores[2].indicador).toBe("Dividend Yield");
+    expect(resultado.historicoIndicadores[2].valores[0].tipo).toBe("percent");
+    expect(resultado.historicoIndicadores[3].indicador).toBe("Liquidez Diária");
+    expect(resultado.historicoIndicadores[4].indicador).toBe("Valor Patrimonial");
+    expect(resultado.historicoIndicadores[5].indicador).toBe("Val. Patrimonial p/ Cota");
+    expect(resultado.historicoIndicadores[6].indicador).toBe("Vacância");
+    expect(resultado.historicoIndicadores[7].indicador).toBe("Número de Cotistas");
+    expect(resultado.historicoIndicadores[8].indicador).toBe("Cotas Emitidas");
+  });
+
+  it("Deve retornar imoveis vazios quando secao nao existe", async () => {
+    const htmlResposta = `
+      <div class="sub-especial" id="data_about">
+        <div class="content">
+          <table><tr><td>Nome do Fundo:</td><td class='value'>Teste</td></tr></table>
+        </div>
+      </div>
+      <div class="sub-especial" id="info_about">
+        <div class="content">
+          <div class="table grid-3" id="table-indicators-company">
+            <div class="cell"><span class="title">Valor</span><span class="value">R$ 100</span></div>
+          </div>
+        </div>
+      </div>
+      <div id="table-indicators" class="table">
+        <div class="cell"><span class="d-flex">P/VP</span><div class="value"><span>1</span></div></div>
+      </div>
+    `;
+    (global.fetch as jest.Mock).mockResolvedValue({
+      ok: true,
+      headers: { get: () => "text/html" },
+      text: async () => htmlResposta,
+    });
+
+    const resultado = await service.scrapeAsync("XPLG11");
+
+    expect((resultado as Investidor10FiiDetails).imoveis).toEqual([]);
+    expect((resultado as Investidor10FiiDetails).informacoesFii).toEqual([]);
   });
 
   it("Deve lancar erro quando ativo nao encontrado", async () => {

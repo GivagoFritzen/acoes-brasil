@@ -1,5 +1,6 @@
 export type { Investidor10Indicator } from './Investidor10IndicatorModel';
 export type { Investidor10AcaoDetails } from './Investidor10AcaoDetailsModel';
+export type { Investidor10FiiDetails } from './Investidor10FiiDetailsModel';
 export type { Investidor10Provento } from './Investidor10ProventoModel';
 export type { Investidor10ProventosResponse } from './Investidor10ProventosResponseModel';
 export type { Investidor10ValorHistorico } from './Investidor10ValorHistoricoModel';
@@ -8,3 +9,5 @@ export type { Investidor10HistoricoIndicadoresResponse } from './Investidor10His
 export type { Investidor10RegiaoReceita } from './Investidor10RegiaoReceitaModel';
 export type { Investidor10SegmentoReceita } from './Investidor10SegmentoReceitaModel';
 export type { Investidor10ReceitaAno } from './Investidor10ReceitaAnoModel';
+export type { Investidor10Imovel } from './Investidor10ImovelModel';
+export type { Investidor10InformacaoFii } from './Investidor10InformacaoFiiModel';
