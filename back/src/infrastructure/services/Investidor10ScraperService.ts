@@ -371,79 +371,99 @@ export class Investidor10ScraperService {
     informacoesFii: Investidor10InformacaoFii[],
     historicoIndicadores: Investidor10HistoricoIndicador[]
   ): Investidor10FiiIndicadorFundamentalista[] {
-    const anosSet = new Set<string>();
-    anosSet.add("Atual");
-    for (const h of historicoIndicadores) {
-      for (const v of h.valores) {
-        anosSet.add(String(v.ano));
-      }
-    }
-    const PERIODOS = Array.from(anosSet).sort((a, b) => {
+    const periodos = this.extractPeriodosHistorico(historicoIndicadores);
+    const historicoPorNome = this.buildHistoricoPorNomeMap(historicoIndicadores);
+    const cards = this.parseFiiCardsTicker(html);
+
+    const definicoes = this.buildFiiIndicadoresDefinitions(cards, informacoesFii);
+
+    return definicoes.map((ind) => this.buildFiiIndicador(ind, periodos, historicoPorNome));
+  }
+
+  // --- MÉTODOS AUXILIARES FII INDICADORES ---
+
+  private getInfoFii(informacoesFii: Investidor10InformacaoFii[], label: string): string | null {
+    return informacoesFii.find((i) => i.label === label)?.value ?? null;
+  }
+
+  private calcularValorDeMercadoFii(cotacao: string | null, cotasEmitidas: number | null): string | null {
+    if (!cotacao || !cotasEmitidas) return null;
+    const valor = this.parseMonetaryValue(cotacao) * cotasEmitidas;
+    return this.formatMonetaryValue(valor);
+  }
+
+  private buildFiiIndicadoresDefinitions(
+    cards: Map<string, string>,
+    informacoesFii: Investidor10InformacaoFii[]
+  ): { nome: string; chaveApi: string | null; tipo: Investidor10FiiIndicadorFundamentalista["tipo"]; valorAtual: string | null }[] {
+    const getInfo = (label: string) => this.getInfoFii(informacoesFii, label);
+
+    const cotacao = cards.get("cotacao") ?? null;
+    const cotasEmitidasRaw = getInfo("COTAS EMITIDAS");
+    const cotasEmitidas = cotasEmitidasRaw ? Number(cotasEmitidasRaw.replace(/\./g, "")) : null;
+    const valorDeMercado = this.calcularValorDeMercadoFii(cotacao, cotasEmitidas);
+
+    return [
+      { nome: "Valor de Mercado", chaveApi: "Valor de Mercado", tipo: "moeda", valorAtual: valorDeMercado },
+      { nome: "P/VP", chaveApi: "P/VP", tipo: "decimal", valorAtual: cards.get("vp") ?? null },
+      { nome: "Dividend Yield", chaveApi: "Dividend Yield", tipo: "percentual", valorAtual: cards.get("dy") ?? null },
+      { nome: "Liquidez Diária", chaveApi: "Liquidez Diária", tipo: "moeda", valorAtual: cards.get("val") ?? null },
+      { nome: "Valor Patrimonial", chaveApi: "Valor Patrimonial", tipo: "moeda", valorAtual: getInfo("VALOR PATRIMONIAL") },
+      { nome: "Val. Patrimonial p/ Cota", chaveApi: "Val. Patrimonial p/ Cota", tipo: "moeda", valorAtual: getInfo("VAL. PATRIMONIAL P/ COTA") },
+      { nome: "Vacância", chaveApi: "Vacância", tipo: "percentual", valorAtual: getInfo("VACÂNCIA") },
+      { nome: "Nº Cotistas", chaveApi: "Número de Cotistas", tipo: "numerico", valorAtual: getInfo("NUMERO DE COTISTAS") },
+      { nome: "Cotas Emitidas", chaveApi: "Cotas Emitidas", tipo: "numerico", valorAtual: getInfo("COTAS EMITIDAS") },
+    ];
+  }
+
+  private buildFiiIndicador(
+    ind: { nome: string; chaveApi: string | null; tipo: Investidor10FiiIndicadorFundamentalista["tipo"]; valorAtual: string | null },
+    periodos: string[],
+    historicoPorNome: Map<string, Map<string, string>>
+  ): Investidor10FiiIndicadorFundamentalista {
+    return {
+      nome: ind.nome,
+      tipo: ind.tipo,
+      valores: periodos.map((periodo) => ({
+        periodo,
+        valor: this.getFiiValorPorPeriodo(periodo, ind.valorAtual, ind.chaveApi, historicoPorNome),
+      })),
+    };
+  }
+
+  private extractPeriodosHistorico(historicoIndicadores: Investidor10HistoricoIndicador[]): string[] {
+    const anosSet = new Set<string>(["Atual"]);
+    historicoIndicadores.forEach((h) => h.valores.forEach((v) => anosSet.add(String(v.ano))));
+    return Array.from(anosSet).sort((a, b) => {
       if (a === "Atual") return -1;
       if (b === "Atual") return 1;
       return Number(b) - Number(a);
     });
-
-    const cards = this.parseFiiCardsTicker(html);
-    const getFiiInfo = (label: string) =>
-      informacoesFii.find((i) => i.label === label)?.value ?? null;
-
-    const cotacao = cards.get("cotacao") ?? null;
-    const cotasEmitidasRaw = getFiiInfo("COTAS EMITIDAS");
-    const cotasEmitidas = cotasEmitidasRaw
-      ? Number(cotasEmitidasRaw.replace(/\./g, ""))
-      : null;
-
-    const historicoPorNome = new Map<string, Map<string, string>>();
-    for (const h of historicoIndicadores) {
-      const mapa = new Map<string, string>();
-      for (const v of h.valores) {
-        mapa.set(String(v.ano), String(v.valor));
-      }
-      historicoPorNome.set(h.indicador, mapa);
-    }
-
-    const getHistorico = (nomeApi: string, periodo: string): string => {
-      const mapa = historicoPorNome.get(nomeApi);
-      if (!mapa) return "-";
-      return mapa.get(periodo) ?? "-";
-    };
-
-    const getValorPeriodo = (
-      valorAtual: string | null,
-      nomeApi: string | null,
-      periodo: string
-    ): string => {
-      if (periodo === "Atual") return valorAtual ?? "-";
-      if (nomeApi) return getHistorico(nomeApi, periodo);
-      return "-";
-    };
-
-    const indicadores: { nome: string; chaveApi: string | null; tipo: Investidor10FiiIndicadorFundamentalista["tipo"]; valorAtual: string | null }[] = [
-      { nome: "Valor de Mercado", chaveApi: "Valor de Mercado", tipo: "moeda", valorAtual: null },
-      { nome: "P/VP", chaveApi: "P/VP", tipo: "decimal", valorAtual: cards.get("vp") ?? null },
-      { nome: "Dividend Yield", chaveApi: "Dividend Yield", tipo: "percentual", valorAtual: cards.get("dy") ?? null },
-      { nome: "Liquidez Diária", chaveApi: "Liquidez Diária", tipo: "moeda", valorAtual: cards.get("val") ?? null },
-      { nome: "Valor Patrimonial", chaveApi: "Valor Patrimonial", tipo: "moeda", valorAtual: getFiiInfo("VALOR PATRIMONIAL") },
-      { nome: "Val. Patrimonial p/ Cota", chaveApi: "Val. Patrimonial p/ Cota", tipo: "moeda", valorAtual: getFiiInfo("VAL. PATRIMONIAL P/ COTA") },
-      { nome: "Vacância", chaveApi: "Vacância", tipo: "percentual", valorAtual: getFiiInfo("VACÂNCIA") },
-      { nome: "Nº Cotistas", chaveApi: "Número de Cotistas", tipo: "numerico", valorAtual: getFiiInfo("NUMERO DE COTISTAS") },
-      { nome: "Cotas Emitidas", chaveApi: "Cotas Emitidas", tipo: "numerico", valorAtual: getFiiInfo("COTAS EMITIDAS") },
-    ];
-
-    if (cotacao && cotasEmitidas) {
-      const valor = this.parseMonetaryValue(cotacao) * cotasEmitidas;
-      indicadores[0].valorAtual = this.formatMonetaryValue(valor);
-    }
-
-    return indicadores.map((ind) => {
-      const valores: Investidor10ValorPorPeriodo[] = PERIODOS.map((periodo) => ({
-        periodo,
-        valor: getValorPeriodo(ind.valorAtual, ind.chaveApi, periodo),
-      }));
-      return { nome: ind.nome, valores, tipo: ind.tipo };
-    });
   }
+
+  private buildHistoricoPorNomeMap(historicoIndicadores: Investidor10HistoricoIndicador[]): Map<string, Map<string, string>> {
+    const map = new Map<string, Map<string, string>>();
+    for (const h of historicoIndicadores) {
+      const valoresMap = new Map<string, string>();
+      for (const v of h.valores) {
+        valoresMap.set(String(v.ano), String(v.valor));
+      }
+      map.set(h.indicador, valoresMap);
+    }
+    return map;
+  }
+
+  private getFiiValorPorPeriodo(
+    periodo: string,
+    valorAtual: string | null,
+    chaveApi: string | null,
+    historico: Map<string, Map<string, string>>
+  ): string {
+    if (periodo === "Atual") return valorAtual ?? "-";
+    if (!chaveApi) return "-";
+    return historico.get(chaveApi)?.get(periodo) ?? "-";
+  }
+
 
   private parseIndicadoresFundamentalistasComHistorico(
     indicadoresFundamentalistas: Investidor10Indicator[],
@@ -451,38 +471,56 @@ export class Investidor10ScraperService {
   ): Investidor10FiiIndicadorFundamentalista[] {
     if (!historicoIndicadores.length) return [];
 
+    const periodos = this.extractAnosValidosHistorico(historicoIndicadores);
+    const valorAtualMap = new Map(indicadoresFundamentalistas.map((i) => [i.label, i.value]));
+
+    return historicoIndicadores.map((h) => this.buildIndicadorComHistorico(h, periodos, valorAtualMap));
+  }
+
+  // --- MÉTODOS AUXILIARES INDICADORES COM HISTÓRICO ---
+
+  private buildIndicadorComHistorico(
+    h: Investidor10HistoricoIndicador,
+    periodos: string[],
+    valorAtualMap: Map<string, string>
+  ): Investidor10FiiIndicadorFundamentalista {
+    const isPercent = h.valores[0]?.tipo === "percent";
+    const tipo: Investidor10FiiIndicadorFundamentalista["tipo"] = isPercent ? "percentual" : "numerico";
+    const valores = periodos.map((periodo) => this.buildValorPorPeriodo(periodo, h, isPercent, valorAtualMap));
+
+    return { nome: h.indicador, valores, tipo };
+  }
+
+  private buildValorPorPeriodo(
+    periodo: string,
+    h: Investidor10HistoricoIndicador,
+    isPercent: boolean,
+    valorAtualMap: Map<string, string>
+  ): Investidor10ValorPorPeriodo {
+    if (periodo === "Atual") {
+      return { periodo, valor: valorAtualMap.get(h.indicador) ?? "-" };
+    }
+    const raw = h.valores.find((v) => String(v.ano) === periodo)?.valor;
+    return { periodo, valor: this.formatIndicadorValor(raw, isPercent) };
+  }
+
+  private extractAnosValidosHistorico(historicoIndicadores: Investidor10HistoricoIndicador[]): string[] {
     const anosSet = new Set<string>();
-    for (const h of historicoIndicadores) {
-      for (const v of h.valores) {
-        if (!isNaN(v.ano)) anosSet.add(String(v.ano));
-      }
-    }
-    const periodos = ["Atual", ...Array.from(anosSet).sort((a, b) => Number(b) - Number(a))];
-
-    const valorAtualMap = new Map<string, string>();
-    for (const ind of indicadoresFundamentalistas) {
-      valorAtualMap.set(ind.label, ind.value);
-    }
-
-    return historicoIndicadores.map((h) => {
-      const tipoApi = h.valores[0]?.tipo ?? "numeric";
-      const valores: Investidor10ValorPorPeriodo[] = periodos.map((periodo) => {
-        if (periodo === "Atual") {
-          return { periodo, valor: valorAtualMap.get(h.indicador) ?? "-" };
-        }
-        const raw = h.valores.find((v) => String(v.ano) === periodo)?.valor;
-        if (raw === undefined) return { periodo, valor: "-" };
-        const num = Number(raw);
-        if (isNaN(num)) return { periodo, valor: "-" };
-        const formatted = num.toFixed(2).replace(".", ",");
-        return { periodo, valor: tipoApi === "percent" ? `${formatted}%` : formatted };
+    historicoIndicadores.forEach((h) => {
+      h.valores.forEach((v) => {
+        if (!isNaN(Number(v.ano))) anosSet.add(String(v.ano));
       });
-      return {
-        nome: h.indicador,
-        valores,
-        tipo: tipoApi === "percent" ? "percentual" as const : "numerico" as const,
-      };
     });
+    return ["Atual", ...Array.from(anosSet).sort((a, b) => Number(b) - Number(a))];
+  }
+
+  private formatIndicadorValor(raw: string | number | undefined, isPercent: boolean): string {
+    if (raw === undefined) return "-";
+    const num = Number(raw);
+    if (isNaN(num)) return "-";
+
+    const formatted = num.toFixed(2).replace(".", ",");
+    return isPercent ? `${formatted}%` : formatted;
   }
 
   private parseFiiCardsTicker(html: string): Map<string, string> {
@@ -641,7 +679,7 @@ export class Investidor10ScraperService {
   private findMatchingClose(html: string, openTagStart: number, tagName: string): number | null {
     let depth = 0;
     let foundOpening = false;
-    const regex = new RegExp(`</?${tagName}(?:\\s[^>]*)?>`, "gi");
+    const regex = new RegExp(`</?${tagName}(?:\s[^>]*)?>`, "gi");
     regex.lastIndex = openTagStart;
 
     let match;
@@ -730,7 +768,7 @@ export class Investidor10ScraperService {
   }
 
   private extractJSObject(html: string, varName: string): string | null {
-    const regex = new RegExp(`let\\s+${varName}\\s*=\\s*`);
+    const regex = new RegExp(`let\s+${varName}\s*=\s*`);
     const match = regex.exec(html);
     if (!match) return null;
 
