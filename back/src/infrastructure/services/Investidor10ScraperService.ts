@@ -51,6 +51,10 @@ export class Investidor10ScraperService {
     }
 
     const receitas = this.parseRevenueData(html);
+    const indicadoresFundamentalistasComHistorico = this.parseIndicadoresFundamentalistasComHistorico(
+      indicadoresFundamentalistas,
+      historicoIndicadores
+    );
 
     return {
       codigo: codigoNormalized,
@@ -59,6 +63,7 @@ export class Investidor10ScraperService {
       informacoesSobreEmpresa,
       indicadoresFundamentalistas,
       historicoIndicadores,
+      indicadoresFundamentalistasComHistorico,
       receitas,
       updatedAt: new Date().toISOString(),
     };
@@ -125,7 +130,7 @@ export class Investidor10ScraperService {
       const validValues = valores.filter(
         (item): item is { year: string; value: string; type: string } =>
           typeof item === "object" && item !== null && "year" in item && "value" in item && "type" in item
-          && item.year !== "Atual" && !isNaN(Number(item.year))
+          && (item.year !== "Atual" || !isFii) && (item.year === "Atual" || !isNaN(Number(item.year)))
       );
       const valoresTipados: Investidor10ValorHistorico[] = validValues.map((item) => ({
         ano: Number(item.year),
@@ -437,6 +442,46 @@ export class Investidor10ScraperService {
         valor: getValorPeriodo(ind.valorAtual, ind.chaveApi, periodo),
       }));
       return { nome: ind.nome, valores, tipo: ind.tipo };
+    });
+  }
+
+  private parseIndicadoresFundamentalistasComHistorico(
+    indicadoresFundamentalistas: Investidor10Indicator[],
+    historicoIndicadores: Investidor10HistoricoIndicador[]
+  ): Investidor10FiiIndicadorFundamentalista[] {
+    if (!historicoIndicadores.length) return [];
+
+    const anosSet = new Set<string>();
+    for (const h of historicoIndicadores) {
+      for (const v of h.valores) {
+        if (!isNaN(v.ano)) anosSet.add(String(v.ano));
+      }
+    }
+    const periodos = ["Atual", ...Array.from(anosSet).sort((a, b) => Number(b) - Number(a))];
+
+    const valorAtualMap = new Map<string, string>();
+    for (const ind of indicadoresFundamentalistas) {
+      valorAtualMap.set(ind.label, ind.value);
+    }
+
+    return historicoIndicadores.map((h) => {
+      const tipoApi = h.valores[0]?.tipo ?? "numeric";
+      const valores: Investidor10ValorPorPeriodo[] = periodos.map((periodo) => {
+        if (periodo === "Atual") {
+          return { periodo, valor: valorAtualMap.get(h.indicador) ?? "-" };
+        }
+        const raw = h.valores.find((v) => String(v.ano) === periodo)?.valor;
+        if (raw === undefined) return { periodo, valor: "-" };
+        const num = Number(raw);
+        if (isNaN(num)) return { periodo, valor: "-" };
+        const formatted = num.toFixed(2).replace(".", ",");
+        return { periodo, valor: tipoApi === "percent" ? `${formatted}%` : formatted };
+      });
+      return {
+        nome: h.indicador,
+        valores,
+        tipo: tipoApi === "percent" ? "percentual" as const : "numerico" as const,
+      };
     });
   }
 

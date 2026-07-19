@@ -101,7 +101,7 @@
         </div>
     </article>
 
-    <article class="acao-details__card acao-details__card--full" *ngIf="!isFii() && inv.historicoIndicadores.length">
+    <article class="acao-details__card acao-details__card--full" *ngIf="!isFii() && investidor10AcaoIndicadoresComHistorico().length">
         <header>
             <h3>{{ 'acaoDetails.cards.investidor10HistoricalIndicators' | translate }}</h3>
             <p id="historico-description" class="acao-details__historico-description">{{ 'acaoDetails.historical.description' | translate }}</p>
@@ -111,13 +111,13 @@
                 <thead>
                     <tr>
                         <th class="col-indicador">{{ 'acaoDetails.historical.indicator' | translate }}</th>
-                        <th class="col-ano" *ngFor="let ano of historicoAnos()">{{ ano }}</th>
+                        <th class="col-ano" *ngFor="let periodo of periodosAcaoIndicadoresComHistorico()">{{ periodo }}</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <tr *ngFor="let item of inv.historicoIndicadores">
-                        <td class="col-indicador">{{ item.indicador }}</td>
-                        <td class="col-valor" *ngFor="let ano of historicoAnos()">{{ getValorHistorico(item, ano) }}</td>
+                    <tr *ngFor="let item of investidor10AcaoIndicadoresComHistorico()">
+                        <td class="col-indicador">{{ item.nome }}</td>
+                        <td class="col-valor" *ngFor="let valor of item.valores">{{ valor.valor }}</td>
                     </tr>
                 </tbody>
             </table>

@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { HelpTipComponent } from '../../../../components/help-tip/HelpTipComponent';
 import { TranslatePipe } from '../../../../pipes/TranslatePipe';
 import { TranslationService } from '../../../../services/TranslationService';
-import { Investidor10AcaoDetails, Investidor10FiiDetails, Investidor10HistoricoIndicador, Investidor10ValorHistorico } from '../../../../models';
+import { Investidor10AcaoDetails, Investidor10FiiDetails, Investidor10FiiIndicadorFundamentalista, Investidor10HistoricoIndicador, Investidor10ValorHistorico, Investidor10ValorPorPeriodo } from '../../../../models';
 
 @Component({
     selector: 'app-investidor10-details',
@@ -45,6 +45,17 @@ export class Investidor10DetailsComponent {
 
     periodosFiiIndicadores = computed(() => {
         const indicadores = this.investidor10FiiIndicadores();
+        if (!indicadores.length) return [];
+        return indicadores[0].valores.map((v) => v.periodo);
+    });
+
+    investidor10AcaoIndicadoresComHistorico = computed(() => {
+        if (this.isFii()) return [];
+        return (this.investidor10Value() as Investidor10AcaoDetails).indicadoresFundamentalistasComHistorico ?? [];
+    });
+
+    periodosAcaoIndicadoresComHistorico = computed(() => {
+        const indicadores = this.investidor10AcaoIndicadoresComHistorico();
         if (!indicadores.length) return [];
         return indicadores[0].valores.map((v) => v.periodo);
     });

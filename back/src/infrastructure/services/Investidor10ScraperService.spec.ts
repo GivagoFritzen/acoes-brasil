@@ -576,19 +576,33 @@ describe("Investidor10ScraperService", () => {
             ],
             "Dividend Yield": [
               { year: "2024", value: "5.2", type: "percent" },
+              { year: "2023", value: "4.8", type: "percent" },
             ],
           }),
         });
 
       const resultado = await service.scrapeAsync("VIVT3");
 
-      expect(resultado.historicoIndicadores.length).toBe(2);
+      expect(resultado.historicoIndicadores).toHaveLength(2);
       expect(resultado.historicoIndicadores[0].indicador).toBe("P/L");
       expect(resultado.historicoIndicadores[0].valores.length).toBe(2);
       expect(resultado.historicoIndicadores[0].valores[0].ano).toBe(2024);
       expect(resultado.historicoIndicadores[0].valores[0].valor).toBe(15.5);
       expect(resultado.historicoIndicadores[0].valores[0].tipo).toBe("numeric");
       expect(resultado.historicoIndicadores[1].valores[0].tipo).toBe("percent");
+
+      // Verifica novo campo com Atual + historico
+      expect(resultado.indicadoresFundamentalistasComHistorico).toHaveLength(2);
+      expect(resultado.indicadoresFundamentalistasComHistorico[0].nome).toBe("P/L");
+      expect(resultado.indicadoresFundamentalistasComHistorico[0].valores).toHaveLength(3);
+      expect(resultado.indicadoresFundamentalistasComHistorico[0].valores[0].periodo).toBe("Atual");
+      expect(resultado.indicadoresFundamentalistasComHistorico[0].valores[0].valor).toBe("10");
+      expect(resultado.indicadoresFundamentalistasComHistorico[0].valores[1].periodo).toBe("2024");
+      expect(resultado.indicadoresFundamentalistasComHistorico[0].valores[1].valor).toBe("15,50");
+      expect(resultado.indicadoresFundamentalistasComHistorico[1].nome).toBe("Dividend Yield");
+      expect(resultado.indicadoresFundamentalistasComHistorico[1].valores[0].valor).toBe("-");
+      expect(resultado.indicadoresFundamentalistasComHistorico[1].valores[1].periodo).toBe("2024");
+      expect(resultado.indicadoresFundamentalistasComHistorico[1].valores[1].valor).toBe("5,20%");
     });
 
     it("deve retornar historico vazio quando fetch de JSON retorna null", async () => {
@@ -644,7 +658,7 @@ describe("Investidor10ScraperService", () => {
         }),
       });
 
-      const resultado = await (service as Investidor10ServiceTest).fetchHistoricoIndicadoresAsync(stockId);
+      const resultado = await (service as Investidor10ServiceTest).fetchHistoricoIndicadoresAsync(stockId, true);
 
       expect(resultado).toHaveLength(2);
       expect(resultado[0].indicador).toBe("P/VP");
@@ -949,6 +963,98 @@ describe("Investidor10ScraperService", () => {
       expect(resultado[2].valores[1].valor).toBe("10.5");
       expect(resultado[2].valores[2].periodo).toBe("2024");
       expect(resultado[2].valores[2].valor).toBe("9.9");
+    });
+  });
+
+  describe("parseIndicadoresFundamentalistasComHistorico", () => {
+    const indicadoresFundamentalistas = [
+      { label: "P/L", value: "10,50" },
+      { label: "P/VP", value: "1,20" },
+      { label: "Dividend Yield", value: "5,74%" },
+    ];
+
+    const historicoIndicadores = [
+      {
+        indicador: "P/L",
+        valores: [
+          { ano: 2024, valor: 15.5, tipo: "numeric" as const },
+          { ano: 2023, valor: 12.3, tipo: "numeric" as const },
+        ],
+      },
+      {
+        indicador: "P/VP",
+        valores: [
+          { ano: 2024, valor: 1.25, tipo: "numeric" as const },
+          { ano: 2023, valor: 1.1, tipo: "numeric" as const },
+        ],
+      },
+      {
+        indicador: "Dividend Yield",
+        valores: [
+          { ano: 2024, valor: 5.2, tipo: "percent" as const },
+          { ano: 2023, valor: 4.8, tipo: "percent" as const },
+        ],
+      },
+    ];
+
+    it("deve combinar valores atuais do card com historico da API", () => {
+      const resultado = (service as Investidor10ServiceTest).parseIndicadoresFundamentalistasComHistorico(
+        indicadoresFundamentalistas,
+        historicoIndicadores
+      );
+
+      expect(resultado).toHaveLength(3);
+
+      expect(resultado[0].nome).toBe("P/L");
+      expect(resultado[0].valores).toHaveLength(3);
+      expect(resultado[0].valores[0].periodo).toBe("Atual");
+      expect(resultado[0].valores[0].valor).toBe("10,50");
+      expect(resultado[0].valores[1].periodo).toBe("2024");
+      expect(resultado[0].valores[1].valor).toBe("15,50");
+      expect(resultado[0].valores[2].periodo).toBe("2023");
+      expect(resultado[0].valores[2].valor).toBe("12,30");
+
+      expect(resultado[1].nome).toBe("P/VP");
+      expect(resultado[1].valores[0].valor).toBe("1,20");
+      expect(resultado[1].valores[1].valor).toBe("1,25");
+      expect(resultado[1].valores[2].valor).toBe("1,10");
+
+      expect(resultado[2].nome).toBe("Dividend Yield");
+      expect(resultado[2].valores[0].valor).toBe("5,74%");
+      expect(resultado[2].valores[1].valor).toBe("5,20%");
+      expect(resultado[2].valores[2].valor).toBe("4,80%");
+    });
+
+    it("deve retornar array vazio quando historico vazio", () => {
+      const resultado = (service as Investidor10ServiceTest).parseIndicadoresFundamentalistasComHistorico(
+        indicadoresFundamentalistas,
+        []
+      );
+      expect(resultado).toEqual([]);
+    });
+
+    it("deve usar '-' quando nao ha valor atual no card", () => {
+      const indicadoresSemAtual = [
+        { label: "P/L", value: "10,50" },
+      ];
+      const historico = [
+        {
+          indicador: "VPA",
+          valores: [{ ano: 2024, valor: 18.5, tipo: "numeric" as const }],
+        },
+      ];
+
+      const resultado = (service as Investidor10ServiceTest).parseIndicadoresFundamentalistasComHistorico(
+        indicadoresSemAtual,
+        historico
+      );
+
+      expect(resultado).toHaveLength(1);
+      expect(resultado[0].nome).toBe("VPA");
+      expect(resultado[0].valores[0].periodo).toBe("Atual");
+      expect(resultado[0].valores[0].valor).toBe("-");
+      expect(resultado[0].valores[1].periodo).toBe("2024");
+      expect(resultado[0].valores[1].valor).toBe("18,50");
     });
   });
 

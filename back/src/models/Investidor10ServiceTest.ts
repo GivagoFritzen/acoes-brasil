@@ -1,3 +1,4 @@
+import type { Investidor10Indicator } from "../../../common/models/investidor10";
 import type { Investidor10FiiIndicadorFundamentalista, Investidor10InformacaoFii, Investidor10HistoricoIndicador } from "../../../common/models/investidor10";
 
 export interface Investidor10ServiceTest {
@@ -12,6 +13,10 @@ export interface Investidor10ServiceTest {
   parseFiiIndicadoresFundamentalistas(
     html: string,
     informacoesFii: Investidor10InformacaoFii[],
+    historicoIndicadores: Investidor10HistoricoIndicador[]
+  ): Investidor10FiiIndicadorFundamentalista[];
+  parseIndicadoresFundamentalistasComHistorico(
+    indicadoresFundamentalistas: Investidor10Indicator[],
     historicoIndicadores: Investidor10HistoricoIndicador[]
   ): Investidor10FiiIndicadorFundamentalista[];
   parseMonetaryValue(value: string): number;
