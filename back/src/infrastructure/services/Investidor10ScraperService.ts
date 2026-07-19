@@ -677,29 +677,25 @@ export class Investidor10ScraperService {
   }
 
   private findMatchingClose(html: string, openTagStart: number, tagName: string): number | null {
-    let depth = 0;
-    let foundOpening = false;
-    const regex = new RegExp(`</?${tagName}(?:\s[^>]*)?>`, "gi");
-    regex.lastIndex = openTagStart;
+    const openTag = `<${tagName}`;
+    const closeTag = `</${tagName}>`;
 
-    let match;
-    while ((match = regex.exec(html)) !== null) {
-      const fullTag = match[0];
-      const isClosing = fullTag.startsWith("</");
+    let depth = 1;
+    let pos = openTagStart;
 
-      if (!foundOpening) {
-        if (!isClosing) {
-          foundOpening = true;
-          depth = 1;
-        }
-        continue;
-      }
+    while (pos < html.length) {
+      const nextOpen = html.indexOf(openTag, pos + 1);
+      const nextClose = html.indexOf(closeTag, pos + 1);
 
-      if (isClosing) {
-        depth--;
-        if (depth === 0) return regex.lastIndex;
-      } else {
+      if (nextClose === -1) return null;
+
+      if (nextOpen !== -1 && nextOpen < nextClose) {
         depth++;
+        pos = nextOpen;
+      } else {
+        depth--;
+        if (depth === 0) return nextClose + closeTag.length;
+        pos = nextClose;
       }
     }
 
