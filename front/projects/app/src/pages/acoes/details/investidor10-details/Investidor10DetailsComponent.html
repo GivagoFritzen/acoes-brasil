@@ -94,7 +94,7 @@
                 <tbody>
                     <tr *ngFor="let item of investidor10FiiIndicadores()">
                         <td class="col-indicador">{{ item.nome }}</td>
-                        <td class="col-valor" *ngFor="let valor of item.valores">{{ valor.valor }}</td>
+                        <td class="col-valor" *ngFor="let valor of item.valores" [attr.data-periodo]="valor.periodo">{{ valor.valor }}</td>
                     </tr>
                 </tbody>
             </table>
@@ -117,7 +117,7 @@
                 <tbody>
                     <tr *ngFor="let item of investidor10AcaoIndicadoresComHistorico()">
                         <td class="col-indicador">{{ item.nome }}</td>
-                        <td class="col-valor" *ngFor="let valor of item.valores">{{ valor.valor }}</td>
+                        <td class="col-valor" *ngFor="let valor of item.valores" [attr.data-periodo]="valor.periodo">{{ valor.valor }}</td>
                     </tr>
                 </tbody>
             </table>

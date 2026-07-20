@@ -229,4 +229,54 @@ describe('Investidor10DetailsComponent', () => {
             expect(() => fixture.detectChanges()).not.toThrow();
         });
     });
+
+    describe('historico mobile', () => {
+        it('deve renderizar data-periodo nos valores quando acao tem historico', () => {
+            const acaoComHistorico: Investidor10AcaoDetails = {
+                ...baseAcao,
+                indicadoresFundamentalistasComHistorico: [
+                    {
+                        nome: 'P/L',
+                        valores: [
+                            { periodo: '2024', valor: '15,50' },
+                            { periodo: '2023', valor: '14,20' },
+                        ],
+                        tipo: 'numerico',
+                    },
+                ],
+            };
+            const fixture = TestBed.createComponent(Investidor10DetailsComponent);
+            fixture.componentRef.setInput('investidor10', acaoComHistorico);
+            fixture.detectChanges();
+
+            const valores = fixture.nativeElement.querySelectorAll('.acao-details__historico-table-inner .col-valor');
+            expect(valores.length).toBe(2);
+            expect(valores[0].getAttribute('data-periodo')).toBe('2024');
+            expect(valores[1].getAttribute('data-periodo')).toBe('2023');
+        });
+
+        it('deve renderizar data-periodo nos valores quando FII tem historico', () => {
+            const fiiComHistorico: Investidor10FiiDetails = {
+                ...baseFii,
+                indicadoresFundamentalistasFii: [
+                    {
+                        nome: 'Dividend Yield',
+                        valores: [
+                            { periodo: '3T24', valor: '8,10%' },
+                            { periodo: '2T24', valor: '7,90%' },
+                        ],
+                        tipo: 'percentual',
+                    },
+                ],
+            };
+            const fixture = TestBed.createComponent(Investidor10DetailsComponent);
+            fixture.componentRef.setInput('investidor10', fiiComHistorico);
+            fixture.detectChanges();
+
+            const valores = fixture.nativeElement.querySelectorAll('.acao-details__historico-table-inner .col-valor');
+            expect(valores.length).toBe(2);
+            expect(valores[0].getAttribute('data-periodo')).toBe('3T24');
+            expect(valores[1].getAttribute('data-periodo')).toBe('2T24');
+        });
+    });
 });
