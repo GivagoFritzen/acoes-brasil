@@ -11,6 +11,6 @@ export type { Investidor10SegmentoReceita } from './Investidor10SegmentoReceitaM
 export type { Investidor10ReceitaAno } from './Investidor10ReceitaAnoModel';
 export type { Investidor10Imovel } from './Investidor10ImovelModel';
 export type { Investidor10InformacaoFii } from './Investidor10InformacaoFiiModel';
-export type { Investidor10ValorPorPeriodo } from './Investidor10FiiIndicadorFundamentalistaModel';
+export type { Investidor10ValorPorPeriodo } from './Investidor10ValorPorPeriodoModel';
 export type { Investidor10FiiIndicadorFundamentalista } from './Investidor10FiiIndicadorFundamentalistaModel';
 export type { Investidor10FiiIndicadoresFundamentalistasResponse } from './Investidor10FiiIndicadoresFundamentalistasResponseModel';

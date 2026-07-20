@@ -1,7 +1,4 @@
-export interface Investidor10ValorPorPeriodo {
-  periodo: string;
-  valor: string;
-}
+import { Investidor10ValorPorPeriodo } from "./Investidor10ValorPorPeriodoModel";
 
 export interface Investidor10FiiIndicadorFundamentalista {
   nome: string;
