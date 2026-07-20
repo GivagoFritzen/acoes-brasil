@@ -1,4 +1,6 @@
-import { OrderValidator, ValidationError } from "./OrderValidator";
+import { OrderValidator } from "./OrderValidator";
+import { ValidationError } from "../exceptions/ValidationError";
+import type { OrderOperacao as orderOperacao } from "../../../common/models/order";
 
 describe("OrderValidator", () => {
   describe("validateCreateOrderDto", () => {
@@ -41,6 +43,32 @@ describe("OrderValidator", () => {
       ).toThrow("Dados inválidos para criar order");
     });
 
+    it("Deve lancar ValidationError quando quantidade for negativa", () => {
+      expect(() =>
+        OrderValidator.validateCreateOrderDto({
+          codigo: "VALE3",
+          quantidade: -1,
+          valor: 50,
+          data: "01-01-2024",
+          tipo: "ACAO",
+          operacao: "Compra",
+        })
+      ).toThrow("Quantidade deve ser maior que zero.");
+    });
+
+    it("Deve lancar ValidationError quando valor for negativo", () => {
+      expect(() =>
+        OrderValidator.validateCreateOrderDto({
+          codigo: "VALE3",
+          quantidade: 100,
+          valor: -1,
+          data: "01-01-2024",
+          tipo: "ACAO",
+          operacao: "Compra",
+        })
+      ).toThrow("Valor deve ser maior que zero.");
+    });
+
     it("Deve lancar ValidationError quando operacao invalida", () => {
       expect(() =>
         OrderValidator.validateCreateOrderDto({
@@ -49,7 +77,7 @@ describe("OrderValidator", () => {
           valor: 50,
           data: "01-01-2024",
           tipo: "ACAO",
-          operacao: "Invalida" as any,
+          operacao: "Invalida" as orderOperacao,
         })
       ).toThrow("Operação inválida para portfolio. Use Compra ou Venda.");
     });

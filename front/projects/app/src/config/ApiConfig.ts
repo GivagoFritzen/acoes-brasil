@@ -1,16 +1,5 @@
-export interface ApiEndpoints {
-  orders: string;
-  portfolios: string;
-  proventos: string;
-  fundamentus: string;
-  googleFinance: string;
-  tradingHours: string;
-}
-
-export interface ApiConfig {
-  baseUrl: string;
-  endpoints: ApiEndpoints;
-}
+import type { ApiEndpoints } from './ApiEndpointsConfig';
+import type { ApiConfig } from '../models/ApiConfigModel';
 
 export const API_CONFIG: ApiConfig = {
   baseUrl: 'http://localhost:3000',
@@ -19,8 +8,10 @@ export const API_CONFIG: ApiConfig = {
     portfolios: '/portfolios',
     proventos: '/proventos',
     fundamentus: '/fundamentus',
+    investidor10: '/investidor10',
     googleFinance: '/google-finance',
-    tradingHours: '/trading-hours'
+    tradingHours: '/trading-hours',
+    yahooFinance: '/yahoo-finance'
   }
 };
 

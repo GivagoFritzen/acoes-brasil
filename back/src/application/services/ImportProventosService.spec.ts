@@ -2,6 +2,7 @@ import { ImportProventosService } from "./ImportProventosService";
 import { IProventoRepository } from "../../domain/interfaces/IProventoRepository";
 import { ITransactionManager } from "../../domain/interfaces/ITransactionManager";
 import { CreateProventoDto } from "../dto/CreateProventoDto";
+import { ProventoEntity } from "../../domain/entities/ProventoEntity";
 
 describe("ImportProventosService", () => {
   let proventoRepositoryMock: jest.Mocked<IProventoRepository>;
@@ -10,16 +11,16 @@ describe("ImportProventosService", () => {
 
   beforeEach(() => {
     proventoRepositoryMock = {
-      createAsync: jest.fn().mockResolvedValue({} as any),
+      createAsync: jest.fn().mockResolvedValue(new ProventoEntity("1", "VALE3", "2024-01-01", "JurosSobreCapitalProprio", "Banco do Brasil", 100, 1.0, 100.0)),
       createManyAsync: jest.fn(),
       findByIdAsync: jest.fn(),
       findAllAsync: jest.fn(),
       deleteAsync: jest.fn(),
-    } as unknown as jest.Mocked<IProventoRepository>;
+    } as jest.Mocked<IProventoRepository>;
 
     transactionManagerMock = {
       executeAsync: jest.fn((fn) => fn(undefined)),
-    } as unknown as jest.Mocked<ITransactionManager>;
+    } as jest.Mocked<ITransactionManager>;
 
     service = new ImportProventosService(proventoRepositoryMock, transactionManagerMock);
   });

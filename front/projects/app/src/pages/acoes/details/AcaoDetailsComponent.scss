@@ -1,6 +1,12 @@
 @use '../../../colors.scss' as *;
 
 .acao-details {
+  app-fundamentus-details,
+  app-investidor10-details,
+  app-yahoo-finance-details {
+    display: contents;
+  }
+
   margin: 24px;
   padding: 24px;
   display: flex;
@@ -26,6 +32,125 @@
     display: flex;
     flex-direction: column;
     gap: 6px;
+  }
+
+  &__edit-btn {
+    position: fixed;
+    top: 24px;
+    right: 32px;
+    z-index: 900;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    border: 1px solid var(--color-text-muted);
+    border-radius: 50%;
+    background: var(--color-surface);
+    color: var(--color-text-muted);
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(15, 23, 42, 0.12);
+    transition: all 0.2s ease;
+
+    &:hover {
+      color: $color-primary;
+      border-color: $color-primary;
+      box-shadow: 0 2px 12px $color-primary-opacity-25;
+    }
+  }
+
+  &__modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background: $color-overlay;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    padding: 16px;
+  }
+
+  &__modal {
+    width: min(100%, 400px);
+    background: var(--color-surface);
+    border-radius: 14px;
+    padding: 24px;
+    box-shadow: 0 20px 45px $color-modal-shadow;
+
+    h3 {
+      margin: 0 0 20px;
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--color-text);
+    }
+  }
+
+  &__modal-options {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 24px;
+  }
+
+  &__modal-option {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 16px;
+    border: 1px solid var(--color-border);
+    border-radius: 10px;
+    cursor: pointer;
+    transition: border-color 0.2s ease, background 0.2s ease;
+
+    &:hover {
+      border-color: $color-primary-opacity-25;
+      background: rgba(99, 102, 241, 0.04);
+    }
+
+    &--active {
+      border-color: $color-primary;
+      background: rgba(99, 102, 241, 0.06);
+    }
+  }
+
+  &__modal-option-label {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--color-text);
+  }
+
+  &__modal-radio {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    border: 2px solid var(--color-border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: border-color 0.2s ease;
+
+    &--active {
+      border-color: $color-primary;
+    }
+  }
+
+  &__modal-radio-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: transparent;
+    transition: background 0.2s ease;
+
+    .acao-details__modal-radio--active & {
+      background: $color-primary;
+    }
+  }
+
+  &__modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
   }
 
   .acao-details__back {
@@ -65,6 +190,18 @@
     }
   }
 
+  .show-desktop {
+    @media (max-width: 639px) {
+      display: none;
+    }
+  }
+
+  .show-mobile {
+    @media (min-width: 640px) {
+      display: none;
+    }
+  }
+
   .acao-details__fundamentus-table,
   .acao-details__history-table {
     display: flex;
@@ -97,6 +234,33 @@
       font-weight: 600;
       color: var(--color-text);
     }
+
+    &--period {
+      background: rgba(0, 0, 0, 0.03);
+      font-weight: 700;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      padding: 6px 0;
+
+      .label {
+        color: var(--color-text);
+      }
+
+      strong {
+        display: none;
+      }
+    }
+
+    &--sub {
+      .label {
+        padding-left: 16px;
+      }
+
+      strong {
+        font-weight: 500;
+      }
+    }
   }
 
   .acao-details__card--full {
@@ -126,33 +290,272 @@
     }
   }
 
-  .acao-details__card--chart {
+  .acao-details__historico-description {
+    margin: 0;
+    font-size: 13px;
+    color: var(--color-text-muted);
+    line-height: 1.5;
+  }
+
+  .acao-details__historico-table {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+
+    .acao-details__historico-table-inner {
+      min-width: max-content;
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+
+      th, td {
+        padding: 8px 12px;
+        border-bottom: 1px solid var(--color-border);
+        text-align: center;
+        white-space: nowrap;
+      }
+
+      thead th {
+        font-size: 12px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        color: var(--color-text-muted);
+        border-bottom: 2px solid var(--color-border);
+      }
+
+      .col-indicador {
+        text-align: left;
+        font-weight: 600;
+        color: var(--color-text);
+        position: sticky;
+        left: 0;
+        background: var(--color-surface);
+        min-width: 120px;
+      }
+
+      .col-ano {
+        min-width: 90px;
+      }
+
+      .col-valor {
+        font-variant-numeric: tabular-nums;
+        color: var(--color-text);
+      }
+
+      tbody tr:hover {
+        background: rgba(99, 102, 241, 0.04);
+      }
+    }
+
     @media (max-width: 768px) {
-      grid-column: 1 / -1;
+      .acao-details__historico-table {
+        overflow-x: visible;
+
+        .acao-details__historico-table-inner {
+          display: block;
+          width: 100%;
+          min-width: 0;
+          font-size: 13px;
+
+          thead {
+            display: none;
+          }
+
+          tbody {
+            display: block;
+          }
+
+          tr {
+            display: block;
+            padding: 12px;
+            margin-bottom: 12px;
+            border: 1px solid var(--color-border);
+            border-radius: 10px;
+            background: var(--color-surface);
+          }
+
+          .col-indicador {
+            display: block;
+            position: static;
+            min-width: 0;
+            padding: 0 0 8px;
+            margin-bottom: 8px;
+            border-bottom: 1px solid var(--color-border);
+            font-size: 14px;
+            text-align: left;
+            white-space: normal;
+          }
+
+          .col-valor {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 6px 0;
+            text-align: right;
+            white-space: normal;
+
+            &::before {
+              content: attr(data-periodo);
+              font-weight: 600;
+              color: var(--color-text-muted);
+              text-align: left;
+            }
+          }
+        }
+      }
     }
   }
 
-  .acao-details__history {
+  .acao-details__revenue-total {
     display: flex;
-    flex-direction: column;
-    gap: 10px;
-  }
-
-  .acao-details__history-row {
-    display: grid;
-    grid-template-columns: 1fr 1.2fr 0.8fr 0.8fr 0.8fr;
-    padding: 10px 6px;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 4px 8px;
     font-size: 13px;
-    border-bottom: 1px solid var(--color-border);
-    color: var(--color-text);
+    border-bottom: 2px solid var(--color-border);
+
+    .label {
+      font-weight: 700;
+      color: var(--color-text);
+    }
+
+    .value {
+      font-weight: 700;
+      color: $color-primary;
+      font-size: 14px;
+    }
   }
 
-  .acao-details__history-row--head {
-    font-size: 12px;
-    font-weight: 600;
+  .acao-details__revenue-desc {
+    padding: 6px 4px;
+    font-size: 11px;
     text-transform: uppercase;
-    letter-spacing: 0.04em;
-    color: var(--color-text-muted);
+    letter-spacing: 0.5px;
+    color: var(--color-text-secondary);
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .acao-details__revenue-grid {
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 16px;
+
+    @media (min-width: 640px) {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+
+  .acao-details__card--info-2cols {
+    grid-column: 1 / -1;
+
+    @media (min-width: 640px) {
+      .acao-details__fundamentus-table {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        column-gap: 28px;
+        row-gap: 6px;
+      }
+
+      .acao-details__fundamentus-row {
+        padding: 10px 4px;
+      }
+    }
+  }
+
+  .acao-details__card--chart {
+    grid-column: 1 / -1;
+  }
+
+  .acao-details__card--proventos {
+    .acao-details__history {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .acao-details__history-row {
+      display: grid;
+      grid-template-columns: 1.2fr 2fr 1fr;
+      gap: 16px;
+      padding: 10px 16px;
+      font-size: 14px;
+      border-bottom: 1px solid var(--color-border);
+      color: var(--color-text);
+
+      .col-data {
+        font-weight: 600;
+      }
+
+      .col-tipo {
+        color: var(--color-text);
+      }
+
+      .col-valor {
+        text-align: right;
+        font-weight: 600;
+        font-variant-numeric: tabular-nums;
+      }
+    }
+
+    .acao-details__history-row--head {
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--color-text-muted);
+      border-bottom: 2px solid var(--color-border);
+      padding: 8px 16px;
+
+      .col-valor {
+        text-align: right;
+      }
+    }
+  }
+
+  .acao-details__financial-table-wrap {
+    overflow-x: auto;
+    border-top: 1px solid var(--color-border);
+  }
+
+  .acao-details__financial-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+    font-variant-numeric: tabular-nums;
+
+    th, td {
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--color-border);
+      text-align: right;
+      white-space: nowrap;
+    }
+
+    thead th {
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--color-text-muted);
+      border-bottom: 2px solid var(--color-border);
+    }
+
+    .col-label {
+      text-align: left;
+      font-weight: 600;
+      color: var(--color-text);
+      position: sticky;
+      left: 0;
+      background: var(--color-surface);
+      min-width: 140px;
+
+      @media (min-width: 640px) {
+        min-width: 160px;
+      }
+    }
+
+    tbody tr:hover {
+      background: rgba(99, 102, 241, 0.04);
+    }
   }
 
   .acao-details__chart-header {
@@ -207,8 +610,39 @@
     padding: 16px;
     border-radius: 12px;
 
-    .acao-details__card--chart {
+  .acao-details__card--chart {
       padding: 8px;
+    }
+
+    .acao-details__card--proventos {
+      .acao-details__history {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+      }
+
+      .acao-details__history-row {
+        grid-template-columns: 1fr 1.5fr 0.8fr;
+        gap: 12px;
+        padding: 10px 12px;
+        font-size: 11px;
+        text-align: center;
+      }
+    }
+
+    &__edit-btn {
+      top: 8px;
+      right: 8px;
+      width: 32px;
+      height: 32px;
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .acao-details {
+    &__edit-btn {
+      top: 8px;
+      right: 12px;
     }
   }
 }

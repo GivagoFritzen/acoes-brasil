@@ -1,7 +1,6 @@
+import type { DetectedAssetType } from '../models/asset-type/DetectedAssetType';
+import type { SupportedAssetType } from '../models/asset-type/SupportedAssetType';
 import { isCodigoFormatoValido, normalizeOrderCodigo } from './OrderCodigoUtils';
-
-export type DetectedAssetType = 'ACAO' | 'FII' | 'BDR' | 'UNKNOWN';
-export type SupportedAssetType = Exclude<DetectedAssetType, 'UNKNOWN'>;
 
 const ACAO_REGEX = /^[A-Z]{4}(3|4|5|6|11)F?$/;
 const FII_REGEX = /^[A-Z]{4}11$/;

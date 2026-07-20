@@ -2,11 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { vi } from 'vitest';
 import { SimpleSelectComponent } from './SimpleSelectComponent';
-
-interface SelectOption {
-    value: string;
-    label: string;
-}
+import type { SelectOption } from '../../models/SelectOption';
 
 describe('SimpleSelectComponent', () => {
     let component: SimpleSelectComponent;
@@ -41,13 +37,13 @@ describe('SimpleSelectComponent', () => {
             });
 
             it('deve aplicar options fornecido', () => {
-                component.options = mockOptions as any;
+                component.options = mockOptions;
                 fixture.detectChanges();
                 expect(component.options).toEqual(mockOptions);
             });
 
             it('deve renderizar options no select', () => {
-                component.options = mockOptions as any;
+                component.options = mockOptions;
                 fixture.detectChanges();
                 const options = fixture.debugElement.queryAll(By.css('option'));
                 // +1 because of placeholder option
@@ -55,7 +51,7 @@ describe('SimpleSelectComponent', () => {
             });
 
             it('deve renderizar labels das options corretamente', () => {
-                component.options = mockOptions as any;
+                component.options = mockOptions;
                 fixture.detectChanges();
                 const optionElements = fixture.debugElement.queryAll(By.css('option:not([value=""])'));
                 expect(optionElements[0].nativeElement.textContent.trim()).toBe('Opção 1');
@@ -120,12 +116,12 @@ describe('SimpleSelectComponent', () => {
 
     describe('Outputs', () => {
         it('deve emitir valueChange com valor selecionado no onChange()', () => {
-            component.options = mockOptions as any;
+            component.options = mockOptions;
             fixture.detectChanges();
             const emitSpy = vi.spyOn(component.valueChange, 'emit');
             const select = fixture.debugElement.query(By.css('select')).nativeElement;
             select.value = 'opt2';
-            const event = { target: select } as unknown as Event;
+            const event = { target: select } as Event;
             component.onChange(event);
             expect(emitSpy).toHaveBeenCalledWith('opt2');
         });
@@ -133,7 +129,7 @@ describe('SimpleSelectComponent', () => {
         
 
         it('deve emitir valueChange via evento change do select', () => {
-            component.options = mockOptions as any;
+            component.options = mockOptions;
             fixture.detectChanges();
             const emitSpy = vi.spyOn(component.valueChange, 'emit');
             const select = fixture.debugElement.query(By.css('select')).nativeElement;
@@ -149,7 +145,7 @@ describe('SimpleSelectComponent', () => {
             const emitSpy = vi.spyOn(component.valueChange, 'emit');
             const select = fixture.debugElement.query(By.css('select')).nativeElement;
             select.value = '';
-            const event = { target: select } as unknown as Event;
+            const event = { target: select } as Event;
             component.onChange(event);
             expect(emitSpy).toHaveBeenCalledWith('');
         });

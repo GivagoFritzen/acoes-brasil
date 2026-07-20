@@ -150,6 +150,20 @@ describe("SpreadsheetParserService", () => {
 
       expect(() => service.parseOrderRowsAsync(buffer)).toThrow("dados obrigatórios inválidos");
     });
+
+    it("Deve lancar erro quando codigo nao reconhecido como ativo suportado", () => {
+      const buffer = criarBufferExcel([
+        {
+          "Código de Negociação": "INVALIDO",
+          Quantidade: "100",
+          Preço: "50,00",
+          "Data do Negócio": "15-01-2024",
+          "Tipo de Movimentação": "Compra",
+        },
+      ]);
+
+      expect(() => service.parseOrderRowsAsync(buffer)).toThrow("dados obrigatórios inválidos");
+    });
   });
 
   describe("parseProventoRowsAsync", () => {
@@ -306,6 +320,24 @@ describe("SpreadsheetParserService", () => {
       const resultado = service.parseProventoRowsAsync(buffer);
 
       expect(resultado.validRows[0].codigo).toBe("VALE3");
+    });
+
+    it("Deve extrair codigo do produto via fallback quando regex nao encontra padrao", () => {
+      const buffer = criarBufferExcel([
+        {
+          Produto: "ALGUM TEXTO",
+          Pagamento: "15-01-2024",
+          "Tipo de Evento": "Dividendo",
+          Instituição: "BB",
+          Quantidade: "100",
+          "Preço unitário": "1,50",
+          "Valor líquido": "150,00",
+        },
+      ]);
+
+      const resultado = service.parseProventoRowsAsync(buffer);
+
+      expect(resultado.validRows[0].codigo).toBe("ALGUM");
     });
 
     it("Deve retornar proventos e linhas invalidas separadamente", () => {

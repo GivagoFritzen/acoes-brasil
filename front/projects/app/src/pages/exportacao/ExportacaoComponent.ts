@@ -4,6 +4,7 @@ import { AlertsComponent } from '../../components/alerts/AlertsComponent';
 import { SimpleButtonComponent, SimpleSelectComponent } from '../../components';
 import { AlertItem } from '../../models/alert/AlertItemModel';
 import { OrdersService } from '../../services/OrdersService';
+import { PortfolioService } from '../../services/PortfolioService';
 import { SellSnapshotExportRow } from '../../models/SellSnapshotExportRowModel';
 import { TranslatePipe } from '../../pipes/TranslatePipe';
 import { SelectOption } from '../../../../../../common/models/SelectOptionModel';
@@ -19,11 +20,15 @@ export class ExportacaoComponent {
   isExportingAcoes = signal(false);
   isExportingOrderSellExcel = signal(false);
   isExportingOrderSellPdf = signal(false);
+  isExportingPortfolio = signal(false);
   alerts = signal<AlertItem[]>([]);
   anoFiltro = signal('');
   anos = this.gerarAnos();
 
-  constructor(private readonly ordersService: OrdersService) { }
+  constructor(
+    private readonly ordersService: OrdersService,
+    private readonly portfolioService: PortfolioService
+  ) { }
 
   onAnoChange(ano: string): void {
     this.anoFiltro.set(ano);
@@ -62,6 +67,31 @@ export class ExportacaoComponent {
 
     frame.addEventListener('load', onLoaded);
     frame.src = `/acoes?print=1&t=${Date.now()}`;
+  }
+
+  exportarPortfolioExcel(): void {
+    this.isExportingPortfolio.set(true);
+
+    this.portfolioService.exportPortfolioSpreadsheet().subscribe({
+      next: (blob) => {
+        const url = URL.createObjectURL(blob);
+        const anchor = document.createElement('a');
+        anchor.href = url;
+        anchor.download = `portfolio-${Date.now()}.xlsx`;
+        document.body.appendChild(anchor);
+        anchor.click();
+        document.body.removeChild(anchor);
+        URL.revokeObjectURL(url);
+
+        this.pushAlert('info', 'Sucesso', 'Exportação do portfólio em Excel concluída.', '✓');
+      },
+      error: () => {
+        this.pushAlert('error', 'Erro', 'Não foi possível exportar o portfólio em Excel.', '✕');
+      },
+      complete: () => {
+        this.isExportingPortfolio.set(false);
+      },
+    });
   }
 
   exportarOrderSellExcel(): void {
@@ -149,8 +179,9 @@ export class ExportacaoComponent {
   private gerarAnos(): SelectOption[] {
     const anoAtual = new Date().getFullYear();
     const anos: SelectOption[] = [];
-    for (let i = anoAtual; i >= 2020; i--) {
-      anos.push({ value: String(i), label: String(i) });
+    const ANO_MINIMO = 2020;
+    for (let ano = anoAtual; ano >= ANO_MINIMO; ano--) {
+      anos.push({ value: String(ano), label: String(ano) });
     }
     return anos;
   }
@@ -160,7 +191,7 @@ export class ExportacaoComponent {
   }
 
   private buildOrderSellPrintHtml(rows: SellSnapshotExportRow[]): string {
-    const escapeHtml = (value: unknown): string =>
+    const escapeHtml = (value: string | number): string =>
       String(value ?? '')
         .replace(/&/g, '&amp;')
         .replace(/</g, '&lt;')

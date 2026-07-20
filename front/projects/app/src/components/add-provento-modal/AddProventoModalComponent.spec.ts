@@ -86,7 +86,7 @@ describe('AddProventoModalComponent', () => {
           previousValue: false,
           firstChange: false,
           isFirstChange: () => false,
-        } as any,
+        }
       });
 
       expect(component.codigo()).toBe('');
@@ -108,7 +108,7 @@ describe('AddProventoModalComponent', () => {
           previousValue: true,
           firstChange: false,
           isFirstChange: () => true,
-        } as any,
+        }
       });
 
       expect(component.codigo()).toBe('TEST11');
@@ -123,7 +123,7 @@ describe('AddProventoModalComponent', () => {
           previousValue: true,
           firstChange: false,
           isFirstChange: () => false,
-        } as any,
+        }
       });
 
       expect(component.codigo()).toBe('TEST11');
@@ -304,7 +304,7 @@ describe('AddProventoModalComponent', () => {
       component.codigo.set('PETR11');
       component.instituicao.set('Banco');
       component.quantidade.set(100);
-      component.precoUnitario.set(null as any);
+      component.precoUnitario.set(null!);
       component.valorLiquido.set(1000);
       component.data.set('2025-01-01');
       component.submit();
@@ -329,7 +329,7 @@ describe('AddProventoModalComponent', () => {
       component.instituicao.set('Banco');
       component.quantidade.set(100);
       component.precoUnitario.set(10);
-      component.valorLiquido.set(null as any);
+      component.valorLiquido.set(null!);
       component.data.set('2025-01-01');
       component.submit();
       expect(emitSpy).not.toHaveBeenCalled();
@@ -435,7 +435,7 @@ describe('AddProventoModalComponent', () => {
     it('deve criar payload com tipo JurosSobreCapitalProprio', () => {
       const emitSpy = vi.spyOn(component.saved, 'emit');
       component.codigo.set('PETR11');
-      component.tipo.set('JurosSobreCapitalProprio' as any);
+      component.tipo.set('JurosSobreCapitalProprio');
       component.instituicao.set('Banco');
       component.quantidade.set(100);
       component.precoUnitario.set(10);

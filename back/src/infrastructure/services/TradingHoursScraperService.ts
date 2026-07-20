@@ -1,17 +1,10 @@
 import { logger } from "../../shared/logger/Logger";
+import type { ScrapedTradingHours } from "../../models/ScrapedTradingHours";
 
 const TRADINGHOURS_URL = "https://www.tradinghours.com/markets/bovespa";
 const REQUEST_TIMEOUT_MS = 10_000;
 
 const BROWSER_UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36";
-
-export interface ScrapedTradingHours {
-  isOpen: boolean;
-  openTime: string;
-  closeTime: string;
-  timezone: string;
-  tradingDays: number[];
-}
 
 const DEFAULT_HOURS: ScrapedTradingHours = {
   isOpen: false,

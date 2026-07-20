@@ -1,17 +1,13 @@
 import { stripHtml } from "../../../shared/utils/FundamentusUtils";
 
-export const BASE_URL = "https://www.fundamentus.com.br/detalhes.php";
-export const REQUEST_TIMEOUT_MS = 15_000;
-export const MAX_HTML_LENGTH = 1_000_000;
+const BASE_URL = "https://www.fundamentus.com.br/detalhes.php";
+const REQUEST_TIMEOUT_MS = 15_000;
+const MAX_HTML_LENGTH = 1_000_000;
 export const MAX_REGEX_ITERATIONS = 1_000;
 export const LABEL_CLASS = 'class="label';
 export const DATA_CLASS = 'class="data';
-export const NOT_FOUND_PATTERN = /papel\s+inexistente|nenhum\s+resultado/i;
-
-export interface FetchResult {
-  html: string;
-  found: boolean;
-}
+const NOT_FOUND_PATTERN = /papel\s+inexistente|nenhum\s+resultado/i;
+import type { FetchResult } from "../../../models/FetchResult";
 
 export abstract class FundamentusHttpService {
   protected async fetchHtmlAsync(codigo: string): Promise<FetchResult> {

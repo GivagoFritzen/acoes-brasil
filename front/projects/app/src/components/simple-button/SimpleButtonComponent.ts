@@ -1,7 +1,6 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
-
-export type ButtonVariant = 'default' | 'cancelar';
+import type { ButtonVariant } from '../../models/ButtonVariant';
 
 @Component({
     selector: 'app-simple-button',

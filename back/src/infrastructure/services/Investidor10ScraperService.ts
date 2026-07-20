@@ -1,0 +1,814 @@
+import type { Investidor10AcaoDetails, Investidor10FiiDetails, Investidor10HistoricoIndicador, Investidor10Indicator, Investidor10Provento, Investidor10ProventosResponse, Investidor10ValorHistorico, Investidor10ReceitaAno, Investidor10SegmentoReceita, Investidor10RegiaoReceita, Investidor10Imovel, Investidor10InformacaoFii, Investidor10FiiIndicadorFundamentalista, Investidor10ValorPorPeriodo } from "../../../../common/models/investidor10";
+import type { JsonValue } from "../../models/JsonValue";
+import { stripHtml } from "../../shared/utils/FundamentusUtils";
+
+const REQUEST_TIMEOUT_MS = 15_000;
+const MAX_HTML_LENGTH = 2_000_000;
+
+const API_BASE = "https://investidor10.com.br";
+
+export class Investidor10ScraperService {
+  async scrapeAsync(codigo: string): Promise<Investidor10AcaoDetails | Investidor10FiiDetails> {
+    const codigoNormalized = codigo.trim().toUpperCase();
+    const isFii = this.isFii(codigoNormalized);
+    const url = `${this.getBaseUrl(codigoNormalized)}/${encodeURIComponent(codigoNormalized)}/`;
+
+    const html = await this.fetchHtmlAsync(url);
+
+    if (!html) {
+      throw new Error(`Falha ao consultar Investidor10 para o ativo ${codigo}.`);
+    }
+
+    const dadosSobreEmpresa = this.parseDadosSobreEmpresa(html);
+    const informacoesSobreEmpresa = this.parseInformacoesSobreEmpresa(html);
+    const indicadoresFundamentalistas = this.parseIndicadoresFundamentalistas(html);
+
+    const empresa = this.extractEmpresa(dadosSobreEmpresa);
+
+    if (!indicadoresFundamentalistas.length && !informacoesSobreEmpresa.length) {
+      throw new Error("Não foi possível extrair dados do Investidor10.");
+    }
+
+    const stockId = this.extractStockId(html);
+    const historicoIndicadores = stockId ? await this.fetchHistoricoIndicadoresAsync(stockId, isFii) : [];
+
+    if (isFii) {
+      const imoveis = this.parseImoveis(html);
+      const informacoesFii = this.parseInformacoesFii(html);
+      const indicadoresFundamentalistasFii = this.parseFiiIndicadoresFundamentalistas(html, informacoesFii, historicoIndicadores);
+      return {
+        codigo: codigoNormalized,
+        empresa,
+        dadosSobreEmpresa,
+        informacoesSobreEmpresa,
+        indicadoresFundamentalistas,
+        historicoIndicadores,
+        imoveis,
+        informacoesFii,
+        indicadoresFundamentalistasFii,
+        updatedAt: new Date().toISOString(),
+      };
+    }
+
+    const receitas = this.parseRevenueData(html);
+    const indicadoresFundamentalistasComHistorico = this.parseIndicadoresFundamentalistasComHistorico(
+      indicadoresFundamentalistas,
+      historicoIndicadores
+    );
+
+    return {
+      codigo: codigoNormalized,
+      empresa,
+      dadosSobreEmpresa,
+      informacoesSobreEmpresa,
+      indicadoresFundamentalistas,
+      historicoIndicadores,
+      indicadoresFundamentalistasComHistorico,
+      receitas,
+      updatedAt: new Date().toISOString(),
+    };
+  }
+
+  async scrapeDividendosAsync(codigo: string): Promise<Investidor10ProventosResponse> {
+    const codigoNormalized = codigo.trim().toUpperCase();
+    const url = `${this.getBaseUrl(codigoNormalized)}/${encodeURIComponent(codigoNormalized)}/`;
+
+    const html = await this.fetchHtmlAsync(url);
+
+    if (!html) {
+      throw new Error(`Falha ao consultar Investidor10 para o ativo ${codigo}.`);
+    }
+
+    const proventos = this.parseDividendos(html);
+
+    return {
+      codigo: codigoNormalized,
+      proventos,
+      updatedAt: new Date().toISOString(),
+    };
+  }
+
+  private isFii(codigo: string): boolean {
+    return codigo.endsWith("11");
+  }
+
+  private getBaseUrl(codigo: string): string {
+    return this.isFii(codigo) ? `${API_BASE}/fiis` : `${API_BASE}/acoes`;
+  }
+
+  private async fetchHtmlAsync(url: string): Promise<string | null> {
+    const abortController = new AbortController();
+    const timeoutId = setTimeout(() => abortController.abort(), REQUEST_TIMEOUT_MS);
+
+    let response: Response;
+    try {
+      response = await fetch(url, {
+        signal: abortController.signal,
+        headers: {
+          "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+          Accept: "text/html,application/xhtml+xml",
+        },
+      });
+    } finally {
+      clearTimeout(timeoutId);
+    }
+
+    if (!response.ok) return null;
+    if (!response.headers.get("content-type")?.includes("text/html")) return null;
+
+    const text = await response.text();
+
+    if (text.length > MAX_HTML_LENGTH) return null;
+    if (text.includes(" papel inexistente") || text.includes("página não encontrada")) return null;
+
+    return text;
+  }
+
+  private extractEmpresa(dados: Investidor10Indicator[]): string | null {
+    const nome = dados.find((dado) =>
+      dado.label === "Nome da Empresa" || dado.label === "Nome do Fundo"
+    );
+    return nome?.value ?? null;
+  }
+
+  private extractStockId(html: string): string | null {
+    const match = html.match(/data-id=["'](\d+)["']/);
+    return match ? match[1] : null;
+  }
+
+  private async fetchHistoricoIndicadoresAsync(stockId: string, isFii: boolean): Promise<Investidor10HistoricoIndicador[]> {
+    const url = isFii
+      ? `${API_BASE}/api/fii/historico-indicadores/${stockId}/5`
+      : `${API_BASE}/api/historico-indicadores/${stockId}/5/?v=2`;
+    const json = await this.fetchJsonAsync(url, isFii);
+    if (!json || typeof json !== "object") return [];
+
+    const historico: Investidor10HistoricoIndicador[] = [];
+    for (const [indicador, valores] of Object.entries(json)) {
+      if (!Array.isArray(valores)) continue;
+      const validValues = valores.filter(
+        (item): item is { year: string; value: string; type: string } =>
+          typeof item === "object" && item !== null && "year" in item && "value" in item && "type" in item
+          && (item.year !== "Atual" || !isFii) && (item.year === "Atual" || !isNaN(Number(item.year)))
+      );
+      const valoresTipados: Investidor10ValorHistorico[] = validValues.map((item) => ({
+        ano: Number(item.year),
+        valor: Number(item.value),
+        tipo: item.type === "percent" ? "percent" : "numeric",
+      }));
+      historico.push({ indicador, valores: valoresTipados });
+    }
+    return historico;
+  }
+
+  private async fetchJsonAsync(url: string, isFii: boolean = false): Promise<Record<string, JsonValue> | null> {
+    const abortController = new AbortController();
+    const timeoutId = setTimeout(() => abortController.abort(), REQUEST_TIMEOUT_MS);
+
+    try {
+      const response = await fetch(url, {
+        signal: abortController.signal,
+        headers: {
+          "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+          Referer: isFii ? `${API_BASE}/fiis/` : `${API_BASE}/acoes/`,
+          Accept: "application/json, text/javascript, */*; q=0.01",
+          "X-Requested-With": "XMLHttpRequest",
+        },
+      });
+
+      if (!response.ok) return null;
+      const text = await response.text();
+      if (!text) return null;
+
+      return JSON.parse(text);
+    } catch {
+      return null;
+    } finally {
+      clearTimeout(timeoutId);
+    }
+  }
+
+  private parseDividendos(html: string): Investidor10Provento[] {
+    const section = this.extractTagById(html, "table-dividends-history");
+    if (!section) return [];
+
+    const proventos: Investidor10Provento[] = [];
+    const rows = this.extractAllTags(section.html, "tr");
+
+    for (const row of rows) {
+      const cells = this.extractAllTags(row.html, "td");
+      if (cells.length >= 4) {
+        const tipo = stripHtml(cells[0].html).trim();
+        const dataPagamento = stripHtml(cells[2].html).trim();
+        const valor = stripHtml(cells[3].html).trim();
+
+        if (tipo && dataPagamento && valor) {
+          proventos.push({
+            tipo,
+            data: dataPagamento,
+            valor: valor.replace(",", "."),
+          });
+        }
+      }
+    }
+
+    return proventos;
+  }
+
+  private parseDadosSobreEmpresa(html: string): Investidor10Indicator[] {
+    const section = this.extractTagById(html, "data_about");
+    if (!section) return [];
+
+    const tableContent = this.extractTag(section.html, "table");
+    if (!tableContent) return [];
+
+    const indicators: Investidor10Indicator[] = [];
+    const rows = this.extractAllTags(tableContent.html, "tr");
+
+    for (const row of rows) {
+      const cells = this.extractAllTags(row.html, "td");
+      if (cells.length >= 2) {
+        const label = stripHtml(cells[0].html).replace(/:$/, "").trim();
+        const value = stripHtml(cells[1].html).trim();
+        if (label && value) {
+          indicators.push({ label, value });
+        }
+      }
+    }
+
+    return indicators;
+  }
+
+  private parseInformacoesSobreEmpresa(html: string): Investidor10Indicator[] {
+    const section = this.extractTagById(html, "info_about");
+    if (!section) return [];
+
+    const gridSection = this.extractTagById(section.html, "table-indicators-company");
+    if (!gridSection) return [];
+
+    const indicators: Investidor10Indicator[] = [];
+    const cells = this.extractAllTags(gridSection.html, "div", "cell");
+
+    for (const cell of cells) {
+      const titleTag = this.extractTag(cell.html, "span", "title");
+      const valueTag = this.extractTag(cell.html, "span", "value");
+
+      if (titleTag) {
+        const label = stripHtml(titleTag.html).trim();
+        let value = valueTag ? stripHtml(valueTag.html).trim() : "";
+
+        if (label && value) {
+          indicators.push({ label, value });
+        }
+      }
+    }
+
+    return indicators;
+  }
+
+  private parseIndicadoresFundamentalistas(html: string): Investidor10Indicator[] {
+    const section = this.extractTagById(html, "table-indicators");
+    if (!section) return [];
+
+    const indicators: Investidor10Indicator[] = [];
+    const cells = this.extractAllCells(section.html, "div", "cell");
+
+    for (const cell of cells) {
+      let label = "";
+      let value = "";
+
+      const labelMatch = cell.html.match(/<span[^>]*class="[^"]*d-flex[^"]*"[^>]*>([\s\S]*?)<\/span>/);
+      if (labelMatch) {
+        const withoutIcon = labelMatch[1].replace(/<i[\s\S]*?<\/i>/g, "").trim();
+        if (withoutIcon) {
+          label = stripHtml(withoutIcon);
+        }
+      }
+
+      const valueMatch = cell.html.match(/<div[^>]*class="[^"]*value[^"]*"[^>]*>[\s\S]*?<span>([\s\S]*?)<\/span>/);
+      if (valueMatch) {
+        value = stripHtml(valueMatch[1]).trim();
+      }
+
+      if (label && value) {
+        indicators.push({ label, value });
+      }
+    }
+
+    return indicators;
+  }
+
+  private parseImoveis(html: string): Investidor10Imovel[] {
+    const section = this.extractTagById(html, "properties-section");
+    if (!section) return [];
+
+    const imoveis: Investidor10Imovel[] = [];
+    const container = this.extractTagById(section.html, "container-properties");
+    if (!container) return [];
+
+    const propertyCards = this.extractAllTags(container.html, "div", "card-propertie");
+
+    for (const card of propertyCards) {
+      const nomeTag = this.extractTag(card.html, "h3");
+      const smallTags = this.extractAllTags(card.html, "small");
+
+      const nome = nomeTag ? stripHtml(nomeTag.html).trim() : "";
+      let estado = "";
+      let areaBrutaLocavel: string | null = null;
+
+      for (const small of smallTags) {
+        const text = stripHtml(small.html).trim();
+        if (text.startsWith("Estado:")) {
+          estado = text.replace("Estado:", "").trim();
+        } else if (text.startsWith("Área bruta locável:")) {
+          areaBrutaLocavel = text.replace("Área bruta locável:", "").trim();
+        }
+      }
+
+      if (nome) {
+        imoveis.push({ nome, estado, areaBrutaLocavel });
+      }
+    }
+
+    return imoveis;
+  }
+
+  private parseInformacoesFii(html: string): Investidor10InformacaoFii[] {
+    const section = this.extractTagById(html, "about-company");
+    if (!section) return [];
+
+    const table = this.extractTagById(section.html, "table-indicators");
+    if (!table) return [];
+
+    const informacoes: Investidor10InformacaoFii[] = [];
+    const cells = this.extractAllTags(table.html, "div", "cell");
+
+    for (const cell of cells) {
+      const nameTag = this.extractTag(cell.html, "span", "name");
+      if (!nameTag) continue;
+
+      const label = stripHtml(nameTag.html).trim();
+      let value = "";
+
+      const valueTag = this.extractTag(cell.html, "div", "value");
+      if (valueTag) {
+        const valueSpan = this.extractTag(valueTag.html, "span");
+        if (valueSpan) {
+          value = stripHtml(valueSpan.html).trim();
+        }
+      }
+
+      if (label && value) {
+        informacoes.push({ label, value });
+      }
+    }
+
+    return informacoes;
+  }
+
+  private parseFiiIndicadoresFundamentalistas(
+    html: string,
+    informacoesFii: Investidor10InformacaoFii[],
+    historicoIndicadores: Investidor10HistoricoIndicador[]
+  ): Investidor10FiiIndicadorFundamentalista[] {
+    const periodos = this.extractPeriodosHistorico(historicoIndicadores);
+    const historicoPorNome = this.buildHistoricoPorNomeMap(historicoIndicadores);
+    const cards = this.parseFiiCardsTicker(html);
+
+    const definicoes = this.buildFiiIndicadoresDefinitions(cards, informacoesFii);
+
+    return definicoes.map((ind) => this.buildFiiIndicador(ind, periodos, historicoPorNome));
+  }
+
+  // --- MÉTODOS AUXILIARES FII INDICADORES ---
+
+  private getInfoFii(informacoesFii: Investidor10InformacaoFii[], label: string): string | null {
+    return informacoesFii.find((i) => i.label === label)?.value ?? null;
+  }
+
+  private calcularValorDeMercadoFii(cotacao: string | null, cotasEmitidas: number | null): string | null {
+    if (!cotacao || !cotasEmitidas) return null;
+    const valor = this.parseMonetaryValue(cotacao) * cotasEmitidas;
+    return this.formatMonetaryValue(valor);
+  }
+
+  private buildFiiIndicadoresDefinitions(
+    cards: Map<string, string>,
+    informacoesFii: Investidor10InformacaoFii[]
+  ): { nome: string; chaveApi: string | null; tipo: Investidor10FiiIndicadorFundamentalista["tipo"]; valorAtual: string | null }[] {
+    const getInfo = (label: string) => this.getInfoFii(informacoesFii, label);
+
+    const cotacao = cards.get("cotacao") ?? null;
+    const cotasEmitidasRaw = getInfo("COTAS EMITIDAS");
+    const cotasEmitidas = cotasEmitidasRaw ? Number(cotasEmitidasRaw.replace(/\./g, "")) : null;
+    const valorDeMercado = this.calcularValorDeMercadoFii(cotacao, cotasEmitidas);
+
+    return [
+      { nome: "Valor de Mercado", chaveApi: "Valor de Mercado", tipo: "moeda", valorAtual: valorDeMercado },
+      { nome: "P/VP", chaveApi: "P/VP", tipo: "decimal", valorAtual: cards.get("vp") ?? null },
+      { nome: "Dividend Yield", chaveApi: "Dividend Yield", tipo: "percentual", valorAtual: cards.get("dy") ?? null },
+      { nome: "Liquidez Diária", chaveApi: "Liquidez Diária", tipo: "moeda", valorAtual: cards.get("val") ?? null },
+      { nome: "Valor Patrimonial", chaveApi: "Valor Patrimonial", tipo: "moeda", valorAtual: getInfo("VALOR PATRIMONIAL") },
+      { nome: "Val. Patrimonial p/ Cota", chaveApi: "Val. Patrimonial p/ Cota", tipo: "moeda", valorAtual: getInfo("VAL. PATRIMONIAL P/ COTA") },
+      { nome: "Vacância", chaveApi: "Vacância", tipo: "percentual", valorAtual: getInfo("VACÂNCIA") },
+      { nome: "Nº Cotistas", chaveApi: "Número de Cotistas", tipo: "numerico", valorAtual: getInfo("NUMERO DE COTISTAS") },
+      { nome: "Cotas Emitidas", chaveApi: "Cotas Emitidas", tipo: "numerico", valorAtual: getInfo("COTAS EMITIDAS") },
+    ];
+  }
+
+  private buildFiiIndicador(
+    ind: { nome: string; chaveApi: string | null; tipo: Investidor10FiiIndicadorFundamentalista["tipo"]; valorAtual: string | null },
+    periodos: string[],
+    historicoPorNome: Map<string, Map<string, string>>
+  ): Investidor10FiiIndicadorFundamentalista {
+    return {
+      nome: ind.nome,
+      tipo: ind.tipo,
+      valores: periodos.map((periodo) => ({
+        periodo,
+        valor: this.getFiiValorPorPeriodo(periodo, ind.valorAtual, ind.chaveApi, historicoPorNome),
+      })),
+    };
+  }
+
+  private extractPeriodosHistorico(historicoIndicadores: Investidor10HistoricoIndicador[]): string[] {
+    const anosSet = new Set<string>(["Atual"]);
+    historicoIndicadores.forEach((h) => h.valores.forEach((v) => anosSet.add(String(v.ano))));
+    return Array.from(anosSet).sort((a, b) => {
+      if (a === "Atual") return -1;
+      if (b === "Atual") return 1;
+      return Number(b) - Number(a);
+    });
+  }
+
+  private buildHistoricoPorNomeMap(historicoIndicadores: Investidor10HistoricoIndicador[]): Map<string, Map<string, string>> {
+    const map = new Map<string, Map<string, string>>();
+    for (const h of historicoIndicadores) {
+      const valoresMap = new Map<string, string>();
+      for (const v of h.valores) {
+        valoresMap.set(String(v.ano), String(v.valor));
+      }
+      map.set(h.indicador, valoresMap);
+    }
+    return map;
+  }
+
+  private getFiiValorPorPeriodo(
+    periodo: string,
+    valorAtual: string | null,
+    chaveApi: string | null,
+    historico: Map<string, Map<string, string>>
+  ): string {
+    if (periodo === "Atual") return valorAtual ?? "-";
+    if (!chaveApi) return "-";
+    return historico.get(chaveApi)?.get(periodo) ?? "-";
+  }
+
+
+  private parseIndicadoresFundamentalistasComHistorico(
+    indicadoresFundamentalistas: Investidor10Indicator[],
+    historicoIndicadores: Investidor10HistoricoIndicador[]
+  ): Investidor10FiiIndicadorFundamentalista[] {
+    if (!historicoIndicadores.length) return [];
+
+    const periodos = this.extractAnosValidosHistorico(historicoIndicadores);
+    const valorAtualMap = new Map(indicadoresFundamentalistas.map((i) => [i.label, i.value]));
+
+    return historicoIndicadores.map((h) => this.buildIndicadorComHistorico(h, periodos, valorAtualMap));
+  }
+
+  // --- MÉTODOS AUXILIARES INDICADORES COM HISTÓRICO ---
+
+  private buildIndicadorComHistorico(
+    h: Investidor10HistoricoIndicador,
+    periodos: string[],
+    valorAtualMap: Map<string, string>
+  ): Investidor10FiiIndicadorFundamentalista {
+    const isPercent = h.valores[0]?.tipo === "percent";
+    const tipo: Investidor10FiiIndicadorFundamentalista["tipo"] = isPercent ? "percentual" : "numerico";
+    const valores = periodos.map((periodo) => this.buildValorPorPeriodo(periodo, h, isPercent, valorAtualMap));
+
+    return { nome: h.indicador, valores, tipo };
+  }
+
+  private buildValorPorPeriodo(
+    periodo: string,
+    h: Investidor10HistoricoIndicador,
+    isPercent: boolean,
+    valorAtualMap: Map<string, string>
+  ): Investidor10ValorPorPeriodo {
+    if (periodo === "Atual") {
+      return { periodo, valor: valorAtualMap.get(h.indicador) ?? "-" };
+    }
+    const raw = h.valores.find((v) => String(v.ano) === periodo)?.valor;
+    return { periodo, valor: this.formatIndicadorValor(raw, isPercent) };
+  }
+
+  private extractAnosValidosHistorico(historicoIndicadores: Investidor10HistoricoIndicador[]): string[] {
+    const anosSet = new Set<string>();
+    historicoIndicadores.forEach((h) => {
+      h.valores.forEach((v) => {
+        if (!isNaN(Number(v.ano))) anosSet.add(String(v.ano));
+      });
+    });
+    return ["Atual", ...Array.from(anosSet).sort((a, b) => Number(b) - Number(a))];
+  }
+
+  private formatIndicadorValor(raw: string | number | undefined, isPercent: boolean): string {
+    if (raw === undefined) return "-";
+    const num = Number(raw);
+    if (isNaN(num)) return "-";
+
+    const formatted = num.toFixed(2).replace(".", ",");
+    return isPercent ? `${formatted}%` : formatted;
+  }
+
+  private parseFiiCardsTicker(html: string): Map<string, string> {
+    const section = this.extractTagById(html, "cards-ticker");
+    if (!section) return new Map();
+
+    const cardsClasses = ["cotacao", "dy", "vp", "val"];
+    const result = new Map<string, string>();
+
+    for (const className of cardsClasses) {
+      const card = this.extractTag(section.html, "div", className);
+      if (!card) continue;
+
+      const body = this.extractTag(card.html, "div", "_card-body");
+      if (!body) continue;
+
+      const value = this.extractCardValue(body.html);
+      if (value) {
+        result.set(className, value);
+      }
+    }
+
+    return result;
+  }
+
+  private extractCardValue(bodyHtml: string): string {
+    const valueMatch = bodyHtml.match(/<span[^>]*class="[^"]*value[^"]*"[^>]*>([\s\S]*?)<\/span>/);
+    if (valueMatch) return stripHtml(valueMatch[1]).trim();
+
+    const spans = this.extractAllTags(bodyHtml, "span");
+    for (const span of spans) {
+      if (!span.html.includes("daily-variation-badge") && !span.html.includes("popover")) {
+        return stripHtml(span.html).trim();
+      }
+    }
+
+    return stripHtml(bodyHtml).trim();
+  }
+
+  private parseMonetaryValue(value: string): number {
+    const cleaned = value
+      .replace(/^R\$\s*/, "")
+      .replace(/\./g, "")
+      .replace(",", ".");
+
+    const firstSpace = cleaned.indexOf(" ");
+    const result = firstSpace >= 0
+      ? cleaned.slice(0, firstSpace)
+      : cleaned;
+
+    return Number(result.trim());
+  }
+
+  private formatMonetaryValue(value: number): string {
+    if (value >= 1e9) {
+      return `R$ ${(value / 1e9).toFixed(2).replace(".", ",")} Bilhões`;
+    }
+    if (value >= 1e6) {
+      return `R$ ${(value / 1e6).toFixed(2).replace(".", ",")} M`;
+    }
+    return `R$ ${value.toFixed(2).replace(".", ",")}`;
+  }
+
+  private extractAllCells(html: string, tagName: string, className: string): { html: string }[] {
+    const results: { html: string }[] = [];
+    const pattern = `<${tagName}[^>]*class=["'][^"']*${className}[^"']*["'][^>]*>`;
+    const tagRegex = new RegExp(pattern);
+
+    let remaining = html;
+    while (remaining.length > 0) {
+      const match = tagRegex.exec(remaining);
+      if (!match) break;
+
+      const openTagStart = match.index;
+      const closeEnd = this.findMatchingClose(remaining, openTagStart, tagName);
+      if (!closeEnd) break;
+
+      const inner = remaining.substring(openTagStart, closeEnd);
+      const contentEnd = inner.indexOf(">", tagName.length + 1) + 1;
+      const innerContent = inner.substring(contentEnd, inner.length - tagName.length - 3);
+
+      results.push({ html: innerContent });
+      remaining = remaining.substring(closeEnd);
+    }
+
+    return results;
+  }
+
+  private extractTagById(html: string, id: string): { html: string } | null {
+    const idRegex = new RegExp(`id=["']${id}["']`);
+    const idMatch = idRegex.exec(html);
+    if (!idMatch) return null;
+
+    const tagStart = html.lastIndexOf("<", idMatch.index);
+    if (tagStart === -1) return null;
+
+    const tagEnd = html.indexOf(">", idMatch.index);
+    if (tagEnd === -1) return null;
+
+    const tagContent = html.substring(tagStart, tagEnd + 1);
+    const tagNameMatch = tagContent.match(/^<\/?(\w+)/);
+    if (!tagNameMatch) return null;
+
+    const tagName = tagNameMatch[1];
+    const result = this.findMatchingClose(html, tagStart, tagName);
+    if (!result) return null;
+
+    return { html: html.substring(tagStart, result) };
+  }
+
+  private extractTag(html: string, tagName: string, className?: string): { html: string } | null {
+    let pattern: string;
+    if (className) {
+      pattern = `<${tagName}[^>]*class=["'][^"']*\\b${className}\\b[^"']*["'][^>]*>`;
+    } else {
+      pattern = `<${tagName}[^>]*>`;
+    }
+
+    const tagRegex = new RegExp(pattern);
+    const match = tagRegex.exec(html);
+    if (!match) return null;
+
+    const tagStart = match.index;
+    const result = this.findMatchingClose(html, tagStart, tagName);
+    if (!result) return null;
+
+    const inner = html.substring(tagStart, result);
+    const contentEnd = inner.indexOf(">", tagName.length + 1) + 1;
+    const innerContent = inner.substring(contentEnd, inner.length - tagName.length - 3);
+
+    return { html: innerContent };
+  }
+
+  private extractAllTags(html: string, tagName: string, className?: string): { html: string }[] {
+    const results: { html: string }[] = [];
+    let remaining = html;
+
+    while (remaining.length > 0) {
+      const tag = this.extractTag(remaining, tagName, className);
+      if (!tag) break;
+
+      results.push(tag);
+      const tagStart = remaining.indexOf(`<${tagName}`);
+      if (tagStart === -1) break;
+
+      const closeTag = `</${tagName}>`;
+      const closeIdx = remaining.indexOf(closeTag, tagStart);
+      if (closeIdx === -1) break;
+
+      remaining = remaining.substring(closeIdx + closeTag.length);
+    }
+
+    return results;
+  }
+
+  private findMatchingClose(html: string, openTagStart: number, tagName: string): number | null {
+    const openTag = `<${tagName}`;
+    const closeTag = `</${tagName}>`;
+
+    let depth = 1;
+    let pos = openTagStart;
+
+    while (pos < html.length) {
+      const nextOpen = html.indexOf(openTag, pos + 1);
+      const nextClose = html.indexOf(closeTag, pos + 1);
+
+      if (nextClose === -1) return null;
+
+      if (nextOpen !== -1 && nextOpen < nextClose) {
+        depth++;
+        pos = nextOpen;
+      } else {
+        depth--;
+        if (depth === 0) return nextClose + closeTag.length;
+        pos = nextClose;
+      }
+    }
+
+    return null;
+  }
+
+  private parseRevenueData(html: string): Investidor10ReceitaAno[] {
+    const revenuesRaw = this.extractJSObject(html, "companyRevenues");
+    const bussinesRaw = this.extractJSObject(html, "companyBussinesRevenues");
+    if (!revenuesRaw || !bussinesRaw) return [];
+
+    let revenues: Record<string, JsonValue>;
+    let bussinesRevenues: Record<string, JsonValue>;
+
+    try {
+      revenues = JSON.parse(this.sanitizeJSON(revenuesRaw));
+      bussinesRevenues = JSON.parse(this.sanitizeJSON(bussinesRaw));
+    } catch {
+      return [];
+    }
+
+    const result: Investidor10ReceitaAno[] = [];
+
+    for (const [ano, data] of Object.entries(revenues)) {
+      if (!data || typeof data !== "object") continue;
+      const revenueData = data as { totalRevenue?: string; company_revenue_country?: { name?: string; pivot: { percentage: number } }[] };
+
+      const bussinesData = bussinesRevenues[ano] as { company_revenue_bussines?: { bussines?: string; percentage: number }[] } | undefined;
+      const regioes = this.mapRegioes(revenueData);
+      const negocios = this.mapNegocios(bussinesData);
+
+      result.push({
+        ano: Number(ano),
+        receitaTotal: String(revenueData.totalRevenue ?? ""),
+        regioes,
+        negocios,
+      });
+    }
+
+    return result.sort((a, b) => b.ano - a.ano);
+  }
+
+  private mapRegioes(data: {
+    totalRevenue?: string;
+    company_revenue_country?: { name?: string; pivot: { percentage: number } }[];
+  }): Investidor10RegiaoReceita[] {
+    if (!data?.company_revenue_country) return [];
+    return data.company_revenue_country
+      .filter((regiao) => regiao && regiao.pivot && typeof regiao.pivot.percentage === "number")
+      .map((regiao) => ({
+        nome: String(regiao.name ?? ""),
+        porcentagem: regiao.pivot.percentage,
+      }));
+  }
+
+  private mapNegocios(bussinesData: {
+    company_revenue_bussines?: { bussines?: string; percentage: number }[];
+  } | undefined): Investidor10SegmentoReceita[] {
+    if (!bussinesData?.company_revenue_bussines) return [];
+    return bussinesData.company_revenue_bussines
+      .filter((negocio) => negocio && typeof negocio.percentage === "number")
+      .map((negocio) => ({
+        nome: String(negocio.bussines ?? ""),
+        porcentagem: negocio.percentage,
+      }));
+  }
+
+  private extractJSObject(html: string, varName: string): string | null {
+    const regex = new RegExp(`let\s+${varName}\s*=\s*`);
+    const match = regex.exec(html);
+    if (!match) return null;
+
+    const objStart = html.indexOf("{", match.index + match[0].length);
+    if (objStart === -1) return null;
+
+    let depth = 0;
+    let posicao = objStart;
+
+    while (posicao < html.length) {
+      const ch = html[posicao];
+
+      if (ch === '"') {
+        const endOfString = this.skipString(html, posicao + 1);
+        posicao = endOfString === posicao ? posicao + 1 : endOfString + 1;
+        continue;
+      }
+
+      if (ch === "{") {
+        depth++;
+      } else if (ch === "}") {
+        depth--;
+        if (depth === 0) {
+          return html.substring(objStart, posicao + 1);
+        }
+      }
+
+      posicao++;
+    }
+
+    return null;
+  }
+
+  private skipString(html: string, start: number): number {
+    let posicao = start;
+    while (posicao < html.length) {
+      const char = html[posicao];
+      if (char === '"') return posicao;
+      posicao += char === "\\" ? 2 : 1;
+    }
+    return posicao;
+  }
+
+  private sanitizeJSON(str: string): string {
+    return str.replace(/,(\s*[}\]])/g, "$1");
+  }
+}

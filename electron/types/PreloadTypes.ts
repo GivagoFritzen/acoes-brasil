@@ -1,10 +1,7 @@
-export interface ElectronAPI {
-  ping(): string;
-  [key: string]: unknown;
-}
-
 declare global {
   interface Window {
-    api: ElectronAPI;
+    api: import("../interfaces/ElectronAPI").ElectronAPI;
   }
 }
+
+export {};

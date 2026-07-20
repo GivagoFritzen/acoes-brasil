@@ -1,29 +1,22 @@
 import fs from "fs";
 import { Request, Response } from "express";
 import type { ProventoTipo as proventoTipo } from "../../../common/models/provento";
+import type { MulterRequest } from "../models/MulterRequest";
 import { CreateProventoService } from "../application/services/CreateProventoService";
 import { DeleteProventoService } from "../application/services/DeleteProventoService";
 import { ImportProventosService } from "../application/services/ImportProventosService";
 import { ListProventosService } from "../application/services/ListProventosService";
 import { SpreadsheetParserService } from "../infrastructure/services/SpreadsheetParserService";
-import { Container } from "../shared/dependency-injection/Container";
 import { ErrorHandler } from "../shared/error-handler/ErrorHandler";
-import { isValidUuid } from "../shared/validators/IdValidator";
 
 export class ProventoController {
-  private createProventoService: CreateProventoService;
-  private deleteProventoService: DeleteProventoService;
-  private importProventosService: ImportProventosService;
-  private listProventosService: ListProventosService;
-  private spreadsheetParserService: SpreadsheetParserService;
-
-  constructor() {
-    this.createProventoService = Container.get("CreateProventoService");
-    this.deleteProventoService = Container.get("DeleteProventoService");
-    this.importProventosService = Container.get("ImportProventosService");
-    this.listProventosService = Container.get("ListProventosService");
-    this.spreadsheetParserService = Container.get("spreadsheetParser");
-  }
+  constructor(
+    private createProventoService: CreateProventoService,
+    private deleteProventoService: DeleteProventoService,
+    private importProventosService: ImportProventosService,
+    private listProventosService: ListProventosService,
+    private spreadsheetParserService: SpreadsheetParserService
+  ) { }
 
   async createAsync(req: Request, res: Response): Promise<Response> {
     try {
@@ -38,25 +31,22 @@ export class ProventoController {
       });
       return res.status(201).json(result);
     } catch (error) {
-      return ErrorHandler.handle(error, req, res);
+      return ErrorHandler.handle(error as Error, res);
     }
   }
 
   async deleteAsync(req: Request, res: Response): Promise<Response> {
     try {
       const id = String(req.params.id);
-      if (!isValidUuid(id)) {
-        return res.status(400).json({ message: "ID inválido." });
-      }
       await this.deleteProventoService.executeAsync(id);
       return res.json({ message: "provento deletado com sucesso." });
     } catch (error) {
-      return ErrorHandler.handle(error, req, res);
+      return ErrorHandler.handle(error as Error, res);
     }
   }
 
   async importAsync(req: Request, res: Response): Promise<Response> {
-    const file = (req as any).file as Express.Multer.File | undefined;
+    const file = (req as MulterRequest).file;
 
     if (!file) {
       return res.status(400).json({ message: "Arquivo não enviado. Use o campo 'file'." });
@@ -73,7 +63,7 @@ export class ProventoController {
       const result = await this.importProventosService.executeAsync(validRows);
       return res.status(201).json({ ...result, invalidLineNumbers });
     } catch (error) {
-      return ErrorHandler.handle(error, req, res);
+      return ErrorHandler.handle(error as Error, res);
     } finally {
       if (file?.path) fs.unlink(file.path, () => {});
     }
@@ -93,7 +83,7 @@ export class ProventoController {
       });
       return res.json(result);
     } catch (error) {
-      return ErrorHandler.handle(error, req, res);
+      return ErrorHandler.handle(error as Error, res);
     }
   }
 }

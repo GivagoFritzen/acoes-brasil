@@ -86,14 +86,11 @@ describe('GoogleFinanceService', () => {
     const req = httpMock.expectOne(`${API_CONFIG.baseUrl}${API_CONFIG.endpoints.googleFinance}/XXXX?window=1Y`);
     req.flush(apiErrorResponse, { status: 404, statusText: 'Not Found' });
 
-    try {
-      await promise;
-      expect('não deveria chegar aqui').toBe(false);
-    } catch (error: any) {
-      expect(error.message).toBe('Ativo não encontrado');
-      expect(error.status).toBe(404);
-      expect(error.error).toEqual(apiErrorResponse);
-    }
+      await expect(promise).rejects.toMatchObject({
+        message: 'Ativo não encontrado',
+        status: 404,
+        error: apiErrorResponse,
+      });
   });
 
   it('deve tratar erro HTTP 500', async () => {
@@ -102,12 +99,9 @@ describe('GoogleFinanceService', () => {
     const req = httpMock.expectOne(`${API_CONFIG.baseUrl}${API_CONFIG.endpoints.googleFinance}/PETR4?window=1Y`);
     req.flush('Server error', { status: 500, statusText: 'Internal Server Error' });
 
-    try {
-      await promise;
-      expect('não deveria chegar aqui').toBe(false);
-    } catch (error: any) {
-      expect(error.status).toBe(500);
-    }
+      await expect(promise).rejects.toMatchObject({
+        status: 500,
+      });
   });
 
   it('deve retornar erro de conexao quando status 0', async () => {
@@ -116,11 +110,8 @@ describe('GoogleFinanceService', () => {
     const req = httpMock.expectOne(`${API_CONFIG.baseUrl}${API_CONFIG.endpoints.googleFinance}/PETR4?window=1Y`);
     req.error(new ProgressEvent('error'));
 
-    try {
-      await promise;
-      expect('não deveria chegar aqui').toBe(false);
-    } catch (error: any) {
-      expect(error.message).toBe('Não foi possível conectar ao servidor. Verifique sua conexão.');
-    }
+      await expect(promise).rejects.toMatchObject({
+        message: 'Não foi possível conectar ao servidor. Verifique sua conexão.',
+      });
   });
 });

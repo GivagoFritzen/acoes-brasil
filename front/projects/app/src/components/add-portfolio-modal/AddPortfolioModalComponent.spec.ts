@@ -63,7 +63,7 @@ describe('AddPortfolioModalComponent', () => {
           previousValue: false,
           firstChange: false,
           isFirstChange: () => false,
-        } as any,
+        }
       });
 
       expect(component.codigo()).toBe('');
@@ -81,7 +81,7 @@ describe('AddPortfolioModalComponent', () => {
           previousValue: true,
           firstChange: false,
           isFirstChange: () => true,
-        } as any,
+        }
       });
 
       expect(component.codigo()).toBe('TEST11');
@@ -96,7 +96,7 @@ describe('AddPortfolioModalComponent', () => {
           previousValue: true,
           firstChange: false,
           isFirstChange: () => false,
-        } as any,
+        }
       });
 
       expect(component.codigo()).toBe('TEST11');
@@ -202,7 +202,7 @@ describe('AddPortfolioModalComponent', () => {
       const emitSpy = vi.spyOn(component.saved, 'emit');
       component.codigo.set('PETR11');
       component.quantidade.set(100);
-      component.precoMedio.set(null as any);
+      component.precoMedio.set(null!);
       component.submit();
       expect(emitSpy).not.toHaveBeenCalled();
     });

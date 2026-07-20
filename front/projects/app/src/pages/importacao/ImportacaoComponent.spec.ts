@@ -64,7 +64,7 @@ describe('ImportacaoComponent', () => {
   });
 
   it('deve tratar erro ao importar negociação', () => {
-    const error = { error: { error: 'Erro específico' } } as unknown as HttpErrorResponse;
+    const error = { error: { error: 'Erro específico' } } as HttpErrorResponse;
     ordersServiceMock.importOrdersSpreadsheet.mockReturnValue(throwError(() => error));
     component.negociacaoFile.set(mockFile);
 
@@ -103,7 +103,7 @@ describe('ImportacaoComponent', () => {
   });
 
   it('deve tratar erro ao importar proventos', () => {
-    const error = { error: { message: 'Erro de mensagem' } } as unknown as HttpErrorResponse;
+    const error = { error: { message: 'Erro de mensagem' } } as HttpErrorResponse;
     proventosServiceMock.importProventosSpreadsheet.mockReturnValue(throwError(() => error));
     component.proventoFile.set(mockFile);
 

@@ -1,4 +1,4 @@
-import type { ProventoTipo } from './ProventoTipoModel';
+import type { ProventoTipo } from './ProventoTipoType';
 
 export interface Provento {
   id: string;

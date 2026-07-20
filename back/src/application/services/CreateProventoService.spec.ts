@@ -1,7 +1,7 @@
 import { CreateProventoService } from "./CreateProventoService";
 import { IProventoRepository } from "../../domain/interfaces/IProventoRepository";
 import { ProventoEntity } from "../../domain/entities/ProventoEntity";
-import { ValidationError } from "../../shared/validators/OrderValidator";
+import { ValidationError } from "../../shared/exceptions/ValidationError";
 import { ProventoTipo as proventoTipo } from "../../../../common/models/provento/ProventoTipoModel";
 
 describe("CreateProventoService", () => {
@@ -17,23 +17,13 @@ describe("CreateProventoService", () => {
       findByIdAsync: jest.fn(),
       findAllAsync: jest.fn(),
       deleteAsync: jest.fn(),
-    } as unknown as jest.Mocked<IProventoRepository>;
+    } as jest.Mocked<IProventoRepository>;
 
     service = new CreateProventoService(proventoRepositoryMock);
   });
 
   it("Deve criar provento quando dados validos", async () => {
-    const proventoCriado: ProventoEntity = {
-      id: "1",
-      codigo: "VALE3",
-      tipo: tipoValido,
-      data: "2024-01-01",
-      quantidade: 100,
-      precoUnitario: 1.0,
-      valorLiquido: 100.0,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    } as unknown as ProventoEntity;
+    const proventoCriado = new ProventoEntity("1", "VALE3", "2024-01-01", tipoValido, "Banco do Brasil", 100, 1.0, 100.0);
     proventoRepositoryMock.createAsync.mockResolvedValue(proventoCriado);
 
     const resultado = await service.executeAsync({

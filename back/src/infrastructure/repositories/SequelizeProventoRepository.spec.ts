@@ -4,7 +4,7 @@ import { ProventoTipo as proventoTipo } from "../../../../common/models/provento
 
 describe("SequelizeProventoRepository", () => {
   let repository: SequelizeProventoRepository;
-  let modelMock: any;
+  let modelMock: Record<string, string | number | Date>;
 
   beforeEach(() => {
     repository = new SequelizeProventoRepository();
@@ -69,7 +69,7 @@ describe("SequelizeProventoRepository", () => {
 
   describe("createManyAsync", () => {
     it("Deve criar multiplos proventos e retornar entities", async () => {
-      const createSpy = jest.spyOn(repository, "createAsync" as any).mockResolvedValue(modelMock);
+      const createSpy = jest.spyOn(repository, "createAsync").mockResolvedValue(modelMock);
       const proventos = [
         { codigo: "VALE3", data: "2024-01-15", tipo: "Dividendo" as proventoTipo, instituicao: "BB", quantidade: 100, precoUnitario: 1.0, valorLiquido: 100.0 },
         { codigo: "PETR4", data: "2024-01-20", tipo: "Dividendo" as proventoTipo, instituicao: "BB", quantidade: 50, precoUnitario: 2.0, valorLiquido: 100.0 },
@@ -151,7 +151,7 @@ describe("SequelizeProventoRepository", () => {
       jest.spyOn(ProventoModel, "findAndCountAll").mockResolvedValue({
         rows: mockModels,
         count: 1,
-      } as any);
+      } as object);
 
       const resultado = await repository.findAllAsync({});
 
@@ -163,7 +163,7 @@ describe("SequelizeProventoRepository", () => {
       jest.spyOn(ProventoModel, "findAndCountAll").mockResolvedValue({
         rows: [],
         count: 0,
-      } as any);
+      } as object);
 
       await repository.findAllAsync({ page: 0 });
 
@@ -176,7 +176,7 @@ describe("SequelizeProventoRepository", () => {
       jest.spyOn(ProventoModel, "findAndCountAll").mockResolvedValue({
         rows: [],
         count: 0,
-      } as any);
+      } as object);
 
       await repository.findAllAsync({ page: 1, limit: 0 });
 
@@ -189,7 +189,7 @@ describe("SequelizeProventoRepository", () => {
       jest.spyOn(ProventoModel, "findAndCountAll").mockResolvedValue({
         rows: [],
         count: 0,
-      } as any);
+      } as object);
 
       await repository.findAllAsync({ page: 3, limit: 10 });
 
@@ -202,7 +202,7 @@ describe("SequelizeProventoRepository", () => {
       jest.spyOn(ProventoModel, "findAndCountAll").mockResolvedValue({
         rows: [modelMock],
         count: 1,
-      } as any);
+      } as object);
 
       const resultado = await repository.findAllAsync({ codigo: "VALE3" });
 
@@ -214,7 +214,7 @@ describe("SequelizeProventoRepository", () => {
       jest.spyOn(ProventoModel, "findAndCountAll").mockResolvedValue({
         rows: [modelMock],
         count: 1,
-      } as any);
+      } as object);
 
       await repository.findAllAsync({ tipo: "Dividendo" });
 

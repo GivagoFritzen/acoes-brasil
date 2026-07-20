@@ -8,8 +8,19 @@ import { SettingsService } from '../../services/SettingsService';
 describe('ConfiguracoesComponent', () => {
   let component: ConfiguracoesComponent;
   let fixture: ComponentFixture<ConfiguracoesComponent>;
-  let mockTranslationService: any;
-  let mockSettingsService: any;
+  let mockTranslationService: {
+    loadLanguage: ReturnType<typeof vi.fn>;
+    get: ReturnType<typeof vi.fn>;
+    has: ReturnType<typeof vi.fn>;
+    getCurrentLanguage: ReturnType<typeof vi.fn>;
+    currentLang$: { subscribe: ReturnType<typeof vi.fn> };
+  };
+  let mockSettingsService: {
+    theme: ReturnType<typeof vi.fn>;
+    language: ReturnType<typeof vi.fn>;
+    setLanguage: ReturnType<typeof vi.fn>;
+    setTheme: ReturnType<typeof vi.fn>;
+  };
 
   beforeEach(async () => {
     mockTranslationService = {

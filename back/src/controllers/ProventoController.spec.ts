@@ -9,8 +9,9 @@ jest.mock("fs", () => ({
 import { Response } from "express";
 import { ProventoController } from "./ProventoController";
 import * as fs from "fs";
+import { NotFoundException } from "../shared/exceptions/NotFoundException";
 
-const fsMock = fs as unknown as { readFileSync: jest.Mock };
+const fsMock = fs as { readFileSync: jest.Mock };
 
 const mockCreateService = { executeAsync: jest.fn() };
 const mockDeleteService = { executeAsync: jest.fn() };
@@ -18,27 +19,12 @@ const mockImportService = { executeAsync: jest.fn() };
 const mockListService = { executeAsync: jest.fn() };
 const mockSpreadsheetParser = { parseProventoRowsAsync: jest.fn() };
 
-jest.mock("../shared/dependency-injection/Container", () => ({
-  Container: {
-    get: jest.fn((name: string) => {
-      switch (name) {
-        case "CreateProventoService": return mockCreateService;
-        case "DeleteProventoService": return mockDeleteService;
-        case "ImportProventosService": return mockImportService;
-        case "ListProventosService": return mockListService;
-        case "spreadsheetParser": return mockSpreadsheetParser;
-        default: return {};
-      }
-    }),
-  },
-}));
-
-function createMockReq(overrides: Partial<any> = {}): any {
+function createMockReq(overrides: object = {}): object {
   return { params: {}, query: {}, body: {}, file: undefined, ...overrides };
 }
 
 function createMockRes(): Response {
-  const res = {} as any;
+  const res = {} as Response;
   res.status = jest.fn().mockReturnThis();
   res.json = jest.fn().mockReturnThis();
   res.send = jest.fn().mockReturnThis();
@@ -50,7 +36,13 @@ describe("ProventoController", () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    controller = new ProventoController();
+    controller = new ProventoController(
+      mockCreateService as any,
+      mockDeleteService as any,
+      mockImportService as any,
+      mockListService as any,
+      mockSpreadsheetParser as any
+    );
   });
 
   describe("createAsync", () => {
@@ -133,7 +125,7 @@ describe("ProventoController", () => {
     });
 
     it("deve retornar 404 quando provento nao encontrado", async () => {
-      mockDeleteService.executeAsync.mockRejectedValue(new Error("provento não encontrado"));
+      mockDeleteService.executeAsync.mockRejectedValue(new NotFoundException("provento não encontrado"));
 
       const req = createMockReq({ params: { id: "550e8400-e29b-41d4-a716-446655440001" } });
       const res = createMockRes();

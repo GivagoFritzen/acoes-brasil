@@ -2,7 +2,7 @@ import { sequelize } from "../../database";
 import { ITransactionManager } from "../../domain/interfaces/ITransactionManager";
 
 export class SequelizeTransactionManager implements ITransactionManager {
-  async executeAsync<T>(operation: (tx: unknown) => Promise<T>): Promise<T> {
+  async executeAsync<T>(operation: (tx: object) => Promise<T>): Promise<T> {
     const transaction = await sequelize.transaction();
     try {
       const result = await operation(transaction);

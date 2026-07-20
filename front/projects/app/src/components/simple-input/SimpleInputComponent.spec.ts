@@ -61,7 +61,7 @@ describe('SimpleInputComponent', () => {
                 const emitSpy = vi.spyOn(component.valueChange, 'emit');
                 const input = fixture.debugElement.query(By.css('input')).nativeElement;
                 input.value = '123456789';
-                const event = { target: input } as unknown as Event;
+                const event = { target: input } as Event;
                 component.onInput(event);
                 expect(input.value).toBe('12345');
                 expect(emitSpy).toHaveBeenCalledWith('12345');
@@ -110,7 +110,7 @@ describe('SimpleInputComponent', () => {
             const emitSpy = vi.spyOn(component.valueChange, 'emit');
             const input = fixture.debugElement.query(By.css('input')).nativeElement;
             input.value = 'novo valor';
-            const event = { target: input } as unknown as Event;
+            const event = { target: input } as Event;
             component.onInput(event);
             expect(emitSpy).toHaveBeenCalledWith('novo valor');
         });

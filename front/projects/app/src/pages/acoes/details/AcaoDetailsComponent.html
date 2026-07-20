@@ -1,7 +1,7 @@
 <section class="acao-details">
     <app-alerts [alerts]="alerts()" (dismissed)="handleAlertDismiss($event)"></app-alerts>
 
-    <header class="acao-details__header">
+    <header class="acao-details__header" data-tour="acaoDetails-title">
         <a class="acao-details__back" routerLink="/acoes">
             <i class="ph ph-arrow-left"></i> {{ 'acaoDetails.back' | translate }}
         </a>
@@ -10,6 +10,22 @@
             <h2>{{ fund.codigo }}</h2>
             <span>{{ fund.empresa }}</span>
         </div>
+
+        <div class="acao-details__title-wrap" *ngIf="!fundamentus() && investidor10() as inv">
+            <h2>{{ inv.codigo }}</h2>
+            <span>{{ inv.empresa }}</span>
+        </div>
+
+        <div class="acao-details__title-wrap" *ngIf="!fundamentus() && !investidor10() && yahooFinance() as yh">
+            <h2>{{ yh.codigo }}</h2>
+        </div>
+
+        <button class="acao-details__edit-btn" (click)="openPersonalizar()" title="Personalizar">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/>
+                <path d="m15 5 4 4"/>
+            </svg>
+        </button>
     </header>
 
     <div *ngIf="isLoading()" class="acao-details__loading">
@@ -17,102 +33,79 @@
         <span>{{ 'acaoDetails.loading' | translate }}</span>
     </div>
 
-    <ng-container *ngIf="!isLoading() && fundamentus() as fund">
-        <div class="acao-details__grid">
+    <div *ngIf="!isLoading()" class="acao-details__grid" data-tour="acaoDetails-cards">
+        <app-fundamentus-details *ngIf="detailSource() === 'fundamentus'" [fundamentus]="fundamentus()">
+        </app-fundamentus-details>
 
-            <article class="acao-details__card">
-                <header>
-                    <h3>{{ 'acaoDetails.cards.information' | translate }}</h3>
-                </header>
-                <div class="acao-details__table">
-                    <div class="acao-details__row" *ngFor="let item of fund.indicadores | slice:0:11">
-                        <span class="label">
-                            {{ item.label }}
-                            <app-help-tip *ngIf="hasHelp(item.label)" [text]="getHelp(item.label)"></app-help-tip>
-                        </span>
-                        <strong class="value">{{ item.value }}</strong>
-                    </div>
+        <app-investidor10-details *ngIf="detailSource() === 'investidor10'" [investidor10]="investidor10()">
+        </app-investidor10-details>
+
+        <app-yahoo-finance-details *ngIf="detailSource() === 'yahoo'" [yahooFinance]="yahooFinance()">
+        </app-yahoo-finance-details>
+
+        <article class="acao-details__card acao-details__card--chart">
+            <header class="acao-details__chart-header">
+                <h3>{{ 'acaoDetails.cards.priceChart' | translate }}</h3>
+                <div class="acao-details__chart-windows">
+                    <button *ngFor="let w of chartWindows"
+                            class="acao-details__chart-btn"
+                            [class.acao-details__chart-btn--active]="selectedChartWindow() === w"
+                            (click)="changeChartWindow(w)">
+                        {{ w }}
+                    </button>
                 </div>
-            </article>
+            </header>
+            <app-stock-chart
+                [points]="(googleFinance()?.chart?.points) ?? []"
+                [previousClose]="googleFinance()?.chart?.previousClose ?? null">
+            </app-stock-chart>
+        </article>
 
-            <article class="acao-details__card">
-                <header>
-                    <h3>{{ 'acaoDetails.cards.oscillations' | translate }}</h3>
-                </header>
-                <div class="acao-details__table">
-                    <div class="acao-details__row" *ngFor="let item of fund.indicadores | slice:11:22">
-                        <span class="label">
-                            {{ item.label }}
-                            <app-help-tip *ngIf="hasHelp(item.label)" [text]="getHelp(item.label)"></app-help-tip>
-                        </span>
-                        <strong class="value">{{ item.value }}</strong>
-                    </div>
+        <article class="acao-details__card acao-details__card--proventos" *ngIf="selectedSourceProventos() as prov">
+            <header>
+                <h3>{{ 'acaoDetails.cards.proventos' | translate }}</h3>
+            </header>
+            <div class="acao-details__history">
+                <div class="acao-details__history-row acao-details__history-row--head">
+                    <span class="col-data">{{ 'proventos.date' | translate }}</span>
+                    <span class="col-tipo">{{ 'proventos.type' | translate }}</span>
+                    <span class="col-valor">{{ 'proventos.unitPrice' | translate }}</span>
                 </div>
-            </article>
-
-            <article class="acao-details__card acao-details__card--full">
-                <header>
-                    <h3>{{ 'acaoDetails.cards.fundamentalIndicators' | translate }}</h3>
-                </header>
-                <div class="acao-details__table acao-details__table--columns">
-                    <div class="acao-details__row" *ngFor="let item of fund.indicadores | slice:22:44">
-                        <span class="label">
-                            {{ item.label }}
-                            <app-help-tip *ngIf="hasHelp(item.label)" [text]="getHelp(item.label)"></app-help-tip>
-                        </span>
-                        <strong class="value">{{ item.value }}</strong>
-                    </div>
+                <div class="acao-details__history-row" *ngFor="let item of prov.proventos">
+                    <span class="col-data">{{ item.data }}</span>
+                    <span class="col-tipo">{{ item.tipo }}</span>
+                    <span class="col-valor">{{ item.valor }}</span>
                 </div>
-            </article>
+            </div>
+        </article>
 
-            <article class="acao-details__card">
-                <header>
-                    <h3>{{ 'acaoDetails.cards.balanceSheet' | translate }}</h3>
-                </header>
-                <div class="acao-details__table">
-                    <div class="acao-details__row" *ngFor="let item of fund.indicadores | slice:44:50">
-                        <span class="label">
-                            {{ item.label }}
-                            <app-help-tip *ngIf="hasHelp(item.label)" [text]="getHelp(item.label)"></app-help-tip>
-                        </span>
-                        <strong class="value">{{ item.value }}</strong>
+    </div>
+
+    <div class="acao-details__modal-backdrop" *ngIf="isPersonalizarOpen()" (click)="closePersonalizar()">
+        <div class="acao-details__modal" (click)="$event.stopPropagation()">
+            <h3>{{ 'acaoDetails.personalizar.title' | translate }}</h3>
+
+            <div class="acao-details__modal-options">
+                <label class="acao-details__modal-option"
+                       *ngFor="let option of detailOptions"
+                       [class.acao-details__modal-option--active]="detailSource() === option"
+                       (click)="selectDetailSource(option)">
+                    <span class="acao-details__modal-option-label">{{ 'acaoDetails.personalizar.' + option | translate }}</span>
+                    <div class="acao-details__modal-radio"
+                         [class.acao-details__modal-radio--active]="detailSource() === option">
+                        <div class="acao-details__modal-radio-dot"></div>
                     </div>
-                </div>
-            </article>
+                </label>
+            </div>
 
-            <article class="acao-details__card">
-                <header>
-                    <h3>{{ 'acaoDetails.cards.results' | translate }}</h3>
-                </header>
-                <div class="acao-details__table">
-                    <div class="acao-details__row" *ngFor="let item of fund.indicadores | slice:50">
-                        <span class="label">
-                            {{ item.label }}
-                            <app-help-tip *ngIf="hasHelp(item.label)" [text]="getHelp(item.label)"></app-help-tip>
-                        </span>
-                        <strong class="value">{{ item.value }}</strong>
-                    </div>
-                </div>
-            </article>
-
-            <article class="acao-details__card acao-details__card--chart">
-                <header class="acao-details__chart-header">
-                    <h3>{{ 'acaoDetails.cards.priceChart' | translate }}</h3>
-                    <div class="acao-details__chart-windows">
-                        <button *ngFor="let w of chartWindows"
-                                class="acao-details__chart-btn"
-                                [class.acao-details__chart-btn--active]="selectedChartWindow() === w"
-                                (click)="changeChartWindow(w)">
-                            {{ w }}
-                        </button>
-                    </div>
-                </header>
-                <app-stock-chart
-                    [points]="(googleFinance()?.chart?.points) ?? []"
-                    [previousClose]="googleFinance()?.chart?.previousClose ?? null">
-                </app-stock-chart>
-            </article>
-
+            <div class="acao-details__modal-actions">
+                <app-simple-button variant="cancelar" (btnClick)="closePersonalizar()">
+                    {{ 'acaoDetails.personalizar.cancel' | translate }}
+                </app-simple-button>
+                <app-simple-button (btnClick)="closePersonalizar()">
+                    {{ 'acaoDetails.personalizar.save' | translate }}
+                </app-simple-button>
+            </div>
         </div>
-    </ng-container>
+    </div>
 </section>

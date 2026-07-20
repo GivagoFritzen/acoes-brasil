@@ -343,7 +343,7 @@ describe('OrdersComponent', () => {
   it('deve aplicar response com data indefinida como array vazio', () => {
     ordersServiceMock.getOrders.mockReturnValue(
       of({
-        data: undefined as unknown as Order[],
+        data: undefined! as Order[],
         page: 2,
         limit: 5,
         total: 0,

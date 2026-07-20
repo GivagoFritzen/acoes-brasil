@@ -10,29 +10,17 @@ import { Response } from "express";
 import { ImportController } from "./ImportController";
 import * as fs from "fs";
 
-const fsMock = fs as unknown as { readFileSync: jest.Mock };
+const fsMock = fs as { readFileSync: jest.Mock };
 
 const mockParser = { parseOrderRowsAsync: jest.fn() };
 const mockImportService = { executeAsync: jest.fn() };
 
-jest.mock("../shared/dependency-injection/Container", () => ({
-  Container: {
-    get: jest.fn((name: string) => {
-      switch (name) {
-        case "spreadsheetParser": return mockParser;
-        case "ImportOrdersService": return mockImportService;
-        default: return {};
-      }
-    }),
-  },
-}));
-
-function createMockReq(overrides: Partial<any> = {}): any {
+function createMockReq(overrides: object = {}): object {
   return { params: {}, query: {}, body: {}, file: undefined, ...overrides };
 }
 
 function createMockRes(): Response {
-  const res = {} as any;
+  const res = {} as Response;
   res.status = jest.fn().mockReturnThis();
   res.json = jest.fn().mockReturnThis();
   return res;
@@ -43,7 +31,7 @@ describe("ImportController", () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    controller = new ImportController();
+    controller = new ImportController(mockImportService as any, mockParser as any);
   });
 
   it("deve retornar 201 ao importar arquivo com dados", async () => {

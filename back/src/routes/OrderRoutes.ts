@@ -1,23 +1,27 @@
 import { Router } from "express";
-import { ImportController } from "../controllers/ImportController";
+import { Container } from "../shared/dependency-injection/Container";
 import { OrderController } from "../controllers/OrderController";
+import { ImportController } from "../controllers/ImportController";
+import { ValidationMiddleware } from "../middlewares/ValidationMiddleware";
+import { createOrderSchema } from "../middlewares/OrderSchemas";
 
 export const orderRoutes = Router();
-const getOrderController = () => new OrderController();
-const getImportController = () => new ImportController();
 
-// Lazy initialization to ensure DI container is ready
-orderRoutes.post("/", (req, res) => {
+const getOrderController = (): OrderController => Container.get<OrderController>('OrderController');
+
+orderRoutes.post("/", ValidationMiddleware.validate(createOrderSchema), (req, res) => {
   return getOrderController().createAsync(req, res);
 });
 
 orderRoutes.post("/import", (req, res, next) => {
-  return getImportController().getMiddleware()(req, res, next);
+  const importController = Container.get<ImportController>('ImportController');
+  return importController.getMiddleware()(req, res, next);
 }, (req, res) => {
-  return getImportController().importAsync(req, res);
+  const importController = Container.get<ImportController>('ImportController');
+  return importController.importAsync(req, res);
 });
 
-orderRoutes.delete("/:id", (req, res) => {
+orderRoutes.delete("/:id", ValidationMiddleware.validateUuidParam("id"), (req, res) => {
   return getOrderController().deleteAsync(req, res);
 });
 

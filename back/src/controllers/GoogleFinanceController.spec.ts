@@ -13,7 +13,7 @@ jest.mock("../shared/dependency-injection/Container", () => ({
 }));
 
 function createMockRes(): Response {
-  const res = {} as any;
+  const res = {} as Response;
   res.status = jest.fn().mockReturnThis();
   res.json = jest.fn().mockReturnThis();
   return res;
@@ -51,7 +51,7 @@ describe("GoogleFinanceController", () => {
   it("deve retornar dados quando ativo encontrado", async () => {
     mockGetDataAsync.mockResolvedValue(fakeResponse);
 
-    const req = { params: { codigo: "PETR4" }, query: {} } as unknown as Request;
+    const req = { params: { codigo: "PETR4" }, query: {} } as Request;
     const res = createMockRes();
 
     await controller.getAsync(req, res);
@@ -63,7 +63,7 @@ describe("GoogleFinanceController", () => {
   it("deve retornar dados quando ativo encontrado com window personalizada", async () => {
     mockGetDataAsync.mockResolvedValue(fakeResponse);
 
-    const req = { params: { codigo: "PETR4" }, query: { window: "5Y" } } as unknown as Request;
+    const req = { params: { codigo: "PETR4" }, query: { window: "5Y" } } as Request;
     const res = createMockRes();
 
     await controller.getAsync(req, res);
@@ -75,7 +75,7 @@ describe("GoogleFinanceController", () => {
   it("deve converter codigo para maiusculas e trim", async () => {
     mockGetDataAsync.mockResolvedValue(fakeResponse);
 
-    const req = { params: { codigo: "  petr4  " }, query: {} } as unknown as Request;
+    const req = { params: { codigo: "  petr4  " }, query: {} } as Request;
     const res = createMockRes();
 
     await controller.getAsync(req, res);
@@ -84,7 +84,7 @@ describe("GoogleFinanceController", () => {
   });
 
   it("deve retornar 400 quando codigo vazio", async () => {
-    const req = { params: { codigo: "" }, query: {} } as unknown as Request;
+    const req = { params: { codigo: "" }, query: {} } as Request;
     const res = createMockRes();
 
     await controller.getAsync(req, res);
@@ -94,7 +94,7 @@ describe("GoogleFinanceController", () => {
   });
 
   it("deve retornar 400 quando codigo undefined", async () => {
-    const req = { params: {}, query: {} } as unknown as Request;
+    const req = { params: {}, query: {} } as Request;
     const res = createMockRes();
 
     await controller.getAsync(req, res);
@@ -106,7 +106,7 @@ describe("GoogleFinanceController", () => {
   it("deve retornar json com erro quando servico falha", async () => {
     mockGetDataAsync.mockRejectedValue(new Error("Serviço indisponível"));
 
-    const req = { params: { codigo: "PETR4" }, query: {} } as unknown as Request;
+    const req = { params: { codigo: "PETR4" }, query: {} } as Request;
     const res = createMockRes();
 
     await controller.getAsync(req, res);
@@ -122,7 +122,7 @@ describe("GoogleFinanceController", () => {
   it("deve retornar json com erro para erro nao-Error", async () => {
     mockGetDataAsync.mockRejectedValue("string error");
 
-    const req = { params: { codigo: "PETR4" }, query: {} } as unknown as Request;
+    const req = { params: { codigo: "PETR4" }, query: {} } as Request;
     const res = createMockRes();
 
     await controller.getAsync(req, res);

@@ -1,15 +1,16 @@
-import { TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { SimpleChanges } from '@angular/core';
 import { StockChartComponent } from './StockChartComponent';
 import type { GoogleFinanceChartPoint } from '../../../../../../common/models/google-finance';
 
 function makePoints(...prices: number[]): GoogleFinanceChartPoint[] {
-  return prices.map((price, i) => {
-    const date = new Date(2024, 0, 1 + i);
-    const m = String(date.getMonth() + 1).padStart(2, '0');
-    const d = String(date.getDate()).padStart(2, '0');
+  return prices.map((price, indice) => {
+    const date = new Date(2024, 0, 1 + indice);
+    const mes = String(date.getMonth() + 1).padStart(2, '0');
+    const dia = String(date.getDate()).padStart(2, '0');
     return {
       timestamp: date.getTime(),
-      date: `${date.getFullYear()}-${m}-${d}`,
+      date: `${date.getFullYear()}-${mes}-${dia}`,
       price,
       volume: 1000,
     };
@@ -27,7 +28,7 @@ function svgClickEvent(clientX: number): MouseEvent {
 
 describe('StockChartComponent', () => {
   let component: StockChartComponent;
-  let fixture: any;
+  let fixture: ComponentFixture<StockChartComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
@@ -45,7 +46,7 @@ describe('StockChartComponent', () => {
   describe('hasData / buildChart', () => {
     it('deve setar hasData false quando points vazio', () => {
       component.points = [];
-      component.ngOnChanges({} as any);
+      component.ngOnChanges({} as SimpleChanges);
 
       expect(component.hasData).toBe(false);
       expect(component.linePoints).toEqual([]);
@@ -53,7 +54,7 @@ describe('StockChartComponent', () => {
 
     it('deve setar hasData false quando points com 1 elemento', () => {
       component.points = makePoints(100);
-      component.ngOnChanges({} as any);
+      component.ngOnChanges({} as SimpleChanges);
 
       expect(component.hasData).toBe(false);
       expect(component.linePoints).toEqual([]);
@@ -61,7 +62,7 @@ describe('StockChartComponent', () => {
 
     it('deve setar hasData true quando points tem 2+ elementos', () => {
       component.points = makePoints(100, 200);
-      component.ngOnChanges({} as any);
+      component.ngOnChanges({} as SimpleChanges);
 
       expect(component.hasData).toBe(true);
       expect(component.linePoints.length).toBe(2);
@@ -71,7 +72,7 @@ describe('StockChartComponent', () => {
   describe('chartColor / isPositive', () => {
     it('deve ser verde quando ultimo preco >= primeiro', () => {
       component.points = makePoints(100, 150, 200);
-      component.ngOnChanges({} as any);
+      component.ngOnChanges({} as SimpleChanges);
 
       expect(component.isPositive).toBe(true);
       expect(component.chartColor).toBe('#16d19a');
@@ -79,7 +80,7 @@ describe('StockChartComponent', () => {
 
     it('deve ser vermelho quando ultimo preco < primeiro', () => {
       component.points = makePoints(200, 150, 100);
-      component.ngOnChanges({} as any);
+      component.ngOnChanges({} as SimpleChanges);
 
       expect(component.isPositive).toBe(false);
       expect(component.chartColor).toBe('#ff4568');
@@ -89,14 +90,14 @@ describe('StockChartComponent', () => {
   describe('endPoint', () => {
     it('deve retornar ultimo ponto quando existem pontos', () => {
       component.points = makePoints(100, 200);
-      component.ngOnChanges({} as any);
+      component.ngOnChanges({} as SimpleChanges);
 
       expect(component.endPoint).toEqual(component.linePoints[1]);
     });
 
     it('deve retornar null quando nao ha pontos', () => {
       component.points = [];
-      component.ngOnChanges({} as any);
+      component.ngOnChanges({} as SimpleChanges);
 
       expect(component.endPoint).toBeNull();
     });
@@ -105,14 +106,14 @@ describe('StockChartComponent', () => {
   describe('gridLines', () => {
     it('deve gerar 6 linhas de grade', () => {
       component.points = makePoints(100, 200);
-      component.ngOnChanges({} as any);
+      component.ngOnChanges({} as SimpleChanges);
 
       expect(component.gridLines.length).toBe(6);
     });
 
     it('deve rotular precos em formato pt-BR', () => {
       component.points = makePoints(0, 1000);
-      component.ngOnChanges({} as any);
+      component.ngOnChanges({} as SimpleChanges);
 
       expect(component.gridLines[0].label).toContain('1.000');
       expect(component.gridLines[5].label).toContain('0');
@@ -122,7 +123,7 @@ describe('StockChartComponent', () => {
   describe('priceRange', () => {
     it('deve ser 1 quando todos precos iguais', () => {
       component.points = makePoints(50, 50, 50);
-      component.ngOnChanges({} as any);
+      component.ngOnChanges({} as SimpleChanges);
 
       expect(component.priceRange).toBe(1);
     });
@@ -131,7 +132,7 @@ describe('StockChartComponent', () => {
   describe('onSvgClick', () => {
     it('deve selecionar ponto mais proximo quando click no svg', () => {
       component.points = makePoints(50, 100);
-      component.ngOnChanges({} as any);
+      component.ngOnChanges({} as SimpleChanges);
 
       component.onSvgClick(svgClickEvent(372));
 
@@ -141,7 +142,7 @@ describe('StockChartComponent', () => {
 
     it('deve desselecionar ao clicar no mesmo ponto', () => {
       component.points = makePoints(50, 100);
-      component.ngOnChanges({} as any);
+      component.ngOnChanges({} as SimpleChanges);
 
       component.onSvgClick(svgClickEvent(372));
       expect(component.selectedPoint).not.toBeNull();
@@ -153,8 +154,17 @@ describe('StockChartComponent', () => {
 
     it('deve limpar selecao quando nao encontra ponto proximo', () => {
       component.points = makePoints(50, 100);
-      component.ngOnChanges({} as any);
-      component.selectedPoint = {} as any;
+      component.ngOnChanges({} as SimpleChanges);
+      component.selectedPoint = {
+        date: '',
+        price: 0,
+        formattedPrice: '',
+        formattedDate: '',
+        x: 0,
+        y: 0,
+        tooltipX: 0,
+        tooltipY: 0,
+      };
 
       component.onSvgClick(svgClickEvent(-9999));
 
@@ -163,7 +173,7 @@ describe('StockChartComponent', () => {
 
     it('deve manter selectedPoint null quando nao ha pontos', () => {
       component.points = [];
-      component.ngOnChanges({} as any);
+      component.ngOnChanges({} as SimpleChanges);
 
       component.onSvgClick(svgClickEvent(100));
 
@@ -193,7 +203,7 @@ describe('StockChartComponent', () => {
       component.width = 500;
       component.height = 300;
       component.points = makePoints(100, 200);
-      component.ngOnChanges({} as any);
+      component.ngOnChanges({} as SimpleChanges);
 
       expect(component.chartDimensions.width).toBe(500);
       expect(component.chartDimensions.height).toBe(300);
@@ -205,13 +215,13 @@ describe('StockChartComponent', () => {
   describe('formatDateLabel', () => {
     it('deve formatar data para pt-BR', () => {
       const expected = new Date('2024-01-05T12:00:00.000Z').toLocaleDateString('pt-BR');
-      const formatted = (component as any).formatDateLabel('2024-01-05T12:00:00.000Z');
+      const formatted = component['formatDateLabel']('2024-01-05T12:00:00.000Z') as string;
 
       expect(formatted).toBe(expected);
     });
 
     it('deve retornar string original quando data invalida', () => {
-      const formatted = (component as any).formatDateLabel('invalido');
+      const formatted = component['formatDateLabel']('invalido') as string;
 
       expect(formatted).toBe('invalido');
     });
@@ -220,7 +230,7 @@ describe('StockChartComponent', () => {
   describe('linePath / fillPath', () => {
     it('deve gerar linePath e fillPath quando ha dados', () => {
       component.points = makePoints(100, 200);
-      component.ngOnChanges({} as any);
+      component.ngOnChanges({} as SimpleChanges);
 
       expect(component.linePath).toContain('M');
       expect(component.linePath).toContain('L');
@@ -229,7 +239,7 @@ describe('StockChartComponent', () => {
 
     it('deve manter paths vazios quando sem dados', () => {
       component.points = [];
-      component.ngOnChanges({} as any);
+      component.ngOnChanges({} as SimpleChanges);
 
       expect(component.linePath).toBe('');
       expect(component.fillPath).toBe('');

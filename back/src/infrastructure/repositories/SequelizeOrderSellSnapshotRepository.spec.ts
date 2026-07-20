@@ -4,7 +4,7 @@ import { OrderSellSnapshot as OrderSellSnapshotModel } from "../../models/order/
 
 describe("SequelizeOrderSellSnapshotRepository", () => {
   let repository: SequelizeOrderSellSnapshotRepository;
-  let modelMock: any;
+  let modelMock: Record<string, string | number | Date | boolean>;
 
   beforeEach(() => {
     repository = new SequelizeOrderSellSnapshotRepository();
@@ -93,7 +93,7 @@ describe("SequelizeOrderSellSnapshotRepository", () => {
 
       expect(resultado).toHaveLength(1);
       expect(findAllSpy).toHaveBeenCalledWith({
-        where: { data: { [Op.endsWith]: "-2024" } },
+        where: { data: { [Op.startsWith]: "2024-" } },
         order: expect.any(Array),
         transaction: undefined,
       });

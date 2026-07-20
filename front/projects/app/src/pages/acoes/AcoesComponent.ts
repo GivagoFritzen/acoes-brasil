@@ -11,6 +11,8 @@ import { AlertItem } from '../../models/alert/AlertItemModel';
 import { PortfolioService } from '../../services/PortfolioService';
 import { CreatePortfolioPayload } from '../../models/CreatePortfolioPayloadModel';
 import { TranslatePipe } from '../../pipes/TranslatePipe';
+import { SettingsService } from '../../services/SettingsService';
+import { mesclarPorCodigo, removerSufixoF } from '../../../../../../common/utils/OrderCodigoUtils';
 
 @Component({
     selector: 'app-acoes',
@@ -31,6 +33,7 @@ import { TranslatePipe } from '../../pipes/TranslatePipe';
 export class AcoesComponent implements OnInit {
     portfolios = signal<PortfolioItem[]>([]);
     isLoading = signal(false);
+    isEditing = signal(false);
     isDeleteMode = signal(false);
     isDeleting = signal(false);
     isCreating = signal(false);
@@ -40,9 +43,12 @@ export class AcoesComponent implements OnInit {
     isCreateModalOpen = signal(false);
     portfolioToDelete = signal<PortfolioItem | null>(null);
 
+    private readonly codigoParaIdsMap = new Map<string, string[]>();
+
     constructor(
         private readonly portfolioService: PortfolioService,
         private readonly router: Router,
+        protected readonly settingsService: SettingsService,
     ) { }
 
     ngOnInit(): void {
@@ -60,7 +66,7 @@ export class AcoesComponent implements OnInit {
             .subscribe({
                 next: (portfolios) => {
                     const portfolioItems = portfolios ?? [];
-                    this.portfolios.set(portfolioItems);
+                    this.portfolios.set(this.mergePortfolios(portfolioItems));
                 },
                 error: () => {
                     const message = 'Não foi possível carregar os portfolios.';
@@ -91,6 +97,10 @@ export class AcoesComponent implements OnInit {
 
     openCreateModal(): void {
         this.isCreateModalOpen.set(true);
+    }
+
+    toggleEditMode(): void {
+        this.isEditing.update(v => !v);
     }
 
     toggleDeleteMode(): void {
@@ -163,7 +173,9 @@ export class AcoesComponent implements OnInit {
 
         this.isDeleting.set(true);
 
-        this.portfolioService.deletePortfolio(portfolio.id).subscribe({
+        const ids = this.codigoParaIdsMap.get(portfolio.codigo) ?? [portfolio.id];
+
+        this.portfolioService.deletePortfolio(ids[0]).subscribe({
             next: () => {
                 this.isDeleting.set(false);
                 this.closeDeleteModal();
@@ -197,5 +209,23 @@ export class AcoesComponent implements OnInit {
         }
 
         this.router.navigate(['/acoes', item.codigo]);
+    }
+
+    goToPersonalizar(): void {
+        this.router.navigate(['/personalizar']);
+    }
+
+    private mergePortfolios(items: PortfolioItem[]): PortfolioItem[] {
+        this.codigoParaIdsMap.clear();
+
+        for (const item of items) {
+            const chave = removerSufixoF(item.codigo);
+            if (!this.codigoParaIdsMap.has(chave)) {
+                this.codigoParaIdsMap.set(chave, []);
+            }
+            this.codigoParaIdsMap.get(chave)!.push(item.id);
+        }
+
+        return mesclarPorCodigo(items);
     }
 }

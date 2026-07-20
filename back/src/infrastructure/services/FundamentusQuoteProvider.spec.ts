@@ -12,9 +12,9 @@ const mockFetch = jest.spyOn(global, "fetch") as jest.Mock;
 function encodeIso88591(value: string): ArrayBuffer {
   const buf = new ArrayBuffer(value.length);
   const view = new Uint8Array(buf);
-  for (let i = 0; i < value.length; i++) {
-    const code = value.charCodeAt(i);
-    view[i] = code > 0xff ? 0x3f : code;
+  for (let indice = 0; indice < value.length; indice++) {
+    const code = value.charCodeAt(indice);
+    view[indice] = code > 0xff ? 0x3f : code;
   }
   return buf;
 }
@@ -32,9 +32,9 @@ function createMockResponse(overrides: Partial<{
     headers: {
       get: (_name: string) => overrides.contentType ?? "text/html",
       has: () => true,
-    } as unknown as Headers,
+    } as Headers,
     arrayBuffer: async () => buffer,
-  } as unknown as Response;
+  } as Response;
 }
 
 describe("FundamentusQuoteProvider", () => {
@@ -218,8 +218,9 @@ describe("FundamentusQuoteProvider", () => {
 
   it("Deve retornar null quando excede maximo de iteracoes do parser", async () => {
     const lines: string[] = [];
-    for (let i = 0; i < 1001; i++) {
-      lines.push(`<tr><td class="label">Indice${i}:</td><td class="data">${i}</td></tr>`);
+    const MAXIMO_ITERACOES_PARSER = 1001;
+    for (let indice = 0; indice < MAXIMO_ITERACOES_PARSER; indice++) {
+      lines.push(`<tr><td class="label">Indice${indice}:</td><td class="data">${indice}</td></tr>`);
     }
     const html = `<table>${lines.join("")}</table>`;
     mockFetch.mockResolvedValue(createMockResponse({ html }));
@@ -235,7 +236,7 @@ describe("FundamentusQuoteProvider", () => {
     const abortError = new Error("AbortError");
     abortError.name = "AbortError";
     mockFetch.mockImplementation(
-      (_url: string, opts: any) =>
+      (_url: string, opts: { signal?: { addEventListener: (...args: never[]) => void } }) =>
         new Promise((_resolve, reject) => {
           opts?.signal?.addEventListener("abort", () => reject(abortError));
         })

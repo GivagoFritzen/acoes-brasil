@@ -5,6 +5,43 @@
   margin: 48px;
   justify-content: space-around;
 
+  &__edit-btn {
+    position: fixed;
+    top: 24px;
+    right: 32px;
+    z-index: 900;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    border: 1px solid var(--color-text-muted);
+    border-radius: 50%;
+    background: var(--color-surface);
+    color: var(--color-text-muted);
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(15, 23, 42, 0.12);
+    transition: all 0.2s ease;
+
+    &:hover {
+      color: $color-primary;
+      border-color: $color-primary;
+      box-shadow: 0 2px 12px $color-primary-opacity-25;
+    }
+
+    &--active {
+      color: $color-white;
+      background: $color-primary;
+      border-color: $color-primary;
+
+      &:hover {
+        background: $color-primary-hover;
+        border-color: $color-primary-hover;
+      }
+    }
+  }
+
   .graphic {
     display: flex;
     flex-direction: column;
@@ -211,6 +248,10 @@
     align-items: center;
     margin: 24px;
 
+    .acoes__edit-btn {
+      right: 24px;
+    }
+
     .portfolios,
     .graphic {
       width: 100%;
@@ -223,6 +264,13 @@
 @media (max-width: 450px) {
   .acoes {
     margin: 12px 12px 12px 36px;
+
+    .acoes__edit-btn {
+      top: 8px;
+      right: 0;
+      width: 32px;
+      height: 32px;
+    }
 
     .portfolios {
       .acoes__header {
@@ -246,11 +294,14 @@
   .acoes {
     margin: 12px 12px 12px 36px;
 
+    .acoes__edit-btn {
+      top: 8px;
+      right: 0;
+    }
+
     .portfolios {
       .acoes__table {
-        overflow-x: auto;
-        -webkit-overflow-scrolling: touch;
-        padding-bottom: 8px;
+        overflow: hidden;
       }
 
       .acoes__row--head {
@@ -261,14 +312,12 @@
       .acoes__row {
         padding: 8px 4px;
         font-size: 11px;
-        grid-template-columns: 1.8fr 1.2fr 0.8fr 1.2fr;
-        min-width: 100%;
-        gap: 6px;
+        grid-template-columns: minmax(0, 1.8fr) minmax(0, 1.2fr) minmax(0, 0.8fr) minmax(0, 1.2fr);
+        gap: 4px;
       }
 
       .acoes__row--with-actions {
-        grid-template-columns: 1.8fr 1.2fr 0.8fr 1.2fr 0.8fr;
-        min-width: 100%;
+        grid-template-columns: minmax(0, 1.8fr) minmax(0, 1.2fr) minmax(0, 0.8fr) minmax(0, 1.2fr) minmax(0, 0.8fr);
       }
 
       .acoes__name {

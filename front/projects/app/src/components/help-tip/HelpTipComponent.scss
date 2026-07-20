@@ -19,9 +19,9 @@ $size: 16px;
   width: $size;
   height: $size;
   border-radius: 50%;
-  background-color: #ebf2ff;
-  color: #3b82f6;
-  border: 1px solid #d0e1fd;
+  background-color: $color-blue-100;
+  color: $color-blue-500;
+  border: 1px solid $color-blue-200;
   font-size: 11px;
   font-weight: bold;
   cursor: pointer;
@@ -30,9 +30,9 @@ $size: 16px;
   transition: all 0.2s ease-in-out;
 
   &:hover {
-    background-color: #3b82f6;
+    background-color: $color-blue-500;
     color: $color-white;
-    border-color: #3b82f6;
+    border-color: $color-blue-500;
   }
 }
 
@@ -46,7 +46,7 @@ $size: 16px;
   right: 16px;
   width: auto;
   padding: 16px;
-  background-color: #1e293b;
+  background-color: $color-slate-700;
   color: $color-white;
   font-size: 14px;
   font-weight: 400;
@@ -55,7 +55,7 @@ $size: 16px;
   box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.2);
   z-index: 9999;
   transform: translateY(20px);
-  transition: all 0.3s ease-out;
+  transition: opacity 0.3s ease-out, transform 0.3s ease-out, visibility 0.3s ease-out;
 
   &::after {
     display: none;
@@ -70,17 +70,9 @@ $size: 16px;
 }
 
 @media (min-width: 768px) {
-  .tooltip-container {
-    position: relative;
-  }
-
   .tip-content {
-    position: absolute;
-    bottom: 150%;
-    left: 50%;
     right: auto;
     width: 250px;
-    transform: translateX(-50%) translateY(10px);
     border-radius: 6px;
     font-size: 12px;
     padding: 10px;
@@ -95,11 +87,7 @@ $size: 16px;
       transform: translateX(-50%);
       border-width: 6px;
       border-style: solid;
-      border-color: #1e293b transparent transparent transparent;
-    }
-
-    &.active {
-      transform: translateX(-50%) translateY(0);
+      border-color: $color-slate-700 transparent transparent transparent;
     }
   }
 }

@@ -1,37 +1,30 @@
 import request from "supertest";
 import express from "express";
 import { proventoRoutes } from "./ProventoRoutes";
+import { ProventoController } from "../controllers/ProventoController";
+
+const mockCreateService = { executeAsync: jest.fn().mockResolvedValue({ id: "1" }) };
+const mockDeleteService = { executeAsync: jest.fn().mockResolvedValue({}) };
+const mockImportService = { executeAsync: jest.fn().mockResolvedValue({ imported: 5 }) };
+const mockListService = { executeAsync: jest.fn().mockResolvedValue([]) };
+const mockParser = {
+  parseProventoRowsAsync: jest.fn().mockReturnValue({
+    validRows: [{ codigo: "VALE3" }],
+    invalidLineNumbers: [],
+  }),
+};
 
 jest.mock("../../shared/dependency-injection/Container", () => ({
   Container: {
     get: jest.fn((name: string) => {
-      if (name === "CreateProventoService") {
-        return {
-          executeAsync: jest.fn().mockResolvedValue({ id: "1" }),
-        };
-      }
-      if (name === "DeleteProventoService") {
-        return {
-          executeAsync: jest.fn().mockResolvedValue({}),
-        };
-      }
-      if (name === "ImportProventosService") {
-        return {
-          executeAsync: jest.fn().mockResolvedValue({ imported: 5 }),
-        };
-      }
-      if (name === "ListProventosService") {
-        return {
-          executeAsync: jest.fn().mockResolvedValue([]),
-        };
-      }
-      if (name === "spreadsheetParser") {
-        return {
-          parseProventoRowsAsync: jest.fn().mockReturnValue({
-            validRows: [{ codigo: "VALE3" }],
-            invalidLineNumbers: [],
-          }),
-        };
+      if (name === "ProventoController") {
+        return new ProventoController(
+          mockCreateService as any,
+          mockDeleteService as any,
+          mockImportService as any,
+          mockListService as any,
+          mockParser as any
+        );
       }
       return {};
     }),

@@ -5,12 +5,14 @@ import { catchError } from 'rxjs/operators';
 import { toObservable } from '@angular/core/rxjs-interop';
 import { ChangeDetectionService } from './ChangeDetectionService';
 
+type TranslationValue = string | Record<string, string | Record<string, string>>;
+
 @Injectable({
     providedIn: 'root'
 })
 export class TranslationService {
     private currentLang = signal<string>('pt-BR');
-    private translations = signal<Record<string, any>>({});
+    private translations = signal<Record<string, TranslationValue>>({});
 
     constructor(
         private readonly http: HttpClient,
@@ -27,7 +29,7 @@ export class TranslationService {
                 )
             );
 
-            this.translations.set(data as Record<string, any>);
+            this.translations.set(data as Record<string, TranslationValue>);
             this.currentLang.set(lang);
             // Notificar todos os componentes para atualizar as traduções
             this.changeDetectionService.triggerChangeDetection();
@@ -38,11 +40,11 @@ export class TranslationService {
 
     get(key: string): string {
         const keys = key.split('.');
-        let value = this.translations();
+        let value: TranslationValue | Record<string, TranslationValue> = this.translations();
 
-        for (const k of keys) {
-            if (value && typeof value === 'object' && k in value) {
-                value = value[k];
+        for (const chave of keys) {
+            if (value && typeof value === 'object' && chave in value) {
+                value = (value as Record<string, TranslationValue>)[chave];
             } else {
                 return '';
             }

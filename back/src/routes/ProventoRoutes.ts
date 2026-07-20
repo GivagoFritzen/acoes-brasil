@@ -3,7 +3,9 @@ import os from "os";
 import path from "path";
 import { Router } from "express";
 import multer from "multer";
+import { Container } from "../shared/dependency-injection/Container";
 import { ProventoController } from "../controllers/ProventoController";
+import { ValidationMiddleware } from "../middlewares/ValidationMiddleware";
 
 const uploadDir = fs.mkdtempSync(path.join(os.tmpdir(), "acoes-upload-"));
 export const proventoRoutes = Router();
@@ -18,7 +20,7 @@ const upload = multer({
     cb(null, true);
   },
 });
-const getProventoController = () => new ProventoController();
+const getProventoController = (): ProventoController => Container.get<ProventoController>('ProventoController');
 
 proventoRoutes.post("/", (req, res) => {
   return getProventoController().createAsync(req, res);
@@ -28,7 +30,7 @@ proventoRoutes.post("/import", upload.single("file"), (req, res) => {
   return getProventoController().importAsync(req, res);
 });
 
-proventoRoutes.delete("/:id", (req, res) => {
+proventoRoutes.delete("/:id", ValidationMiddleware.validateUuidParam("id"), (req, res) => {
   return getProventoController().deleteAsync(req, res);
 });
 

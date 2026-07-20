@@ -1,9 +1,7 @@
 import { DataTypes, Model } from "sequelize";
 import { sequelize } from "../../database";
-import {
-  OrderSellSnapshotAttributes,
-  OrderSellSnapshotCreationAttributes,
-} from "./OrderSellSnapshotAttributes";
+import { OrderSellSnapshotAttributes } from "./OrderSellSnapshotAttributes";
+import { OrderSellSnapshotCreationAttributes } from "./OrderSellSnapshotCreationAttributes";
 import { DateUtils } from "../../shared/utils/DateUtils";
 
 export class OrderSellSnapshot
@@ -23,8 +21,7 @@ export class OrderSellSnapshot
   declare readonly updatedAt?: Date;
 }
 
-const normalizeToBrDate = DateUtils.normalizeToBrDateString;
-const getCurrentBrDate = DateUtils.getCurrentBrDate;
+const getCurrentDate = DateUtils.getCurrentDate;
 
 OrderSellSnapshot.init(
   {
@@ -69,19 +66,9 @@ OrderSellSnapshot.init(
       allowNull: false,
     },
     data: {
-      type: DataTypes.STRING(10),
+      type: DataTypes.DATEONLY,
       allowNull: false,
-      defaultValue: getCurrentBrDate,
-      set(value: string) {
-        this.setDataValue("data", normalizeToBrDate(value));
-      },
-      validate: {
-        isValidBrDate(value: string) {
-          if (!DateUtils.isValidBrDate(value)) {
-            throw new Error("Data inválida. Use o formato DD-MM-AAAA com uma data real.");
-          }
-        },
-      },
+      defaultValue: getCurrentDate,
     },
   },
   {

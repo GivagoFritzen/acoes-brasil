@@ -35,6 +35,8 @@ Aplicação **full-stack** para controle de ordens (compra/venda), proventos, po
 | 💰 **Proventos** | Registro de dividendos, JCP e rendimentos. Importação de relatórios Excel |
 | 🔍 **Fundamentus** | Indicadores fundamentalistas obtidos via web scraping |
 | 📈 **Google Finance** | Cotações em tempo real e gráfico de preços |
+| 🏢 **Investidor10** | Dados detalhados de empresas, indicadores fundamentalistas, histórico de indicadores, receitas e proventos |
+| 📊 **Yahoo Finance** | Dados financeiros completos (DRE, balanço, fluxo de caixa), estatísticas-chave, earnings e calendário |
 | 📤 **Exportação** | Exportação de snapshots de venda para Excel |
 | 🖥️ **Desktop** | Versão empacotada com Electron |
 
@@ -48,7 +50,7 @@ Aplicação **full-stack** para controle de ordens (compra/venda), proventos, po
 | **Desktop** | Electron 41 |
 | **Testes** | Jest (back), Vitest (front), Supertest |
 | **Análise** | SonarQube |
-| **Fontes de dados** | Fundamentus, Google Finance |
+| **Fontes de dados** | Fundamentus, Google Finance, Investidor10, Yahoo Finance |
 | **Container** | Docker / Docker Compose |
 
 ## 📁 Estrutura
@@ -72,9 +74,7 @@ acoes/
 ├── common/             Modelos e utilitários compartilhados
 ├── electron/           Wrapper desktop (Electron)
 ├── dockers/            Docker Compose (SQL Server)
-├── rules/              Convenções do projeto
-├── PRD/                Documentos de requisitos
-└── PLAN/               Planos de execução
+└── rules/              Convenções do projeto
 ```
 
 ## 🌐 API
@@ -113,6 +113,9 @@ acoes/
 | `GET` | `/health` | Health check |
 | `GET` | `/fundamentus/:codigo` | Dados fundamentalistas |
 | `GET` | `/google-finance/:codigo` | Cotações e gráfico do Google Finance |
+| `GET` | `/investidor10/:codigo` | Dados da empresa e indicadores fundamentalistas |
+| `GET` | `/investidor10/:codigo/proventos` | Histórico de proventos |
+| `GET` | `/yahoo-finance/:codigo` | Dados financeiros completos (DRE, balanço, fluxo de caixa, estatísticas) |
 
 ## ⚡ Como rodar
 

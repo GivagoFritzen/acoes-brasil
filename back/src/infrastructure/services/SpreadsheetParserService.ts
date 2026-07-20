@@ -1,7 +1,9 @@
-import { SpreadsheetRow, extractField, parseDecimal, readSpreadsheetRows, toBrDateString } from "../../utils/Spreadsheet";
+import type { SpreadsheetRow } from "../../models/SpreadsheetRow";
+import { extractField, parseDecimal, readSpreadsheetRows, toBrDateString } from "../../utils/Spreadsheet";
 import type { ProventoTipo as proventoTipo } from "../../../../common/models/provento";
 import { CreateOrderDto } from "../../application/dto/CreateOrderDto";
 import { CreateProventoDto } from "../../application/dto/CreateProventoDto";
+import { PortfolioImportRowDto } from "../../application/dto/PortfolioImportRowDto";
 import type { OrderOperacao as orderOperacao } from "../../../../common/models/order";
 import { normalizeOrderCodigo } from "../../../../common/utils/OrderCodigoUtils";
 import { detectSupportedAssetTypeFromTicker } from "../../../../common/utils/AssetTypeUtils";
@@ -90,21 +92,45 @@ export class SpreadsheetParserService {
     return { validRows, invalidLineNumbers };
   }
 
-  private normalizeOperacao(value: unknown): orderOperacao | null {
+  parsePortfolioRowsAsync(buffer: Buffer): PortfolioImportRowDto[] {
+    const rows = readSpreadsheetRows(buffer);
+    const portfolios: PortfolioImportRowDto[] = [];
+
+    for (const [index, row] of rows.entries()) {
+      const line = index + 2;
+      const codigo = normalizeOrderCodigo(
+        String(extractField(row, ["Código", "Codigo", "Ativo"]) ?? "")
+      );
+      const quantidadeRaw = parseDecimal(extractField(row, ["Quantidade"]));
+      const precoMedio = parseDecimal(extractField(row, ["Preço Médio", "Preco Medio", "PrecoMedio", "Preço", "Preco"]));
+
+      const quantidade = quantidadeRaw === null ? null : Math.trunc(quantidadeRaw);
+
+      if (!codigo || !quantidade || quantidade <= 0 || !precoMedio) {
+        throw new Error(`Linha ${line}: dados obrigatórios inválidos para importação de portfólio.`);
+      }
+
+      portfolios.push({ codigo, quantidade, precoMedio });
+    }
+
+    return portfolios;
+  }
+
+  private normalizeOperacao(value: string | undefined): orderOperacao | null {
     const raw = String(value ?? "").trim().toLowerCase();
     if (raw.includes("compra")) return "Compra";
     if (raw.includes("venda")) return "Venda";
     return null;
   }
 
-  private normalizeTipoProvento(value: unknown): proventoTipo {
+  private normalizeTipoProvento(value: string | undefined): proventoTipo {
     const raw = this.normalizeText(value);
     if (raw.includes("divid")) return "Dividendo";
     if (raw.includes("juros") || raw.includes("jscp") || raw.includes("capital proprio")) return "JurosSobreCapitalProprio";
     return "Rendimento";
   }
 
-  private isHeaderCell(value: unknown, headers: string[]): boolean {
+  private isHeaderCell(value: string | undefined, headers: string[]): boolean {
     const normalizedValue = this.normalizeText(value);
     if (!normalizedValue) return false;
     return headers.some((header) => this.normalizeText(header) === normalizedValue);
@@ -116,7 +142,7 @@ export class SpreadsheetParserService {
     return values.every((value) => value === null || value === undefined || String(value).trim() === "");
   }
 
-  private normalizeCodigoFromProduto(value: unknown): string {
+  private normalizeCodigoFromProduto(value: string | undefined): string {
     const raw = String(value ?? "").trim().toUpperCase();
     if (!raw) return "";
     const codigoMatch = raw.match(/[A-Z]{4}\d{2}F?/);
@@ -126,7 +152,7 @@ export class SpreadsheetParserService {
     return String((raw.split(/\s|-|\//)[0] ?? raw)).trim().toUpperCase().replace(/\s+/g, "");
   }
 
-  private normalizeText(value: unknown): string {
+  private normalizeText(value: string | undefined): string {
     return String(value ?? "")
       .normalize("NFD")
       .replace(/[̀-ͯ]/g, "")

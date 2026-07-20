@@ -1,11 +1,11 @@
 import { IOrderRepository } from "../interfaces/IOrderRepository";
 import { IPortfolioRepository } from "../interfaces/IPortfolioRepository";
 import { IOrderSellSnapshotRepository } from "../interfaces/IOrderSellSnapshotRepository";
-import { IQuoteProvider } from "../interfaces/IQuoteProvider";
 import { normalizeOrderCodigo } from "../../../../common/utils/OrderCodigoUtils";
+import { BusinessException } from "../../shared/exceptions/BusinessException";
 
 export class PortfolioDomainService {
-  async resolveCodigoForPortfolioAsync(codigoBase: string, tx: unknown, portfolioRepository: IPortfolioRepository): Promise<string> {
+  async resolveCodigoForPortfolioAsync(codigoBase: string, tx: object | undefined, portfolioRepository: IPortfolioRepository): Promise<string> {
     const codigo = normalizeOrderCodigo(codigoBase);
 
     const portfolioPadrao = await portfolioRepository.findByCodigoAsync(codigo, tx);
@@ -18,7 +18,7 @@ export class PortfolioDomainService {
 
   async rebuildPortfolioByCodigoAsync(
     codigo: string,
-    tx: unknown,
+    tx: object | undefined,
     orderRepository: IOrderRepository,
     portfolioRepository: IPortfolioRepository
   ): Promise<void> {
@@ -44,7 +44,7 @@ export class PortfolioDomainService {
       quantidadeAtual -= quantidade;
 
       if (quantidadeAtual < 0) {
-        throw new Error("A remoção da ordem deixaria o portfolio inconsistente.");
+        throw new BusinessException("A remoção da ordem deixaria o portfolio inconsistente.");
       }
 
       if (quantidadeAtual === 0) {
@@ -87,10 +87,10 @@ export class PortfolioDomainService {
       operacao: "Compra" | "Venda";
       data: string;
     },
-    tx: unknown,
+    tx: object | undefined,
     portfolioRepository: IPortfolioRepository,
     orderSellSnapshotRepository: IOrderSellSnapshotRepository,
-    quoteProvider: IQuoteProvider
+    quote?: number | null
   ): Promise<void> {
     const { orderId, codigo, quantidade, valor, operacao, data } = input;
 
@@ -98,7 +98,7 @@ export class PortfolioDomainService {
 
     if (!portfolio) {
       if (operacao === "Venda") {
-        throw new Error(`Não é possível vender ativo (${codigo}) que não existe no portfolio.`);
+        throw new BusinessException(`Não é possível vender ativo (${codigo}) que não existe no portfolio.`);
       }
 
       await portfolioRepository.createAsync(
@@ -119,14 +119,13 @@ export class PortfolioDomainService {
       const precoMedioAtual = portfolio.precoMedio;
       portfolio.registerVenda(quantidade);
 
-      const quoteFromFundamentus = await quoteProvider.getQuoteAsync(codigo);
-      const valorReferencia = quoteFromFundamentus ?? valor;
+      const valorReferencia = quote ?? valor;
       const custoMedioTotal = precoMedioAtual * quantidade;
       const valorReferenciaTotal = valorReferencia * quantidade;
       const ganhos = valorReferenciaTotal - custoMedioTotal;
 
       if (!Number.isFinite(ganhos)) {
-        throw new Error("Não foi possível calcular lucro/prejuízo da venda.");
+        throw new BusinessException("Não foi possível calcular lucro/prejuízo da venda.");
       }
 
       const teveLucro = ganhos >= 0;

@@ -101,6 +101,22 @@ describe('AcoesComponent', () => {
     expect(component.isCreateModalOpen()).toBe(true);
   });
 
+  it('deve alternar modo edit', () => {
+    expect(component.isEditing()).toBe(false);
+
+    component.toggleEditMode();
+
+    expect(component.isEditing()).toBe(true);
+  });
+
+  it('deve alternar modo edit de volta para false', () => {
+    component.isEditing.set(true);
+
+    component.toggleEditMode();
+
+    expect(component.isEditing()).toBe(false);
+  });
+
   it('deve alternar modo delete', () => {
     expect(component.isDeleteMode()).toBe(false);
 
@@ -247,11 +263,81 @@ describe('AcoesComponent', () => {
   });
 
   it('deve aplicar response undefined como array vazio', () => {
-    portfolioServiceMock.getPortfolios.mockReturnValue(of(undefined as unknown as PortfolioItem[]));
+    portfolioServiceMock.getPortfolios.mockReturnValue(of(undefined! as PortfolioItem[]));
 
     component.loadPortfolios();
 
     expect(component.portfolios()).toEqual([]);
     expect(component.isLoading()).toBe(false);
+  });
+
+  describe('mergePortfolios', () => {
+    it('deve mesclar VALE3 e VALE3F em uma unica linha ao carregar portfolios', () => {
+      const items: PortfolioItem[] = [
+        { id: '1', codigo: 'VALE3', quantidade: 100, precoMedio: 40 },
+        { id: '2', codigo: 'VALE3F', quantidade: 50, precoMedio: 42 },
+      ];
+      portfolioServiceMock.getPortfolios.mockReturnValue(of(items));
+
+      component.loadPortfolios();
+
+      expect(component.portfolios()).toHaveLength(1);
+      expect(component.portfolios()[0].codigo).toBe('VALE3');
+      expect(component.portfolios()[0].quantidade).toBe(150);
+    });
+
+    it('deve calcular preco medio ponderado ao mesclar VALE3 e VALE3F', () => {
+      const items: PortfolioItem[] = [
+        { id: '1', codigo: 'VALE3', quantidade: 100, precoMedio: 40 },
+        { id: '2', codigo: 'VALE3F', quantidade: 50, precoMedio: 42 },
+      ];
+      portfolioServiceMock.getPortfolios.mockReturnValue(of(items));
+      const precoEsperado = (100 * 40 + 50 * 42) / 150;
+
+      component.loadPortfolios();
+
+      expect(component.portfolios()[0].precoMedio).toBe(precoEsperado);
+    });
+
+    it('deve manter codigos diferentes separados quando nao ha F', () => {
+      const items: PortfolioItem[] = [
+        { id: '1', codigo: 'PETR4', quantidade: 100, precoMedio: 30 },
+        { id: '2', codigo: 'VALE5', quantidade: 50, precoMedio: 70 },
+      ];
+      portfolioServiceMock.getPortfolios.mockReturnValue(of(items));
+
+      component.loadPortfolios();
+
+      expect(component.portfolios()).toHaveLength(2);
+      expect(component.portfolios()[0].codigo).toBe('PETR4');
+      expect(component.portfolios()[1].codigo).toBe('VALE5');
+    });
+
+    it('deve manter PETR4 inalterado quando nao ha codigo com F correspondente', () => {
+      const items: PortfolioItem[] = [
+        { id: '1', codigo: 'PETR4', quantidade: 100, precoMedio: 30 },
+      ];
+      portfolioServiceMock.getPortfolios.mockReturnValue(of(items));
+
+      component.loadPortfolios();
+
+      expect(component.portfolios()).toHaveLength(1);
+      expect(component.portfolios()[0].codigo).toBe('PETR4');
+      expect(component.portfolios()[0].quantidade).toBe(100);
+    });
+
+    it('deve deletar usando primeiro ID do grupo mesclado ao confirmar delecao', () => {
+      portfolioServiceMock.getPortfolios.mockReturnValue(of([
+        { id: '1', codigo: 'VALE3', quantidade: 100, precoMedio: 40 },
+        { id: '2', codigo: 'VALE3F', quantidade: 50, precoMedio: 42 },
+      ]));
+      component.loadPortfolios();
+      portfolioServiceMock.deletePortfolio.mockReturnValue(of({ message: 'ok' }));
+
+      component.openDeleteModal(component.portfolios()[0]);
+      component.confirmDeletePortfolio();
+
+      expect(portfolioServiceMock.deletePortfolio).toHaveBeenCalledWith('1');
+    });
   });
 });

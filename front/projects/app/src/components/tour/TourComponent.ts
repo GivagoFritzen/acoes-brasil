@@ -2,12 +2,7 @@ import { Component, OnDestroy, PLATFORM_ID, inject, signal, effect } from '@angu
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { TourService } from '../../services/TourService';
 import { TranslatePipe } from '../../pipes/TranslatePipe';
-
-interface TooltipState {
-  spotlight: { top: number; left: number; width: number; height: number };
-  card: { top: number; left: number };
-  placement: 'top' | 'bottom' | 'left' | 'right' | 'center';
-}
+import type { TooltipState } from '../../models/TooltipState';
 
 @Component({
   selector: 'app-tour',
@@ -120,40 +115,42 @@ export class TourComponent implements OnDestroy {
 
     const placements: Array<'bottom' | 'top' | 'right' | 'left'> = [
       pref,
-      ...(['bottom', 'top', 'right', 'left'] as const).filter(p => p !== pref),
+      ...(['bottom', 'top', 'right', 'left'] as const).filter(placement => placement !== pref),
     ];
 
-    const fits = (t: number, l: number) =>
-      t >= 16 && t + cardH <= vh - 16 && l >= 16 && l + cardW <= vw - 16 && !(
-        l < rect.right && l + cardW > rect.left && t < rect.bottom && t + cardH > rect.top
+    const MARGEM_MINIMA = 16;
+
+    const fits = (top: number, left: number) =>
+      top >= MARGEM_MINIMA && top + cardH <= vh - MARGEM_MINIMA && left >= MARGEM_MINIMA && left + cardW <= vw - MARGEM_MINIMA && !(
+        left < rect.right && left + cardW > rect.left && top < rect.bottom && top + cardH > rect.top
       );
 
     let chosen: { top: number; left: number; placement: 'bottom' | 'top' | 'right' | 'left' } | null = null;
 
-    for (const p of placements) {
-      let t = 0, l = 0;
+    for (const placement of placements) {
+      let top = 0, left = 0;
 
-      switch (p) {
+      switch (placement) {
         case 'bottom':
-          t = rect.bottom + gap;
-          l = rect.left + rect.width / 2 - cardW / 2;
+          top = rect.bottom + gap;
+          left = rect.left + rect.width / 2 - cardW / 2;
           break;
         case 'top':
-          t = rect.top - cardH - gap;
-          l = rect.left + rect.width / 2 - cardW / 2;
+          top = rect.top - cardH - gap;
+          left = rect.left + rect.width / 2 - cardW / 2;
           break;
         case 'left':
-          t = rect.top + rect.height / 2 - cardH / 2;
-          l = rect.left - cardW - gap;
+          top = rect.top + rect.height / 2 - cardH / 2;
+          left = rect.left - cardW - gap;
           break;
         case 'right':
-          t = rect.top + rect.height / 2 - cardH / 2;
-          l = rect.right + gap;
+          top = rect.top + rect.height / 2 - cardH / 2;
+          left = rect.right + gap;
           break;
       }
 
-      if (fits(t, l)) {
-        chosen = { top: t, left: l, placement: p };
+      if (fits(top, left)) {
+        chosen = { top, left, placement };
         break;
       }
     }

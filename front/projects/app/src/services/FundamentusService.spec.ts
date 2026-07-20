@@ -40,7 +40,7 @@ describe('FundamentusService', () => {
     });
 
     it('deve normalizar código lowercase para uppercase', () => {
-      const responseMock = { codigo: 'VALE3' } as any;
+      const responseMock = { codigo: 'VALE3', empresa: null, setor: null, subsetor: null, indicadores: [], updatedAt: '' };
 
       service.getAcaoDetails('vale3').subscribe(response => {
         expect(response).toEqual(responseMock);
@@ -59,14 +59,11 @@ describe('FundamentusService', () => {
       const req = httpMock.expectOne(`${API_CONFIG.baseUrl}${API_CONFIG.endpoints.fundamentus}/XXXX`);
       req.flush(apiErrorResponse, { status: 404, statusText: 'Not Found' });
 
-      try {
-        await promise;
-        expect('não deveria chegar aqui').toBe(false);
-      } catch (error: any) {
-        expect(error.message).toBe('Ticker inválido');
-        expect(error.status).toBe(404);
-        expect(error.error).toEqual(apiErrorResponse);
-      }
+      await expect(promise).rejects.toMatchObject({
+        message: 'Ticker inválido',
+        status: 404,
+        error: apiErrorResponse,
+      });
     });
 
     it('deve tratar erro HTTP 500', async () => {
@@ -75,12 +72,9 @@ describe('FundamentusService', () => {
       const req = httpMock.expectOne(`${API_CONFIG.baseUrl}${API_CONFIG.endpoints.fundamentus}/PETR4`);
       req.flush('Server error', { status: 500, statusText: 'Internal Server Error' });
 
-      try {
-        await promise;
-        expect('não deveria chegar aqui').toBe(false);
-      } catch (error: any) {
-        expect(error.status).toBe(500);
-      }
+      await expect(promise).rejects.toMatchObject({
+        status: 500,
+      });
     });
   });
 });

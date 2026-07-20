@@ -68,25 +68,30 @@ export class StockChartComponent implements OnChanges {
   }
 
   private updateTooltipSize(): void {
-    const isMobile = window.innerWidth <= 425;
-    this.tooltipW = isMobile ? 170 : 130;
-    this.tooltipH = isMobile ? 64 : 44;
+    const BREAKPOINT_MOBILE = 425;
+    const TOOLTIP_LARGURA_MOBILE = 170;
+    const TOOLTIP_LARGURA_DESKTOP = 130;
+    const TOOLTIP_ALTURA_MOBILE = 64;
+    const TOOLTIP_ALTURA_DESKTOP = 44;
+    const isMobile = window.innerWidth <= BREAKPOINT_MOBILE;
+    this.tooltipW = isMobile ? TOOLTIP_LARGURA_MOBILE : TOOLTIP_LARGURA_DESKTOP;
+    this.tooltipH = isMobile ? TOOLTIP_ALTURA_MOBILE : TOOLTIP_ALTURA_DESKTOP;
   }
 
   private calcDimensions(): ChartDimensions {
-    const paddingTop = 16;
-    const paddingRight = 16;
-    const paddingBottom = 40;
-    const paddingLeft = 60;
+    const PADDING_TOP = 16;
+    const PADDING_RIGHT = 16;
+    const PADDING_BOTTOM = 40;
+    const PADDING_LEFT = 60;
     return {
       width: this.width,
       height: this.height,
-      paddingTop,
-      paddingRight,
-      paddingLeft,
-      paddingBottom,
-      plotWidth: this.width - paddingLeft - paddingRight,
-      plotHeight: this.height - paddingTop - paddingBottom,
+      paddingTop: PADDING_TOP,
+      paddingRight: PADDING_RIGHT,
+      paddingLeft: PADDING_LEFT,
+      paddingBottom: PADDING_BOTTOM,
+      plotWidth: this.width - PADDING_LEFT - PADDING_RIGHT,
+      plotHeight: this.height - PADDING_TOP - PADDING_BOTTOM,
     };
   }
 
@@ -100,7 +105,7 @@ export class StockChartComponent implements OnChanges {
       return;
     }
 
-    const prices = this.points.map(p => p.price);
+    const prices = this.points.map(ponto => ponto.price);
     this.minPrice = Math.min(...prices);
     this.maxPrice = Math.max(...prices);
     this.priceRange = this.maxPrice - this.minPrice || 1;
@@ -115,15 +120,15 @@ export class StockChartComponent implements OnChanges {
     this.gridLines = this.buildGridLines(dims);
   }
 
-  private toPixel(pt: GoogleFinanceChartPoint, index: number, dims: ChartDimensions): LinePoint {
-    const x = dims.paddingLeft + (index / (this.points.length - 1)) * dims.plotWidth;
-    const y = dims.paddingTop + ((this.maxPrice - pt.price) / this.priceRange) * dims.plotHeight;
-    return { x, y };
+  private toPixel(ponto: GoogleFinanceChartPoint, index: number, dims: ChartDimensions): LinePoint {
+    const posicaoX = dims.paddingLeft + (index / (this.points.length - 1)) * dims.plotWidth;
+    const posicaoY = dims.paddingTop + ((this.maxPrice - ponto.price) / this.priceRange) * dims.plotHeight;
+    return { x: posicaoX, y: posicaoY };
   }
 
   private buildLinePath(points: LinePoint[]): string {
-    return points.map((pt, i) =>
-      `${i === 0 ? 'M' : 'L'}${pt.x.toFixed(1)},${pt.y.toFixed(1)}`
+    return points.map((ponto, indice) =>
+      `${indice === 0 ? 'M' : 'L'}${ponto.x.toFixed(1)},${ponto.y.toFixed(1)}`
     ).join(' ');
   }
 
@@ -138,15 +143,15 @@ export class StockChartComponent implements OnChanges {
     const lines: GridLine[] = [];
     const gridCount = 5;
 
-    for (let i = 0; i <= gridCount; i++) {
-      const ratio = i / gridCount;
-      const y = dims.paddingTop + ratio * dims.plotHeight;
+    for (let indice = 0; indice <= gridCount; indice++) {
+      const ratio = indice / gridCount;
+      const posicaoY = dims.paddingTop + ratio * dims.plotHeight;
       const price = this.maxPrice - ratio * this.priceRange;
       lines.push({
         x1: dims.paddingLeft,
-        y1: y,
+        y1: posicaoY,
         x2: dims.paddingLeft + dims.plotWidth,
-        y2: y,
+        y2: posicaoY,
         label: price.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
       });
     }
@@ -155,36 +160,35 @@ export class StockChartComponent implements OnChanges {
   }
 
   private selectPoint(index: number): void {
-    const pt = this.points[index];
+    const GAP_TOOLTIP = 8;
+    const ponto = this.points[index];
     const pixel = this.linePoints[index];
     const dims = this.chartDimensions;
 
-    const gap = 8;
-
-    let tx = pixel.x - this.tooltipW / 2;
-    let ty = pixel.y - this.tooltipH - gap;
+    let tooltipX = pixel.x - this.tooltipW / 2;
+    let tooltipY = pixel.y - this.tooltipH - GAP_TOOLTIP;
 
     const minX = dims.paddingLeft;
     const maxX = dims.paddingLeft + dims.plotWidth - this.tooltipW;
-    if (tx < minX) tx = minX;
-    if (tx > maxX) tx = maxX;
+    if (tooltipX < minX) tooltipX = minX;
+    if (tooltipX > maxX) tooltipX = maxX;
 
-    if (ty < dims.paddingTop) {
-      ty = pixel.y + gap;
+    if (tooltipY < dims.paddingTop) {
+      tooltipY = pixel.y + GAP_TOOLTIP;
     }
 
     this.selectedPoint = {
-      date: pt.date,
-      price: pt.price,
-      formattedPrice: pt.price.toLocaleString('pt-BR', {
+      date: ponto.date,
+      price: ponto.price,
+      formattedPrice: ponto.price.toLocaleString('pt-BR', {
         style: 'currency',
         currency: 'BRL',
       }),
-      formattedDate: this.formatDateLabel(pt.date),
+      formattedDate: this.formatDateLabel(ponto.date),
       x: pixel.x,
       y: pixel.y,
-      tooltipX: tx,
-      tooltipY: ty,
+      tooltipX: tooltipX,
+      tooltipY: tooltipY,
     };
   }
 
@@ -194,15 +198,16 @@ export class StockChartComponent implements OnChanges {
     let minDist = Infinity;
     let nearestIdx = -1;
 
-    for (let i = 0; i < this.linePoints.length; i++) {
-      const dist = Math.abs(this.linePoints[i].x - svgX);
+    for (let indice = 0; indice < this.linePoints.length; indice++) {
+      const dist = Math.abs(this.linePoints[indice].x - svgX);
       if (dist < minDist) {
         minDist = dist;
-        nearestIdx = i;
+        nearestIdx = indice;
       }
     }
 
-    const threshold = (this.chartDimensions.plotWidth / this.points.length) * 1.5;
+    const FATOR_DISTANCIA_MAXIMA = 1.5;
+    const threshold = (this.chartDimensions.plotWidth / this.points.length) * FATOR_DISTANCIA_MAXIMA;
     if (minDist > threshold) return null;
 
     return nearestIdx;

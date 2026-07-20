@@ -51,32 +51,73 @@ describe("DateUtils", () => {
     });
   });
 
-  describe("isFutureBrDate", () => {
+  describe("isFutureDate", () => {
     it("Deve retornar false quando formato invalido", () => {
-      expect(DateUtils.isFutureBrDate("invalido")).toBe(false);
+      expect(DateUtils.isFutureDate("invalido")).toBe(false);
     });
 
-    it("Deve retornar true quando data futura", () => {
+    it("Deve retornar true quando data futura (formato BR)", () => {
       const futuro = new Date();
       futuro.setFullYear(futuro.getFullYear() + 1);
       const dia = String(futuro.getDate()).padStart(2, "0");
       const mes = String(futuro.getMonth() + 1).padStart(2, "0");
       const ano = futuro.getFullYear();
 
-      expect(DateUtils.isFutureBrDate(`${dia}-${mes}-${ano}`)).toBe(true);
+      expect(DateUtils.isFutureDate(`${dia}-${mes}-${ano}`)).toBe(true);
     });
 
-    it("Deve retornar false quando data passada", () => {
-      expect(DateUtils.isFutureBrDate("01-01-2020")).toBe(false);
+    it("Deve retornar true quando data futura (formato ISO)", () => {
+      const futuro = new Date();
+      futuro.setFullYear(futuro.getFullYear() + 1);
+      const mes = String(futuro.getMonth() + 1).padStart(2, "0");
+      const dia = String(futuro.getDate()).padStart(2, "0");
+      const ano = futuro.getFullYear();
+
+      expect(DateUtils.isFutureDate(`${ano}-${mes}-${dia}`)).toBe(true);
     });
 
-    it("Deve retornar false quando data for hoje", () => {
+    it("Deve retornar false quando data passada (formato BR)", () => {
+      expect(DateUtils.isFutureDate("01-01-2020")).toBe(false);
+    });
+
+    it("Deve retornar false quando data passada (formato ISO)", () => {
+      expect(DateUtils.isFutureDate("2020-01-01")).toBe(false);
+    });
+
+    it("Deve retornar false quando data for hoje (formato BR)", () => {
       const hoje = new Date();
       const dia = String(hoje.getDate()).padStart(2, "0");
       const mes = String(hoje.getMonth() + 1).padStart(2, "0");
       const ano = hoje.getFullYear();
 
-      expect(DateUtils.isFutureBrDate(`${dia}-${mes}-${ano}`)).toBe(false);
+      expect(DateUtils.isFutureDate(`${dia}-${mes}-${ano}`)).toBe(false);
+    });
+
+    it("Deve retornar false quando data for hoje (formato ISO)", () => {
+      const hoje = new Date();
+      const mes = String(hoje.getMonth() + 1).padStart(2, "0");
+      const dia = String(hoje.getDate()).padStart(2, "0");
+      const ano = hoje.getFullYear();
+
+      expect(DateUtils.isFutureDate(`${ano}-${mes}-${dia}`)).toBe(false);
+    });
+  });
+
+  describe("getCurrentDate", () => {
+    it("Deve retornar data atual no formato yyyy-MM-dd", () => {
+      const agora = new Date();
+      const mes = String(agora.getMonth() + 1).padStart(2, "0");
+      const dia = String(agora.getDate()).padStart(2, "0");
+      const ano = agora.getFullYear();
+      const esperado = `${ano}-${mes}-${dia}`;
+
+      expect(DateUtils.getCurrentDate()).toBe(esperado);
+    });
+  });
+
+  describe("isFutureBrDate", () => {
+    it("Deve delegar para isFutureDate e retornar false quando formato invalido", () => {
+      expect(DateUtils.isFutureBrDate("invalido")).toBe(false);
     });
   });
 

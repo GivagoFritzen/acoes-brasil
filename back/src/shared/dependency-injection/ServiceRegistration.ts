@@ -5,7 +5,10 @@ import { SequelizeOrderSellSnapshotRepository } from "../../infrastructure/repos
 import { SequelizeProventoRepository } from "../../infrastructure/repositories/SequelizeProventoRepository";
 import { FundamentusQuoteProvider } from "../../infrastructure/services/FundamentusQuoteProvider";
 import { FundamentusScraperService } from "../../infrastructure/services/FundamentusScraperService";
+import { FundamentusProventosScraperService } from "../../infrastructure/services/FundamentusProventosScraperService";
 import { GoogleFinanceService } from "../../infrastructure/services/GoogleFinanceService";
+import { Investidor10ScraperService } from "../../infrastructure/services/Investidor10ScraperService";
+import { YahooFinanceScraperService } from "../../infrastructure/services/YahooFinanceScraperService";
 import { SpreadsheetParserService } from "../../infrastructure/services/SpreadsheetParserService";
 import { ExcelExportService } from "../../infrastructure/services/ExcelExportService";
 import { SequelizeTransactionManager } from "../../infrastructure/database/SequelizeTransactionManager";
@@ -18,11 +21,17 @@ import { GetSellSnapshotsService } from "../../application/services/GetSellSnaps
 import { ExportSellSnapshotsService } from "../../application/services/ExportSellSnapshotsService";
 import { CreateOrUpdatePortfolioService } from "../../application/services/CreateOrUpdatePortfolioService";
 import { DeletePortfolioService } from "../../application/services/DeletePortfolioService";
+import { ExportPortfolioService } from "../../application/services/ExportPortfolioService";
+import { ImportPortfolioService } from "../../application/services/ImportPortfolioService";
 import { ListPortfolioService } from "../../application/services/ListPortfolioService";
 import { CreateProventoService } from "../../application/services/CreateProventoService";
 import { DeleteProventoService } from "../../application/services/DeleteProventoService";
 import { ImportProventosService } from "../../application/services/ImportProventosService";
 import { ListProventosService } from "../../application/services/ListProventosService";
+import { OrderController } from "../../controllers/OrderController";
+import { PortfolioController } from "../../controllers/PortfolioController";
+import { ProventoController } from "../../controllers/ProventoController";
+import { ImportController } from "../../controllers/ImportController";
 
 export function registerServices(): void {
   registerRepositories();
@@ -32,6 +41,7 @@ export function registerServices(): void {
   registerOrderServices();
   registerPortfolioServices();
   registerProventoServices();
+  registerControllers();
 }
 
 function registerRepositories(): void {
@@ -44,8 +54,11 @@ function registerRepositories(): void {
 function registerExternalServices(): void {
   Container.register('quoteProvider', () => new FundamentusQuoteProvider());
   Container.register('fundamentusScraper', () => new FundamentusScraperService());
+  Container.register('fundamentusProventosScraper', () => new FundamentusProventosScraperService());
   Container.register('googleFinanceService', () => new GoogleFinanceService());
+  Container.register('investidor10Scraper', () => new Investidor10ScraperService());
   Container.register('spreadsheetParser', () => new SpreadsheetParserService());
+  Container.register('yahooFinanceScraper', () => new YahooFinanceScraperService());
   Container.register('ExcelExportService', () => new ExcelExportService());
 }
 
@@ -109,6 +122,16 @@ function registerPortfolioServices(): void {
   Container.register('ListPortfolioService', () => new ListPortfolioService(
     Container.get('portfolioRepository')
   ));
+
+  Container.register('ExportPortfolioService', () => new ExportPortfolioService(
+    Container.get('portfolioRepository'),
+    Container.get('ExcelExportService')
+  ));
+
+  Container.register('ImportPortfolioService', () => new ImportPortfolioService(
+    Container.get('portfolioRepository'),
+    Container.get('transactionManager')
+  ));
 }
 
 function registerProventoServices(): void {
@@ -127,5 +150,37 @@ function registerProventoServices(): void {
 
   Container.register('ListProventosService', () => new ListProventosService(
     Container.get('proventoRepository')
+  ));
+}
+
+function registerControllers(): void {
+  Container.register('OrderController', () => new OrderController(
+    Container.get('CreateOrderService'),
+    Container.get('DeleteOrderService'),
+    Container.get('ListOrdersService'),
+    Container.get('GetSellSnapshotsService'),
+    Container.get('ExportSellSnapshotsService')
+  ));
+
+  Container.register('PortfolioController', () => new PortfolioController(
+    Container.get('CreateOrUpdatePortfolioService'),
+    Container.get('DeletePortfolioService'),
+    Container.get('ListPortfolioService'),
+    Container.get('ExportPortfolioService'),
+    Container.get('ImportPortfolioService'),
+    Container.get('spreadsheetParser')
+  ));
+
+  Container.register('ProventoController', () => new ProventoController(
+    Container.get('CreateProventoService'),
+    Container.get('DeleteProventoService'),
+    Container.get('ImportProventosService'),
+    Container.get('ListProventosService'),
+    Container.get('spreadsheetParser')
+  ));
+
+  Container.register('ImportController', () => new ImportController(
+    Container.get('ImportOrdersService'),
+    Container.get('spreadsheetParser')
   ));
 }

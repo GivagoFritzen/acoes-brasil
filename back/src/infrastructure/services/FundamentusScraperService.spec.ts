@@ -1,6 +1,6 @@
 import { FundamentusScraperService } from "./FundamentusScraperService";
 
-global.fetch = jest.fn() as any;
+global.fetch = jest.fn() as jest.Mock;
 
 describe("FundamentusScraperService", () => {
   let service: FundamentusScraperService;

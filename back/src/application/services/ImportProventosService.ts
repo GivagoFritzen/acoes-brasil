@@ -4,6 +4,7 @@ import { CreateProventoDto } from "../dto/CreateProventoDto";
 import { ImportProventosResult } from "../dto/ImportProventosResult";
 import { DateUtils } from "../../shared/utils/DateUtils";
 import { isSupportedB3Ticker } from "../../../../common/utils/AssetTypeUtils";
+import { BusinessException } from "../../shared/exceptions/BusinessException";
 
 export class ImportProventosService {
   constructor(
@@ -27,7 +28,7 @@ export class ImportProventosService {
           !linha.instituicao ||
           linha.quantidade <= 0 ||
           linha.valorLiquido < 0 ||
-          DateUtils.isFutureBrDate(linha.data)
+          DateUtils.isFutureDate(linha.data)
         ) {
           invalidLines.push(lineNumber);
           continue;
@@ -38,7 +39,7 @@ export class ImportProventosService {
       }
 
       if (imported === 0 && invalidLines.length > 0) {
-        throw new Error(`Nenhuma linha válida encontrada. Primeira linha inválida: ${invalidLines[0]}.`);
+        throw new BusinessException(`Nenhuma linha válida encontrada. Primeira linha inválida: ${invalidLines[0]}.`);
       }
 
       return { imported, skipped: invalidLines.length, invalidLines };

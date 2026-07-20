@@ -6,6 +6,7 @@ import { IQuoteProvider } from "../../domain/interfaces/IQuoteProvider";
 import { ITransactionManager } from "../../domain/interfaces/ITransactionManager";
 import { PortfolioDomainService } from "../../domain/services/PortfolioDomainService";
 import { OrderEntity } from "../../domain/entities/OrderEntity";
+import { PortfolioEntity } from "../../domain/entities/PortfolioEntity";
 import type { OrderTipo as orderTipo, OrderOperacao as orderOperacao } from "../../../../common/models/order";
 
 describe("CreateOrderService", () => {
@@ -26,7 +27,7 @@ describe("CreateOrderService", () => {
       findAllByCodigoAsync: jest.fn(),
       findAllPaginatedAsync: jest.fn(),
       deleteAsync: jest.fn(),
-    } as unknown as jest.Mocked<IOrderRepository>;
+    } as jest.Mocked<IOrderRepository>;
 
     portfolioRepositoryMock = {
       createAsync: jest.fn(),
@@ -35,22 +36,22 @@ describe("CreateOrderService", () => {
       findAllAsync: jest.fn(),
       saveAsync: jest.fn(),
       deleteByCodigoAsync: jest.fn(),
-    } as unknown as jest.Mocked<IPortfolioRepository>;
+    } as jest.Mocked<IPortfolioRepository>;
 
     orderSellSnapshotRepositoryMock = {
       createAsync: jest.fn(),
       findByIdAsync: jest.fn(),
       findAllAsync: jest.fn(),
       deleteAsync: jest.fn(),
-    } as unknown as jest.Mocked<IOrderSellSnapshotRepository>;
+    } as jest.Mocked<IOrderSellSnapshotRepository>;
 
     quoteProviderMock = {
-      getQuoteAsync: jest.fn(),
-    } as unknown as jest.Mocked<IQuoteProvider>;
+      getQuoteAsync: jest.fn().mockResolvedValue(null),
+    } as jest.Mocked<IQuoteProvider>;
 
     transactionManagerMock = {
       executeAsync: jest.fn((fn) => fn(undefined)),
-    } as unknown as jest.Mocked<ITransactionManager>;
+    } as jest.Mocked<ITransactionManager>;
 
     service = new CreateOrderService(
       orderRepositoryMock,
@@ -63,19 +64,9 @@ describe("CreateOrderService", () => {
   });
 
   it("Deve criar ordem de compra quando dados validos", async () => {
-    const ordemCriada: OrderEntity = {
-      id: "1",
-      codigo: "VALE3",
-      quantidade: 100,
-      valor: 50.0,
-      data: "2024-01-01",
-      tipo: "ACAO",
-      operacao: "Compra",
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    } as unknown as OrderEntity;
+    const ordemCriada = new OrderEntity("1", "VALE3", 50.0, 100, "2024-01-01", "ACAO", "Compra");
     orderRepositoryMock.createAsync.mockResolvedValue(ordemCriada);
-    portfolioRepositoryMock.createAsync.mockResolvedValue({} as any);
+    portfolioRepositoryMock.createAsync.mockResolvedValue(new PortfolioEntity("1", "VALE3", 0, 0));
 
     const resultado = await service.executeAsync({
       codigo: "VALE3",
@@ -97,8 +88,8 @@ describe("CreateOrderService", () => {
         quantidade: 0,
         valor: 0,
         data: "",
-        tipo: "ACAO" as any,
-        operacao: "" as any,
+        tipo: "" as orderTipo,
+        operacao: "" as orderOperacao,
       })
     ).rejects.toThrow();
   });
@@ -111,7 +102,7 @@ describe("CreateOrderService", () => {
         valor: 50.0,
         data: "2024-01-01",
         tipo: tipoValido,
-        operacao: "TipoInvalido" as any,
+        operacao: "TipoInvalido" as orderOperacao,
       })
     ).rejects.toThrow();
   });

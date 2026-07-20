@@ -1,44 +1,31 @@
 import request from "supertest";
 import express from "express";
 import { orderRoutes } from "./OrderRoutes";
+import { OrderController } from "../controllers/OrderController";
+import { ImportController } from "../controllers/ImportController";
+
+const mockCreateService = { executeAsync: jest.fn().mockResolvedValue({ id: "1" }) };
+const mockDeleteService = { executeAsync: jest.fn().mockResolvedValue({}) };
+const mockListService = { executeAsync: jest.fn().mockResolvedValue({ items: [], total: 0 }) };
+const mockGetSellSnapshotsService = { executeAsync: jest.fn().mockResolvedValue([]) };
+const mockExportSellSnapshotsService = { executeAsync: jest.fn().mockResolvedValue({ buffer: Buffer.from("test"), fileName: "test.xlsx" }) };
+const mockImportOrdersService = { executeAsync: jest.fn().mockResolvedValue(5) };
+const mockParser = { parseOrderRowsAsync: jest.fn().mockReturnValue([{ codigo: "VALE3" }]) };
 
 jest.mock("../../shared/dependency-injection/Container", () => ({
   Container: {
     get: jest.fn((name: string) => {
-      if (name === "CreateOrderService") {
-        return {
-          executeAsync: jest.fn().mockResolvedValue({ id: "1" }),
-        };
+      if (name === "OrderController") {
+        return new OrderController(
+          mockCreateService as any,
+          mockDeleteService as any,
+          mockListService as any,
+          mockGetSellSnapshotsService as any,
+          mockExportSellSnapshotsService as any
+        );
       }
-      if (name === "DeleteOrderService") {
-        return {
-          executeAsync: jest.fn().mockResolvedValue({}),
-        };
-      }
-      if (name === "ListOrdersService") {
-        return {
-          executeAsync: jest.fn().mockResolvedValue({ items: [], total: 0 }),
-        };
-      }
-      if (name === "GetSellSnapshotsService") {
-        return {
-          executeAsync: jest.fn().mockResolvedValue([]),
-        };
-      }
-      if (name === "ExportSellSnapshotsService") {
-        return {
-          executeAsync: jest.fn().mockResolvedValue({ buffer: Buffer.from("test"), fileName: "test.xlsx" }),
-        };
-      }
-      if (name === "ImportOrdersService") {
-        return {
-          executeAsync: jest.fn().mockResolvedValue(5),
-        };
-      }
-      if (name === "spreadsheetParser") {
-        return {
-          parseOrderRowsAsync: jest.fn().mockReturnValue([{ codigo: "VALE3" }]),
-        };
+      if (name === "ImportController") {
+        return new ImportController(mockImportOrdersService as any, mockParser as any);
       }
       return {};
     }),

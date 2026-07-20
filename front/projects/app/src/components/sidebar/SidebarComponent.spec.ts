@@ -12,17 +12,12 @@ import { ChangeDetectionService } from '../../services/ChangeDetectionService';
 import { ClickOutsideDirective } from '../../directives/ClickOutsideDirective';
 import { RouterModule } from '@angular/router';
 
-@Component({
-    selector: 'app-language-selector',
-    standalone: true,
-    template: '<div class="language-selector-mock"></div>'
-})
-class MockLanguageSelectorComponent {}
-
 describe('SidebarComponent', () => {
     let component: SidebarComponent;
     let fixture: ComponentFixture<SidebarComponent>;
-    let mockTradingHoursService: any;
+    let mockTradingHoursService: {
+        getBvmfTradingHours: ReturnType<typeof vi.fn>;
+    };
     const createTradingHoursResponse = (isOpen: boolean) => ({
         success: true,
         data: {
@@ -42,7 +37,7 @@ describe('SidebarComponent', () => {
             holidays: [],
             tradingDays: [1, 2, 3, 4, 5],
             nextOpenTime: '',
-            currentStatus: 'open' as any,
+            currentStatus: 'open',
             upcomingHolidays: []
         }
     });
@@ -68,7 +63,6 @@ describe('SidebarComponent', () => {
             imports: [
                 SidebarComponent,
                 TranslatePipe,
-                MockLanguageSelectorComponent,
                 ClickOutsideDirective,
                 RouterModule.forRoot([])
             ],
@@ -213,12 +207,6 @@ describe('SidebarComponent', () => {
             expect(toggleBtn).toBeTruthy();
         });
 
-        it('deve ocultar language selector quando showSidebar = false', () => {
-            component.showSidebar = false;
-            fixture.detectChanges();
-            const langSection = fixture.debugElement.query(By.css('.sidebar__language'));
-            expect(langSection).toBeFalsy();
-        });
     });
 
     describe('Interações', () => {

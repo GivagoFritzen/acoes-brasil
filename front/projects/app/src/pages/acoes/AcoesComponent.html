@@ -1,5 +1,12 @@
 <section class="acoes">
-    <section class="portfolios">
+    <button class="acoes__edit-btn" (click)="goToPersonalizar()" title="Personalizar">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/>
+            <path d="m15 5 4 4"/>
+        </svg>
+    </button>
+
+    <section class="portfolios" *ngIf="settingsService.visibleModules().wallet">
         <app-alerts [alerts]="alerts()" (dismissed)="handleAlertDismiss($event)"></app-alerts>
         <header class="acoes__header" data-tour="acoes-title">
             <h2>{{ 'acoes.title' | translate }}</h2>
@@ -58,11 +65,11 @@
     </section>
 
     <section class="graphic">
-        <div class="chart-wrapper chart-wrapper--composicao" data-tour="acoes-composition">
+        <div class="chart-wrapper chart-wrapper--composicao" data-tour="acoes-composition" *ngIf="settingsService.visibleModules().composition">
             <h2>{{ 'acoes.compositionTitle' | translate }}</h2>
             <app-portfolio-pie-chart [portfolios]="portfolios()"></app-portfolio-pie-chart>
         </div>
-        <div class="chart-wrapper chart-wrapper--rentabilidade" data-tour="acoes-profitability">
+        <div class="chart-wrapper chart-wrapper--rentabilidade" data-tour="acoes-profitability" *ngIf="settingsService.visibleModules().profitability">
             <h2>{{ 'acoes.profitabilityTitle' | translate }}</h2>
             <app-portfolio-profit-loss-chart></app-portfolio-profit-loss-chart>
         </div>

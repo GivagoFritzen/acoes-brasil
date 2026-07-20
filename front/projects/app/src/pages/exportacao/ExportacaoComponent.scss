@@ -44,7 +44,7 @@
 
   .exportacao__grid {
     display: grid;
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(3, 1fr);
     gap: 16px;
   }
 
@@ -67,6 +67,15 @@
   .exportacao__actions {
     display: flex;
     justify-content: flex-start;
+    width: 100%;
+
+    app-simple-button {
+      width: 100%;
+    }
+
+    ::ng-deep .simple-btn {
+      width: 100%;
+    }
   }
 
   .exportacao__hint {
@@ -98,6 +107,10 @@
     margin: 16px;
     padding: 16px 14px;
 
+    .exportacao__grid {
+      grid-template-columns: 1fr;
+    }
+
     .exportacao__card {
       padding: 14px;
       gap: 10px;
@@ -105,10 +118,6 @@
 
     .exportacao__actions {
       width: 100%;
-
-      app-simple-button {
-        width: 100%;
-      }
     }
   }
 }

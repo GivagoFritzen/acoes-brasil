@@ -3,15 +3,19 @@ import { PortfolioProfitLossChartComponent } from './PortfolioProfitLossChartCom
 import { PortfolioService } from '../../services/PortfolioService';
 import { FundamentusService } from '../../services/FundamentusService';
 import { vi } from 'vitest';
-import { of } from 'rxjs';
+import { firstValueFrom, of } from 'rxjs';
 import { PLATFORM_ID } from '@angular/core';
 import { PortfolioItem, FundamentusAcaoDetails } from '../../models';
 
 describe('PortfolioProfitLossChartComponent', () => {
   let component: PortfolioProfitLossChartComponent;
   let fixture: ComponentFixture<PortfolioProfitLossChartComponent>;
-  let mockPortfolioService: any;
-  let mockFundamentusService: any;
+  let mockPortfolioService: {
+    getPortfolios: ReturnType<typeof vi.fn>;
+  };
+  let mockFundamentusService: {
+    getAcaoDetails: ReturnType<typeof vi.fn>;
+  };
 
   const mockPortfolioItems: PortfolioItem[] = [
     { id: '1', codigo: 'PETR4', precoMedio: 30, quantidade: 100 },
@@ -139,12 +143,12 @@ describe('PortfolioProfitLossChartComponent', () => {
 
   describe('extractCotacao', () => {
     it('deve extrair cotação corretamente', () => {
-      const cotacao = (component as any).extractCotacao(mockFundamentusDetails);
+      const cotacao = component['extractCotacao'](mockFundamentusDetails) as number;
       expect(cotacao).toBe(35);
     });
 
     it('deve retornar 0 quando details null', () => {
-      const cotacao = (component as any).extractCotacao(null);
+      const cotacao = component['extractCotacao'](null) as number;
       expect(cotacao).toBe(0);
     });
 
@@ -157,7 +161,7 @@ describe('PortfolioProfitLossChartComponent', () => {
         updatedAt: '2025-01-01',
         indicadores: [],
       };
-      const cotacao = (component as any).extractCotacao(details);
+      const cotacao = component['extractCotacao'](details) as number;
       expect(cotacao).toBe(0);
     });
 
@@ -170,56 +174,56 @@ describe('PortfolioProfitLossChartComponent', () => {
         updatedAt: '2025-01-01',
         indicadores: [{ label: 'Outro', value: '100' }],
       };
-      const cotacao = (component as any).extractCotacao(details);
+      const cotacao = component['extractCotacao'](details) as number;
       expect(cotacao).toBe(0);
     });
   });
 
   describe('normalizeLabel', () => {
     it('deve normalizar labels', () => {
-      const normalized = (component as any).normalizeLabel('Cotação');
+      const normalized = component['normalizeLabel']('Cotação') as string;
       expect(normalized).toBe('cotacao');
     });
 
     it('deve remover acentos', () => {
-      const normalized = (component as any).normalizeLabel('ação');
+      const normalized = component['normalizeLabel']('ação') as string;
       expect(normalized).toBe('acao');
     });
 
     it('deve remover caracteres especiais', () => {
-      const normalized = (component as any).normalizeLabel('Test@123!');
+      const normalized = component['normalizeLabel']('Test@123!') as string;
       expect(normalized).toBe('test123');
     });
   });
 
   describe('parseBrazilianNumber', () => {
     it('deve parsear números brasileiros com vírgula', () => {
-      const parsed = (component as any).parseBrazilianNumber('35,50');
+      const parsed = component['parseBrazilianNumber']('35,50') as number;
       expect(parsed).toBe(35.5);
     });
 
     it('deve parsear números com ponto como separador de milhar', () => {
-      const parsed = (component as any).parseBrazilianNumber('1.234,56');
+      const parsed = component['parseBrazilianNumber']('1.234,56') as number;
       expect(parsed).toBe(1234.56);
     });
 
     it('deve remover símbolo de porcentagem', () => {
-      const parsed = (component as any).parseBrazilianNumber('50%');
+      const parsed = component['parseBrazilianNumber']('50%') as number;
       expect(parsed).toBe(50);
     });
 
     it('deve retornar 0 para string vazia', () => {
-      const parsed = (component as any).parseBrazilianNumber('');
+      const parsed = component['parseBrazilianNumber']('') as number;
       expect(parsed).toBe(0);
     });
 
     it('deve retornar 0 para null', () => {
-      const parsed = (component as any).parseBrazilianNumber(null);
+      const parsed = component['parseBrazilianNumber'](null) as number;
       expect(parsed).toBe(0);
     });
 
     it('deve retornar 0 para valor não numérico', () => {
-      const parsed = (component as any).parseBrazilianNumber('abc');
+      const parsed = component['parseBrazilianNumber']('abc') as number;
       expect(parsed).toBe(0);
     });
   });
@@ -242,7 +246,7 @@ describe('PortfolioProfitLossChartComponent', () => {
 
   describe('buildBarChartItems', () => {
     it('deve retornar array vazio para dados vazios', () => {
-      const items = (component as any).buildBarChartItems([]);
+      const items = component['buildBarChartItems']([]);
       expect(items).toEqual([]);
       expect(component.chartHeight).toBe(0);
     });
@@ -253,7 +257,7 @@ describe('PortfolioProfitLossChartComponent', () => {
         { name: 'VALE5', value: -5 },
         { name: 'BBDC4', value: 0 },
       ];
-      const items = (component as any).buildBarChartItems(testData);
+      const items = component['buildBarChartItems'](testData);
 
       expect(items[0].color).toBe('#5AA454');
       expect(items[1].color).toBe('#A10A28');
@@ -265,7 +269,7 @@ describe('PortfolioProfitLossChartComponent', () => {
         { name: 'PETR4', value: 50 },
         { name: 'VALE5', value: 100 },
       ];
-      const items = (component as any).buildBarChartItems(testData);
+      const items = component['buildBarChartItems'](testData);
 
       expect(items[0].width).toBeLessThan(items[1].width);
     });
@@ -274,20 +278,68 @@ describe('PortfolioProfitLossChartComponent', () => {
   describe('Cálculos de Lucro/Prejuízo', () => {
     it('deve usar cor verde para valor positivo', () => {
       const item = { name: 'TEST', value: 10 };
-      const result = (component as any).buildBarChartItems([item]);
+      const result = component['buildBarChartItems']([item]);
       expect(result[0].color).toBe('#5AA454');
     });
 
     it('deve usar cor vermelha para valor negativo', () => {
       const item = { name: 'TEST', value: -10 };
-      const result = (component as any).buildBarChartItems([item]);
+      const result = component['buildBarChartItems']([item]);
       expect(result[0].color).toBe('#A10A28');
     });
 
     it('deve usar cor verde para valor zero', () => {
       const item = { name: 'TEST', value: 0 };
-      const result = (component as any).buildBarChartItems([item]);
+      const result = component['buildBarChartItems']([item]);
       expect(result[0].color).toBe('#5AA454');
+    });
+  });
+
+  describe('merge no getProfitLossChartData', () => {
+    it('deve mesclar PETR4 e PETR4F em unica chamada a FundamentusService', () => {
+      mockPortfolioService.getPortfolios.mockReturnValue(of([
+        { id: '1', codigo: 'PETR4', precoMedio: 30, quantidade: 100 },
+        { id: '2', codigo: 'PETR4F', precoMedio: 35, quantidade: 50 },
+      ]));
+      mockFundamentusService.getAcaoDetails.mockReset();
+      mockFundamentusService.getAcaoDetails.mockReturnValue(of({
+        codigo: 'PETR4',
+        empresa: 'Petrobras',
+        setor: 'Petroleo',
+        subsetor: 'Refino',
+        updatedAt: '2025-01-01',
+        indicadores: [{ label: 'Cotação', value: '35,00' }],
+      }));
+
+      component.ngOnInit();
+      component.chartItems$.subscribe();
+
+      expect(mockFundamentusService.getAcaoDetails).toHaveBeenCalledTimes(1);
+    });
+
+    it('deve gerar uma barra por codigo mesclado', async () => {
+      mockPortfolioService.getPortfolios.mockReturnValue(of([
+        { id: '1', codigo: 'PETR4', precoMedio: 30, quantidade: 100 },
+        { id: '2', codigo: 'PETR4F', precoMedio: 35, quantidade: 50 },
+        { id: '3', codigo: 'VALE5', precoMedio: 70, quantidade: 50 },
+      ]));
+      mockFundamentusService.getAcaoDetails.mockReset();
+      mockFundamentusService.getAcaoDetails.mockImplementation((codigo: string) => of({
+        codigo,
+        empresa: 'Test',
+        setor: 'Test',
+        subsetor: 'Test',
+        updatedAt: '2025-01-01',
+        indicadores: [{ label: 'Cotação', value: codigo === 'PETR4' ? '35,00' : '100,00' }],
+      } as FundamentusAcaoDetails));
+
+      component.ngOnInit();
+
+      const items = await firstValueFrom(component.chartItems$);
+      expect(items).toHaveLength(2);
+      const nomes = items.map(item => item.name);
+      expect(nomes).toContain('PETR4');
+      expect(nomes).toContain('VALE5');
     });
   });
 });

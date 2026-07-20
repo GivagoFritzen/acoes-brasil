@@ -5,13 +5,14 @@ import multer from "multer";
 import { Request, Response } from "express";
 import { ImportOrdersService } from "../application/services/ImportOrdersService";
 import { SpreadsheetParserService } from "../infrastructure/services/SpreadsheetParserService";
-import { Container } from "../shared/dependency-injection/Container";
+import type { MulterRequest } from "../models/MulterRequest";
 
 const XLSX_MAGIC = [0x50, 0x4b, 0x03, 0x04];
+const LIMITE_TAMANHO_ARQUIVO = 1048576;
 const uploadDir = fs.mkdtempSync(path.join(os.tmpdir(), "acoes-upload-"));
 const upload = multer({
   dest: uploadDir,
-  limits: { fileSize: 1048576 },
+  limits: { fileSize: LIMITE_TAMANHO_ARQUIVO },
   fileFilter: (_req, file, cb) => {
     const ext = path.extname(file.originalname).toLowerCase();
     if (ext !== ".xlsx") {
@@ -22,20 +23,17 @@ const upload = multer({
 });
 
 export class ImportController {
-  private ImportOrdersService: ImportOrdersService;
-  private spreadsheetParser: SpreadsheetParserService;
-
-  constructor() {
-    this.ImportOrdersService = Container.get('ImportOrdersService');
-    this.spreadsheetParser = Container.get('spreadsheetParser');
-  }
+  constructor(
+    private importOrdersService: ImportOrdersService,
+    private spreadsheetParser: SpreadsheetParserService
+  ) { }
 
   public getMiddleware() {
     return upload.single("file");
   }
 
   public async importAsync(req: Request, res: Response) {
-    const file = (req as any).file as Express.Multer.File | undefined;
+    const file = (req as MulterRequest).file;
 
     if (!file) {
       return res.status(400).json({ message: "Arquivo não enviado. Use o campo 'file'." });
@@ -43,7 +41,7 @@ export class ImportController {
 
     try {
       const buffer = fs.readFileSync(file.path);
-      if (buffer.length < 4 || !XLSX_MAGIC.every((b, i) => buffer[i] === b)) {
+      if (buffer.length < 4 || !XLSX_MAGIC.every((byte, indice) => buffer[indice] === byte)) {
         return res.status(400).json({ message: "Tipo de arquivo inválido. Envie um arquivo .xlsx válido." });
       }
       const ordersToImport = this.spreadsheetParser.parseOrderRowsAsync(buffer);
@@ -52,12 +50,13 @@ export class ImportController {
         return res.status(400).json({ message: "Planilha sem dados." });
       }
 
-      const importedCount = await this.ImportOrdersService.executeAsync(ordersToImport);
+      const importedCount = await this.importOrdersService.executeAsync(ordersToImport);
       return res.status(201).json({ imported: importedCount });
-    } catch (error: any) {
+    } catch (error) {
+      const err = error as Error;
       return res.status(400).json({
         message: "Erro ao importar planilha de negociação",
-        error: error.message || error,
+        error: err.message,
       });
     } finally {
       if (file.path) fs.unlink(file.path, () => {});

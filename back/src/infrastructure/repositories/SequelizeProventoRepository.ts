@@ -1,6 +1,4 @@
-import { Op, Transaction } from "sequelize";
-import { sequelize } from "../../database";
-import { buildBrDateOrderExpression } from "../../database/DateExpression";
+import { Op, Transaction, WhereOptions } from "sequelize";
 import { Provento as ProventoModel } from "../../models/provento/Provento";
 import { ProventoEntity } from "../../domain/entities/ProventoEntity";
 import { IProventoRepository } from "../../domain/interfaces/IProventoRepository";
@@ -11,7 +9,7 @@ import { normalizeOrderCodigo } from "../../../../common/utils/OrderCodigoUtils"
 export class SequelizeProventoRepository implements IProventoRepository {
   async createAsync(
     proventoData: Omit<ProventoEntity, "id" | "createdAt" | "updatedAt">,
-    tx?: unknown
+    tx?: object
   ): Promise<ProventoEntity> {
     const transaction = tx as Transaction | undefined;
     const model = await ProventoModel.create(
@@ -31,7 +29,7 @@ export class SequelizeProventoRepository implements IProventoRepository {
 
   async createManyAsync(
     proventos: Omit<ProventoEntity, "id" | "createdAt" | "updatedAt">[],
-    tx?: unknown
+    tx?: object
   ): Promise<ProventoEntity[]> {
     const results: ProventoEntity[] = [];
     for (const provento of proventos) {
@@ -40,14 +38,14 @@ export class SequelizeProventoRepository implements IProventoRepository {
     return results;
   }
 
-  async findByIdAsync(id: string, tx?: unknown): Promise<ProventoEntity | null> {
+  async findByIdAsync(id: string, tx?: object): Promise<ProventoEntity | null> {
     const transaction = tx as Transaction | undefined;
     const model = await ProventoModel.findByPk(id, { transaction });
     if (!model) return null;
     return this.toEntity(model);
   }
 
-  async deleteAsync(id: string, tx?: unknown): Promise<void> {
+  async deleteAsync(id: string, tx?: object): Promise<void> {
     const transaction = tx as Transaction | undefined;
     await ProventoModel.destroy({ where: { id }, transaction });
   }
@@ -57,19 +55,18 @@ export class SequelizeProventoRepository implements IProventoRepository {
     const limitNumber = Math.max(filters.limit ?? 20, 1);
     const offset = (pageNumber - 1) * limitNumber;
 
-    const where: any = {};
-    const andConditions: unknown[] = [];
-    const dataAsDate = buildBrDateOrderExpression("provento");
+    const where: Record<string | symbol, object | string | number | Date | boolean | null> = {};
+    const andConditions: object[] = [];
 
     const startDate = DateUtils.normalizeToIsoDate(filters.dataInicial) ?? DateUtils.normalizeToIsoDate(filters.data);
     const endDate = DateUtils.normalizeToIsoDate(filters.dataFinal);
 
     if (startDate && endDate) {
-      andConditions.push(sequelize.where(dataAsDate, { [Op.between]: [startDate, endDate] }));
+      andConditions.push({ data: { [Op.between]: [startDate, endDate] } });
     } else if (startDate) {
-      andConditions.push(sequelize.where(dataAsDate, { [Op.gte]: startDate }));
+      andConditions.push({ data: { [Op.gte]: startDate } });
     } else if (endDate) {
-      andConditions.push(sequelize.where(dataAsDate, { [Op.lte]: endDate }));
+      andConditions.push({ data: { [Op.lte]: endDate } });
     }
 
     if (filters.codigo) {
@@ -85,28 +82,27 @@ export class SequelizeProventoRepository implements IProventoRepository {
     }
 
     if (filters.agruparPorCodigo) {
-      return this.findAllGroupedAsync(where, dataAsDate, offset, limitNumber);
+      return this.findAllGroupedAsync(where, offset, limitNumber);
     }
 
     const { rows, count } = await ProventoModel.findAndCountAll({
       where,
-      order: [[dataAsDate, "DESC"]],
+      order: [["data", "DESC"]],
       limit: limitNumber,
       offset,
     });
 
-    return { rows: rows.map((m) => this.toEntity(m)), count };
+    return { rows: rows.map((model) => this.toEntity(model)), count };
   }
 
   private async findAllGroupedAsync(
-    where: any,
-    dataAsDate: ReturnType<typeof buildBrDateOrderExpression>,
+    where: WhereOptions,
     offset: number,
     limit: number
   ): Promise<{ rows: ProventoEntity[]; count: number }> {
     const allRows = await ProventoModel.findAll({
       where,
-      order: [[dataAsDate, "DESC"]],
+      order: [["data", "DESC"]],
     });
 
     const groupedMap = new Map<string, ProventoEntity>();

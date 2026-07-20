@@ -1,0 +1,76 @@
+<ng-container *ngIf="fundamentus as fund">
+    <article class="acao-details__card">
+        <header>
+            <h3>{{ 'acaoDetails.cards.information' | translate }}</h3>
+        </header>
+        <div class="acao-details__fundamentus-table">
+            <div class="acao-details__fundamentus-row" *ngFor="let item of fund.indicadores | slice:0:11">
+                <span class="label">
+                    {{ item.label }}
+                    <app-help-tip *ngIf="hasHelp(item.label)" [text]="getHelp(item.label)"></app-help-tip>
+                </span>
+                <strong class="value">{{ item.value }}</strong>
+            </div>
+        </div>
+    </article>
+
+    <article class="acao-details__card">
+        <header>
+            <h3>{{ 'acaoDetails.cards.oscillations' | translate }}</h3>
+        </header>
+        <div class="acao-details__fundamentus-table">
+            <div class="acao-details__fundamentus-row" *ngFor="let item of fund.indicadores | slice:11:22">
+                <span class="label">
+                    {{ item.label }}
+                    <app-help-tip *ngIf="hasHelp(item.label)" [text]="getHelp(item.label)"></app-help-tip>
+                </span>
+                <strong class="value">{{ item.value }}</strong>
+            </div>
+        </div>
+    </article>
+
+    <article class="acao-details__card acao-details__card--full">
+        <header>
+            <h3>{{ 'acaoDetails.cards.fundamentalIndicators' | translate }}</h3>
+        </header>
+        <div class="acao-details__fundamentus-table">
+            <div class="acao-details__fundamentus-row" *ngFor="let item of fund.indicadores | slice:22:44">
+                <span class="label">
+                    {{ item.label }}
+                    <app-help-tip *ngIf="hasHelp(item.label)" [text]="getHelp(item.label)"></app-help-tip>
+                </span>
+                <strong class="value">{{ item.value }}</strong>
+            </div>
+        </div>
+    </article>
+
+    <article class="acao-details__card">
+        <header>
+            <h3>{{ 'acaoDetails.cards.balanceSheet' | translate }}</h3>
+        </header>
+        <div class="acao-details__fundamentus-table">
+            <div class="acao-details__fundamentus-row" *ngFor="let item of fund.indicadores | slice:44:50">
+                <span class="label">
+                    {{ item.label }}
+                    <app-help-tip *ngIf="hasHelp(item.label)" [text]="getHelp(item.label)"></app-help-tip>
+                </span>
+                <strong class="value">{{ item.value }}</strong>
+            </div>
+        </div>
+    </article>
+
+    <article class="acao-details__card">
+        <header>
+            <h3>{{ 'acaoDetails.cards.results' | translate }}</h3>
+        </header>
+        <div class="acao-details__fundamentus-table">
+            <div class="acao-details__fundamentus-row" *ngFor="let item of fund.indicadores | slice:50">
+                <span class="label">
+                    {{ item.label }}
+                    <app-help-tip *ngIf="hasHelp(item.label)" [text]="getHelp(item.label)"></app-help-tip>
+                </span>
+                <strong class="value">{{ item.value }}</strong>
+            </div>
+        </div>
+    </article>
+</ng-container>

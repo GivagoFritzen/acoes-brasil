@@ -17,8 +17,7 @@ export class Order extends Model<OrderAttributes, orderCreationAttributes> imple
   declare readonly updatedAt?: Date;
 }
 
-const normalizeToBrDate = DateUtils.normalizeToBrDateString;
-const getCurrentBrDate = DateUtils.getCurrentBrDate;
+const getCurrentDate = DateUtils.getCurrentDate;
 
 Order.init(
   {
@@ -40,19 +39,9 @@ Order.init(
       allowNull: false,
     },
     data: {
-      type: DataTypes.STRING(10),
+      type: DataTypes.DATEONLY,
       allowNull: false,
-      defaultValue: getCurrentBrDate,
-      set(value: string) {
-        this.setDataValue("data", normalizeToBrDate(value));
-      },
-      validate: {
-        isValidBrDate(value: string) {
-          if (!DateUtils.isValidBrDate(value)) {
-            throw new Error("Data inválida. Use o formato DD-MM-AAAA com uma data real.");
-          }
-        },
-      },
+      defaultValue: getCurrentDate,
     },
     tipo: {
       type: DataTypes.STRING,

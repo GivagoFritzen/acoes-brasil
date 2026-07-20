@@ -1,38 +1,30 @@
 import { Request, Response } from "express";
 import { FundamentusScraperService } from "../infrastructure/services/FundamentusScraperService";
+import { FundamentusProventosScraperService } from "../infrastructure/services/FundamentusProventosScraperService";
 import { Container } from "../shared/dependency-injection/Container";
-import { ErrorHandler } from "../shared/error-handler/ErrorHandler";
+import { BaseScrapingController } from "./base/BaseScrapingController";
 
-export class FundamentusController {
+export class FundamentusController extends BaseScrapingController {
   private fundamentusScraper: FundamentusScraperService;
+  private fundamentusProventosScraper: FundamentusProventosScraperService;
 
   constructor() {
+    super();
     this.fundamentusScraper = Container.get("fundamentusScraper");
+    this.fundamentusProventosScraper = Container.get("fundamentusProventosScraper");
   }
 
   async getAsync(req: Request, res: Response): Promise<Response> {
-    const codigo = String(req.params.codigo ?? "").trim().toUpperCase();
+    return this.executeAsync(req, res, (codigo) => this.fundamentusScraper.scrapeAsync(codigo), [
+      { match: "não encontrado no Fundamentus", httpStatus: 404 },
+      { match: "Falha ao consultar Fundamentus", httpStatus: 502 },
+      { match: "Não foi possível extrair dados", httpStatus: 502 },
+    ]);
+  }
 
-    if (!codigo) {
-      return res.status(400).json({ message: "Código do ativo é obrigatório." });
-    }
-
-    try {
-      const parsed = await this.fundamentusScraper.scrapeAsync(codigo);
-      return res.json(parsed);
-    } catch (error) {
-      if (error instanceof Error) {
-        if (error.message.includes("não encontrado no Fundamentus")) {
-          return res.status(404).json({ message: error.message });
-        }
-        if (
-          error.message.includes("Falha ao consultar Fundamentus") ||
-          error.message.includes("Não foi possível extrair dados")
-        ) {
-          return res.status(502).json({ message: error.message });
-        }
-      }
-      return ErrorHandler.handle(error, req, res);
-    }
+  async getProventosAsync(req: Request, res: Response): Promise<Response> {
+    return this.executeAsync(req, res, (codigo) => this.fundamentusProventosScraper.scrapeAsync(codigo), [
+      { match: "Falha ao consultar Fundamentus", httpStatus: 502 },
+    ]);
   }
 }

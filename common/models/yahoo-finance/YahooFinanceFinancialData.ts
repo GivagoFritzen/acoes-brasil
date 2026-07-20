@@ -1,0 +1,30 @@
+export interface YahooFinanceFinancialData {
+  currentPrice: string | null;
+  targetHighPrice: string | null;
+  targetLowPrice: string | null;
+  targetMeanPrice: string | null;
+  targetMedianPrice: string | null;
+  recommendationMean: string | null;
+  recommendationKey: string | null;
+  numberOfAnalystOpinions: string | null;
+  totalCash: string | null;
+  totalCashPerShare: string | null;
+  ebitda: string | null;
+  totalDebt: string | null;
+  quickRatio: string | null;
+  currentRatio: string | null;
+  totalRevenue: string | null;
+  debtToEquity: string | null;
+  revenuePerShare: string | null;
+  returnOnAssets: string | null;
+  returnOnEquity: string | null;
+  grossProfits: string | null;
+  freeCashflow: string | null;
+  operatingCashflow: string | null;
+  earningsGrowth: string | null;
+  revenueGrowth: string | null;
+  grossMargins: string | null;
+  ebitdaMargins: string | null;
+  operatingMargins: string | null;
+  profitMargins: string | null;
+}
