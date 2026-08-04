@@ -5,30 +5,35 @@ $switch-height: 26px;
 $circle-size: 20px;
 $offset: 3px;
 
-.simple-checkbox__track {
-  --bg: #dfe1e4;
-  --bg-hover: #c9cbcd;
-  --checked-bg: #6e79d6;
-  --checked-hover-bg: #535db3;
-  --circle-color: $color-white;
+.simple-checkbox__input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
 
-  appearance: none;
-  background-color: var(--bg);
+.simple-checkbox__track {
+  background-color: var(--color-border);
   border-radius: 72px;
   border-style: none;
+  cursor: pointer;
+  display: inline-block;
   flex-shrink: 0;
   height: $switch-height;
   margin: 0;
   position: relative;
+  transition: background-color 100ms ease-out;
   width: $switch-width;
-}
 
-:host-context(html[data-theme="dark"]) .simple-checkbox__track {
-  --bg: rgba(226, 232, 240, 0.15);
-  --bg-hover: rgba(226, 232, 240, 0.25);
-  --checked-bg: $color-primary;
-  --checked-hover-bg: $color-primary-hover;
-  --circle-color: $color-white;
+  &:hover {
+    background-color: var(--color-card-border);
+    transition-duration: 0s;
+  }
 }
 
 .simple-checkbox__track::before {
@@ -40,44 +45,31 @@ $offset: 3px;
   top: -6px;
 }
 
-.simple-checkbox__track,
 .simple-checkbox__track::after {
-  transition: all 100ms ease-out;
-}
-
-.simple-checkbox__track::after {
-  background-color: var(--circle-color);
+  background-color: $color-white;
   border-radius: 50%;
   content: "";
   height: $circle-size;
   left: $offset;
   position: absolute;
   top: $offset;
+  transition: left 100ms ease-out;
   width: $circle-size;
 }
 
-.simple-checkbox input[type=checkbox] {
-  cursor: default;
+.simple-checkbox__input:checked + .simple-checkbox__track {
+  background-color: $color-primary;
+
+  &:hover {
+    background-color: $color-primary-hover;
+  }
+
+  &::after {
+    left: calc(#{$switch-width} - #{$circle-size} - #{$offset});
+  }
 }
 
-.simple-checkbox__track:hover {
-  background-color: var(--bg-hover);
-  transition-duration: 0s;
-}
-
-.simple-checkbox__track:checked {
-  background-color: var(--checked-bg);
-}
-
-.simple-checkbox__track:checked::after {
-  background-color: var(--circle-color);
-  left: calc(#{$switch-width} - #{$circle-size} - #{$offset});
-}
-
-.simple-checkbox :focus:not(.focus-visible) {
-  outline: 0;
-}
-
-.simple-checkbox__track:checked:hover {
-  background-color: var(--checked-hover-bg);
+.simple-checkbox__input:focus-visible + .simple-checkbox__track {
+  outline: 2px solid $color-primary;
+  outline-offset: 2px;
 }
