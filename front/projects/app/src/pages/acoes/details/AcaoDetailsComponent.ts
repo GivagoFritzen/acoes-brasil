@@ -19,11 +19,12 @@ import { CHART_WINDOWS, GoogleFinanceChartWindow, GoogleFinanceResponse } from '
 import { FundamentusDetailsComponent } from './fundamentus-details/FundamentusDetailsComponent';
 import { Investidor10DetailsComponent } from './investidor10-details/Investidor10DetailsComponent';
 import { YahooFinanceDetailsComponent } from './yahoo-finance-details/YahooFinanceDetailsComponent';
+import { AcaoDetailsSkeletonComponent } from './skeleton/AcaoDetailsSkeletonComponent';
 
 @Component({
     selector: 'app-acao-details',
     standalone: true,
-    imports: [CommonModule, RouterModule, AlertsComponent, SimpleButtonComponent, StockChartComponent, TranslatePipe, FundamentusDetailsComponent, Investidor10DetailsComponent, YahooFinanceDetailsComponent],
+    imports: [CommonModule, RouterModule, AlertsComponent, SimpleButtonComponent, StockChartComponent, TranslatePipe, FundamentusDetailsComponent, Investidor10DetailsComponent, YahooFinanceDetailsComponent, AcaoDetailsSkeletonComponent],
     templateUrl: './AcaoDetailsComponent.html',
     styleUrls: ['./AcaoDetailsComponent.scss'],
     encapsulation: ViewEncapsulation.None,
