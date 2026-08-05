@@ -1,3 +1,1 @@
-export interface ElectronAPI {
-  ping(): string;
-}
+export interface ElectronAPI {}

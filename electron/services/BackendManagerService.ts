@@ -24,6 +24,7 @@ export class BackendManagerService implements IBackendManager {
 
     try {
       this.ensureDataDirectory();
+      await this.ensurePortAvailable();
       this.backendProcess = this.spawnBackendProcess();
       this.setupProcessHandlers();
       await this.waitForBackend();
@@ -52,8 +53,34 @@ export class BackendManagerService implements IBackendManager {
     }
   }
 
+  private ensurePortAvailable(): Promise<void> {
+    return new Promise((resolve, reject) => {
+      const port = parseInt(this.config.backend.defaultPort, 10);
+      const server = http.createServer();
+
+      server.once('error', (err: NodeJS.ErrnoException) => {
+        if (err.code === 'EADDRINUSE') {
+          reject(new Error(`Port ${port} is already in use. Please close the application using it and try again.`));
+        } else {
+          reject(err);
+        }
+      });
+
+      server.once('listening', () => {
+        server.close(() => resolve());
+      });
+
+      server.listen(port);
+    });
+  }
+
   private spawnBackendProcess(): ChildProcess {
     const { entryPath, defaultPort, dbDialect, dbStoragePath } = this.config.backend;
+
+    if (!fs.existsSync(entryPath)) {
+      throw new Error(`Backend entry point not found: ${entryPath}`);
+    }
+
     const backendDir = path.dirname(entryPath);
     const cwd = path.resolve(backendDir, '..', '..', '..', '..');
 

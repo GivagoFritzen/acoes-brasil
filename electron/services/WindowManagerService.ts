@@ -28,7 +28,7 @@ export class WindowManagerService implements IWindowManager {
         contextIsolation: true,
         nodeIntegration: false,
         sandbox: true,
-        webSecurity: false,
+        webSecurity: app.isPackaged,
       },
     });
 
