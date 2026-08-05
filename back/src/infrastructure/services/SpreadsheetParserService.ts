@@ -8,6 +8,7 @@ import type { OrderOperacao as orderOperacao } from "../../../../common/models/o
 import { normalizeOrderCodigo } from "../../../../common/utils/OrderCodigoUtils";
 import { detectSupportedAssetTypeFromTicker } from "../../../../common/utils/AssetTypeUtils";
 import { ParseProventoResult } from "../../models/ParseProventoResult";
+import { DateUtils } from "../../shared/utils/DateUtils";
 
 export class SpreadsheetParserService {
   parseOrderRowsAsync(buffer: Buffer): CreateOrderDto[] {
@@ -78,7 +79,8 @@ export class SpreadsheetParserService {
       }
 
       const codigo = this.normalizeCodigoFromProduto(produtoField);
-      const data = toBrDateString(pagamentoField) ?? "";
+      const brData = toBrDateString(pagamentoField);
+      const data = brData ? DateUtils.normalizeToIsoDate(brData) ?? brData : "";
       const tipo = this.normalizeTipoProvento(tipoField);
       const instituicao = String(instituicaoField ?? "").trim();
       const quantidadeRaw = parseDecimal(quantidadeField);
