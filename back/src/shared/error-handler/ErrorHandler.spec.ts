@@ -68,7 +68,6 @@ describe("ErrorHandler", () => {
     expect(res.status).toHaveBeenCalledWith(500);
     expect(res.json).toHaveBeenCalledWith({
       message: "Erro interno do servidor",
-      error: "Erro qualquer",
     });
   });
 
@@ -80,7 +79,6 @@ describe("ErrorHandler", () => {
     expect(res.status).toHaveBeenCalledWith(500);
     expect(res.json).toHaveBeenCalledWith({
       message: "Erro interno do servidor",
-      error: "erro desconhecido",
     });
   });
 });

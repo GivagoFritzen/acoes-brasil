@@ -37,5 +37,8 @@ Portfolio.init(
   {
     sequelize,
     tableName: "Portfolios",
+    indexes: [
+      { fields: ["codigo"] },
+    ],
   }
 );

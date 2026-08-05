@@ -1,26 +1,15 @@
 import fs from "fs";
 import os from "os";
 import path from "path";
-import multer from "multer";
 import { Request, Response } from "express";
 import { ImportOrdersService } from "../application/services/ImportOrdersService";
 import { SpreadsheetParserService } from "../infrastructure/services/SpreadsheetParserService";
 import type { MulterRequest } from "../models/MulterRequest";
+import { createMulterUpload } from "../shared/multer/MulterConfigFactory";
 
 const XLSX_MAGIC = [0x50, 0x4b, 0x03, 0x04];
-const LIMITE_TAMANHO_ARQUIVO = 1048576;
 const uploadDir = fs.mkdtempSync(path.join(os.tmpdir(), "acoes-upload-"));
-const upload = multer({
-  dest: uploadDir,
-  limits: { fileSize: LIMITE_TAMANHO_ARQUIVO },
-  fileFilter: (_req, file, cb) => {
-    const ext = path.extname(file.originalname).toLowerCase();
-    if (ext !== ".xlsx") {
-      return cb(new Error("Apenas arquivos .xlsx são permitidos."));
-    }
-    cb(null, true);
-  },
-});
+const upload = createMulterUpload(uploadDir);
 
 export class ImportController {
   constructor(
@@ -53,13 +42,11 @@ export class ImportController {
       const importedCount = await this.importOrdersService.executeAsync(ordersToImport);
       return res.status(201).json({ imported: importedCount });
     } catch (error) {
-      const err = error as Error;
       return res.status(400).json({
         message: "Erro ao importar planilha de negociação",
-        error: err.message,
       });
     } finally {
-      if (file.path) fs.unlink(file.path, () => {});
+      if (file.path) await fs.promises.unlink(file.path).catch(() => {});
     }
   }
 }

@@ -88,7 +88,8 @@ export class SequelizeOrderRepository implements IOrderRepository {
     }
 
     if (filters.codigo?.trim()) {
-      where.codigo = { [Op.like]: `%${filters.codigo.trim()}%` };
+      const escaped = filters.codigo.trim().replace(/[%_]/g, "\\$&");
+      where.codigo = { [Op.like]: `%${escaped}%`, [Op.iLike]: `%${escaped}%` };
     }
 
     if (filters.operacao?.trim()) {

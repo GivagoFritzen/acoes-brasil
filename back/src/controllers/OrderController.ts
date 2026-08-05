@@ -10,6 +10,7 @@ import { ExportSellSnapshotsService } from "../application/services/ExportSellSn
 import { IOrderFilters } from "../domain/interfaces/IOrderFilters";
 import { ErrorHandler } from "../shared/error-handler/ErrorHandler";
 import { normalizeOrderCodigo } from "../../../common/utils/OrderCodigoUtils";
+import { ValidatedRequest } from "../models/ValidatedRequest";
 
 export class OrderController {
   constructor(
@@ -23,7 +24,7 @@ export class OrderController {
 
   async createAsync(req: Request, res: Response): Promise<Response> {
     try {
-      const dto = (req as any).validatedBody as CreateOrderDto;
+      const dto = (req as ValidatedRequest<CreateOrderDto>).validatedBody;
       const order = await this.createOrderService.executeAsync(dto);
       return res.status(201).json(order);
     } catch (error) {
@@ -44,7 +45,7 @@ export class OrderController {
   async updateAsync(req: Request, res: Response): Promise<Response> {
     try {
       const { id } = req.params;
-      const dto = (req as any).validatedBody as UpdateOrderDto;
+      const dto = (req as ValidatedRequest<UpdateOrderDto>).validatedBody;
       const order = await this.updateOrderService.executeAsync(String(id), dto);
       return res.json(order);
     } catch (error) {

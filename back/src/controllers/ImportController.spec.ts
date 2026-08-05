@@ -3,6 +3,9 @@ import { beforeEach, describe, expect, it, jest } from "@jest/globals";
 jest.mock("fs", () => ({
   ...jest.requireActual("fs"),
   readFileSync: jest.fn(),
+  promises: {
+    unlink: jest.fn().mockResolvedValue(undefined),
+  },
   unlink: jest.fn((_path, cb) => cb && cb()),
 }));
 

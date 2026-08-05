@@ -55,5 +55,10 @@ Order.init(
   {
     sequelize,
     tableName: "Orders",
+    indexes: [
+      { fields: ["codigo"] },
+      { fields: ["data"] },
+      { fields: ["codigo", "data"] },
+    ],
   }
 );

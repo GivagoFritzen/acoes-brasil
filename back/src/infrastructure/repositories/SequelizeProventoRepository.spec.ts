@@ -69,7 +69,7 @@ describe("SequelizeProventoRepository", () => {
 
   describe("createManyAsync", () => {
     it("Deve criar multiplos proventos e retornar entities", async () => {
-      const createSpy = jest.spyOn(repository, "createAsync").mockResolvedValue(modelMock);
+      const bulkCreateMock = jest.spyOn(ProventoModel, "bulkCreate").mockResolvedValue([modelMock as any]);
       const proventos = [
         { codigo: "VALE3", data: "2024-01-15", tipo: "Dividendo" as proventoTipo, instituicao: "BB", quantidade: 100, precoUnitario: 1.0, valorLiquido: 100.0 },
         { codigo: "PETR4", data: "2024-01-20", tipo: "Dividendo" as proventoTipo, instituicao: "BB", quantidade: 50, precoUnitario: 2.0, valorLiquido: 100.0 },
@@ -77,21 +77,28 @@ describe("SequelizeProventoRepository", () => {
 
       const resultado = await repository.createManyAsync(proventos);
 
-      expect(createSpy).toHaveBeenCalledTimes(2);
-      expect(resultado).toHaveLength(2);
+      expect(bulkCreateMock).toHaveBeenCalledTimes(1);
+      expect(bulkCreateMock).toHaveBeenCalledWith(
+        expect.arrayContaining([
+          expect.objectContaining({ codigo: "VALE3" }),
+          expect.objectContaining({ codigo: "PETR4" }),
+        ]),
+        expect.objectContaining({})
+      );
+      expect(resultado).toHaveLength(1);
     });
 
-    it("Deve passar transacao para cada createAsync", async () => {
+    it("Deve passar transacao para bulkCreate", async () => {
       const txMock = {};
-      const createMock = jest.spyOn(ProventoModel, "create").mockResolvedValue(modelMock);
+      const bulkCreateMock = jest.spyOn(ProventoModel, "bulkCreate").mockResolvedValue([modelMock as any]);
       const proventos = [
         { codigo: "VALE3", data: "2024-01-15", tipo: "Dividendo" as proventoTipo, instituicao: "BB", quantidade: 100, precoUnitario: 1.0, valorLiquido: 100.0 },
       ];
 
       await repository.createManyAsync(proventos, txMock);
 
-      expect(createMock).toHaveBeenCalledWith(
-        expect.any(Object),
+      expect(bulkCreateMock).toHaveBeenCalledWith(
+        expect.any(Array),
         { transaction: txMock }
       );
     });

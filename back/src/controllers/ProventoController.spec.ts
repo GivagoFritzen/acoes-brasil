@@ -3,6 +3,9 @@ import { beforeEach, describe, expect, it, jest } from "@jest/globals";
 jest.mock("fs", () => ({
   ...jest.requireActual("fs"),
   readFileSync: jest.fn(),
+  promises: {
+    unlink: jest.fn().mockResolvedValue(undefined),
+  },
   unlink: jest.fn((_path, cb) => cb && cb()),
 }));
 
@@ -14,6 +17,7 @@ import { NotFoundException } from "../shared/exceptions/NotFoundException";
 const fsMock = fs as { readFileSync: jest.Mock };
 
 const mockCreateService = { executeAsync: jest.fn() };
+const mockUpdateService = { executeAsync: jest.fn() };
 const mockDeleteService = { executeAsync: jest.fn() };
 const mockImportService = { executeAsync: jest.fn() };
 const mockListService = { executeAsync: jest.fn() };
@@ -38,6 +42,7 @@ describe("ProventoController", () => {
     jest.clearAllMocks();
     controller = new ProventoController(
       mockCreateService as any,
+      mockUpdateService as any,
       mockDeleteService as any,
       mockImportService as any,
       mockListService as any,

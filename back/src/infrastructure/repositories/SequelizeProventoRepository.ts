@@ -31,11 +31,20 @@ export class SequelizeProventoRepository implements IProventoRepository {
     proventos: Omit<ProventoEntity, "id" | "createdAt" | "updatedAt">[],
     tx?: object
   ): Promise<ProventoEntity[]> {
-    const results: ProventoEntity[] = [];
-    for (const provento of proventos) {
-      results.push(await this.createAsync(provento, tx));
-    }
-    return results;
+    const transaction = tx as Transaction | undefined;
+    const models = await ProventoModel.bulkCreate(
+      proventos.map((p) => ({
+        codigo: p.codigo,
+        data: p.data,
+        tipo: p.tipo,
+        instituicao: p.instituicao,
+        quantidade: p.quantidade,
+        precoUnitario: p.precoUnitario,
+        valorLiquido: p.valorLiquido,
+      })),
+      { transaction }
+    );
+    return models.map((m) => this.toEntity(m));
   }
 
   async findByIdAsync(id: string, tx?: object): Promise<ProventoEntity | null> {
@@ -75,7 +84,8 @@ export class SequelizeProventoRepository implements IProventoRepository {
     }
 
     if (filters.codigo) {
-      where.codigo = { [Op.like]: `%${normalizeOrderCodigo(filters.codigo)}%` };
+      const escaped = normalizeOrderCodigo(filters.codigo).replace(/[%_]/g, "\\$&");
+      where.codigo = { [Op.like]: `%${escaped}%` };
     }
 
     if (filters.tipo) {

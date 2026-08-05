@@ -26,7 +26,7 @@ export const sequelize = isSqlite
         env.db.dialect === "mssql"
           ? {
               options: {
-                encrypt: false,
+                encrypt: true,
                 trustServerCertificate: true,
               },
             }

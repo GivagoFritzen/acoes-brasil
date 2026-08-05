@@ -1,11 +1,3 @@
-import type { ProventoTipo as proventoTipo } from "../../../../common/models/provento";
+import { CreateProventoDto } from "./CreateProventoDto";
 
-export interface UpdateProventoDto {
-  codigo: string;
-  data: string;
-  tipo: proventoTipo;
-  instituicao: string;
-  quantidade: number;
-  precoUnitario: number;
-  valorLiquido: number;
-}
+export type UpdateProventoDto = CreateProventoDto;

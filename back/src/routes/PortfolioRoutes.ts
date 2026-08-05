@@ -1,24 +1,14 @@
 import fs from "fs";
 import os from "os";
 import path from "path";
-import multer from "multer";
 import { Router } from "express";
 import { Container } from "../shared/dependency-injection/Container";
 import { PortfolioController } from "../controllers/PortfolioController";
 import { ValidationMiddleware } from "../middlewares/ValidationMiddleware";
+import { createMulterUpload } from "../shared/multer/MulterConfigFactory";
 
 const uploadDir = fs.mkdtempSync(path.join(os.tmpdir(), "acoes-portfolio-upload-"));
-const upload = multer({
-  dest: uploadDir,
-  limits: { fileSize: 1048576 },
-  fileFilter: (_req, file, cb) => {
-    const ext = path.extname(file.originalname).toLowerCase();
-    if (ext !== ".xlsx") {
-      return cb(new Error("Apenas arquivos .xlsx são permitidos."));
-    }
-    cb(null, true);
-  },
-});
+const upload = createMulterUpload(uploadDir);
 
 export const portfolioRoutes = Router();
 

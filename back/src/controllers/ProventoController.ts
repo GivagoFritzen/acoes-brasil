@@ -95,7 +95,7 @@ export class ProventoController {
     } catch (error) {
       return ErrorHandler.handle(error as Error, res);
     } finally {
-      if (file?.path) fs.unlink(file.path, () => {});
+      if (file?.path) await fs.promises.unlink(file.path).catch(() => {});
     }
   }
 

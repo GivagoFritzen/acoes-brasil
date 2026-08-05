@@ -102,13 +102,11 @@ export class PortfolioController {
       const importedCount = await this.importPortfolioService.executeAsync(rows);
       return res.status(201).json({ imported: importedCount });
     } catch (error) {
-      const err = error as Error;
       return res.status(400).json({
         message: "Erro ao importar planilha de portfólio",
-        error: err.message,
       });
     } finally {
-      if (file.path) fs.unlink(file.path, () => {});
+      if (file.path) await fs.promises.unlink(file.path).catch(() => {});
     }
   }
 }

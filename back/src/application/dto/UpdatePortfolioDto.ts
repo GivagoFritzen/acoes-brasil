@@ -1,5 +1,3 @@
-export interface UpdatePortfolioDto {
-  codigo: string;
-  quantidade: number;
-  precoMedio: number;
-}
+import { CreateOrUpdatePortfolioDto } from "./CreateOrUpdatePortfolioDto";
+
+export type UpdatePortfolioDto = CreateOrUpdatePortfolioDto;

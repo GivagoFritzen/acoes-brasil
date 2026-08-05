@@ -3,6 +3,7 @@ import { OrderController } from "./OrderController";
 import { NotFoundException } from "../shared/exceptions/NotFoundException";
 
 const mockCreateService = { executeAsync: jest.fn() };
+const mockUpdateService = { executeAsync: jest.fn() };
 const mockDeleteService = { executeAsync: jest.fn() };
 const mockListService = { executeAsync: jest.fn() };
 const mockGetSellSnapshotsService = { executeAsync: jest.fn() };
@@ -33,6 +34,7 @@ describe("OrderController", () => {
     jest.clearAllMocks();
     controller = new OrderController(
       mockCreateService as any,
+      mockUpdateService as any,
       mockDeleteService as any,
       mockListService as any,
       mockGetSellSnapshotsService as any,

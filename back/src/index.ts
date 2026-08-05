@@ -17,7 +17,8 @@ import { logger } from "./shared/logger/Logger";
 const app = express();
 
 app.disable("x-powered-by");
-app.use(cors({ origin: process.env.CORS_ORIGIN?.split(",") ?? "*" }));
+const corsOrigins = process.env.CORS_ORIGIN?.split(",") ?? ["http://localhost:4200"];
+app.use(cors({ origin: corsOrigins }));
 app.use(express.json());
 
 const browserDir = path.resolve(__dirname, "../../../../front/dist/app/browser");

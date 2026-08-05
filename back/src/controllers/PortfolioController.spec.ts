@@ -3,8 +3,11 @@ import fs from "fs";
 import { PortfolioController } from "./PortfolioController";
 import { NotFoundException } from "../shared/exceptions/NotFoundException";
 
+jest.spyOn(fs.promises, "unlink").mockResolvedValue(undefined);
+
 const mockCreateOrUpdateService = { executeAsync: jest.fn() };
 const mockDeleteService = { executeAsync: jest.fn() };
+const mockUpdateService = { executeAsync: jest.fn() };
 const mockListService = { executeAsync: jest.fn() };
 const mockExportService = { executeAsync: jest.fn() };
 const mockImportService = { executeAsync: jest.fn() };
@@ -33,6 +36,7 @@ describe("PortfolioController", () => {
     controller = new PortfolioController(
       mockCreateOrUpdateService as any,
       mockDeleteService as any,
+      mockUpdateService as any,
       mockListService as any,
       mockExportService as any,
       mockImportService as any,
@@ -235,11 +239,11 @@ describe("PortfolioController", () => {
       await controller.importPortfolioAsync(req, res);
 
       expect(res.status).toHaveBeenCalledWith(400);
-      expect(res.json).toHaveBeenCalledWith({ message: "Erro ao importar planilha de portfólio", error: "erro na importacao" });
+      expect(res.json).toHaveBeenCalledWith({ message: "Erro ao importar planilha de portfólio" });
     });
 
     it("deve deletar arquivo temporario apos importacao bem sucedida", async () => {
-      const unlinkSpy = jest.spyOn(fs, "unlink").mockImplementation((_path, cb) => cb());
+      const unlinkSpy = jest.spyOn(fs.promises, "unlink").mockResolvedValue(undefined);
       jest.spyOn(fs, "readFileSync").mockReturnValue(XLSX_MAGIC);
       mockSpreadsheetParser.parsePortfolioRowsAsync.mockReturnValue([]);
 
@@ -248,7 +252,7 @@ describe("PortfolioController", () => {
 
       await controller.importPortfolioAsync(req, res);
 
-      expect(unlinkSpy).toHaveBeenCalledWith(filePath, expect.any(Function));
+      expect(unlinkSpy).toHaveBeenCalledWith(filePath);
     });
   });
 });

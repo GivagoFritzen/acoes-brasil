@@ -1,10 +1,3 @@
-import type { OrderOperacao as orderOperacao, OrderTipo as orderTipo } from "../../../../common/models/order";
+import { CreateOrderDto } from "./CreateOrderDto";
 
-export interface UpdateOrderDto {
-  codigo: string;
-  quantidade: number;
-  valor: number;
-  data: string;
-  tipo: orderTipo;
-  operacao: orderOperacao;
-}
+export type UpdateOrderDto = CreateOrderDto;

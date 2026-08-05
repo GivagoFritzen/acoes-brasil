@@ -61,5 +61,11 @@ Provento.init(
   {
     sequelize,
     tableName: "Proventos",
+    indexes: [
+      { fields: ["codigo"] },
+      { fields: ["data"] },
+      { fields: ["tipo"] },
+      { fields: ["codigo", "data"] },
+    ],
   }
 );

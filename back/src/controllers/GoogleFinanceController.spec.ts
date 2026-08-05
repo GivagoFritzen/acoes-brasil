@@ -111,11 +111,12 @@ describe("GoogleFinanceController", () => {
 
     await controller.getAsync(req, res);
 
+    expect(res.status).toHaveBeenCalledWith(500);
     expect(res.json).toHaveBeenCalledWith({
       quote: null,
       chart: null,
       updatedAt: expect.any(String),
-      error: "Serviço indisponível",
+      error: "Erro ao buscar dados do ativo",
     });
   });
 
@@ -127,11 +128,12 @@ describe("GoogleFinanceController", () => {
 
     await controller.getAsync(req, res);
 
+    expect(res.status).toHaveBeenCalledWith(500);
     expect(res.json).toHaveBeenCalledWith({
       quote: null,
       chart: null,
       updatedAt: expect.any(String),
-      error: "string error",
+      error: "Erro ao buscar dados do ativo",
     });
   });
 });
