@@ -18,7 +18,7 @@ const fsMock = fs as { readFileSync: jest.Mock };
 
 const mockCreateService = { executeAsync: jest.fn() };
 const mockUpdateService = { executeAsync: jest.fn() };
-const mockDeleteService = { executeAsync: jest.fn() };
+const mockDeleteService = { executeAsync: jest.fn(), executeByCodigoAsync: jest.fn() };
 const mockImportService = { executeAsync: jest.fn() };
 const mockListService = { executeAsync: jest.fn() };
 const mockSpreadsheetParser = { parseProventoRowsAsync: jest.fn() };
@@ -185,6 +185,129 @@ describe("ProventoController", () => {
       await controller.listAsync(req, res);
 
       expect(res.status).toHaveBeenCalledWith(500);
+    });
+
+    it("deve filtrar por dataInicial e dataFinal", async () => {
+      mockListService.executeAsync.mockResolvedValue([]);
+
+      const req = createMockReq({ query: { dataInicial: "2024-01-01", dataFinal: "2024-12-31" } });
+      const res = createMockRes();
+
+      await controller.listAsync(req, res);
+
+      expect(res.json).toHaveBeenCalledWith([]);
+    });
+
+    it("deve limitar page e limit a valores válidos", async () => {
+      mockListService.executeAsync.mockResolvedValue([]);
+
+      const req = createMockReq({ query: { page: "0", limit: "200" } });
+      const res = createMockRes();
+
+      await controller.listAsync(req, res);
+
+      expect(res.json).toHaveBeenCalledWith([]);
+    });
+  });
+
+  describe("updateAsync", () => {
+    it("deve retornar 200 ao atualizar provento", async () => {
+      mockUpdateService.executeAsync.mockResolvedValue({ id: "1", codigo: "VALE3" });
+
+      const req = createMockReq({
+        params: { id: "550e8400-e29b-41d4-a716-446655440000" },
+        body: { codigo: "VALE3", data: "01-01-2024", tipo: "DIVIDENDO", instituicao: "B3", quantidade: 100, precoUnitario: 1.5, valorLiquido: 150 },
+      });
+      const res = createMockRes();
+
+      await controller.updateAsync(req, res);
+
+      expect(res.json).toHaveBeenCalledWith({ id: "1", codigo: "VALE3" });
+    });
+
+    it("deve retornar 400 quando campos obrigatórios estão faltando", async () => {
+      const req = createMockReq({
+        params: { id: "550e8400-e29b-41d4-a716-446655440000" },
+        body: { codigo: "", data: "" },
+      });
+      const res = createMockRes();
+
+      await controller.updateAsync(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(400);
+      expect(res.json).toHaveBeenCalledWith({ message: "Campos obrigatórios: codigo, data." });
+    });
+
+    it("deve retornar 500 quando servico lanca erro no update", async () => {
+      mockUpdateService.executeAsync.mockRejectedValue(new Error("erro ao atualizar"));
+
+      const req = createMockReq({
+        params: { id: "550e8400-e29b-41d4-a716-446655440000" },
+        body: { codigo: "VALE3", data: "01-01-2024", tipo: "DIVIDENDO" },
+      });
+      const res = createMockRes();
+
+      await controller.updateAsync(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(500);
+    });
+  });
+
+  describe("deleteByCodigoAsync", () => {
+    it("deve retornar json de sucesso ao deletar por código", async () => {
+      mockDeleteService.executeByCodigoAsync.mockResolvedValue({});
+
+      const req = createMockReq({ params: { codigo: "VALE3" } });
+      const res = createMockRes();
+
+      await controller.deleteByCodigoAsync(req, res);
+
+      expect(res.json).toHaveBeenCalledWith({ message: "Proventos deletados com sucesso." });
+    });
+
+    it("deve retornar 500 quando ocorre erro ao deletar por código", async () => {
+      mockDeleteService.executeByCodigoAsync.mockRejectedValue(new Error("erro interno"));
+
+      const req = createMockReq({ params: { codigo: "VALE3" } });
+      const res = createMockRes();
+
+      await controller.deleteByCodigoAsync(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(500);
+    });
+  });
+
+  describe("createAsync - campos obrigatórios", () => {
+    it("deve retornar 400 quando codigo está faltando", async () => {
+      const req = createMockReq({
+        body: { codigo: "", data: "01-01-2024" },
+      });
+      const res = createMockRes();
+
+      await controller.createAsync(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(400);
+      expect(res.json).toHaveBeenCalledWith({ message: "Campos obrigatórios: codigo, data." });
+    });
+
+    it("deve retornar 400 quando data está faltando", async () => {
+      const req = createMockReq({
+        body: { codigo: "VALE3", data: "" },
+      });
+      const res = createMockRes();
+
+      await controller.createAsync(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(400);
+    });
+
+    it("deve retornar 400 quando body é undefined", async () => {
+      const req = createMockReq({ body: undefined });
+      const res = createMockRes();
+
+      await controller.createAsync(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(400);
     });
   });
 });
