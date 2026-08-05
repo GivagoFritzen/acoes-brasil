@@ -122,7 +122,7 @@ describe('DatePickerComponent', () => {
         it('deve ter 7 dias da semana', () => {
             fixture.detectChanges();
             expect(component.weekDays.length).toBe(7);
-            expect(component.weekDays).toEqual(['do', 'se', 'te', 'qu', 'qu', 'se', 'sá']);
+            expect(component.weekDays).toEqual(['do', 'se', 'te', 'qa', 'qi', 'se', 'sá']);
         });
     });
 

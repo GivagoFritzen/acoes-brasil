@@ -134,7 +134,8 @@ describe('AcoesComponent', () => {
   it('deve fechar dropdown ao clicar fora do container', () => {
     component.openDropdownIndex.set(1);
 
-    const event = new MouseEvent('click', { target: document.body });
+    const event = new MouseEvent('click');
+    Object.defineProperty(event, 'target', { value: document.body });
     component.onDocumentClick(event);
 
     expect(component.openDropdownIndex()).toBeNull();
@@ -147,7 +148,8 @@ describe('AcoesComponent', () => {
     dropdownContainer.className = 'acoes__dropdown-container';
     document.body.appendChild(dropdownContainer);
 
-    const event = new MouseEvent('click', { target: dropdownContainer });
+    const event = new MouseEvent('click');
+    Object.defineProperty(event, 'target', { value: dropdownContainer });
     component.onDocumentClick(event);
 
     expect(component.openDropdownIndex()).toBe(1);

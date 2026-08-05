@@ -4,6 +4,7 @@ import { proventoRoutes } from "./ProventoRoutes";
 import { ProventoController } from "../controllers/ProventoController";
 
 const mockCreateService = { executeAsync: jest.fn().mockResolvedValue({ id: "1" }) };
+const mockUpdateService = { executeAsync: jest.fn().mockResolvedValue({ id: "1" }) };
 const mockDeleteService = { executeAsync: jest.fn().mockResolvedValue({}) };
 const mockImportService = { executeAsync: jest.fn().mockResolvedValue({ imported: 5 }) };
 const mockListService = { executeAsync: jest.fn().mockResolvedValue([]) };
@@ -20,6 +21,7 @@ jest.mock("../../shared/dependency-injection/Container", () => ({
       if (name === "ProventoController") {
         return new ProventoController(
           mockCreateService as any,
+          mockUpdateService as any,
           mockDeleteService as any,
           mockImportService as any,
           mockListService as any,

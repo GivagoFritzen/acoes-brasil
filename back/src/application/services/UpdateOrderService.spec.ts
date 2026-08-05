@@ -25,7 +25,7 @@ describe("UpdateOrderService", () => {
     orderRepositoryMock = {
       createAsync: jest.fn(),
       findByIdAsync: jest.fn(),
-      findAllByCodigoAsync: jest.fn(),
+      findAllByCodigoAsync: jest.fn().mockResolvedValue([]),
       findAllPaginatedAsync: jest.fn(),
       deleteAsync: jest.fn(),
     } as jest.Mocked<IOrderRepository>;

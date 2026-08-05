@@ -23,16 +23,7 @@ describe('AcaoDetailsComponent', () => {
     get: ReturnType<typeof vi.fn>;
     has: ReturnType<typeof vi.fn>;
   };
-  let routeMock: {
-    paramMap: {
-      subscribe: ReturnType<typeof vi.fn>;
-    };
-    snapshot: {
-      paramMap: {
-        get: ReturnType<typeof vi.fn>;
-      };
-    };
-  };
+  let routeMock: any;
 
   const baseInvestidor10: Investidor10AcaoDetails = {
     codigo: 'VIVT3',
@@ -183,11 +174,7 @@ describe('AcaoDetailsComponent', () => {
       has: vi.fn((key: string) => false),
     };
     routeMock = {
-      paramMap: {
-        subscribe: vi.fn((callback: (params: { get: (key: string) => string | null }) => void) => {
-          callback({ get: (key: string) => (key === 'codigo' ? 'PETR4' : null) });
-        }),
-      },
+      paramMap: of({ get: (key: string) => (key === 'codigo' ? 'PETR4' : null) }),
       snapshot: {
         paramMap: {
           get: vi.fn((key: string) => (key === 'codigo' ? 'PETR4' : null)),
@@ -247,11 +234,7 @@ describe('AcaoDetailsComponent', () => {
     });
 
     it('deve setar erro quando codigo for null', () => {
-      routeMock.paramMap = {
-        subscribe: vi.fn((callback: (params: { get: (key: string) => string | null }) => void) => {
-          callback({ get: (key: string) => null });
-        }),
-      };
+      routeMock.paramMap = of({ get: (key: string) => null });
       const fixture = TestBed.createComponent(AcaoDetailsComponent);
       const componentWithoutCode = fixture.componentInstance;
 

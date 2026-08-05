@@ -764,7 +764,7 @@ export class Investidor10ScraperService {
   }
 
   private extractJSObject(html: string, varName: string): string | null {
-    const regex = new RegExp(`let\s+${varName}\s*=\s*`);
+    const regex = new RegExp(`let\\s+${varName}\\s*=\\s*`);
     const match = regex.exec(html);
     if (!match) return null;
 
