@@ -14,17 +14,20 @@ import { ExcelExportService } from "../../infrastructure/services/ExcelExportSer
 import { SequelizeTransactionManager } from "../../infrastructure/database/SequelizeTransactionManager";
 import { PortfolioDomainService } from "../../domain/services/PortfolioDomainService";
 import { CreateOrderService } from "../../application/services/CreateOrderService";
+import { UpdateOrderService } from "../../application/services/UpdateOrderService";
 import { DeleteOrderService } from "../../application/services/DeleteOrderService";
 import { ListOrdersService } from "../../application/services/ListOrdersService";
 import { ImportOrdersService } from "../../application/services/ImportOrdersService";
 import { GetSellSnapshotsService } from "../../application/services/GetSellSnapshotsService";
 import { ExportSellSnapshotsService } from "../../application/services/ExportSellSnapshotsService";
 import { CreateOrUpdatePortfolioService } from "../../application/services/CreateOrUpdatePortfolioService";
+import { UpdatePortfolioService } from "../../application/services/UpdatePortfolioService";
 import { DeletePortfolioService } from "../../application/services/DeletePortfolioService";
 import { ExportPortfolioService } from "../../application/services/ExportPortfolioService";
 import { ImportPortfolioService } from "../../application/services/ImportPortfolioService";
 import { ListPortfolioService } from "../../application/services/ListPortfolioService";
 import { CreateProventoService } from "../../application/services/CreateProventoService";
+import { UpdateProventoService } from "../../application/services/UpdateProventoService";
 import { DeleteProventoService } from "../../application/services/DeleteProventoService";
 import { ImportProventosService } from "../../application/services/ImportProventosService";
 import { ListProventosService } from "../../application/services/ListProventosService";
@@ -80,6 +83,15 @@ function registerOrderServices(): void {
     Container.get('portfolioDomainService')
   ));
 
+  Container.register('UpdateOrderService', () => new UpdateOrderService(
+    Container.get('orderRepository'),
+    Container.get('portfolioRepository'),
+    Container.get('sellSnapshotRepository'),
+    Container.get('quoteProvider'),
+    Container.get('transactionManager'),
+    Container.get('portfolioDomainService')
+  ));
+
   Container.register('DeleteOrderService', () => new DeleteOrderService(
     Container.get('orderRepository'),
     Container.get('portfolioRepository'),
@@ -115,6 +127,10 @@ function registerPortfolioServices(): void {
     Container.get('portfolioRepository')
   ));
 
+  Container.register('UpdatePortfolioService', () => new UpdatePortfolioService(
+    Container.get('portfolioRepository')
+  ));
+
   Container.register('DeletePortfolioService', () => new DeletePortfolioService(
     Container.get('portfolioRepository')
   ));
@@ -139,6 +155,10 @@ function registerProventoServices(): void {
     Container.get('proventoRepository')
   ));
 
+  Container.register('UpdateProventoService', () => new UpdateProventoService(
+    Container.get('proventoRepository')
+  ));
+
   Container.register('DeleteProventoService', () => new DeleteProventoService(
     Container.get('proventoRepository')
   ));
@@ -156,6 +176,7 @@ function registerProventoServices(): void {
 function registerControllers(): void {
   Container.register('OrderController', () => new OrderController(
     Container.get('CreateOrderService'),
+    Container.get('UpdateOrderService'),
     Container.get('DeleteOrderService'),
     Container.get('ListOrdersService'),
     Container.get('GetSellSnapshotsService'),
@@ -165,6 +186,7 @@ function registerControllers(): void {
   Container.register('PortfolioController', () => new PortfolioController(
     Container.get('CreateOrUpdatePortfolioService'),
     Container.get('DeletePortfolioService'),
+    Container.get('UpdatePortfolioService'),
     Container.get('ListPortfolioService'),
     Container.get('ExportPortfolioService'),
     Container.get('ImportPortfolioService'),
@@ -173,6 +195,7 @@ function registerControllers(): void {
 
   Container.register('ProventoController', () => new ProventoController(
     Container.get('CreateProventoService'),
+    Container.get('UpdateProventoService'),
     Container.get('DeleteProventoService'),
     Container.get('ImportProventosService'),
     Container.get('ListProventosService'),

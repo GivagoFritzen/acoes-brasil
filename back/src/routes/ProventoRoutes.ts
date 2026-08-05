@@ -34,6 +34,14 @@ proventoRoutes.delete("/:id", ValidationMiddleware.validateUuidParam("id"), (req
   return getProventoController().deleteAsync(req, res);
 });
 
+proventoRoutes.delete("/by-codigo/:codigo", (req, res) => {
+  return getProventoController().deleteByCodigoAsync(req, res);
+});
+
+proventoRoutes.put("/:id", ValidationMiddleware.validateUuidParam("id"), (req, res) => {
+  return getProventoController().updateAsync(req, res);
+});
+
 proventoRoutes.get("/", (req, res) => {
   return getProventoController().listAsync(req, res);
 });

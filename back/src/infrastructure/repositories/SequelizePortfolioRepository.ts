@@ -45,6 +45,7 @@ export class SequelizePortfolioRepository implements IPortfolioRepository {
       throw new Error(`portfolio with ID ${portfolio.id} not found to save.`);
     }
 
+    model.codigo = portfolio.codigo;
     model.quantidade = portfolio.quantidade;
     model.precoMedio = portfolio.precoMedio;
     

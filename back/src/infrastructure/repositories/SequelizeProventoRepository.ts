@@ -50,6 +50,11 @@ export class SequelizeProventoRepository implements IProventoRepository {
     await ProventoModel.destroy({ where: { id }, transaction });
   }
 
+  async deleteByCodigoAsync(codigo: string, tx?: object): Promise<void> {
+    const transaction = tx as Transaction | undefined;
+    await ProventoModel.destroy({ where: { codigo }, transaction });
+  }
+
   async findAllAsync(filters: IProventoFilters): Promise<{ rows: ProventoEntity[]; count: number }> {
     const pageNumber = Math.max(filters.page ?? 1, 1);
     const limitNumber = Math.max(filters.limit ?? 20, 1);

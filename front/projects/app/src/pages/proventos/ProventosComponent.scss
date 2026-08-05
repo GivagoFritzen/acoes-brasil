@@ -86,6 +86,10 @@
   .proventos__actions {
     display: flex;
     justify-content: flex-end;
+
+    app-action-button:first-child {
+      margin-right: 5px;
+    }
   }
 
   .proventos__row--head {

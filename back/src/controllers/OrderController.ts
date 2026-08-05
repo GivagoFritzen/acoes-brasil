@@ -1,6 +1,8 @@
 import { Request, Response } from "express";
 import { CreateOrderDto } from "../application/dto/CreateOrderDto";
+import { UpdateOrderDto } from "../application/dto/UpdateOrderDto";
 import { CreateOrderService } from "../application/services/CreateOrderService";
+import { UpdateOrderService } from "../application/services/UpdateOrderService";
 import { DeleteOrderService } from "../application/services/DeleteOrderService";
 import { ListOrdersService } from "../application/services/ListOrdersService";
 import { GetSellSnapshotsService } from "../application/services/GetSellSnapshotsService";
@@ -12,6 +14,7 @@ import { normalizeOrderCodigo } from "../../../common/utils/OrderCodigoUtils";
 export class OrderController {
   constructor(
     private createOrderService: CreateOrderService,
+    private updateOrderService: UpdateOrderService,
     private deleteOrderService: DeleteOrderService,
     private listOrdersService: ListOrdersService,
     private getSellSnapshotsService: GetSellSnapshotsService,
@@ -33,6 +36,17 @@ export class OrderController {
       const { id } = req.params;
       await this.deleteOrderService.executeAsync(String(id));
       return res.json({ message: "Ordem deletada com sucesso." });
+    } catch (error) {
+      return ErrorHandler.handle(error as Error, res);
+    }
+  }
+
+  async updateAsync(req: Request, res: Response): Promise<Response> {
+    try {
+      const { id } = req.params;
+      const dto = (req as any).validatedBody as UpdateOrderDto;
+      const order = await this.updateOrderService.executeAsync(String(id), dto);
+      return res.json(order);
     } catch (error) {
       return ErrorHandler.handle(error as Error, res);
     }

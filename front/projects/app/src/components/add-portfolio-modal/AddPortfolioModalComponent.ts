@@ -4,6 +4,7 @@ import { SimpleButtonComponent } from '../simple-button/SimpleButtonComponent';
 import { SimpleInputComponent } from '../simple-input/SimpleInputComponent';
 import { SimpleInputNumberComponent } from '../simple-input-number/SimpleInputNumberComponent';
 import { CreatePortfolioPayload } from '../../models/CreatePortfolioPayloadModel';
+import { PortfolioItem } from '../../models';
 import { isSupportedB3Ticker } from '../../../../../../common/utils/AssetTypeUtils';
 import { normalizeOrderCodigo } from '../../../../../../common/utils/OrderCodigoUtils';
 
@@ -17,6 +18,7 @@ import { normalizeOrderCodigo } from '../../../../../../common/utils/OrderCodigo
 export class AddPortfolioModalComponent implements OnChanges {
   @Input() isOpen = false;
   @Input() isSaving = false;
+  @Input() editingItem: PortfolioItem | null = null;
 
   @Output() closed = new EventEmitter<void>();
   @Output() saved = new EventEmitter<CreatePortfolioPayload>();
@@ -29,6 +31,9 @@ export class AddPortfolioModalComponent implements OnChanges {
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['isOpen']?.currentValue && !changes['isOpen']?.previousValue) {
       this.resetForm();
+      if (this.editingItem) {
+        this.populateForm(this.editingItem);
+      }
     }
   }
 
@@ -91,5 +96,11 @@ export class AddPortfolioModalComponent implements OnChanges {
     this.quantidade.set(null);
     this.precoMedio.set(null);
     this.validationMessage.set('');
+  }
+
+  private populateForm(item: PortfolioItem): void {
+    this.codigo.set(item.codigo);
+    this.quantidade.set(item.quantidade);
+    this.precoMedio.set(item.precoMedio);
   }
 }

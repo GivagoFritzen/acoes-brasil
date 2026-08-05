@@ -1,15 +1,16 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, HostListener, OnInit, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { finalize } from 'rxjs';
 import { AlertsComponent } from '../../components/alerts/AlertsComponent';
-import { ActionButtonComponent, AddPortfolioModalComponent, SimpleButtonComponent } from '../../components';
+import { AddPortfolioModalComponent, SimpleButtonComponent } from '../../components';
 import { PortfolioPieChartComponent } from '../../components/portfolio-pie-chart/PortfolioPieChartComponent';
 import { PortfolioItem } from '../../models';
 import { PortfolioProfitLossChartComponent } from '../../components/portfolio-profit-loss-chart/PortfolioProfitLossChartComponent';
 import { AlertItem } from '../../models/alert/AlertItemModel';
 import { PortfolioService } from '../../services/PortfolioService';
 import { CreatePortfolioPayload } from '../../models/CreatePortfolioPayloadModel';
+import { UpdatePortfolioPayload } from '../../models/UpdatePortfolioPayloadModel';
 import { TranslatePipe } from '../../pipes/TranslatePipe';
 import { SettingsService } from '../../services/SettingsService';
 import { mesclarPorCodigo, removerSufixoF } from '../../../../../../common/utils/OrderCodigoUtils';
@@ -21,7 +22,6 @@ import { mesclarPorCodigo, removerSufixoF } from '../../../../../../common/utils
         CommonModule,
         AlertsComponent,
         SimpleButtonComponent,
-        ActionButtonComponent,
         AddPortfolioModalComponent,
         PortfolioPieChartComponent,
         PortfolioProfitLossChartComponent,
@@ -33,15 +33,16 @@ import { mesclarPorCodigo, removerSufixoF } from '../../../../../../common/utils
 export class AcoesComponent implements OnInit {
     portfolios = signal<PortfolioItem[]>([]);
     isLoading = signal(false);
-    isEditing = signal(false);
-    isDeleteMode = signal(false);
     isDeleting = signal(false);
     isCreating = signal(false);
     errorMessage = signal('');
     alerts = signal<AlertItem[]>([]);
     isDeleteModalOpen = signal(false);
     isCreateModalOpen = signal(false);
+    isEditModalOpen = signal(false);
     portfolioToDelete = signal<PortfolioItem | null>(null);
+    portfolioToEdit = signal<PortfolioItem | null>(null);
+    openDropdownIndex = signal<number | null>(null);
 
     private readonly codigoParaIdsMap = new Map<string, string[]>();
 
@@ -50,6 +51,14 @@ export class AcoesComponent implements OnInit {
         private readonly router: Router,
         protected readonly settingsService: SettingsService,
     ) { }
+
+    @HostListener('document:click', ['$event'])
+    onDocumentClick(event: MouseEvent): void {
+        const target = event.target as HTMLElement;
+        if (!target.closest('.acoes__dropdown-container')) {
+            this.openDropdownIndex.set(null);
+        }
+    }
 
     ngOnInit(): void {
         this.loadPortfolios();
@@ -99,17 +108,16 @@ export class AcoesComponent implements OnInit {
         this.isCreateModalOpen.set(true);
     }
 
-    toggleEditMode(): void {
-        this.isEditing.update(v => !v);
+    toggleDropdown(index: number): void {
+        if (this.openDropdownIndex() === index) {
+            this.openDropdownIndex.set(null);
+        } else {
+            this.openDropdownIndex.set(index);
+        }
     }
 
-    toggleDeleteMode(): void {
-        const nextValue = !this.isDeleteMode();
-        this.isDeleteMode.set(nextValue);
-
-        if (!nextValue) {
-            this.closeDeleteModal();
-        }
+    closeDropdown(): void {
+        this.openDropdownIndex.set(null);
     }
 
     openDeleteModal(item: PortfolioItem): void {
@@ -132,6 +140,20 @@ export class AcoesComponent implements OnInit {
         }
 
         this.isCreateModalOpen.set(false);
+    }
+
+    openEditModal(item: PortfolioItem): void {
+        this.portfolioToEdit.set(item);
+        this.isEditModalOpen.set(true);
+    }
+
+    closeEditModal(): void {
+        if (this.isCreating()) {
+            return;
+        }
+
+        this.isEditModalOpen.set(false);
+        this.portfolioToEdit.set(null);
     }
 
     confirmCreatePortfolio(payload: CreatePortfolioPayload): void {
@@ -158,6 +180,44 @@ export class AcoesComponent implements OnInit {
                         variant: 'error',
                         title: 'Error!',
                         message: 'Não foi possível adicionar o ativo ao portfólio.',
+                        icon: '✕',
+                    },
+                ]);
+            },
+        });
+    }
+
+    confirmEditPortfolio(payload: UpdatePortfolioPayload): void {
+        const portfolio = this.portfolioToEdit();
+        if (!portfolio) {
+            return;
+        }
+
+        this.isCreating.set(true);
+
+        const ids = this.codigoParaIdsMap.get(portfolio.codigo) ?? [portfolio.id];
+
+        this.portfolioService.updatePortfolio(ids[0], payload).subscribe({
+            next: (updated) => {
+                this.isCreating.set(false);
+                this.closeEditModal();
+                this.alerts.set([
+                    {
+                        variant: 'info',
+                        title: 'Sucesso',
+                        message: `Ativo ${updated.codigo} atualizado com sucesso.`,
+                        icon: '✓',
+                    },
+                ]);
+                this.loadPortfolios();
+            },
+            error: () => {
+                this.isCreating.set(false);
+                this.alerts.set([
+                    {
+                        variant: 'error',
+                        title: 'Error!',
+                        message: 'Não foi possível atualizar o ativo do portfólio.',
                         icon: '✕',
                     },
                 ]);
@@ -204,10 +264,6 @@ export class AcoesComponent implements OnInit {
     }
 
     goToPortfolioDetails(item: PortfolioItem): void {
-        if (this.isDeleteMode()) {
-            return;
-        }
-
         this.router.navigate(['/acoes', item.codigo]);
     }
 

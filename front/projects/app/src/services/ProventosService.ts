@@ -4,6 +4,7 @@ import { Observable } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { Provento, ProventosResponse } from '../models';
 import { CreateProventoPayload } from '../models/CreateProventoPayloadModel';
+import { UpdateProventoPayload } from '../models/UpdateProventoPayloadModel';
 import { ImportResponse } from '../models/ImportResponseModel';
 import { DeleteResponse } from '../models/DeleteResponseModel';
 import { getApiUrl } from '../config/ApiConfig';
@@ -55,5 +56,13 @@ export class ProventosService extends BaseHttpService {
 
   deleteProvento(id: string): Observable<DeleteResponse> {
     return this.http.delete<DeleteResponse>(`${this.baseUrl}/${id}`).pipe(catchError(error => this.handleError(error)));
+  }
+
+  deleteProventosByCodigo(codigo: string): Observable<DeleteResponse> {
+    return this.http.delete<DeleteResponse>(`${this.baseUrl}/by-codigo/${codigo}`).pipe(catchError(error => this.handleError(error)));
+  }
+
+  updateProvento(id: string, payload: UpdateProventoPayload): Observable<Provento> {
+    return this.http.put<Provento>(`${this.baseUrl}/${id}`, payload).pipe(catchError(error => this.handleError(error)));
   }
 }

@@ -5,7 +5,7 @@ import { SimpleButtonComponent } from '../simple-button/SimpleButtonComponent';
 import { SimpleInputComponent } from '../simple-input/SimpleInputComponent';
 import { SimpleInputNumberComponent } from '../simple-input-number/SimpleInputNumberComponent';
 import { SimpleSelectComponent } from '../simple-select/SimpleSelectComponent';
-import { OrderOperacao, OrderTipo } from '../../models';
+import { OrderOperacao, OrderTipo, Order } from '../../models';
 import { SelectOption } from '../../../../../../common/models/SelectOptionModel';
 import { CreateOrderPayload } from '../../models/CreateOrderPayloadModel';
 import { normalizeOrderCodigo } from '../../../../../../common/utils/OrderCodigoUtils';
@@ -22,6 +22,7 @@ export class AddOrderModalComponent implements OnChanges {
   @Input() isOpen = false;
   @Input() isSaving = false;
   @Input() operacaoOptions: SelectOption<OrderOperacao>[] = [];
+  @Input() editingItem: Order | null = null;
 
   @Output() closed = new EventEmitter<void>();
   @Output() saved = new EventEmitter<CreateOrderPayload>();
@@ -43,6 +44,9 @@ export class AddOrderModalComponent implements OnChanges {
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['isOpen']?.currentValue && !changes['isOpen']?.previousValue) {
       this.resetForm();
+      if (this.editingItem) {
+        this.populateForm(this.editingItem);
+      }
     }
   }
 
@@ -138,5 +142,14 @@ export class AddOrderModalComponent implements OnChanges {
     this.valor.set(null);
     this.data.set('');
     this.validationMessage.set('');
+  }
+
+  private populateForm(item: Order): void {
+    this.codigo.set(item.codigo);
+    this.operacao.set(item.operacao);
+    this.tipoDetectado.set(item.tipo);
+    this.quantidade.set(item.quantidade);
+    this.valor.set(item.valor);
+    this.data.set(item.data);
   }
 }

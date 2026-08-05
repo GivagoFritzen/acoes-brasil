@@ -18,4 +18,8 @@ export class DeleteProventoService extends BaseDeleteService<ProventoEntity> {
   protected async performDeleteAsync(entity: ProventoEntity): Promise<void> {
     await this.proventoRepository.deleteAsync(entity.id);
   }
+
+  public async executeByCodigoAsync(codigo: string): Promise<void> {
+    await this.proventoRepository.deleteByCodigoAsync(codigo);
+  }
 }

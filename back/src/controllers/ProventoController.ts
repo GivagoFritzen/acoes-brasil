@@ -3,6 +3,7 @@ import { Request, Response } from "express";
 import type { ProventoTipo as proventoTipo } from "../../../common/models/provento";
 import type { MulterRequest } from "../models/MulterRequest";
 import { CreateProventoService } from "../application/services/CreateProventoService";
+import { UpdateProventoService } from "../application/services/UpdateProventoService";
 import { DeleteProventoService } from "../application/services/DeleteProventoService";
 import { ImportProventosService } from "../application/services/ImportProventosService";
 import { ListProventosService } from "../application/services/ListProventosService";
@@ -12,6 +13,7 @@ import { ErrorHandler } from "../shared/error-handler/ErrorHandler";
 export class ProventoController {
   constructor(
     private createProventoService: CreateProventoService,
+    private updateProventoService: UpdateProventoService,
     private deleteProventoService: DeleteProventoService,
     private importProventosService: ImportProventosService,
     private listProventosService: ListProventosService,
@@ -40,6 +42,34 @@ export class ProventoController {
       const id = String(req.params.id);
       await this.deleteProventoService.executeAsync(id);
       return res.json({ message: "provento deletado com sucesso." });
+    } catch (error) {
+      return ErrorHandler.handle(error as Error, res);
+    }
+  }
+
+  async deleteByCodigoAsync(req: Request, res: Response): Promise<Response> {
+    try {
+      const codigo = String(req.params.codigo);
+      await this.deleteProventoService.executeByCodigoAsync(codigo);
+      return res.json({ message: "Proventos deletados com sucesso." });
+    } catch (error) {
+      return ErrorHandler.handle(error as Error, res);
+    }
+  }
+
+  async updateAsync(req: Request, res: Response): Promise<Response> {
+    try {
+      const id = String(req.params.id);
+      const result = await this.updateProventoService.executeAsync(id, {
+        codigo: String(req.body?.codigo ?? ""),
+        data: String(req.body?.data ?? ""),
+        tipo: req.body?.tipo as proventoTipo,
+        instituicao: String(req.body?.instituicao ?? ""),
+        quantidade: Number(req.body?.quantidade),
+        precoUnitario: Number(req.body?.precoUnitario),
+        valorLiquido: Number(req.body?.valorLiquido),
+      });
+      return res.json(result);
     } catch (error) {
       return ErrorHandler.handle(error as Error, res);
     }

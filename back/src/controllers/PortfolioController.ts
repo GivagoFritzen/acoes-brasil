@@ -5,6 +5,7 @@ import type { MulterRequest } from "../models/MulterRequest";
 import { ExportPortfolioService } from "../application/services/ExportPortfolioService";
 import { CreateOrUpdatePortfolioService } from "../application/services/CreateOrUpdatePortfolioService";
 import { DeletePortfolioService } from "../application/services/DeletePortfolioService";
+import { UpdatePortfolioService } from "../application/services/UpdatePortfolioService";
 import { ListPortfolioService } from "../application/services/ListPortfolioService";
 import { SpreadsheetParserService } from "../infrastructure/services/SpreadsheetParserService";
 import { ErrorHandler } from "../shared/error-handler/ErrorHandler";
@@ -15,6 +16,7 @@ export class PortfolioController {
   constructor(
     private createOrUpdatePortfolioService: CreateOrUpdatePortfolioService,
     private deletePortfolioService: DeletePortfolioService,
+    private updatePortfolioService: UpdatePortfolioService,
     private listPortfolioService: ListPortfolioService,
     private exportPortfolioService: ExportPortfolioService,
     private importPortfolioService: ImportPortfolioService,
@@ -39,6 +41,20 @@ export class PortfolioController {
       const id = String(req.params.id);
       await this.deletePortfolioService.executeAsync(id);
       return res.json({ message: "Ativo do portfólio deletado com sucesso." });
+    } catch (error) {
+      return ErrorHandler.handle(error as Error, res);
+    }
+  }
+
+  async updateAsync(req: Request, res: Response): Promise<Response> {
+    try {
+      const id = String(req.params.id);
+      const result = await this.updatePortfolioService.executeAsync(id, {
+        codigo: String(req.body?.codigo ?? ""),
+        quantidade: Number(req.body?.quantidade),
+        precoMedio: Number(req.body?.precoMedio),
+      });
+      return res.json(result);
     } catch (error) {
       return ErrorHandler.handle(error as Error, res);
     }

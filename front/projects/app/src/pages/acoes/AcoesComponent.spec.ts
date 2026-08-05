@@ -101,38 +101,58 @@ describe('AcoesComponent', () => {
     expect(component.isCreateModalOpen()).toBe(true);
   });
 
-  it('deve alternar modo edit', () => {
-    expect(component.isEditing()).toBe(false);
+  it('deve abrir dropdown no indice correto', () => {
+    component.toggleDropdown(2);
 
-    component.toggleEditMode();
-
-    expect(component.isEditing()).toBe(true);
+    expect(component.openDropdownIndex()).toBe(2);
   });
 
-  it('deve alternar modo edit de volta para false', () => {
-    component.isEditing.set(true);
+  it('deve fechar dropdown ao clicar no mesmo indice', () => {
+    component.openDropdownIndex.set(2);
 
-    component.toggleEditMode();
+    component.toggleDropdown(2);
 
-    expect(component.isEditing()).toBe(false);
+    expect(component.openDropdownIndex()).toBeNull();
   });
 
-  it('deve alternar modo delete', () => {
-    expect(component.isDeleteMode()).toBe(false);
+  it('deve trocar dropdown para novo indice', () => {
+    component.openDropdownIndex.set(1);
 
-    component.toggleDeleteMode();
+    component.toggleDropdown(3);
 
-    expect(component.isDeleteMode()).toBe(true);
+    expect(component.openDropdownIndex()).toBe(3);
   });
 
-  it('deve alternar modo delete para false e fechar modal de deleção', () => {
-    component.isDeleteMode.set(true);
-    component.isDeleteModalOpen.set(true);
+  it('deve fechar dropdown com closeDropdown', () => {
+    component.openDropdownIndex.set(0);
 
-    component.toggleDeleteMode();
+    component.closeDropdown();
 
-    expect(component.isDeleteMode()).toBe(false);
-    expect(component.isDeleteModalOpen()).toBe(false);
+    expect(component.openDropdownIndex()).toBeNull();
+  });
+
+  it('deve fechar dropdown ao clicar fora do container', () => {
+    component.openDropdownIndex.set(1);
+
+    const event = new MouseEvent('click', { target: document.body });
+    component.onDocumentClick(event);
+
+    expect(component.openDropdownIndex()).toBeNull();
+  });
+
+  it('deve manter dropdown aberto ao clicar dentro do container', () => {
+    component.openDropdownIndex.set(1);
+
+    const dropdownContainer = document.createElement('div');
+    dropdownContainer.className = 'acoes__dropdown-container';
+    document.body.appendChild(dropdownContainer);
+
+    const event = new MouseEvent('click', { target: dropdownContainer });
+    component.onDocumentClick(event);
+
+    expect(component.openDropdownIndex()).toBe(1);
+
+    document.body.removeChild(dropdownContainer);
   });
 
   it('deve abrir modal de deleção com item', () => {
@@ -239,20 +259,10 @@ describe('AcoesComponent', () => {
     expect(component.alerts()[0].message).toBe('Não foi possível deletar o ativo do portfólio.');
   });
 
-  it('deve navegar para detalhes quando não está em modo delete', () => {
-    component.isDeleteMode.set(false);
-
+  it('deve navegar para detalhes', () => {
     component.goToPortfolioDetails(basePortfolio);
 
     expect(routerMock.navigate).toHaveBeenCalledWith(['/acoes', 'PETR4']);
-  });
-
-  it('deve navegar para detalhes quando está em modo delete', () => {
-    component.isDeleteMode.set(true);
-
-    component.goToPortfolioDetails(basePortfolio);
-
-    expect(routerMock.navigate).not.toHaveBeenCalled();
   });
 
   it('confirmDeletePortfolio sem portfolioToDelete: não deve chamar service', () => {

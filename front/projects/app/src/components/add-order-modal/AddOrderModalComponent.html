@@ -1,6 +1,6 @@
 <div class="add-order-modal-backdrop" *ngIf="isOpen" (click)="handleBackdropClick()">
   <div class="add-order-modal" (click)="$event.stopPropagation()">
-    <h3>Nova ordem</h3>
+    <h3>{{ editingItem ? 'Editar ordem' : 'Nova ordem' }}</h3>
 
     <div class="add-order-modal__form">
       <label>

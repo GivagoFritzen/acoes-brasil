@@ -19,6 +19,7 @@ import {
   ProventosResponse,
 } from '../../models';
 import { CreateProventoPayload } from '../../models/CreateProventoPayloadModel';
+import { UpdateProventoPayload } from '../../models/UpdateProventoPayloadModel';
 import { SimpleCheckboxComponent } from '../../components/simple-checkbox/SimpleCheckboxComponent';
 import { AlertItem } from '../../models/alert/AlertItemModel';
 import type { SelectOption } from '../../../../../../common/models/SelectOptionModel';
@@ -66,7 +67,9 @@ export class ProventosComponent implements OnInit {
   readonly alerts = signal<AlertItem[]>([]);
   readonly isDeleteModalOpen = signal(false);
   readonly isCreateModalOpen = signal(false);
+  readonly isEditModalOpen = signal(false);
   readonly proventoToDelete = signal<Provento | null>(null);
+  readonly proventoToEdit = signal<Provento | null>(null);
 
   readonly tipoOptions: SelectOption<ProventoTipo>[] = [
     { label: 'Dividendo', value: ProventoTipos.Dividendo },
@@ -204,6 +207,20 @@ export class ProventosComponent implements OnInit {
     this.isCreateModalOpen.set(false);
   }
 
+  openEditModal(provento: Provento): void {
+    this.proventoToEdit.set(provento);
+    this.isEditModalOpen.set(true);
+  }
+
+  closeEditModal(): void {
+    if (this.isCreating()) {
+      return;
+    }
+
+    this.isEditModalOpen.set(false);
+    this.proventoToEdit.set(null);
+  }
+
   confirmCreateProvento(payload: CreateProventoPayload): void {
     this.isCreating.set(true);
 
@@ -242,8 +259,11 @@ export class ProventosComponent implements OnInit {
 
     this.isDeleting.set(true);
 
-    this.proventosService
-      .deleteProvento(provento.id)
+    const deleteObservable = this.juntarPorCodigo()
+      ? this.proventosService.deleteProventosByCodigo(provento.codigo)
+      : this.proventosService.deleteProvento(provento.id);
+
+    deleteObservable
       .pipe(
         finalize(() => {
           this.isDeleting.set(false);
@@ -257,7 +277,9 @@ export class ProventosComponent implements OnInit {
             {
               variant: 'info',
               title: 'Sucesso',
-              message: `Provento ${provento.codigo} removido com sucesso.`,
+              message: this.juntarPorCodigo()
+                ? `Proventos de ${provento.codigo} removidos com sucesso.`
+                : `Provento ${provento.codigo} removido com sucesso.`,
               icon: '✓',
             },
           ]);
@@ -265,6 +287,41 @@ export class ProventosComponent implements OnInit {
         },
         error: () => {
           this.alerts.set([this.createErrorAlert(DELETE_PROVENTO_ERROR_MESSAGE)]);
+        },
+      });
+  }
+
+  confirmEditProvento(payload: UpdateProventoPayload): void {
+    const provento = this.proventoToEdit();
+    if (!provento) {
+      return;
+    }
+
+    this.isCreating.set(true);
+
+    this.proventosService
+      .updateProvento(provento.id, payload)
+      .pipe(
+        finalize(() => {
+          this.isCreating.set(false);
+          this.isEditModalOpen.set(false);
+          this.proventoToEdit.set(null);
+        }),
+      )
+      .subscribe({
+        next: (updated: Provento) => {
+          this.alerts.set([
+            {
+              variant: 'info',
+              title: 'Sucesso',
+              message: `Provento ${updated.codigo} atualizado com sucesso.`,
+              icon: '✓',
+            },
+          ]);
+          this.loadProventos();
+        },
+        error: () => {
+          this.alerts.set([this.createErrorAlert(CREATE_PROVENTO_ERROR_MESSAGE)]);
         },
       });
   }

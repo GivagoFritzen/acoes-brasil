@@ -10,6 +10,8 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
 })
 export class ActionButtonComponent {
   @Input() title = 'Ação';
+  @Input() variant: 'danger' | 'primary' = 'danger';
+  @Input() icon: 'delete' | 'edit' = 'delete';
   @Output() actionClick = new EventEmitter<void>();
 
   handleClick(): void {

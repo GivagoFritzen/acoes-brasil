@@ -6,6 +6,7 @@ import { PortfolioItem } from '../models';
 import { ImportResponse } from '../models/ImportResponseModel';
 import { DeleteResponse } from '../models/DeleteResponseModel';
 import { CreatePortfolioPayload } from '../models/CreatePortfolioPayloadModel';
+import { UpdatePortfolioPayload } from '../models/UpdatePortfolioPayloadModel';
 import { getApiUrl } from '../config/ApiConfig';
 import { BaseHttpService } from './BaseHttpService';
 
@@ -33,6 +34,12 @@ export class PortfolioService extends BaseHttpService {
 
   deletePortfolio(id: string): Observable<DeleteResponse> {
     return this.http.delete<DeleteResponse>(`${this.baseUrl}/${id}`).pipe(
+      catchError(error => this.handleError(error))
+    );
+  }
+
+  updatePortfolio(id: string, payload: UpdatePortfolioPayload): Observable<PortfolioItem> {
+    return this.http.put<PortfolioItem>(`${this.baseUrl}/${id}`, payload).pipe(
       catchError(error => this.handleError(error))
     );
   }

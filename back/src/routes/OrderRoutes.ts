@@ -25,6 +25,10 @@ orderRoutes.delete("/:id", ValidationMiddleware.validateUuidParam("id"), (req, r
   return getOrderController().deleteAsync(req, res);
 });
 
+orderRoutes.put("/:id", ValidationMiddleware.validateUuidParam("id"), ValidationMiddleware.validate(createOrderSchema), (req, res) => {
+  return getOrderController().updateAsync(req, res);
+});
+
 orderRoutes.get("/", (req, res) => {
   return getOrderController().listAsync(req, res);
 });

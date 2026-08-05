@@ -199,7 +199,9 @@
         "cancel": "Cancel",
         "delete": "Delete",
         "deleting": "Deleting...",
-        "deleteAssetTitle": "Delete Asset"
+        "deleteAssetTitle": "Delete Asset",
+        "edit": "Edit",
+        "deleteAsset": "Delete"
     },
     "orders": {
         "title": "Orders",

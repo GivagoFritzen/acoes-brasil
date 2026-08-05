@@ -4,6 +4,7 @@ import { Observable } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { Order, OrdersResponse } from '../models';
 import { CreateOrderPayload } from '../models/CreateOrderPayloadModel';
+import { UpdateOrderPayload } from '../models/UpdateOrderPayloadModel';
 import { ImportResponse } from '../models/ImportResponseModel';
 import { SellSnapshotExportRow } from '../models/SellSnapshotExportRowModel';
 import { DeleteResponse } from '../models/DeleteResponseModel';
@@ -54,6 +55,10 @@ export class OrdersService extends BaseHttpService {
 
   deleteOrder(id: string): Observable<DeleteResponse> {
     return this.http.delete<DeleteResponse>(`${this.baseUrl}/${id}`).pipe(catchError(error => this.handleError(error)));
+  }
+
+  updateOrder(id: string, payload: UpdateOrderPayload): Observable<Order> {
+    return this.http.put<Order>(`${this.baseUrl}/${id}`, payload).pipe(catchError(error => this.handleError(error)));
   }
 
   exportSellSnapshotsSpreadsheet(ano?: string): Observable<Blob> {

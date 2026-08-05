@@ -143,7 +143,9 @@
         "cancel": "Cancelar",
         "delete": "Deletar",
         "deleting": "Deletando...",
-        "deleteAssetTitle": "Deletar ativo"
+        "deleteAssetTitle": "Deletar ativo",
+        "edit": "Editar",
+        "deleteAsset": "Excluir"
     },
     "orders": {
         "title": "Ordens",

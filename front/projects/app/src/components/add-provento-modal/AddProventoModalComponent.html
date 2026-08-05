@@ -1,6 +1,6 @@
 <div class="proventos-modal-backdrop" *ngIf="isOpen" (click)="handleBackdropClick()">
   <div class="proventos-modal" (click)="$event.stopPropagation()">
-    <h3>Novo provento</h3>
+    <h3>{{ editingItem ? 'Editar provento' : 'Novo provento' }}</h3>
 
     <div class="proventos-modal__form">
       <label>

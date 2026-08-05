@@ -13,4 +13,5 @@ export interface IProventoRepository {
   findByIdAsync(id: string, tx?: object): Promise<ProventoEntity | null>;
   findAllAsync(filters: IProventoFilters): Promise<{ rows: ProventoEntity[]; count: number }>;
   deleteAsync(id: string, tx?: object): Promise<void>;
+  deleteByCodigoAsync(codigo: string, tx?: object): Promise<void>;
 }

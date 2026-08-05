@@ -202,6 +202,70 @@
       display: flex;
       justify-content: flex-end;
     }
+
+    .acoes__dropdown-container {
+      position: relative;
+    }
+
+    .acoes__dropdown-trigger {
+      width: 30px;
+      height: 30px;
+      border: 1px solid $color-blue-200;
+      border-radius: 999px;
+      background: $color-primary-opacity-15;
+      color: $color-blue-500;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background-color 0.2s;
+
+      &:hover {
+        background: $color-primary-opacity-25;
+      }
+    }
+
+    .acoes__dropdown-menu {
+      position: absolute;
+      right: 0;
+      top: 100%;
+      margin-top: 4px;
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      z-index: 10;
+      min-width: 120px;
+      overflow: hidden;
+    }
+
+    .acoes__dropdown-item {
+      display: block;
+      width: 100%;
+      padding: 8px 14px;
+      border: none;
+      background: none;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 600;
+      text-align: left;
+      color: var(--color-text);
+      transition: background-color 0.15s;
+
+      &:hover {
+        background: var(--color-border);
+      }
+
+      &--danger {
+        color: $color-danger;
+
+        &:hover {
+          background: rgba(239, 68, 68, 0.08);
+        }
+      }
+    }
   }
 
   .acoes__modal-backdrop {

@@ -4,7 +4,7 @@ import { DatePickerComponent } from '../date-range-filter/DatePickerComponent';
 import { SimpleButtonComponent } from '../simple-button/SimpleButtonComponent';
 import { SimpleInputComponent } from '../simple-input/SimpleInputComponent';
 import { SimpleSelectComponent } from '../simple-select/SimpleSelectComponent';
-import { ProventoTipo, ProventoTipos } from '../../models';
+import { ProventoTipo, ProventoTipos, Provento } from '../../models';
 import { SelectOption } from '../../../../../../common/models/SelectOptionModel';
 import { CreateProventoPayload } from '../../models/CreateProventoPayloadModel';
 import { SimpleInputNumberComponent } from '../simple-input-number/SimpleInputNumberComponent';
@@ -22,6 +22,7 @@ export class AddProventoModalComponent implements OnChanges {
   @Input() isOpen = false;
   @Input() isSaving = false;
   @Input() tipoOptions: SelectOption<ProventoTipo>[] = [];
+  @Input() editingItem: Provento | null = null;
 
   @Output() closed = new EventEmitter<void>();
   @Output() saved = new EventEmitter<CreateProventoPayload>();
@@ -38,6 +39,9 @@ export class AddProventoModalComponent implements OnChanges {
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['isOpen']?.currentValue && !changes['isOpen']?.previousValue) {
       this.resetForm();
+      if (this.editingItem) {
+        this.populateForm(this.editingItem);
+      }
     }
   }
 
@@ -159,5 +163,15 @@ export class AddProventoModalComponent implements OnChanges {
     this.valorLiquido.set(null);
     this.data.set('');
     this.validationMessage.set('');
+  }
+
+  private populateForm(item: Provento): void {
+    this.codigo.set(item.codigo);
+    this.tipo.set(item.tipo);
+    this.instituicao.set(item.instituicao);
+    this.quantidade.set(item.quantidade);
+    this.precoUnitario.set(item.precoUnitario);
+    this.valorLiquido.set(item.valorLiquido);
+    this.data.set(item.data);
   }
 }

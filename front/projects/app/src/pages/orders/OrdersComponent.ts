@@ -15,6 +15,7 @@ import type { SelectOption } from '../../../../../../common/models/SelectOptionM
 import { Order, OrderOperacao, OrdersResponse } from '../../models';
 import { AlertItem } from '../../models/alert/AlertItemModel';
 import { CreateOrderPayload } from '../../models/CreateOrderPayloadModel';
+import { UpdateOrderPayload } from '../../models/UpdateOrderPayloadModel';
 import { OrdersService } from '../../services/OrdersService';
 import { formatDateForDisplay } from '../../utils/DateUtils';
 import { OrdersFilters } from '../../models/OrdersFiltersModel';
@@ -58,7 +59,9 @@ export class OrdersComponent implements OnInit {
   readonly alerts = signal<AlertItem[]>([]);
   readonly isDeleteModalOpen = signal(false);
   readonly isCreateModalOpen = signal(false);
+  readonly isEditModalOpen = signal(false);
   readonly orderToDelete = signal<Order | null>(null);
+  readonly orderToEdit = signal<Order | null>(null);
 
   readonly operacaoOptions: SelectOption<OrderOperacao>[] = [
     { label: 'Compra', value: 'Compra' },
@@ -180,6 +183,20 @@ export class OrdersComponent implements OnInit {
     this.isCreateModalOpen.set(false);
   }
 
+  openEditModal(order: Order): void {
+    this.orderToEdit.set(order);
+    this.isEditModalOpen.set(true);
+  }
+
+  closeEditModal(): void {
+    if (this.isCreating()) {
+      return;
+    }
+
+    this.isEditModalOpen.set(false);
+    this.orderToEdit.set(null);
+  }
+
   confirmCreateOrder(payload: CreateOrderPayload): void {
     this.isCreating.set(true);
 
@@ -240,6 +257,41 @@ export class OrdersComponent implements OnInit {
         },
         error: () => {
           this.alerts.set([this.createErrorAlert(DELETE_ORDER_ERROR_MESSAGE)]);
+        },
+      });
+  }
+
+  confirmEditOrder(payload: UpdateOrderPayload): void {
+    const order = this.orderToEdit();
+    if (!order) {
+      return;
+    }
+
+    this.isCreating.set(true);
+
+    this.ordersService
+      .updateOrder(order.id, payload)
+      .pipe(
+        finalize(() => {
+          this.isCreating.set(false);
+          this.isEditModalOpen.set(false);
+          this.orderToEdit.set(null);
+        }),
+      )
+      .subscribe({
+        next: (updated: Order) => {
+          this.alerts.set([
+            {
+              variant: 'info',
+              title: 'Sucesso',
+              message: `Ordem ${updated.codigo} atualizada com sucesso.`,
+              icon: '✓',
+            },
+          ]);
+          this.loadOrders();
+        },
+        error: () => {
+          this.alerts.set([this.createErrorAlert(CREATE_ORDER_ERROR_MESSAGE)]);
         },
       });
   }

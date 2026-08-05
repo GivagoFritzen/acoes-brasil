@@ -43,3 +43,7 @@ portfolioRoutes.post("/import", upload.single("file"), (req, res) => {
 portfolioRoutes.delete("/:id", ValidationMiddleware.validateUuidParam("id"), (req, res) => {
   return getController().deleteAsync(req, res);
 });
+
+portfolioRoutes.put("/:id", ValidationMiddleware.validateUuidParam("id"), (req, res) => {
+  return getController().updateAsync(req, res);
+});
