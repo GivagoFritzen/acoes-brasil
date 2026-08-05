@@ -63,33 +63,34 @@ export class SpreadsheetParserService {
       const precoField = extractField(row, ["Preço unitário", "Preco unitario", "Preço", "Preco"]);
       const valorField = extractField(row, ["Valor líquido", "Valor liquido", "Valor"]);
 
-      const seemsHeaderRow =
-        this.isHeaderCell(produtoField, ["Produto", "Código", "Codigo"]) ||
-        this.isHeaderCell(tipoField, ["Tipo de Evento", "Tipo"]);
-
-      if (seemsHeaderRow) {
+      if (this.isHeaderRow(produtoField, tipoField)) {
         continue;
       }
 
-      const hasAnyMainField = [produtoField, pagamentoField, tipoField, instituicaoField, quantidadeField, precoField, valorField]
-        .some((value) => String(value ?? "").trim() !== "");
-
-      if (!hasAnyMainField) {
+      if (!this.hasAnyMainField(
+        produtoField,
+        pagamentoField,
+        tipoField,
+        instituicaoField,
+        quantidadeField,
+        precoField,
+        valorField
+      )) {
         invalidLineNumbers.push(lineNumber);
         continue;
       }
 
-      const codigo = this.normalizeCodigoFromProduto(produtoField);
-      const brData = toBrDateString(pagamentoField);
-      const data = brData ? DateUtils.normalizeToIsoDate(brData) ?? brData : "";
-      const tipo = this.normalizeTipoProvento(tipoField);
-      const instituicao = String(instituicaoField ?? "").trim();
-      const quantidadeRaw = parseDecimal(quantidadeField);
-      const precoUnitario = parseDecimal(precoField) ?? 0;
-      const valorLiquido = parseDecimal(valorField) ?? 0;
-      const quantidade = quantidadeRaw === null ? 0 : Math.trunc(quantidadeRaw);
-
-      validRows.push({ codigo, data, tipo, instituicao, quantidade, precoUnitario, valorLiquido });
+      validRows.push(
+        this.parseProventoRowFields(
+          produtoField,
+          pagamentoField,
+          tipoField,
+          instituicaoField,
+          quantidadeField,
+          precoField,
+          valorField
+        )
+      );
     }
 
     return { validRows, invalidLineNumbers };
@@ -117,6 +118,66 @@ export class SpreadsheetParserService {
     }
 
     return portfolios;
+  }
+
+  private parseProventoRowFields(
+    produtoField: string | undefined,
+    pagamentoField: string | undefined,
+    tipoField: string | undefined,
+    instituicaoField: string | undefined,
+    quantidadeField: string | undefined,
+    precoField: string | undefined,
+    valorField: string | undefined
+  ): CreateProventoDto {
+    const codigo = this.normalizeCodigoFromProduto(produtoField);
+    const brData = toBrDateString(pagamentoField);
+    const data = brData ? DateUtils.normalizeToIsoDate(brData) ?? brData : "";
+    const tipo = this.normalizeTipoProvento(tipoField);
+    const instituicao = String(instituicaoField ?? "").trim();
+    const quantidadeRaw = parseDecimal(quantidadeField);
+    const precoUnitario = parseDecimal(precoField) ?? 0;
+    const valorLiquido = parseDecimal(valorField) ?? 0;
+    const quantidade = quantidadeRaw === null ? 0 : Math.trunc(quantidadeRaw);
+
+    return {
+      codigo,
+      data,
+      tipo,
+      instituicao,
+      quantidade,
+      precoUnitario,
+      valorLiquido,
+    };
+  }
+
+  private isHeaderRow(
+    produtoField: string | undefined,
+    tipoField: string | undefined
+  ): boolean {
+    return (
+      this.isHeaderCell(produtoField, ["Produto", "Código", "Codigo"]) ||
+      this.isHeaderCell(tipoField, ["Tipo de Evento", "Tipo"])
+    );
+  }
+
+  private hasAnyMainField(
+    produtoField: string | undefined,
+    pagamentoField: string | undefined,
+    tipoField: string | undefined,
+    instituicaoField: string | undefined,
+    quantidadeField: string | undefined,
+    precoField: string | undefined,
+    valorField: string | undefined
+  ): boolean {
+    return [
+      produtoField,
+      pagamentoField,
+      tipoField,
+      instituicaoField,
+      quantidadeField,
+      precoField,
+      valorField,
+    ].some((value) => String(value ?? "").trim() !== "");
   }
 
   private normalizeOperacao(value: string | undefined): orderOperacao | null {
