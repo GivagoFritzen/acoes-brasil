@@ -1,5 +1,5 @@
 import type { SpreadsheetRow } from "../../models/SpreadsheetRow";
-import { extractField, parseDecimal, readSpreadsheetRows, toBrDateString } from "../../utils/Spreadsheet";
+import { extractField, readSpreadsheetRows, toBrDateString } from "../../utils/Spreadsheet";
 import type { ProventoTipo as proventoTipo } from "../../../../common/models/provento";
 import { CreateOrderDto } from "../../application/dto/CreateOrderDto";
 import { CreateProventoDto } from "../../application/dto/CreateProventoDto";
@@ -9,6 +9,7 @@ import { normalizeOrderCodigo } from "../../../../common/utils/OrderCodigoUtils"
 import { detectSupportedAssetTypeFromTicker } from "../../../../common/utils/AssetTypeUtils";
 import { ParseProventoResult } from "../../models/ParseProventoResult";
 import { DateUtils } from "../../shared/utils/DateUtils";
+import { parseDecimal } from "../../../../common/utils/parseDecimal";
 
 export class SpreadsheetParserService {
   parseOrderRowsAsync(buffer: Buffer): CreateOrderDto[] {

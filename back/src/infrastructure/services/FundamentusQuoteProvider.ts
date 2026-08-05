@@ -1,20 +1,19 @@
 import { IQuoteProvider } from "../../domain/interfaces/IQuoteProvider";
 import { normalizeCodigoForFundamentus } from "../../shared/utils/FundamentusUtils";
 import { logger } from "../../shared/logger/Logger";
-import { parseDecimal } from "../../../../common/utils/ParseDecimal";
 import {
   FundamentusHttpService,
   LABEL_CLASS,
   DATA_CLASS,
   MAX_REGEX_ITERATIONS,
 } from "./shared/FundamentusHttpService";
+import { parseDecimal } from "../../../../common/utils/parseDecimal";
 
 const COTACAO_LABEL = "cotacao";
 
 export class FundamentusQuoteProvider
   extends FundamentusHttpService
-  implements IQuoteProvider
-{
+  implements IQuoteProvider {
   async getQuoteAsync(codigo: string): Promise<number | null> {
     const codigoFundamentus = normalizeCodigoForFundamentus(codigo);
 
