@@ -1,4 +1,4 @@
-import { Component, Input, HostListener, ElementRef } from '@angular/core';
+import { Component, Input, HostListener, ElementRef, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 @Component({
@@ -8,7 +8,7 @@ import { CommonModule } from '@angular/common';
   templateUrl: './HelpTipComponent.html',
   styleUrls: ['./HelpTipComponent.scss']
 })
-export class HelpTipComponent {
+export class HelpTipComponent implements OnDestroy {
   @Input() text: string = '';
 
   showTip: boolean = false;
@@ -16,6 +16,13 @@ export class HelpTipComponent {
   private closeTimeout: ReturnType<typeof setTimeout> | null = null;
 
   constructor(private elementRef: ElementRef) { }
+
+  ngOnDestroy(): void {
+    if (this.closeTimeout) {
+      clearTimeout(this.closeTimeout);
+      this.closeTimeout = null;
+    }
+  }
 
   toggleTip(event: Event): void {
     event.stopPropagation();

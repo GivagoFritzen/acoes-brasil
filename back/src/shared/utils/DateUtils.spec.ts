@@ -115,12 +115,6 @@ describe("DateUtils", () => {
     });
   });
 
-  describe("isFutureBrDate", () => {
-    it("Deve delegar para isFutureDate e retornar false quando formato invalido", () => {
-      expect(DateUtils.isFutureBrDate("invalido")).toBe(false);
-    });
-  });
-
   describe("getCurrentBrDate", () => {
     it("Deve retornar data atual no formato dd-MM-yyyy", () => {
       const agora = new Date();

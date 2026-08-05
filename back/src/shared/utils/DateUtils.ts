@@ -36,10 +36,6 @@ export class DateUtils {
     return parsed.getTime() > today.getTime();
   }
 
-  static isFutureBrDate(value: string): boolean {
-    return this.isFutureDate(value);
-  }
-
   static isValidBrDate(value: string): boolean {
     const match = value.match(/^(\d{2})-(\d{2})-(\d{4})$/);
     if (!match) return false;

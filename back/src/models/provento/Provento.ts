@@ -2,10 +2,10 @@ import { DataTypes, Model } from "sequelize";
 import { sequelize } from "../../database";
 import { ProventoAttributes } from "./ProventoAttributes";
 import type { ProventoTipo as proventoTipo } from "../../../../common/models/provento";
-import { proventoCreationAttributes } from "./ProventoCreationAttributes";
+import { ProventoCreationAttributes } from "./ProventoCreationAttributes";
 import { DateUtils } from "../../shared/utils/DateUtils";
 
-export class Provento extends Model<ProventoAttributes, proventoCreationAttributes>
+export class Provento extends Model<ProventoAttributes, ProventoCreationAttributes>
   implements ProventoAttributes {
   declare id: string;
   declare codigo: string;

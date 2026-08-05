@@ -1,4 +1,4 @@
 import { Optional } from "sequelize";
 import { OrderAttributes } from "./OrderAttributes";
 
-export type orderCreationAttributes = Optional<OrderAttributes, "id" | "createdAt" | "updatedAt">;
+export type OrderCreationAttributes = Optional<OrderAttributes, "id" | "createdAt" | "updatedAt">;

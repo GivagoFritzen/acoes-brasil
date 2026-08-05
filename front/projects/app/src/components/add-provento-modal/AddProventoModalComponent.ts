@@ -10,6 +10,7 @@ import { CreateProventoPayload } from '../../models/CreateProventoPayloadModel';
 import { SimpleInputNumberComponent } from '../simple-input-number/SimpleInputNumberComponent';
 import { normalizeOrderCodigo } from '../../../../../../common/utils/OrderCodigoUtils';
 import { isSupportedB3Ticker } from '../../../../../../common/utils/AssetTypeUtils';
+import { isFutureDate } from '../../utils/DateUtils';
 
 @Component({
   selector: 'app-add-provento-modal',
@@ -120,7 +121,7 @@ export class AddProventoModalComponent implements OnChanges {
       return null;
     }
 
-    if (this.isFutureDate(data)) {
+    if (isFutureDate(data)) {
       this.validationMessage.set('A data do provento não pode ser futura.');
       return null;
     }
@@ -141,17 +142,6 @@ export class AddProventoModalComponent implements OnChanges {
       valorLiquido,
       data,
     };
-  }
-
-  private isFutureDate(value: string): boolean {
-    const parsed = new Date(`${value}T00:00:00`);
-    if (Number.isNaN(parsed.getTime())) {
-      return false;
-    }
-
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    return parsed.getTime() > today.getTime();
   }
 
   private resetForm(): void {

@@ -25,11 +25,15 @@ export class PortfolioController {
 
   async createOrUpdateAsync(req: Request, res: Response): Promise<Response> {
     try {
-      const result = await this.createOrUpdatePortfolioService.executeAsync({
-        codigo: String(req.body?.codigo ?? ""),
-        quantidade: Number(req.body?.quantidade),
-        precoMedio: Number(req.body?.precoMedio),
-      });
+      const codigo = String(req.body?.codigo ?? "").trim();
+      const quantidade = Number(req.body?.quantidade);
+      const precoMedio = Number(req.body?.precoMedio);
+
+      if (!codigo || !quantidade || !precoMedio) {
+        return res.status(400).json({ message: "Campos obrigatórios: codigo, quantidade, precoMedio." });
+      }
+
+      const result = await this.createOrUpdatePortfolioService.executeAsync({ codigo, quantidade, precoMedio });
       return res.status(result.created ? 201 : 200).json(result.portfolio);
     } catch (error) {
       return ErrorHandler.handle(error as Error, res);
@@ -49,11 +53,15 @@ export class PortfolioController {
   async updateAsync(req: Request, res: Response): Promise<Response> {
     try {
       const id = String(req.params.id);
-      const result = await this.updatePortfolioService.executeAsync(id, {
-        codigo: String(req.body?.codigo ?? ""),
-        quantidade: Number(req.body?.quantidade),
-        precoMedio: Number(req.body?.precoMedio),
-      });
+      const codigo = String(req.body?.codigo ?? "").trim();
+      const quantidade = Number(req.body?.quantidade);
+      const precoMedio = Number(req.body?.precoMedio);
+
+      if (!codigo || !quantidade || !precoMedio) {
+        return res.status(400).json({ message: "Campos obrigatórios: codigo, quantidade, precoMedio." });
+      }
+
+      const result = await this.updatePortfolioService.executeAsync(id, { codigo, quantidade, precoMedio });
       return res.json(result);
     } catch (error) {
       return ErrorHandler.handle(error as Error, res);

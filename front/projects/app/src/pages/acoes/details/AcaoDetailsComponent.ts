@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
-import { Component, computed, OnInit, signal, ViewEncapsulation } from '@angular/core';
+import { Component, computed, DestroyRef, inject, OnInit, signal, ViewEncapsulation } from '@angular/core';
 import { ActivatedRoute, RouterModule } from '@angular/router';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { catchError, finalize, forkJoin, Observable, of } from 'rxjs';
 import { AlertsComponent } from '../../../components/alerts/AlertsComponent';
 import { SimpleButtonComponent } from '../../../components/simple-button/SimpleButtonComponent';
@@ -59,6 +60,8 @@ export class AcaoDetailsComponent implements OnInit {
     detailOptions = ['fundamentus', 'investidor10', 'yahoo'] as const;
     detailSource = signal<'fundamentus' | 'investidor10' | 'yahoo'>(this.loadSavedSource());
 
+    private readonly destroyRef = inject(DestroyRef);
+
     constructor(
         private readonly route: ActivatedRoute,
         private readonly fundamentusService: FundamentusService,
@@ -70,7 +73,7 @@ export class AcaoDetailsComponent implements OnInit {
     ) { }
 
     ngOnInit(): void {
-        this.route.paramMap.subscribe((params) => {
+        this.route.paramMap.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((params) => {
             const codigo = params.get('codigo');
 
             if (!codigo) {
@@ -124,7 +127,7 @@ export class AcaoDetailsComponent implements OnInit {
         const codigo = this.route.snapshot.paramMap.get('codigo');
         if (!codigo) return;
 
-        this.googleFinanceService.getData(codigo, window).subscribe({
+        this.googleFinanceService.getData(codigo, window).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
             next: (data) => this.googleFinance.set(data),
             error: () => {
                 this.pushAlert(
@@ -200,7 +203,10 @@ export class AcaoDetailsComponent implements OnInit {
         }
 
         forkJoin(observables)
-            .pipe(finalize(() => this.isLoading.set(false)))
+            .pipe(
+                finalize(() => this.isLoading.set(false)),
+                takeUntilDestroyed(this.destroyRef)
+            )
             .subscribe({
                 next: (result) => {
                     if (source === 'investidor10') {

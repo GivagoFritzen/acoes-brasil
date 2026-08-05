@@ -10,6 +10,7 @@ import { SelectOption } from '../../../../../../common/models/SelectOptionModel'
 import { CreateOrderPayload } from '../../models/CreateOrderPayloadModel';
 import { normalizeOrderCodigo } from '../../../../../../common/utils/OrderCodigoUtils';
 import { detectSupportedAssetTypeFromTicker } from '../../../../../../common/utils/AssetTypeUtils';
+import { isFutureDate } from '../../utils/DateUtils';
 
 @Component({
   selector: 'app-add-order-modal',
@@ -106,7 +107,7 @@ export class AddOrderModalComponent implements OnChanges {
       return null;
     }
 
-    if (this.isFutureDate(data)) {
+    if (isFutureDate(data)) {
       this.validationMessage.set('A data da ordem não pode ser futura.');
       return null;
     }
@@ -121,17 +122,6 @@ export class AddOrderModalComponent implements OnChanges {
       valor,
       data,
     };
-  }
-
-  private isFutureDate(value: string): boolean {
-    const parsed = new Date(`${value}T00:00:00`);
-    if (Number.isNaN(parsed.getTime())) {
-      return false;
-    }
-
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    return parsed.getTime() > today.getTime();
   }
 
   private resetForm(): void {

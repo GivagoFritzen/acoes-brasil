@@ -22,9 +22,16 @@ export class ProventoController {
 
   async createAsync(req: Request, res: Response): Promise<Response> {
     try {
+      const codigo = String(req.body?.codigo ?? "").trim();
+      const data = String(req.body?.data ?? "").trim();
+
+      if (!codigo || !data) {
+        return res.status(400).json({ message: "Campos obrigatórios: codigo, data." });
+      }
+
       const result = await this.createProventoService.executeAsync({
-        codigo: String(req.body?.codigo ?? ""),
-        data: String(req.body?.data ?? ""),
+        codigo,
+        data,
         tipo: req.body?.tipo as proventoTipo,
         instituicao: String(req.body?.instituicao ?? ""),
         quantidade: Number(req.body?.quantidade),
@@ -60,9 +67,16 @@ export class ProventoController {
   async updateAsync(req: Request, res: Response): Promise<Response> {
     try {
       const id = String(req.params.id);
+      const codigo = String(req.body?.codigo ?? "").trim();
+      const data = String(req.body?.data ?? "").trim();
+
+      if (!codigo || !data) {
+        return res.status(400).json({ message: "Campos obrigatórios: codigo, data." });
+      }
+
       const result = await this.updateProventoService.executeAsync(id, {
-        codigo: String(req.body?.codigo ?? ""),
-        data: String(req.body?.data ?? ""),
+        codigo,
+        data,
         tipo: req.body?.tipo as proventoTipo,
         instituicao: String(req.body?.instituicao ?? ""),
         quantidade: Number(req.body?.quantidade),
@@ -101,6 +115,9 @@ export class ProventoController {
 
   async listAsync(req: Request, res: Response): Promise<Response> {
     try {
+      const page = req.query.page ? Math.max(Number(req.query.page) || 1, 1) : undefined;
+      const limit = req.query.limit ? Math.min(Math.max(Number(req.query.limit) || 20, 1), 100) : undefined;
+
       const result = await this.listProventosService.executeAsync({
         codigo: typeof req.query.codigo === "string" ? req.query.codigo : undefined,
         tipo: typeof req.query.tipo === "string" ? req.query.tipo : undefined,
@@ -108,8 +125,8 @@ export class ProventoController {
         dataInicial: typeof req.query.dataInicial === "string" ? req.query.dataInicial : undefined,
         dataFinal: typeof req.query.dataFinal === "string" ? req.query.dataFinal : undefined,
         agruparPorCodigo: String(req.query.agruparPorCodigo ?? "").trim().toLowerCase() === "true",
-        page: req.query.page ? Number(req.query.page) : undefined,
-        limit: req.query.limit ? Number(req.query.limit) : undefined,
+        page,
+        limit,
       });
       return res.json(result);
     } catch (error) {

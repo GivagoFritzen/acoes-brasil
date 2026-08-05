@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, signal } from '@angular/core';
+import { Component, DestroyRef, inject, signal } from '@angular/core';
 import { AlertsComponent } from '../../components/alerts/AlertsComponent';
 import { SimpleButtonComponent, SimpleSelectComponent } from '../../components';
 import { AlertItem } from '../../models/alert/AlertItemModel';
@@ -17,6 +17,9 @@ import { SelectOption } from '../../../../../../common/models/SelectOptionModel'
   styleUrls: ['./ExportacaoComponent.scss'],
 })
 export class ExportacaoComponent {
+  private readonly destroyRef = inject(DestroyRef);
+  private printTimeout: ReturnType<typeof setTimeout> | null = null;
+
   isExportingAcoes = signal(false);
   isExportingOrderSellExcel = signal(false);
   isExportingOrderSellPdf = signal(false);
@@ -28,7 +31,14 @@ export class ExportacaoComponent {
   constructor(
     private readonly ordersService: OrdersService,
     private readonly portfolioService: PortfolioService
-  ) { }
+  ) {
+    this.destroyRef.onDestroy(() => {
+      if (this.printTimeout) {
+        clearTimeout(this.printTimeout);
+        this.printTimeout = null;
+      }
+    });
+  }
 
   onAnoChange(ano: string): void {
     this.anoFiltro.set(ano);
@@ -62,7 +72,7 @@ export class ExportacaoComponent {
 
     const onLoaded = () => {
       frame.removeEventListener('load', onLoaded);
-      setTimeout(tryPrint, 500);
+      this.printTimeout = setTimeout(tryPrint, 500);
     };
 
     frame.addEventListener('load', onLoaded);
@@ -152,7 +162,7 @@ export class ExportacaoComponent {
 
         const onLoaded = () => {
           frame.removeEventListener('load', onLoaded);
-          setTimeout(tryPrint, 300);
+          this.printTimeout = setTimeout(tryPrint, 300);
         };
 
         frame.addEventListener('load', onLoaded);
