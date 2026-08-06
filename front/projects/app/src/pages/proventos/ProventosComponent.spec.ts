@@ -11,6 +11,8 @@ describe('ProventosComponent', () => {
     getProventos: ReturnType<typeof vi.fn>;
     createProvento: ReturnType<typeof vi.fn>;
     deleteProvento: ReturnType<typeof vi.fn>;
+    deleteProventosByCodigo: ReturnType<typeof vi.fn>;
+    updateProvento: ReturnType<typeof vi.fn>;
   };
 
   const baseProvento: Provento = {
@@ -37,6 +39,8 @@ describe('ProventosComponent', () => {
       getProventos: vi.fn(),
       createProvento: vi.fn(),
       deleteProvento: vi.fn(),
+      deleteProventosByCodigo: vi.fn(),
+      updateProvento: vi.fn(),
     };
     proventosServiceMock.getProventos.mockReturnValue(of(defaultResponse));
 
@@ -407,5 +411,128 @@ it('previousPage deve tentar decrementar e carregar proventos', () => {
   it('handleFilterTypeChange deve aceitar string vazia', () => {
     component.handleFilterTypeChange('');
     expect(component.filtroTipo()).toBe('');
+  });
+
+  it('deve abrir modal de edição e setar provento alvo', () => {
+    component.openEditModal(baseProvento);
+
+    expect(component.isEditModalOpen()).toBe(true);
+    expect(component.proventoToEdit()).toEqual(baseProvento);
+  });
+
+  it('não deve fechar modal de edição durante criação', () => {
+    component.openEditModal(baseProvento);
+    component.isCreating.set(true);
+
+    component.closeEditModal();
+
+    expect(component.isEditModalOpen()).toBe(true);
+    expect(component.proventoToEdit()).toEqual(baseProvento);
+  });
+
+  it('deve fechar modal de edição quando não está criando', () => {
+    component.openEditModal(baseProvento);
+    component.isCreating.set(false);
+
+    component.closeEditModal();
+
+    expect(component.isEditModalOpen()).toBe(false);
+    expect(component.proventoToEdit()).toBeNull();
+  });
+
+  it('confirmEditProvento sucesso: deve atualizar, fechar modal e recarregar', () => {
+    const payload = {
+      codigo: 'ITUB4',
+      tipo: 'Dividendo' as const,
+      data: '2024-04-01',
+      instituicao: 'Banco do Brasil',
+      quantidade: 10,
+      precoUnitario: 5,
+      valorLiquido: 50,
+    };
+    const updatedProvento: Provento = { ...baseProvento, codigo: 'ITUB4' };
+    proventosServiceMock.updateProvento.mockReturnValue(of(updatedProvento));
+    proventosServiceMock.getProventos.mockReturnValue(of({ ...defaultResponse, data: [updatedProvento] }));
+    component.openEditModal(baseProvento);
+    const getProventosCallsBefore = proventosServiceMock.getProventos.mock.calls.length;
+
+    component.confirmEditProvento(payload);
+
+    expect(proventosServiceMock.updateProvento).toHaveBeenCalledWith('1', payload);
+    expect(component.isCreating()).toBe(false);
+    expect(component.isEditModalOpen()).toBe(false);
+    expect(component.proventoToEdit()).toBeNull();
+    expect(proventosServiceMock.getProventos.mock.calls.length).toBe(getProventosCallsBefore + 1);
+  });
+
+  it('confirmEditProvento erro: deve setar alerta de erro', () => {
+    const payload = {
+      codigo: 'ITUB4',
+      tipo: 'Dividendo' as const,
+      data: '2024-04-01',
+      instituicao: 'Banco do Brasil',
+      quantidade: 10,
+      precoUnitario: 5,
+      valorLiquido: 50,
+    };
+    proventosServiceMock.updateProvento.mockReturnValue(throwError(() => new Error('erro')));
+    component.openEditModal(baseProvento);
+
+    component.confirmEditProvento(payload);
+
+    expect(component.isCreating()).toBe(false);
+    expect(component.isEditModalOpen()).toBe(false);
+    expect(component.alerts()[0].variant).toBe('error');
+    expect(component.alerts()[0].message).toBe('Não foi possível adicionar o provento.');
+  });
+
+  it('confirmEditProvento sem proventoToEdit: não deve chamar service', () => {
+    const payload = {
+      codigo: 'ITUB4',
+      tipo: 'Dividendo' as const,
+      data: '2024-04-01',
+      instituicao: 'Banco do Brasil',
+      quantidade: 10,
+      precoUnitario: 5,
+      valorLiquido: 50,
+    };
+    component.proventoToEdit.set(null);
+
+    component.confirmEditProvento(payload);
+
+    expect(proventosServiceMock.updateProvento).not.toHaveBeenCalled();
+  });
+
+  it('confirmDeleteProvento com juntarPorCodigo: deve deletar por código', () => {
+    proventosServiceMock.deleteProventosByCodigo.mockReturnValue(of({ message: 'ok' }));
+    proventosServiceMock.getProventos.mockReturnValue(of({ ...defaultResponse, data: [] }));
+    component.juntarPorCodigo.set(true);
+    component.openDeleteModal(baseProvento);
+    const getProventosCallsBefore = proventosServiceMock.getProventos.mock.calls.length;
+
+    component.confirmDeleteProvento();
+
+    expect(proventosServiceMock.deleteProventosByCodigo).toHaveBeenCalledWith('PETR4');
+    expect(proventosServiceMock.deleteProvento).not.toHaveBeenCalled();
+    expect(component.isDeleting()).toBe(false);
+    expect(component.isDeleteModalOpen()).toBe(false);
+    expect(component.proventoToDelete()).toBeNull();
+    expect(proventosServiceMock.getProventos.mock.calls.length).toBe(getProventosCallsBefore + 1);
+  });
+
+  it('confirmDeleteProvento com juntarPorCodigo erro: deve setar alerta de erro', () => {
+    proventosServiceMock.deleteProventosByCodigo.mockReturnValue(throwError(() => new Error('erro')));
+    component.juntarPorCodigo.set(true);
+    component.openDeleteModal(baseProvento);
+
+    component.confirmDeleteProvento();
+
+    expect(component.isDeleting()).toBe(false);
+    expect(component.alerts()[0].variant).toBe('error');
+    expect(component.alerts()[0].message).toBe('Não foi possível deletar o provento.');
+  });
+
+  it('formatTipo com tipo desconhecido deve retornar o tipo original', () => {
+    expect(component.formatTipo('TipoDesconhecido' as any)).toBe('TipoDesconhecido');
   });
 });

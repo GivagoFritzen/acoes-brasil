@@ -11,6 +11,7 @@ describe('OrdersComponent', () => {
     getOrders: ReturnType<typeof vi.fn>;
     createOrder: ReturnType<typeof vi.fn>;
     deleteOrder: ReturnType<typeof vi.fn>;
+    updateOrder: ReturnType<typeof vi.fn>;
   };
 
   const baseOrder: Order = {
@@ -36,6 +37,7 @@ describe('OrdersComponent', () => {
       getOrders: vi.fn(),
       createOrder: vi.fn(),
       deleteOrder: vi.fn(),
+      updateOrder: vi.fn(),
     };
     ordersServiceMock.getOrders.mockReturnValue(of(defaultResponse));
 
@@ -357,5 +359,92 @@ describe('OrdersComponent', () => {
     expect(component.page()).toBe(2);
     expect(component.limit()).toBe(5);
     expect(component.totalPages()).toBe(4);
+  });
+
+  it('deve abrir modal de edição e setar ordem alvo', () => {
+    component.openEditModal(baseOrder);
+
+    expect(component.isEditModalOpen()).toBe(true);
+    expect(component.orderToEdit()).toEqual(baseOrder);
+  });
+
+  it('não deve fechar modal de edição durante criação', () => {
+    component.openEditModal(baseOrder);
+    component.isCreating.set(true);
+
+    component.closeEditModal();
+
+    expect(component.isEditModalOpen()).toBe(true);
+    expect(component.orderToEdit()).toEqual(baseOrder);
+  });
+
+  it('deve fechar modal de edição quando não está criando', () => {
+    component.openEditModal(baseOrder);
+    component.isCreating.set(false);
+
+    component.closeEditModal();
+
+    expect(component.isEditModalOpen()).toBe(false);
+    expect(component.orderToEdit()).toBeNull();
+  });
+
+  it('confirmEditOrder sucesso: deve atualizar, fechar modal e recarregar', () => {
+    const payload = {
+      codigo: 'ITUB4',
+      quantidade: 10,
+      valor: 30,
+      data: '2024-04-01',
+      tipo: 'ACAO' as const,
+      operacao: 'Compra' as const,
+    };
+    const updatedOrder: Order = { ...baseOrder, codigo: 'ITUB4' };
+    ordersServiceMock.updateOrder.mockReturnValue(of(updatedOrder));
+    ordersServiceMock.getOrders.mockReturnValue(of({ ...defaultResponse, data: [updatedOrder] }));
+    component.openEditModal(baseOrder);
+    const getOrdersCallsBefore = ordersServiceMock.getOrders.mock.calls.length;
+
+    component.confirmEditOrder(payload);
+
+    expect(ordersServiceMock.updateOrder).toHaveBeenCalledWith('1', payload);
+    expect(component.isCreating()).toBe(false);
+    expect(component.isEditModalOpen()).toBe(false);
+    expect(component.orderToEdit()).toBeNull();
+    expect(ordersServiceMock.getOrders.mock.calls.length).toBe(getOrdersCallsBefore + 1);
+  });
+
+  it('confirmEditOrder erro: deve setar alerta de erro', () => {
+    const payload = {
+      codigo: 'ITUB4',
+      quantidade: 10,
+      valor: 30,
+      data: '2024-04-01',
+      tipo: 'ACAO' as const,
+      operacao: 'Compra' as const,
+    };
+    ordersServiceMock.updateOrder.mockReturnValue(throwError(() => new Error('erro')));
+    component.openEditModal(baseOrder);
+
+    component.confirmEditOrder(payload);
+
+    expect(component.isCreating()).toBe(false);
+    expect(component.isEditModalOpen()).toBe(false);
+    expect(component.alerts()[0].variant).toBe('error');
+    expect(component.alerts()[0].message).toBe('Não foi possível adicionar a ordem.');
+  });
+
+  it('confirmEditOrder sem orderToEdit: não deve chamar service', () => {
+    const payload = {
+      codigo: 'ITUB4',
+      quantidade: 10,
+      valor: 30,
+      data: '2024-04-01',
+      tipo: 'ACAO' as const,
+      operacao: 'Compra' as const,
+    };
+    component.orderToEdit.set(null);
+
+    component.confirmEditOrder(payload);
+
+    expect(ordersServiceMock.updateOrder).not.toHaveBeenCalled();
   });
 });
