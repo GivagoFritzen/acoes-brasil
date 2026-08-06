@@ -7,8 +7,16 @@ import { PortfolioController } from "../controllers/PortfolioController";
 import { ValidationMiddleware } from "../middlewares/ValidationMiddleware";
 import { createMulterUpload } from "../shared/multer/MulterConfigFactory";
 
-const uploadDir = fs.mkdtempSync(path.join(os.tmpdir(), "acoes-portfolio-upload-"));
-const upload = createMulterUpload(uploadDir);
+let uploadDir: string | null = null;
+let upload: ReturnType<typeof createMulterUpload> | null = null;
+
+const getUpload = () => {
+  if (!uploadDir) {
+    uploadDir = fs.mkdtempSync(path.join(os.tmpdir(), "acoes-portfolio-upload-"));
+    upload = createMulterUpload(uploadDir);
+  }
+  return upload!;
+};
 
 export const portfolioRoutes = Router();
 
@@ -26,8 +34,10 @@ portfolioRoutes.get("/export", (req, res) => {
   return getController().exportPortfolioAsync(req, res);
 });
 
-portfolioRoutes.post("/import", upload.single("file"), (req, res) => {
-  return getController().importPortfolioAsync(req, res);
+portfolioRoutes.post("/import", (req, res) => {
+  return getUpload().single("file")(req, res, () => {
+    return getController().importPortfolioAsync(req, res);
+  });
 });
 
 portfolioRoutes.delete("/:id", ValidationMiddleware.validateUuidParam("id"), (req, res) => {

@@ -8,6 +8,7 @@ import { PortfolioPieChartComponent } from '../../components/portfolio-pie-chart
 import { PortfolioItem } from '../../models';
 import { PortfolioProfitLossChartComponent } from '../../components/portfolio-profit-loss-chart/PortfolioProfitLossChartComponent';
 import { AlertItem } from '../../models/alert/AlertItemModel';
+import { filterAlert } from '../../utils/AlertUtils';
 import { PortfolioService } from '../../services/PortfolioService';
 import { CreatePortfolioPayload } from '../../models/CreatePortfolioPayloadModel';
 import { UpdatePortfolioPayload } from '../../models/UpdatePortfolioPayloadModel';
@@ -31,18 +32,19 @@ import { mesclarPorCodigo, removerSufixoF } from '../../../../../../common/utils
     styleUrls: ['./AcoesComponent.scss'],
 })
 export class AcoesComponent implements OnInit {
-    portfolios = signal<PortfolioItem[]>([]);
-    isLoading = signal(false);
-    isDeleting = signal(false);
-    isCreating = signal(false);
-    errorMessage = signal('');
-    alerts = signal<AlertItem[]>([]);
-    isDeleteModalOpen = signal(false);
-    isCreateModalOpen = signal(false);
-    isEditModalOpen = signal(false);
-    portfolioToDelete = signal<PortfolioItem | null>(null);
-    portfolioToEdit = signal<PortfolioItem | null>(null);
-    openDropdownIndex = signal<number | null>(null);
+    readonly portfolios = signal<PortfolioItem[]>([]);
+    readonly isLoading = signal(false);
+    readonly isDeleting = signal(false);
+    readonly isCreating = signal(false);
+    readonly isEditing = signal(false);
+    readonly errorMessage = signal('');
+    readonly alerts = signal<AlertItem[]>([]);
+    readonly isDeleteModalOpen = signal(false);
+    readonly isCreateModalOpen = signal(false);
+    readonly isEditModalOpen = signal(false);
+    readonly portfolioToDelete = signal<PortfolioItem | null>(null);
+    readonly portfolioToEdit = signal<PortfolioItem | null>(null);
+    readonly openDropdownIndex = signal<number | null>(null);
 
     private readonly codigoParaIdsMap = new Map<string, string[]>();
 
@@ -93,15 +95,7 @@ export class AcoesComponent implements OnInit {
     }
 
     handleAlertDismiss(alert: AlertItem): void {
-        this.alerts.update((items) =>
-            items.filter(
-                (item) =>
-                    item.variant !== alert.variant ||
-                    item.title !== alert.title ||
-                    item.message !== alert.message ||
-                    item.icon !== alert.icon
-            )
-        );
+        this.alerts.update((items) => items.filter(filterAlert(alert)));
     }
 
     openCreateModal(): void {
@@ -193,13 +187,13 @@ export class AcoesComponent implements OnInit {
             return;
         }
 
-        this.isCreating.set(true);
+        this.isEditing.set(true);
 
         const ids = this.codigoParaIdsMap.get(portfolio.codigo) ?? [portfolio.id];
 
         this.portfolioService.updatePortfolio(ids[0], payload).subscribe({
             next: (updated) => {
-                this.isCreating.set(false);
+                this.isEditing.set(false);
                 this.closeEditModal();
                 this.alerts.set([
                     {
@@ -212,7 +206,7 @@ export class AcoesComponent implements OnInit {
                 this.loadPortfolios();
             },
             error: () => {
-                this.isCreating.set(false);
+                this.isEditing.set(false);
                 this.alerts.set([
                     {
                         variant: 'error',

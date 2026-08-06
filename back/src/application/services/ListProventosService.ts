@@ -3,13 +3,14 @@ import { IProventoFilters } from "../../domain/interfaces/IProventoFilters";
 import { PaginatedProventosResult } from "../dto/PaginatedProventosResult";
 import { DateUtils } from "../../shared/utils/DateUtils";
 import { normalizeOrderCodigo } from "../../../../common/utils/OrderCodigoUtils";
+import { DEFAULT_LIMIT } from "../../shared/constants/Pagination";
 
 export class ListProventosService {
   constructor(private proventoRepository: IProventoRepository) {}
 
   public async executeAsync(filters: IProventoFilters): Promise<PaginatedProventosResult> {
     const page = Math.max(filters.page ?? 1, 1);
-    const limit = Math.max(filters.limit ?? 20, 1);
+    const limit = Math.max(filters.limit ?? DEFAULT_LIMIT, 1);
 
     const normalizedFilters: IProventoFilters = {
       ...filters,

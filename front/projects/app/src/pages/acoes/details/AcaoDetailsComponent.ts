@@ -14,6 +14,7 @@ import { ProventosService } from '../../../services/ProventosService';
 import { TranslatePipe } from '../../../pipes/TranslatePipe';
 import { TranslationService } from '../../../services/TranslationService';
 import { AlertItem } from '../../../models/alert/AlertItemModel';
+import { filterAlert } from '../../../utils/AlertUtils';
 import { FundamentusAcaoDetails, FundamentusProventosResponse, Investidor10AcaoDetails, Investidor10FiiDetails, Investidor10ProventosResponse, ProventosResponse, YahooFinanceDetails } from '../../../models';
 import { CHART_WINDOWS, GoogleFinanceChartWindow, GoogleFinanceResponse } from '../../../../../../../common/models/google-finance';
 import { FundamentusDetailsComponent } from './fundamentus-details/FundamentusDetailsComponent';
@@ -112,14 +113,7 @@ export class AcaoDetailsComponent implements OnInit {
     }
 
     handleAlertDismiss(alert: AlertItem): void {
-        this.alerts.update(items =>
-            items.filter(item =>
-                item.variant !== alert.variant ||
-                item.title !== alert.title ||
-                item.message !== alert.message ||
-                item.icon !== alert.icon
-            )
-        );
+        this.alerts.update((items) => items.filter(filterAlert(alert)));
     }
 
     changeChartWindow(window: GoogleFinanceChartWindow): void {

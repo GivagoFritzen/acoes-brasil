@@ -1,8 +1,9 @@
 import type { FundamentusProvento, FundamentusProventosResponse } from "../../../../common/models/fundamentus";
 import { normalizeCodigoForFundamentus, stripHtml } from "../../shared/utils/FundamentusUtils";
+import { MAX_REGEX_ITERATIONS } from "../../shared/constants/ProjectConstants";
+import { fetchWithTimeout } from "../../shared/utils/FetchWithTimeout";
 
 const BASE_URL = "https://www.fundamentus.com.br/proventos.php";
-const REQUEST_TIMEOUT_MS = 15_000;
 
 export class FundamentusProventosScraperService {
   async scrapeAsync(codigo: string): Promise<FundamentusProventosResponse> {
@@ -20,24 +21,13 @@ export class FundamentusProventosScraperService {
 
   private async fetchHtmlAsync(codigo: string): Promise<string> {
     const url = `${BASE_URL}?papel=${encodeURIComponent(codigo)}&tipo=2`;
-    const abortController = new AbortController();
-    const timeoutId = setTimeout(
-      () => abortController.abort(),
-      REQUEST_TIMEOUT_MS
-    );
 
-    let response: Response;
-    try {
-      response = await fetch(url, {
-        signal: abortController.signal,
-        headers: {
-          "User-Agent": "Mozilla/5.0",
-          Accept: "text/html,application/xhtml+xml",
-        },
-      });
-    } finally {
-      clearTimeout(timeoutId);
-    }
+    const response = await fetchWithTimeout(url, {
+      headers: {
+        "User-Agent": "Mozilla/5.0",
+        Accept: "text/html,application/xhtml+xml",
+      },
+    });
 
     if (!response.ok) {
       throw new Error(`Falha ao consultar Fundamentus proventos para o ativo ${codigo}.`);
@@ -56,7 +46,7 @@ export class FundamentusProventosScraperService {
 
     let pos = tbodyStart;
     let iterations = 0;
-    const maxIterations = 500;
+    const maxIterations = MAX_REGEX_ITERATIONS;
 
     while (pos < html.length && iterations < maxIterations) {
       iterations++;

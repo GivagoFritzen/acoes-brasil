@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { vi } from 'vitest';
+import { of } from 'rxjs';
 import { FileInputComponent } from './FileInputComponent';
 import { TranslationService } from '../../services/TranslationService';
 
@@ -21,7 +22,8 @@ describe('FileInputComponent', () => {
                     'fileInput.couldNotIdentify': 'Não foi possível identificar o arquivo'
                 };
                 return translations[key] || key;
-            })
+            }),
+            currentLang$: of('pt-BR'),
         };
 
         await TestBed.configureTestingModule({

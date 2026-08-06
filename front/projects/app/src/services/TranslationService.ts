@@ -3,7 +3,6 @@ import { HttpClient } from '@angular/common/http';
 import { firstValueFrom, of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { toObservable } from '@angular/core/rxjs-interop';
-import { ChangeDetectionService } from './ChangeDetectionService';
 
 type TranslationValue = string | Record<string, string | Record<string, string>>;
 
@@ -15,8 +14,7 @@ export class TranslationService {
     private translations = signal<Record<string, TranslationValue>>({});
 
     constructor(
-        private readonly http: HttpClient,
-        private readonly changeDetectionService: ChangeDetectionService
+        private readonly http: HttpClient
     ) { }
 
     async loadLanguage(lang: string): Promise<void> {
@@ -31,8 +29,6 @@ export class TranslationService {
 
             this.translations.set(data as Record<string, TranslationValue>);
             this.currentLang.set(lang);
-            // Notificar todos os componentes para atualizar as traduções
-            this.changeDetectionService.triggerChangeDetection();
         } catch {
             this.translations.set({});
         }

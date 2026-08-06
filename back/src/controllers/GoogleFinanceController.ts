@@ -19,8 +19,8 @@ export class GoogleFinanceController {
     }
 
     try {
-      const data = await this.googleFinanceService.getDataAsync(codigo, chartWindow);
-      return res.json(data);
+      const financeData = await this.googleFinanceService.getDataAsync(codigo, chartWindow);
+      return res.json(financeData);
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       logger.error("Erro ao buscar dados do Google Finance", { error: message });

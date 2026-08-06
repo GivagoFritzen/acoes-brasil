@@ -14,6 +14,7 @@ import {
 import type { SelectOption } from '../../../../../../common/models/SelectOptionModel';
 import { Order, OrderOperacao, OrdersResponse } from '../../models';
 import { AlertItem } from '../../models/alert/AlertItemModel';
+import { filterAlert } from '../../utils/AlertUtils';
 import { CreateOrderPayload } from '../../models/CreateOrderPayloadModel';
 import { UpdateOrderPayload } from '../../models/UpdateOrderPayloadModel';
 import { OrdersService } from '../../services/OrdersService';
@@ -134,15 +135,7 @@ export class OrdersComponent implements OnInit {
   }
 
   handleAlertDismiss(alert: AlertItem): void {
-    this.alerts.update((items: AlertItem[]) =>
-      items.filter(
-        (item: AlertItem) =>
-          item.variant !== alert.variant ||
-          item.title !== alert.title ||
-          item.message !== alert.message ||
-          item.icon !== alert.icon,
-      ),
-    );
+    this.alerts.update((items) => items.filter(filterAlert(alert)));
   }
 
   getOrderClass(item: Order): string {

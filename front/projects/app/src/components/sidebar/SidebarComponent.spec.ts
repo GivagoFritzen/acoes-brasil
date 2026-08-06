@@ -8,8 +8,6 @@ import { SidebarComponent } from './SidebarComponent';
 import { TradingHoursService } from '../../services/TradingHoursService';
 import { TranslatePipe } from '../../pipes/TranslatePipe';
 import { TranslationService } from '../../services/TranslationService';
-import { ChangeDetectionService } from '../../services/ChangeDetectionService';
-import { ClickOutsideDirective } from '../../directives/ClickOutsideDirective';
 import { RouterModule } from '@angular/router';
 
 describe('SidebarComponent', () => {
@@ -55,21 +53,15 @@ describe('SidebarComponent', () => {
             getCurrentLanguage: vi.fn().mockReturnValue('pt-BR')
         };
 
-        const mockChangeDetectionService = {
-            changeDetection: of(void 0)
-        };
-
         await TestBed.configureTestingModule({
             imports: [
                 SidebarComponent,
                 TranslatePipe,
-                ClickOutsideDirective,
                 RouterModule.forRoot([])
             ],
             providers: [
                 { provide: TradingHoursService, useValue: mockTradingHoursService },
                 { provide: TranslationService, useValue: mockTranslationService },
-                { provide: ChangeDetectionService, useValue: mockChangeDetectionService },
                 { provide: DOCUMENT, useValue: document }
             ]
         }).compileComponents();

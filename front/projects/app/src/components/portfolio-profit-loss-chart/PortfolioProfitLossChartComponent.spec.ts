@@ -6,6 +6,7 @@ import { vi } from 'vitest';
 import { firstValueFrom, of } from 'rxjs';
 import { PLATFORM_ID } from '@angular/core';
 import { PortfolioItem, FundamentusAcaoDetails } from '../../models';
+import { normalizeLabel } from '../../utils/LabelUtils';
 
 describe('PortfolioProfitLossChartComponent', () => {
   let component: PortfolioProfitLossChartComponent;
@@ -181,18 +182,18 @@ describe('PortfolioProfitLossChartComponent', () => {
 
   describe('normalizeLabel', () => {
     it('deve normalizar labels', () => {
-      const normalized = component['normalizeLabel']('Cotação') as string;
-      expect(normalized).toBe('cotacao');
+      const normalized = normalizeLabel('Cotação');
+      expect(normalized).toBe('Cotacao');
     });
 
     it('deve remover acentos', () => {
-      const normalized = component['normalizeLabel']('ação') as string;
+      const normalized = normalizeLabel('ação');
       expect(normalized).toBe('acao');
     });
 
     it('deve remover caracteres especiais', () => {
-      const normalized = component['normalizeLabel']('Test@123!') as string;
-      expect(normalized).toBe('test123');
+      const normalized = normalizeLabel('Test@123!');
+      expect(normalized).toBe('Test123');
     });
   });
 

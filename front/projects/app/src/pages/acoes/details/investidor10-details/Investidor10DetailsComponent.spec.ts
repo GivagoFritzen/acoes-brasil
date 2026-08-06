@@ -1,4 +1,5 @@
 import { TestBed } from '@angular/core/testing';
+import { of } from 'rxjs';
 import type { Investidor10AcaoDetails, Investidor10FiiDetails } from '../../../../models';
 import { TranslationService } from '../../../../services/TranslationService';
 import { Investidor10DetailsComponent } from './Investidor10DetailsComponent';
@@ -36,10 +37,11 @@ describe('Investidor10DetailsComponent', () => {
     };
 
     beforeEach(async () => {
-        translationServiceMock = {
-            get: vi.fn((key: string) => key),
-            has: vi.fn((key: string) => false),
-        };
+    translationServiceMock = {
+        get: vi.fn((key: string) => key),
+        has: vi.fn((key: string) => false),
+        currentLang$: of('pt-BR'),
+    };
 
         await TestBed.configureTestingModule({
             imports: [Investidor10DetailsComponent],

@@ -17,11 +17,11 @@
 
   &--danger {
     border-color: $color-danger-border;
-    background: rgba(239, 68, 68, 0.12);
+    background: $color-danger-opacity-12;
     color: $color-danger;
 
     &:hover {
-      background: rgba(239, 68, 68, 0.25);
+      background: $color-danger-opacity-25;
     }
   }
 

@@ -15,6 +15,7 @@ import { portfolioRoutes } from "./routes/PortfolioRoutes";
 import { proventoRoutes } from "./routes/ProventoRoutes";
 import { registerServices } from "./shared/dependency-injection/ServiceRegistration";
 import { logger } from "./shared/logger/Logger";
+import { RATE_LIMIT_WINDOW_MS, RATE_LIMIT_MAX } from "./shared/constants/ProjectConstants";
 
 const app = express();
 
@@ -24,8 +25,8 @@ app.use(cors({ origin: process.env.CORS_ORIGIN?.split(",") ?? ["http://localhost
 app.use(express.json());
 
 const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: 100,
+  windowMs: RATE_LIMIT_WINDOW_MS,
+  max: RATE_LIMIT_MAX,
   standardHeaders: true,
   legacyHeaders: false,
   message: { message: "Muitas requisições. Tente novamente mais tarde." },

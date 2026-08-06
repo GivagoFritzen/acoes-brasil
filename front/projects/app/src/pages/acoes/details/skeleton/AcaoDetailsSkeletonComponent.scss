@@ -68,7 +68,7 @@
   background: linear-gradient(
     90deg,
     var(--color-border) 25%,
-    rgba(226, 232, 240, 0.08) 50%,
+    $color-gray-200 50%,
     var(--color-border) 75%
   );
   background-size: 200% 100%;

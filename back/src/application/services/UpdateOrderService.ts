@@ -5,9 +5,8 @@ import { IQuoteProvider } from "../../domain/interfaces/IQuoteProvider";
 import { ITransactionManager } from "../../domain/interfaces/ITransactionManager";
 import { PortfolioDomainService } from "../../domain/services/PortfolioDomainService";
 import { UpdateOrderDto } from "../dto/UpdateOrderDto";
-import { DateUtils } from "../../shared/utils/DateUtils";
 import { normalizeOrderCodigo } from "../../../../common/utils/OrderCodigoUtils";
-import { ValidationException } from "../../shared/exceptions/ValidationException";
+import { OrderValidator } from "../../shared/validators/OrderValidator";
 import { NotFoundException } from "../../shared/exceptions/NotFoundException";
 
 export class UpdateOrderService {
@@ -24,17 +23,8 @@ export class UpdateOrderService {
     const { quantidade, valor, operacao, data, tipo } = input;
     const codigoNormalizado = normalizeOrderCodigo(input.codigo);
 
-    if (!codigoNormalizado || !quantidade || !valor || !data) {
-      throw new ValidationException("Dados inválidos para atualizar ordem. Informe código, quantidade, valor e data.");
-    }
-
-    if (DateUtils.isFutureDate(data)) {
-      throw new ValidationException("A data da ordem não pode ser futura.");
-    }
-
-    if (operacao !== "Compra" && operacao !== "Venda") {
-      throw new ValidationException("Operação inválida para portfolio. Use Compra ou Venda.");
-    }
+    OrderValidator.validateCreateOrderDto(input);
+    OrderValidator.validateOrderDate(data);
 
     const existingOrder = await this.orderRepository.findByIdAsync(orderId);
 

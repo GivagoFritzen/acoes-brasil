@@ -3,8 +3,8 @@ import { Provento as ProventoModel } from "../../models/provento/Provento";
 import { ProventoEntity } from "../../domain/entities/ProventoEntity";
 import { IProventoRepository } from "../../domain/interfaces/IProventoRepository";
 import { IProventoFilters } from "../../domain/interfaces/IProventoFilters";
-import { DateUtils } from "../../shared/utils/DateUtils";
 import { normalizeOrderCodigo } from "../../../../common/utils/OrderCodigoUtils";
+import { buildDateWhereClause } from "../../shared/utils/BuildDateWhereClause";
 
 export class SequelizeProventoRepository implements IProventoRepository {
   async createAsync(
@@ -72,16 +72,12 @@ export class SequelizeProventoRepository implements IProventoRepository {
     const where: Record<string | symbol, object | string | number | Date | boolean | null> = {};
     const andConditions: object[] = [];
 
-    const startDate = DateUtils.normalizeToIsoDate(filters.dataInicial) ?? DateUtils.normalizeToIsoDate(filters.data);
-    const endDate = DateUtils.normalizeToIsoDate(filters.dataFinal);
-
-    if (startDate && endDate) {
-      andConditions.push({ data: { [Op.between]: [startDate, endDate] } });
-    } else if (startDate) {
-      andConditions.push({ data: { [Op.gte]: startDate } });
-    } else if (endDate) {
-      andConditions.push({ data: { [Op.lte]: endDate } });
-    }
+    const dateClause = buildDateWhereClause("data", {
+      dataInicial: filters.dataInicial,
+      dataFinal: filters.dataFinal,
+      data: filters.data,
+    });
+    if (dateClause) andConditions.push(dateClause);
 
     if (filters.codigo) {
       const escaped = normalizeOrderCodigo(filters.codigo).replace(/[%_]/g, "\\$&");

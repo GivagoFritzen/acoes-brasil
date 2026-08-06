@@ -4,7 +4,7 @@ import { OrderEntity } from "../../domain/entities/OrderEntity";
 import { IOrderRepository } from "../../domain/interfaces/IOrderRepository";
 import { IOrderFilters } from "../../domain/interfaces/IOrderFilters";
 import { IPaginatedOrders } from "../../domain/interfaces/IPaginatedOrders";
-import { DateUtils } from "../../shared/utils/DateUtils";
+import { buildDateWhereClause } from "../../shared/utils/BuildDateWhereClause";
 
 export class SequelizeOrderRepository implements IOrderRepository {
   async createAsync(orderData: Omit<OrderEntity, "id" | "createdAt" | "updatedAt" | "isCompra" | "isVenda">, tx?: object): Promise<OrderEntity> {
@@ -72,20 +72,12 @@ export class SequelizeOrderRepository implements IOrderRepository {
     const where: Record<string | symbol, object | string | number | Date | boolean | null> = {};
     const andConditions: object[] = [];
 
-    const normalizedDataInicial = DateUtils.normalizeToIsoDate(filters.dataInicial);
-    const normalizedData = DateUtils.normalizeToIsoDate(filters.data);
-    const normalizedDataFinal = DateUtils.normalizeToIsoDate(filters.dataFinal);
-
-    const startDate = normalizedDataInicial ?? normalizedData;
-    const endDate = normalizedDataFinal;
-
-    if (startDate && endDate) {
-      andConditions.push({ data: { [Op.between]: [startDate, endDate] } });
-    } else if (startDate) {
-      andConditions.push({ data: { [Op.gte]: startDate } });
-    } else if (endDate) {
-      andConditions.push({ data: { [Op.lte]: endDate } });
-    }
+    const dateClause = buildDateWhereClause("data", {
+      dataInicial: filters.dataInicial,
+      dataFinal: filters.dataFinal,
+      data: filters.data,
+    });
+    if (dateClause) andConditions.push(dateClause);
 
     if (filters.codigo?.trim()) {
       const escaped = filters.codigo.trim().replace(/[%_]/g, "\\$&");

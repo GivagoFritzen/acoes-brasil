@@ -16,26 +16,36 @@ $color-primary-opacity-25: rgba(79, 140, 255, 0.25);
 $color-primary-opacity-55: rgba(79, 140, 255, 0.55);
 
 $color-text-base: rgb(15, 23, 42);
+$color-text-opacity-06: rgba(15, 23, 42, 0.06);
 $color-text-opacity-08: rgba(15, 23, 42, 0.08);
 $color-text-opacity-10: rgba(15, 23, 42, 0.1);
 $color-text-opacity-12: rgba(15, 23, 42, 0.12);
+$color-text-opacity-15: rgba(15, 23, 42, 0.15);
 $color-text-opacity-20: rgba(15, 23, 42, 0.2);
 $color-text-opacity-30: rgba(15, 23, 42, 0.3);
 $color-text-opacity-40: rgba(15, 23, 42, 0.4);
 $color-text-opacity-50: rgba(15, 23, 42, 0.5);
 $color-text-opacity-60: rgba(15, 23, 42, 0.6);
 $color-text-opacity-70: rgba(15, 23, 42, 0.7);
+$color-text-opacity-75: rgba(15, 23, 42, 0.75);
 $color-text-opacity-80: rgba(15, 23, 42, 0.8);
 
 $color-danger-light: #fee2e2;
 $color-danger-border: #fecaca;
 $color-danger-dark: #b91c1c;
+$color-danger-opacity-08: rgba(239, 68, 68, 0.08);
+$color-danger-opacity-10: rgba(239, 68, 68, 0.1);
+$color-danger-opacity-12: rgba(239, 68, 68, 0.12);
+$color-danger-opacity-25: rgba(239, 68, 68, 0.25);
 
 $color-gray-50: #f8fafc;
 $color-gray-100: #fef2f2;
+$color-gray-200: rgba(226, 232, 240, 0.08);
 
 $color-overlay: rgba(0, 0, 0, 0.5);
 $color-modal-shadow: rgba(0, 0, 0, 0.3);
+$color-shadow-opacity-08: rgba(0, 0, 0, 0.08);
+$color-shadow-opacity-15: rgba(0, 0, 0, 0.15);
 
 $color-green-bright: #22c55e;
 
@@ -44,8 +54,14 @@ $color-blue-500: #3b82f6;
 $color-blue-100: #ebf2ff;
 $color-blue-200: #d0e1fd;
 
+$color-indigo: rgba(99, 102, 241, 0.04);
+$color-indigo-active: rgba(99, 102, 241, 0.06);
+
 $color-orange: #f97316;
+$color-orange-opacity-05: rgba(79, 140, 255, 0.05);
 $color-warning: #b45309;
+
+$color-teal: #14b8a6;
 
 $color-slate-700: #1e293b;
 $color-menu-item: #2a88f2;
@@ -60,3 +76,7 @@ $color-info-text: #0f4c4d;
 $color-warning-bg: #ffe09b;
 $color-warning-border: #f2c463;
 $color-warning-text: #7c4a00;
+
+$color-alert-icon-bg: rgba(255, 255, 255, 0.7);
+$color-alert-icon-bg-error: rgba(255, 255, 255, 0.85);
+$color-alert-icon-bg-warning: rgba(255, 255, 255, 0.8);

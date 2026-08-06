@@ -22,6 +22,7 @@ import { CreateProventoPayload } from '../../models/CreateProventoPayloadModel';
 import { UpdateProventoPayload } from '../../models/UpdateProventoPayloadModel';
 import { SimpleCheckboxComponent } from '../../components/simple-checkbox/SimpleCheckboxComponent';
 import { AlertItem } from '../../models/alert/AlertItemModel';
+import { filterAlert } from '../../utils/AlertUtils';
 import type { SelectOption } from '../../../../../../common/models/SelectOptionModel';
 import { ProventosService } from '../../services/ProventosService';
 import { formatDateForDisplay } from '../../utils/DateUtils';
@@ -149,15 +150,7 @@ export class ProventosComponent implements OnInit {
   }
 
   handleAlertDismiss(alert: AlertItem): void {
-    this.alerts.update((items) =>
-      items.filter(
-        (item) =>
-          item.variant !== alert.variant ||
-          item.title !== alert.title ||
-          item.message !== alert.message ||
-          item.icon !== alert.icon,
-      ),
-    );
+    this.alerts.update((items) => items.filter(filterAlert(alert)));
   }
 
   formatTipo(tipo: ProventoTipo): string {

@@ -5,7 +5,7 @@
   background: $color-white;
   border: 1px solid transparent;
   border-radius: 12px;
-  box-shadow: 0 12px 24px rgba(15, 23, 42, 0.12);
+  box-shadow: 0 12px 24px $color-text-opacity-12;
   display: grid;
   gap: 12px;
   grid-template-columns: 48px 1fr 24px;
@@ -18,7 +18,7 @@
 
 .alert--error {
   .alert__icon {
-    background: rgba(255, 255, 255, 0.85);
+    background: $color-alert-icon-bg-error;
     color: $color-red;
   }
   background: $color-danger-bg;
@@ -28,7 +28,7 @@
 
 .alert--info {
   .alert__icon {
-    background: rgba(255, 255, 255, 0.7);
+    background: $color-alert-icon-bg;
     color: $color-info-text;
   }
   background: $color-info-bg;
@@ -36,10 +36,10 @@
   color: $color-info-text;
 }
 
-.alert--warning {
+  .alert--warning {
   .alert__icon {
-    background: rgba(255, 255, 255, 0.8);
-    color: #f59e0b;
+    background: $color-alert-icon-bg-warning;
+    color: $color-warning;
   }
   background: $color-warning-bg;
   border-color: $color-warning-border;
@@ -62,7 +62,7 @@
 }
 
 .alert__icon {
-  background: rgba(255, 255, 255, 0.7);
+  background: $color-alert-icon-bg;
   border-radius: 50%;
   color: inherit;
   display: grid;

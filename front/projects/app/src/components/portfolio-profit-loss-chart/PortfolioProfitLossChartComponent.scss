@@ -101,13 +101,13 @@
 
 @media print {
   .bar-chart-container {
-    overflow: visible !important;
-    padding: 0 !important;
+    overflow: visible;
+    padding: 0;
   }
 
   .bar-chart-svg {
-    width: 100% !important;
-    min-width: 0 !important;
-    max-width: 100% !important;
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
   }
 }

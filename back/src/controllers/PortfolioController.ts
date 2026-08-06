@@ -9,8 +9,7 @@ import { UpdatePortfolioService } from "../application/services/UpdatePortfolioS
 import { ListPortfolioService } from "../application/services/ListPortfolioService";
 import { SpreadsheetParserService } from "../infrastructure/services/SpreadsheetParserService";
 import { ErrorHandler } from "../shared/error-handler/ErrorHandler";
-
-const XLSX_MAGIC = [0x50, 0x4b, 0x03, 0x04];
+import { XLSX_MAGIC_BYTES } from "../shared/constants/ProjectConstants";
 
 export class PortfolioController {
   constructor(
@@ -97,7 +96,7 @@ export class PortfolioController {
 
     try {
       const buffer = fs.readFileSync(file.path);
-      if (buffer.length < 4 || !XLSX_MAGIC.every((byte, indice) => buffer[indice] === byte)) {
+      if (buffer.length < 4 || !XLSX_MAGIC_BYTES.every((byte, indice) => buffer[indice] === byte)) {
         return res.status(400).json({ message: "Tipo de arquivo inválido. Envie um arquivo .xlsx válido." });
       }
 

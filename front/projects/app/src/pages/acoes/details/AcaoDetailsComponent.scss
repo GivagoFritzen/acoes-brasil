@@ -50,7 +50,7 @@
     background: var(--color-surface);
     color: var(--color-text-muted);
     cursor: pointer;
-    box-shadow: 0 2px 8px rgba(15, 23, 42, 0.12);
+    box-shadow: 0 2px 8px $color-text-opacity-12;
     transition: all 0.2s ease;
 
     &:hover {
@@ -105,12 +105,12 @@
 
     &:hover {
       border-color: $color-primary-opacity-25;
-      background: rgba(99, 102, 241, 0.04);
+      background: $color-indigo;
     }
 
     &--active {
       border-color: $color-primary;
-      background: rgba(99, 102, 241, 0.06);
+      background: $color-indigo-active;
     }
   }
 
@@ -231,7 +231,7 @@
     }
 
     &--period {
-      background: rgba(0, 0, 0, 0.03);
+      background: $color-text-opacity-08;
       font-weight: 700;
       font-size: 12px;
       text-transform: uppercase;
@@ -338,7 +338,7 @@
       }
 
       tbody tr:hover {
-        background: rgba(99, 102, 241, 0.04);
+        background: $color-indigo;
       }
     }
 
@@ -549,7 +549,7 @@
     }
 
     tbody tr:hover {
-      background: rgba(99, 102, 241, 0.04);
+      background: $color-indigo;
     }
   }
 
@@ -579,7 +579,7 @@
     transition: all 0.15s ease;
 
     &:hover {
-      background: rgba(226, 232, 240, 0.08);
+      background: $color-gray-200;
       color: var(--color-text);
     }
 

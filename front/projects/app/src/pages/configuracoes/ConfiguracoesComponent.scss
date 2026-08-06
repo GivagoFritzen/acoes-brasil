@@ -73,7 +73,7 @@
 
     &:hover {
       border-color: $color-primary-opacity-25;
-      background: rgba(79, 140, 255, 0.05);
+      background: $color-orange-opacity-05;
     }
 
     &--active {
@@ -105,7 +105,7 @@
 
     &:hover {
       border-color: $color-primary-opacity-25;
-      background: rgba(79, 140, 255, 0.05);
+      background: $color-orange-opacity-05;
     }
   }
 

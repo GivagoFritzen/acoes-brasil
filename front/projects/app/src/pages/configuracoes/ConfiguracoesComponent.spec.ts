@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { vi } from 'vitest';
+import { of } from 'rxjs';
 import { ConfiguracoesComponent } from './ConfiguracoesComponent';
 import { TranslationService } from '../../services/TranslationService';
 import { SettingsService } from '../../services/SettingsService';
@@ -28,7 +29,7 @@ describe('ConfiguracoesComponent', () => {
       get: vi.fn().mockReturnValue(''),
       has: vi.fn().mockReturnValue(false),
       getCurrentLanguage: vi.fn().mockReturnValue('pt-BR'),
-      currentLang$: { subscribe: vi.fn() },
+      currentLang$: of('pt-BR'),
     };
 
     mockSettingsService = {

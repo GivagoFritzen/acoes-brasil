@@ -21,7 +21,7 @@
     background: var(--color-surface);
     color: var(--color-text-muted);
     cursor: pointer;
-    box-shadow: 0 2px 8px rgba(15, 23, 42, 0.12);
+    box-shadow: 0 2px 8px $color-text-opacity-12;
     transition: all 0.2s ease;
 
     &:hover {
@@ -56,7 +56,7 @@
     border: 1px solid var(--color-border);
     border-radius: 8px;
     padding: 1rem;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+    box-shadow: 0 2px 4px $color-shadow-opacity-08;
     background-color: var(--color-surface);
 
     @media (max-width: 425px) {
@@ -235,7 +235,7 @@
       background: var(--color-surface);
       border: 1px solid var(--color-border);
       border-radius: 8px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      box-shadow: 0 4px 12px $color-shadow-opacity-15;
       z-index: 10;
       min-width: 120px;
       overflow: hidden;
@@ -262,7 +262,7 @@
         color: $color-danger;
 
         &:hover {
-          background: rgba(239, 68, 68, 0.08);
+          background: $color-danger-opacity-08;
         }
       }
     }
@@ -414,15 +414,15 @@
     .portfolios,
     .graphic,
     .chart-wrapper {
-      width: 100% !important;
-      max-width: none !important;
-      min-width: 0 !important;
+      width: 100%;
+      max-width: none;
+      min-width: 0;
       margin: 0 0 12px 0;
       box-shadow: none;
     }
 
     .acoes__header app-simple-button {
-      display: none !important;
+      display: none;
     }
 
     .graphic {

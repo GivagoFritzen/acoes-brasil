@@ -27,7 +27,7 @@
   }
 
   &:hover {
-    background-color: rgba(226, 232, 240, 0.08);
+    background-color: $color-gray-200;
     border-color: var(--color-text-muted);
   }
 
@@ -40,7 +40,7 @@
     border-color: var(--color-card-border);
 
     &:hover {
-      background-color: rgba(239, 68, 68, 0.1);
+      background-color: $color-danger-opacity-10;
       border-color: $color-danger-dark;
     }
   }

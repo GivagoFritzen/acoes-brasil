@@ -7,6 +7,7 @@ import { OrdersService } from '../../services/OrdersService';
 import { PortfolioService } from '../../services/PortfolioService';
 import { ProventosService } from '../../services/ProventosService';
 import { AlertItem } from '../../models/alert/AlertItemModel';
+import { filterAlert } from '../../utils/AlertUtils';
 import { ImportResponse } from '../../models/ImportResponseModel';
 import { TranslatePipe } from '../../pipes/TranslatePipe';
 
@@ -111,15 +112,7 @@ export class ImportacaoComponent {
   }
 
   handleAlertDismiss(alert: AlertItem): void {
-    this.alerts.update((items) =>
-      items.filter(
-        (item) =>
-          item.variant !== alert.variant ||
-          item.title !== alert.title ||
-          item.message !== alert.message ||
-          item.icon !== alert.icon
-      )
-    );
+    this.alerts.update((items) => items.filter(filterAlert(alert)));
   }
 
   private pushAlert(variant: AlertItem['variant'], title: string, message: string, icon: string): void {

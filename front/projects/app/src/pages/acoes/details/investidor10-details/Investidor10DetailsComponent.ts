@@ -4,6 +4,7 @@ import { HelpTipComponent } from '../../../../components/help-tip/HelpTipCompone
 import { TranslatePipe } from '../../../../pipes/TranslatePipe';
 import { TranslationService } from '../../../../services/TranslationService';
 import { Investidor10AcaoDetails, Investidor10FiiDetails, Investidor10FiiIndicadorFundamentalista, Investidor10HistoricoIndicador, Investidor10ValorHistorico, Investidor10ValorPorPeriodo } from '../../../../models';
+import { normalizeLabel } from '../../../../utils/LabelUtils';
 
 @Component({
     selector: 'app-investidor10-details',
@@ -91,24 +92,12 @@ export class Investidor10DetailsComponent {
     }
 
     hasHelp(label: string): boolean {
-        const key = this.normalize(label);
+        const key = normalizeLabel(label);
         return this.translationService.has(`indicators.${key}`);
     }
 
     getHelp(label: string): string {
-        const key = this.normalize(label);
+        const key = normalizeLabel(label);
         return this.translationService.get(`indicators.${key}`);
-    }
-
-    private normalize(label: string): string {
-        return label
-            .normalize('NFD')
-            .replace(/[\u0300-\u036f]/g, '')
-            .replace(/[\/\s.()$º]/g, '')
-            .replace(/-/g, '')
-            .replace(/%/g, '')
-            .replace(/,/g, '')
-            .replace(/:/g, '')
-            .replace(/ /g, '');
     }
 }

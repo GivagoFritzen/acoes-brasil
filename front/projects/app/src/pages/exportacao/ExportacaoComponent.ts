@@ -3,6 +3,8 @@ import { Component, DestroyRef, inject, signal } from '@angular/core';
 import { AlertsComponent } from '../../components/alerts/AlertsComponent';
 import { SimpleButtonComponent, SimpleSelectComponent } from '../../components';
 import { AlertItem } from '../../models/alert/AlertItemModel';
+import { filterAlert } from '../../utils/AlertUtils';
+import { downloadBlobAsFile } from '../../utils/FileDownloadUtils';
 import { OrdersService } from '../../services/OrdersService';
 import { PortfolioService } from '../../services/PortfolioService';
 import { SellSnapshotExportRow } from '../../models/SellSnapshotExportRowModel';
@@ -84,15 +86,7 @@ export class ExportacaoComponent {
 
     this.portfolioService.exportPortfolioSpreadsheet().subscribe({
       next: (blob) => {
-        const url = URL.createObjectURL(blob);
-        const anchor = document.createElement('a');
-        anchor.href = url;
-        anchor.download = `portfolio-${Date.now()}.xlsx`;
-        document.body.appendChild(anchor);
-        anchor.click();
-        document.body.removeChild(anchor);
-        URL.revokeObjectURL(url);
-
+        downloadBlobAsFile(blob, `portfolio-${Date.now()}.xlsx`);
         this.pushAlert('info', 'Sucesso', 'Exportação do portfólio em Excel concluída.', '✓');
       },
       error: () => {
@@ -109,15 +103,7 @@ export class ExportacaoComponent {
 
     this.ordersService.exportSellSnapshotsSpreadsheet(this.anoFiltro()).subscribe({
       next: (blob) => {
-        const url = URL.createObjectURL(blob);
-        const anchor = document.createElement('a');
-        anchor.href = url;
-        anchor.download = `ordersell-${Date.now()}.xlsx`;
-        document.body.appendChild(anchor);
-        anchor.click();
-        document.body.removeChild(anchor);
-        URL.revokeObjectURL(url);
-
+        downloadBlobAsFile(blob, `ordersell-${Date.now()}.xlsx`);
         this.pushAlert('info', 'Sucesso', 'Exportação de OrderSell em Excel concluída.', '✓');
       },
       error: () => {
@@ -175,15 +161,7 @@ export class ExportacaoComponent {
   }
 
   handleAlertDismiss(alert: AlertItem): void {
-    this.alerts.update((items) =>
-      items.filter(
-        (item) =>
-          item.variant !== alert.variant ||
-          item.title !== alert.title ||
-          item.message !== alert.message ||
-          item.icon !== alert.icon
-      )
-    );
+    this.alerts.update((items) => items.filter(filterAlert(alert)));
   }
 
   private gerarAnos(): SelectOption[] {
