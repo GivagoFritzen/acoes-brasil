@@ -131,6 +131,36 @@ describe("OrderController", () => {
       expect(res.json).toHaveBeenCalled();
     });
 
+    it("deve normalizar codigo do filtro", async () => {
+      mockListService.executeAsync.mockResolvedValue({ items: [], total: 0 });
+
+      const req = createMockReq({ query: { codigo: " vale3 " } });
+      const res = createMockRes();
+
+      await controller.listAsync(req, res);
+
+      expect(mockListService.executeAsync).toHaveBeenCalledWith(
+        expect.objectContaining({ codigo: "VALE3" }),
+        1,
+        20
+      );
+    });
+
+    it("deve filtrar por data quando informado", async () => {
+      mockListService.executeAsync.mockResolvedValue({ items: [], total: 0 });
+
+      const req = createMockReq({ query: { data: "01-01-2024", dataInicial: "01-01-2024", dataFinal: "31-12-2024" } });
+      const res = createMockRes();
+
+      await controller.listAsync(req, res);
+
+      expect(mockListService.executeAsync).toHaveBeenCalledWith(
+        expect.objectContaining({ data: "01-01-2024", dataInicial: "01-01-2024", dataFinal: "31-12-2024" }),
+        1,
+        20
+      );
+    });
+
     it("deve retornar 500 quando ocorre erro", async () => {
       mockListService.executeAsync.mockRejectedValue(new Error("erro na listagem"));
 
@@ -138,6 +168,45 @@ describe("OrderController", () => {
       const res = createMockRes();
 
       await controller.listAsync(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(500);
+    });
+  });
+
+  describe("updateAsync", () => {
+    it("deve retornar json com ordem atualizada", async () => {
+      mockUpdateService.executeAsync.mockResolvedValue({ id: "1", codigo: "VALE3" });
+
+      const req = createMockReq({ params: { id: "1" } });
+      (req as any).validatedBody = { codigo: "VALE3", quantidade: 200, valor: 55, data: "01-01-2024", tipo: "ACAO", operacao: "Compra" };
+      const res = createMockRes();
+
+      await controller.updateAsync(req, res);
+
+      expect(mockUpdateService.executeAsync).toHaveBeenCalledWith("1", (req as any).validatedBody);
+      expect(res.json).toHaveBeenCalledWith({ id: "1", codigo: "VALE3" });
+    });
+
+    it("deve retornar 404 quando ordem nao encontrada", async () => {
+      mockUpdateService.executeAsync.mockRejectedValue(new NotFoundException("Ordem não encontrada"));
+
+      const req = createMockReq({ params: { id: "999" } });
+      (req as any).validatedBody = { codigo: "VALE3", quantidade: 100, valor: 50, data: "01-01-2024", tipo: "ACAO", operacao: "Compra" };
+      const res = createMockRes();
+
+      await controller.updateAsync(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(404);
+    });
+
+    it("deve retornar 500 quando servico lanca erro generico", async () => {
+      mockUpdateService.executeAsync.mockRejectedValue(new Error("erro no banco"));
+
+      const req = createMockReq({ params: { id: "1" } });
+      (req as any).validatedBody = { codigo: "VALE3", quantidade: 100, valor: 50, data: "01-01-2024", tipo: "ACAO", operacao: "Compra" };
+      const res = createMockRes();
+
+      await controller.updateAsync(req, res);
 
       expect(res.status).toHaveBeenCalledWith(500);
     });
@@ -192,6 +261,17 @@ describe("OrderController", () => {
       await controller.exportSellSnapshotsAsync(req, res);
 
       expect(mockExportSellSnapshotsService.executeAsync).toHaveBeenCalledWith("2025");
+    });
+
+    it("deve retornar 500 quando servico lanca erro", async () => {
+      mockExportSellSnapshotsService.executeAsync.mockRejectedValue(new Error("erro ao exportar"));
+
+      const req = createMockReq();
+      const res = createMockRes();
+
+      await controller.exportSellSnapshotsAsync(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(500);
     });
   });
 });

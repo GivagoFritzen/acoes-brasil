@@ -79,6 +79,52 @@ describe("PortfolioController", () => {
 
       expect(res.status).toHaveBeenCalledWith(500);
     });
+
+    it("deve retornar 400 quando codigo nao informado", async () => {
+      const req = createMockReq({ body: { quantidade: 100, precoMedio: 50.0 } });
+      const res = createMockRes();
+
+      await controller.createOrUpdateAsync(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(400);
+      expect(res.json).toHaveBeenCalledWith({ message: "Campos obrigatórios: codigo, quantidade, precoMedio." });
+    });
+
+    it("deve retornar 400 quando quantidade nao informada", async () => {
+      const req = createMockReq({ body: { codigo: "VALE3", precoMedio: 50.0 } });
+      const res = createMockRes();
+
+      await controller.createOrUpdateAsync(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(400);
+    });
+
+    it("deve retornar 400 quando precoMedio nao informado", async () => {
+      const req = createMockReq({ body: { codigo: "VALE3", quantidade: 100 } });
+      const res = createMockRes();
+
+      await controller.createOrUpdateAsync(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(400);
+    });
+
+    it("deve retornar 400 quando body vazio", async () => {
+      const req = createMockReq({ body: {} });
+      const res = createMockRes();
+
+      await controller.createOrUpdateAsync(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(400);
+    });
+
+    it("deve retornar 400 quando codigo em branco", async () => {
+      const req = createMockReq({ body: { codigo: "   ", quantidade: 100, precoMedio: 50.0 } });
+      const res = createMockRes();
+
+      await controller.createOrUpdateAsync(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(400);
+    });
   });
 
   describe("deleteAsync", () => {
@@ -111,6 +157,70 @@ describe("PortfolioController", () => {
       const res = createMockRes();
 
       await controller.deleteAsync(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(500);
+    });
+  });
+
+  describe("updateAsync", () => {
+    it("deve retornar json com portfolio atualizado", async () => {
+      mockUpdateService.executeAsync.mockResolvedValue({ id: "1", codigo: "VALE3", quantidade: 200 });
+
+      const req = createMockReq({ params: { id: "1" }, body: { codigo: "VALE3", quantidade: 200, precoMedio: 55.0 } });
+      const res = createMockRes();
+
+      await controller.updateAsync(req, res);
+
+      expect(mockUpdateService.executeAsync).toHaveBeenCalledWith("1", { codigo: "VALE3", quantidade: 200, precoMedio: 55.0 });
+      expect(res.json).toHaveBeenCalledWith({ id: "1", codigo: "VALE3", quantidade: 200 });
+    });
+
+    it("deve retornar 404 quando ativo nao encontrado", async () => {
+      mockUpdateService.executeAsync.mockRejectedValue(new NotFoundException("Ativo do portfólio não encontrado"));
+
+      const req = createMockReq({ params: { id: "999" }, body: { codigo: "VALE3", quantidade: 100, precoMedio: 50.0 } });
+      const res = createMockRes();
+
+      await controller.updateAsync(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(404);
+    });
+
+    it("deve retornar 400 quando codigo nao informado", async () => {
+      const req = createMockReq({ params: { id: "1" }, body: { quantidade: 100, precoMedio: 50.0 } });
+      const res = createMockRes();
+
+      await controller.updateAsync(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(400);
+      expect(res.json).toHaveBeenCalledWith({ message: "Campos obrigatórios: codigo, quantidade, precoMedio." });
+    });
+
+    it("deve retornar 400 quando quantidade nao informada", async () => {
+      const req = createMockReq({ params: { id: "1" }, body: { codigo: "VALE3", precoMedio: 50.0 } });
+      const res = createMockRes();
+
+      await controller.updateAsync(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(400);
+    });
+
+    it("deve retornar 400 quando precoMedio nao informado", async () => {
+      const req = createMockReq({ params: { id: "1" }, body: { codigo: "VALE3", quantidade: 100 } });
+      const res = createMockRes();
+
+      await controller.updateAsync(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(400);
+    });
+
+    it("deve retornar 500 quando servico lanca erro generico", async () => {
+      mockUpdateService.executeAsync.mockRejectedValue(new Error("erro no banco"));
+
+      const req = createMockReq({ params: { id: "1" }, body: { codigo: "VALE3", quantidade: 100, precoMedio: 50.0 } });
+      const res = createMockRes();
+
+      await controller.updateAsync(req, res);
 
       expect(res.status).toHaveBeenCalledWith(500);
     });
