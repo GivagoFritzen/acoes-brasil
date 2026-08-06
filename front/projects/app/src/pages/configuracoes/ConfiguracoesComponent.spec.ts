@@ -1,7 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { vi } from 'vitest';
-import { of } from 'rxjs';
+import { Subject } from 'rxjs';
 import { ConfiguracoesComponent } from './ConfiguracoesComponent';
 import { TranslationService } from '../../services/TranslationService';
 import { SettingsService } from '../../services/SettingsService';
@@ -14,7 +14,7 @@ describe('ConfiguracoesComponent', () => {
     get: ReturnType<typeof vi.fn>;
     has: ReturnType<typeof vi.fn>;
     getCurrentLanguage: ReturnType<typeof vi.fn>;
-    currentLang$: { subscribe: ReturnType<typeof vi.fn> };
+    currentLang$: Subject<string>;
   };
   let mockSettingsService: {
     theme: ReturnType<typeof vi.fn>;
@@ -29,7 +29,7 @@ describe('ConfiguracoesComponent', () => {
       get: vi.fn().mockReturnValue(''),
       has: vi.fn().mockReturnValue(false),
       getCurrentLanguage: vi.fn().mockReturnValue('pt-BR'),
-      currentLang$: of('pt-BR'),
+      currentLang$: new Subject<string>(),
     };
 
     mockSettingsService = {

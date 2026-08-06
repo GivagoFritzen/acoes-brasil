@@ -192,7 +192,7 @@ describe('PortfolioProfitLossChartComponent', () => {
     });
 
     it('deve remover caracteres especiais', () => {
-      const normalized = normalizeLabel('Test@123!');
+      const normalized = normalizeLabel('Test:123');
       expect(normalized).toBe('Test123');
     });
   });

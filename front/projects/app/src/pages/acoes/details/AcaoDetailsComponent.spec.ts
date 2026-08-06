@@ -1,7 +1,7 @@
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { ActivatedRoute } from '@angular/router';
-import { of, throwError } from 'rxjs';
+import { of, Subject, throwError } from 'rxjs';
 import type { FundamentusAcaoDetails, FundamentusIndicator, Investidor10AcaoDetails, ProventosResponse, YahooFinanceDetails } from '../../../models';
 import { FundamentusService } from '../../../services/FundamentusService';
 import { Investidor10Service } from '../../../services/Investidor10Service';
@@ -22,7 +22,7 @@ describe('AcaoDetailsComponent', () => {
   let translationServiceMock: {
     get: ReturnType<typeof vi.fn>;
     has: ReturnType<typeof vi.fn>;
-    currentLang$: ReturnType<typeof vi.fn>;
+    currentLang$: Subject<string>;
   };
   let routeMock: any;
 
@@ -173,7 +173,7 @@ describe('AcaoDetailsComponent', () => {
     translationServiceMock = {
       get: vi.fn((key: string) => key),
       has: vi.fn((key: string) => false),
-      currentLang$: of('pt-BR'),
+      currentLang$: new Subject<string>(),
     };
     routeMock = {
       paramMap: of({ get: (key: string) => (key === 'codigo' ? 'PETR4' : null) }),

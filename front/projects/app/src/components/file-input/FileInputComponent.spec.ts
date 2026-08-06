@@ -1,16 +1,17 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { vi } from 'vitest';
-import { of } from 'rxjs';
+import { of, Subject } from 'rxjs';
 import { FileInputComponent } from './FileInputComponent';
 import { TranslationService } from '../../services/TranslationService';
 
 describe('FileInputComponent', () => {
     let component: FileInputComponent;
     let fixture: ComponentFixture<FileInputComponent>;
-    let mockTranslationService: Record<string, ReturnType<typeof vi.fn>>;
+    let mockTranslationService: Record<string, ReturnType<typeof vi.fn> | Subject<string>>;
 
     beforeEach(async () => {
+        const currentLangSubject = new Subject<string>();
         mockTranslationService = {
             get: vi.fn((key: string) => {
                 const translations: Record<string, string> = {
@@ -23,8 +24,9 @@ describe('FileInputComponent', () => {
                 };
                 return translations[key] || key;
             }),
-            currentLang$: of('pt-BR'),
+            currentLang$: currentLangSubject,
         };
+        currentLangSubject.next('pt-BR');
 
         await TestBed.configureTestingModule({
             imports: [FileInputComponent],
