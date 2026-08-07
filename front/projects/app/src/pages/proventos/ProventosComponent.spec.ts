@@ -1,8 +1,10 @@
 import { TestBed } from '@angular/core/testing';
 import { of, throwError } from 'rxjs';
+import { vi } from 'vitest';
 import type { Provento, ProventosResponse } from '../../models';
 import type { CreateProventoPayload } from '../../models/CreateProventoPayloadModel';
 import { ProventosService } from '../../services/ProventosService';
+import { TranslationService } from '../../services/TranslationService';
 import { ProventosComponent } from './ProventosComponent';
 
 describe('ProventosComponent', () => {
@@ -14,6 +16,7 @@ describe('ProventosComponent', () => {
     deleteProventosByCodigo: ReturnType<typeof vi.fn>;
     updateProvento: ReturnType<typeof vi.fn>;
   };
+  let mockTranslationService: { get: ReturnType<typeof vi.fn> };
 
   const baseProvento: Provento = {
     id: '1',
@@ -44,9 +47,32 @@ describe('ProventosComponent', () => {
     };
     proventosServiceMock.getProventos.mockReturnValue(of(defaultResponse));
 
+    mockTranslationService = {
+      get: vi.fn().mockImplementation((key: string) => {
+        const translations: Record<string, string> = {
+          'common.alerts.error': 'Erro',
+          'common.alerts.success': 'Sucesso',
+          'proventos.filterDividendo': 'Dividendo',
+          'proventos.filterJcp': 'JCP',
+          'proventos.filterRendimento': 'Rendimento',
+          'proventos.alerts.loadFailed': 'Não foi possível carregar os proventos.',
+          'proventos.alerts.createFailed': 'Não foi possível adicionar o provento.',
+          'proventos.alerts.deleteFailed': 'Não foi possível deletar o provento.',
+          'proventos.alerts.created': 'Provento adicionado com sucesso.',
+          'proventos.alerts.deletedGroup': 'Proventos removidos com sucesso.',
+          'proventos.alerts.deletedSingle': 'Provento removido com sucesso.',
+          'proventos.alerts.updated': 'Provento atualizado com sucesso.',
+        };
+        return translations[key] ?? '';
+      }),
+    };
+
     await TestBed.configureTestingModule({
       imports: [ProventosComponent],
-      providers: [{ provide: ProventosService, useValue: proventosServiceMock }],
+      providers: [
+        { provide: ProventosService, useValue: proventosServiceMock },
+        { provide: TranslationService, useValue: mockTranslationService },
+      ],
     }).compileComponents();
 
     const fixture = TestBed.createComponent(ProventosComponent);

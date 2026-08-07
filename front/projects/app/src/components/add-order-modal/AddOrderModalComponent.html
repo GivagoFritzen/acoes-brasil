@@ -1,42 +1,42 @@
 <div class="add-order-modal-backdrop" *ngIf="isOpen" (click)="handleBackdropClick()">
   <div class="add-order-modal" (click)="$event.stopPropagation()">
-    <h3>{{ editingItem ? 'Editar ordem' : 'Nova ordem' }}</h3>
+    <h3>{{ editingItem ? ('orders.modal.editTitle' | translate) : ('orders.modal.newTitle' | translate) }}</h3>
 
     <div class="add-order-modal__form">
       <label>
-        Código
+        {{ 'orders.field.code' | translate }}
         <app-simple-input [value]="codigo()" [maxLength]="7" (valueChange)="handleCodigoChange($event)"></app-simple-input>
       </label>
 
       <label>
-        Tipo
+        {{ 'orders.field.type' | translate }}
         <app-simple-select [value]="tipoDetectado() ?? ''" [options]="tipoOptions" [disabled]="true"
           [placeholder]="' '">
         </app-simple-select>
       </label>
 
       <label>
-        Operação
+        {{ 'orders.field.operation' | translate }}
         <app-simple-select [value]="operacao()" [options]="operacaoOptions"
           (valueChange)="handleOperacaoChange($event)">
         </app-simple-select>
       </label>
 
       <label>
-        Quantidade
+        {{ 'orders.field.quantity' | translate }}
         <app-simple-input-number [allowDecimal]="false" [allowNegative]="false"
           [value]="(quantidade() ?? '').toString()"
           (valueChange)="handleQuantidadeChange($event)"></app-simple-input-number>
       </label>
 
       <label>
-        Valor
+        {{ 'orders.field.value' | translate }}
         <app-simple-input-number [allowDecimal]="true" [allowNegative]="false" [value]="(valor() ?? '').toString()"
           (valueChange)="handleValorChange($event)"></app-simple-input-number>
       </label>
 
       <label class="add-order-modal__date">
-        Data
+        {{ 'orders.field.date' | translate }}
         <app-date-picker [value]="data()" [disableFutureDates]="true"
           (dateChange)="handleDataChange($event)"></app-date-picker>
       </label>
@@ -45,8 +45,8 @@
     <p class="add-order-modal__validation" *ngIf="validationMessage()">{{ validationMessage() }}</p>
 
     <div class="add-order-modal__actions">
-      <app-simple-button variant="cancelar" [disabled]="isSaving" (btnClick)="close()">Cancelar</app-simple-button>
-      <app-simple-button [disabled]="isSaving" (btnClick)="submit()">{{ isSaving ? 'Salvando...' : 'Salvar'
+      <app-simple-button variant="cancelar" [disabled]="isSaving" (btnClick)="close()">{{ 'common.button.cancel' | translate }}</app-simple-button>
+      <app-simple-button [disabled]="isSaving" (btnClick)="submit()">{{ isSaving ? ('common.button.saving' | translate) : ('common.button.save' | translate)
         }}</app-simple-button>
     </div>
   </div>

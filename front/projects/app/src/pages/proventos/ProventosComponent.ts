@@ -29,11 +29,9 @@ import { ProventosService } from '../../services/ProventosService';
 import { formatDateForDisplay } from '../../utils/DateUtils';
 import { ProventosFilters } from '../../models/ProventosFiltersModel';
 import { TranslatePipe } from '../../pipes/TranslatePipe';
+import { TranslationService } from '../../services/TranslationService';
 
 const DEFAULT_LIMIT = 10;
-const LOAD_PROVENTOS_ERROR_MESSAGE = 'Não foi possível carregar os proventos.';
-const CREATE_PROVENTO_ERROR_MESSAGE = 'Não foi possível adicionar o provento.';
-const DELETE_PROVENTO_ERROR_MESSAGE = 'Não foi possível deletar o provento.';
 
 @Component({
   selector: 'app-proventos',
@@ -58,6 +56,7 @@ const DELETE_PROVENTO_ERROR_MESSAGE = 'Não foi possível deletar o provento.';
 export class ProventosComponent implements OnInit {
   private readonly proventosService = inject(ProventosService);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly translationService = inject(TranslationService);
 
   readonly formatDateForDisplay = formatDateForDisplay;
   readonly proventos = signal<Provento[]>([]);
@@ -75,9 +74,9 @@ export class ProventosComponent implements OnInit {
   readonly proventoToEdit = signal<Provento | null>(null);
 
   readonly tipoOptions: SelectOption<ProventoTipo>[] = [
-    { label: 'Dividendo', value: ProventoTipos.Dividendo },
-    { label: 'JCP', value: ProventoTipos.JurosSobreCapitalProprio },
-    { label: 'Rendimento', value: ProventoTipos.Rendimento },
+    { label: this.translationService.get('proventos.filterDividendo'), value: ProventoTipos.Dividendo },
+    { label: this.translationService.get('proventos.filterJcp'), value: ProventoTipos.JurosSobreCapitalProprio },
+    { label: this.translationService.get('proventos.filterRendimento'), value: ProventoTipos.Rendimento },
   ];
 
   readonly filtroCodigo = signal('');
@@ -233,8 +232,8 @@ export class ProventosComponent implements OnInit {
           this.alerts.set([
             {
               variant: 'info',
-              title: 'Sucesso',
-              message: `Provento ${provento.codigo} adicionado com sucesso.`,
+              title: this.translationService.get('common.alerts.success'),
+              message: `${this.translationService.get('proventos.alerts.created')} ${provento.codigo}`,
               icon: '✓',
             },
           ]);
@@ -273,17 +272,17 @@ export class ProventosComponent implements OnInit {
           this.alerts.set([
             {
               variant: 'info',
-              title: 'Sucesso',
+              title: this.translationService.get('common.alerts.success'),
               message: this.juntarPorCodigo()
-                ? `Proventos de ${provento.codigo} removidos com sucesso.`
-                : `Provento ${provento.codigo} removido com sucesso.`,
+                ? `${this.translationService.get('proventos.alerts.deletedGroup')} ${provento.codigo}`
+                : `${this.translationService.get('proventos.alerts.deletedSingle')} ${provento.codigo}`,
               icon: '✓',
             },
           ]);
           this.loadProventos();
         },
         error: () => {
-          this.alerts.set([this.createErrorAlert(DELETE_PROVENTO_ERROR_MESSAGE)]);
+          this.alerts.set([this.createErrorAlert(this.translationService.get('proventos.alerts.deleteFailed'))]);
         },
       });
   }
@@ -311,15 +310,15 @@ export class ProventosComponent implements OnInit {
           this.alerts.set([
             {
               variant: 'info',
-              title: 'Sucesso',
-              message: `Provento ${updated.codigo} atualizado com sucesso.`,
+              title: this.translationService.get('common.alerts.success'),
+              message: `${this.translationService.get('proventos.alerts.updated')} ${updated.codigo}`,
               icon: '✓',
             },
           ]);
           this.loadProventos();
         },
         error: () => {
-          this.alerts.set([this.createErrorAlert(CREATE_PROVENTO_ERROR_MESSAGE)]);
+          this.alerts.set([this.createErrorAlert(this.translationService.get('proventos.alerts.createFailed'))]);
         },
       });
   }
@@ -352,8 +351,8 @@ export class ProventosComponent implements OnInit {
           this.totalPages.set(response.totalPages);
         },
         error: () => {
-          this.errorMessage.set(LOAD_PROVENTOS_ERROR_MESSAGE);
-          this.alerts.set([this.createErrorAlert(LOAD_PROVENTOS_ERROR_MESSAGE)]);
+          this.errorMessage.set(this.translationService.get('proventos.alerts.loadFailed'));
+          this.alerts.set([this.createErrorAlert(this.translationService.get('proventos.alerts.loadFailed'))]);
         },
       });
   }
@@ -391,7 +390,7 @@ export class ProventosComponent implements OnInit {
 
   private extractCreateProventoErrorMessage(error: HttpErrorResponse): string {
     const errorResponse = error.error as { message?: string } | null;
-    return errorResponse?.message ?? CREATE_PROVENTO_ERROR_MESSAGE;
+    return errorResponse?.message ?? this.translationService.get('proventos.alerts.createFailed');
   }
 
   private toProventoTipo(value: string): ProventoTipo | '' {
@@ -409,7 +408,7 @@ export class ProventosComponent implements OnInit {
   private createErrorAlert(message: string): AlertItem {
     return {
       variant: 'error',
-      title: 'Error!',
+      title: this.translationService.get('common.alerts.error'),
       message,
       icon: '✕',
     };

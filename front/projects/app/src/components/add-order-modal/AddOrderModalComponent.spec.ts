@@ -1,14 +1,44 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { vi } from 'vitest';
 import { AddOrderModalComponent } from './AddOrderModalComponent';
+import { TranslationService } from '../../services/TranslationService';
 
 describe('AddOrderModalComponent', () => {
   let component: AddOrderModalComponent;
   let fixture: ComponentFixture<AddOrderModalComponent>;
+  let mockTranslationService: { get: ReturnType<typeof vi.fn> };
 
   beforeEach(async () => {
+    mockTranslationService = {
+      get: vi.fn().mockImplementation((key: string) => {
+        const translations: Record<string, string> = {
+          'common.assetType.action': 'Ação',
+          'common.assetType.fii': 'FII',
+          'common.assetType.bdr': 'BDR',
+          'common.button.cancel': 'Cancelar',
+          'common.button.saving': 'Salvando...',
+          'common.button.save': 'Salvar',
+          'orders.modal.newTitle': 'Nova ordem',
+          'orders.modal.editTitle': 'Editar ordem',
+          'orders.field.code': 'Código',
+          'orders.field.type': 'Tipo',
+          'orders.field.operation': 'Operação',
+          'orders.field.quantity': 'Quantidade',
+          'orders.field.value': 'Valor',
+          'orders.field.date': 'Data',
+          'orders.validation.fillAllFields': 'Preencha todos os campos com valores válidos.',
+          'orders.validation.invalidCode': 'Código inválido. Use 4 letras + 2 dígitos (máx. 7), com sufixo F apenas para ações (ex.: PETR4F, TAEE11, AAPL34).',
+          'orders.validation.futureDate': 'A data da ordem não pode ser futura.',
+        };
+        return translations[key] ?? '';
+      }),
+    };
+
     await TestBed.configureTestingModule({
       imports: [AddOrderModalComponent],
+      providers: [
+        { provide: TranslationService, useValue: mockTranslationService },
+      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(AddOrderModalComponent);

@@ -1,4 +1,21 @@
 {
+    "common": {
+        "alerts": {
+            "success": "Sucesso",
+            "error": "Erro",
+            "attention": "Atenção"
+        },
+        "button": {
+            "cancel": "Cancelar",
+            "saving": "Salvando...",
+            "save": "Salvar"
+        },
+        "assetType": {
+            "action": "Ação",
+            "fii": "FII",
+            "bdr": "BDR"
+        }
+    },
     "indicators": {
         "Papel": "Código da ação.",
         "Cotacao": "Cotação de fechamento da ação no último pregão.",
@@ -145,7 +162,16 @@
         "deleting": "Deletando...",
         "deleteAssetTitle": "Deletar ativo",
         "edit": "Editar",
-        "deleteAsset": "Excluir"
+        "deleteAsset": "Excluir",
+        "alerts": {
+            "loadPortfoliosFailed": "Não foi possível carregar os portfolios.",
+            "assetCreated": "Ativo adicionado com sucesso.",
+            "addAssetFailed": "Não foi possível adicionar o ativo ao portfólio.",
+            "assetUpdated": "Ativo atualizado com sucesso.",
+            "updateAssetFailed": "Não foi possível atualizar o ativo do portfólio.",
+            "assetDeleted": "Ativo removido com sucesso.",
+            "deleteAssetFailed": "Não foi possível deletar o ativo do portfólio."
+        }
     },
     "orders": {
         "title": "Ordens",
@@ -169,7 +195,34 @@
         "cancel": "Cancelar",
         "delete": "Deletar",
         "deleting": "Deletando...",
-        "deleteOrderTitle": "Deletar ordem"
+        "deleteOrderTitle": "Deletar ordem",
+        "filterBuy": "Compra",
+        "filterSell": "Venda",
+        "modal": {
+            "newTitle": "Nova ordem",
+            "editTitle": "Editar ordem"
+        },
+        "field": {
+            "code": "Código",
+            "type": "Tipo",
+            "operation": "Operação",
+            "quantity": "Quantidade",
+            "value": "Valor",
+            "date": "Data"
+        },
+        "validation": {
+            "fillAllFields": "Preencha todos os campos com valores válidos.",
+            "invalidCode": "Código inválido. Use 4 letras + 2 dígitos (máx. 7), com sufixo F apenas para ações (ex.: PETR4F, TAEE11, AAPL34).",
+            "futureDate": "A data da ordem não pode ser futura."
+        },
+        "alerts": {
+            "loadFailed": "Não foi possível carregar as ordens.",
+            "createFailed": "Não foi possível adicionar a ordem.",
+            "deleteFailed": "Não foi possível deletar a ordem.",
+            "orderCreated": "Ordem adicionada com sucesso.",
+            "orderDeleted": "Ordem removida com sucesso.",
+            "orderUpdated": "Ordem atualizada com sucesso."
+        }
     },
     "proventos": {
         "title": "Proventos",
@@ -194,7 +247,37 @@
         "cancel": "Cancelar",
         "delete": "Deletar",
         "deleting": "Deletando...",
-        "deleteProventoTitle": "Deletar provento"
+        "deleteProventoTitle": "Deletar provento",
+        "filterDividendo": "Dividendo",
+        "filterJcp": "JCP",
+        "filterRendimento": "Rendimento",
+        "modal": {
+            "newTitle": "Novo provento",
+            "editTitle": "Editar provento"
+        },
+        "field": {
+            "code": "Código",
+            "type": "Tipo",
+            "institution": "Instituição",
+            "quantity": "Quantidade",
+            "unitPrice": "Preço Unitário",
+            "netValue": "Valor Líquido",
+            "date": "Data"
+        },
+        "validation": {
+            "fillAllFields": "Preencha todos os campos com valores válidos.",
+            "futureDate": "A data do provento não pode ser futura.",
+            "invalidCode": "Código inválido. Use 4 letras + 2 dígitos (máx. 7), com sufixo F apenas para ações (ex.: PETR4F, TAEE11, AAPL34)."
+        },
+        "alerts": {
+            "loadFailed": "Não foi possível carregar os proventos.",
+            "createFailed": "Não foi possível adicionar o provento.",
+            "deleteFailed": "Não foi possível deletar o provento.",
+            "created": "Provento adicionado com sucesso.",
+            "deletedGroup": "Proventos removidos com sucesso.",
+            "deletedSingle": "Provento removido com sucesso.",
+            "updated": "Provento atualizado com sucesso."
+        }
     },
     "importacao": {
         "title": "Importação de Planilhas",
@@ -213,7 +296,20 @@
         "portfolioTitle": "Planilha → Portfólio",
         "portfolioHint": "Cabeçalhos esperados: Código, Quantidade, Preço Médio.",
         "portfolioFileLabel": "Arquivo de portfólio",
-        "importPortfolio": "Importar portfólio"
+        "importPortfolio": "Importar portfólio",
+        "alerts": {
+            "selectNegociacaoFile": "Selecione um arquivo de negociação para importar.",
+            "selectProventoFile": "Selecione um arquivo de proventos para importar.",
+            "selectPortfolioFile": "Selecione um arquivo de portfólio para importar.",
+            "negociacaoSuccess": " negociações importadas com sucesso.",
+            "proventoSuccess": " proventos importados com sucesso.",
+            "portfolioSuccess": " itens de portfólio importados com sucesso."
+        },
+        "errors": {
+            "negociacaoImportFailed": "Não foi possível importar a planilha de negociação.",
+            "proventoImportFailed": "Não foi possível importar a planilha de proventos.",
+            "portfolioImportFailed": "Não foi possível importar a planilha de portfólio."
+        }
     },
     "sidebar": {
         "acoes": "Ações",
@@ -309,7 +405,30 @@
         "orderSellPdfHint": "Gera PDF com os campos Código, precoMedioAtual, Quantidade, valorAtualAcao, ganhos e data.",
         "exportOrderSellPdf": "Exportar OrderSell em PDF",
         "filtrarAno": "Filtrar por ano",
-        "todosAnos": "Todos os anos"
+        "todosAnos": "Todos os anos",
+        "alerts": {
+            "prepareAcoesFailed": "Não foi possível preparar a exportação da página de ações.",
+            "pdfStarted": "Exportação iniciada. Salve como PDF no diálogo de impressão.",
+            "pdfPrintFailed": "Não foi possível iniciar a exportação em PDF.",
+            "portfolioExcelDone": "Exportação do portfólio em Excel concluída.",
+            "portfolioExcelFailed": "Não foi possível exportar o portfólio em Excel.",
+            "orderSellExcelDone": "Exportação de OrderSell em Excel concluída.",
+            "orderSellExcelFailed": "Não foi possível exportar o OrderSell em Excel.",
+            "prepareOrderSellFailed": "Não foi possível preparar a exportação de OrderSell.",
+            "orderSellPdfStarted": "Exportação de OrderSell em PDF iniciada.",
+            "orderSellPdfPrintFailed": "Não foi possível iniciar a exportação de OrderSell em PDF.",
+            "orderSellDataLoadFailed": "Não foi possível carregar os dados de OrderSell para o PDF."
+        },
+        "pdf": {
+            "title": "OrderSell - Exportação PDF",
+            "reportTitle": "OrderSell - Relatório",
+            "headerCodigo": "Código",
+            "headerPrecoMedioAtual": "Preço Médio Atual",
+            "headerQuantidade": "Quantidade",
+            "headerValorAtualAcao": "Valor Atual Ação",
+            "headerGanhos": "Ganhos",
+            "headerData": "Data"
+        }
     },
     "fileInput": {
         "clickToUpload": "Clique no botão abaixo para enviar",

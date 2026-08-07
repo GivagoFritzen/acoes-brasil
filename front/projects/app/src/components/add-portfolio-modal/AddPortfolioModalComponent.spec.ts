@@ -1,14 +1,37 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { vi } from 'vitest';
 import { AddPortfolioModalComponent } from './AddPortfolioModalComponent';
+import { TranslationService } from '../../services/TranslationService';
 
 describe('AddPortfolioModalComponent', () => {
   let component: AddPortfolioModalComponent;
   let fixture: ComponentFixture<AddPortfolioModalComponent>;
+  let mockTranslationService: { get: ReturnType<typeof vi.fn> };
 
   beforeEach(async () => {
+    mockTranslationService = {
+      get: vi.fn().mockImplementation((key: string) => {
+        const translations: Record<string, string> = {
+          'common.button.cancel': 'Cancelar',
+          'common.button.saving': 'Salvando...',
+          'common.button.save': 'Salvar',
+          'orders.modal.newTitle': 'Novo item de portfólio',
+          'orders.modal.editTitle': 'Editar item de portfólio',
+          'orders.field.code': 'Código',
+          'orders.field.quantity': 'Quantidade',
+          'orders.field.value': 'Preço Médio',
+          'orders.validation.fillAllFields': 'Preencha todos os campos com valores válidos.',
+          'orders.validation.invalidCode': 'Código inválido. Use 4 letras + 2 dígitos (máx. 7), com sufixo F apenas para ações (ex.: PETR4F, TAEE11, AAPL34).',
+        };
+        return translations[key] ?? '';
+      }),
+    };
+
     await TestBed.configureTestingModule({
       imports: [AddPortfolioModalComponent],
+      providers: [
+        { provide: TranslationService, useValue: mockTranslationService },
+      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(AddPortfolioModalComponent);

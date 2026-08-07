@@ -1,8 +1,10 @@
 import { TestBed } from '@angular/core/testing';
 import { of, throwError } from 'rxjs';
+import { vi } from 'vitest';
 import type { PortfolioItem } from '../../models';
 import type { CreatePortfolioPayload } from '../../models/CreatePortfolioPayloadModel';
 import { PortfolioService } from '../../services/PortfolioService';
+import { TranslationService } from '../../services/TranslationService';
 import { AcoesComponent } from './AcoesComponent';
 import { Router } from '@angular/router';
 
@@ -14,6 +16,7 @@ describe('AcoesComponent', () => {
     deletePortfolio: ReturnType<typeof vi.fn>;
   };
   let routerMock: { navigate: ReturnType<typeof vi.fn> };
+  let mockTranslationService: { get: ReturnType<typeof vi.fn> };
 
   const basePortfolio: PortfolioItem = {
     id: '1',
@@ -34,11 +37,29 @@ describe('AcoesComponent', () => {
       navigate: vi.fn(),
     };
 
+    mockTranslationService = {
+      get: vi.fn().mockImplementation((key: string) => {
+        const translations: Record<string, string> = {
+          'common.alerts.error': 'Erro',
+          'common.alerts.success': 'Sucesso',
+          'acoes.alerts.loadPortfoliosFailed': 'Não foi possível carregar os portfolios.',
+          'acoes.alerts.assetCreated': 'Ativo adicionado com sucesso.',
+          'acoes.alerts.addAssetFailed': 'Não foi possível adicionar o ativo ao portfólio.',
+          'acoes.alerts.assetUpdated': 'Ativo atualizado com sucesso.',
+          'acoes.alerts.updateAssetFailed': 'Não foi possível atualizar o ativo do portfólio.',
+          'acoes.alerts.assetDeleted': 'Ativo removido com sucesso.',
+          'acoes.alerts.deleteAssetFailed': 'Não foi possível deletar o ativo do portfólio.',
+        };
+        return translations[key] ?? '';
+      }),
+    };
+
     await TestBed.configureTestingModule({
       imports: [AcoesComponent],
       providers: [
         { provide: PortfolioService, useValue: portfolioServiceMock },
         { provide: Router, useValue: routerMock },
+        { provide: TranslationService, useValue: mockTranslationService },
       ],
     }).compileComponents();
 

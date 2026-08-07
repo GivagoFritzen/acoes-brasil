@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, Input, OnChanges, Output, SimpleChanges, signal } from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, Output, SimpleChanges, inject, signal } from '@angular/core';
 import { DatePickerComponent } from '../date-range-filter/DatePickerComponent';
 import { SimpleButtonComponent } from '../simple-button/SimpleButtonComponent';
 import { SimpleInputComponent } from '../simple-input/SimpleInputComponent';
@@ -11,15 +11,18 @@ import { SimpleInputNumberComponent } from '../simple-input-number/SimpleInputNu
 import { normalizeOrderCodigo } from '../../../../../../common/utils/OrderCodigoUtils';
 import { isSupportedB3Ticker } from '../../../../../../common/utils/AssetTypeUtils';
 import { isFutureDate } from '../../utils/DateUtils';
+import { TranslationService } from '../../services/TranslationService';
+import { TranslatePipe } from '../../pipes/TranslatePipe';
 
 @Component({
   selector: 'app-add-provento-modal',
   standalone: true,
-  imports: [CommonModule, SimpleInputComponent, SimpleSelectComponent, DatePickerComponent, SimpleButtonComponent, SimpleInputNumberComponent],
+  imports: [CommonModule, SimpleInputComponent, SimpleSelectComponent, DatePickerComponent, SimpleButtonComponent, SimpleInputNumberComponent, TranslatePipe],
   templateUrl: './AddProventoModalComponent.html',
   styleUrls: ['./AddProventoModalComponent.scss'],
 })
 export class AddProventoModalComponent implements OnChanges {
+  private readonly translationService = inject(TranslationService);
   @Input() isOpen = false;
   @Input() isSaving = false;
   @Input() tipoOptions: SelectOption<ProventoTipo>[] = [];
@@ -117,17 +120,17 @@ export class AddProventoModalComponent implements OnChanges {
       valorLiquido === null ||
       valorLiquido < 0
     ) {
-      this.validationMessage.set('Preencha todos os campos com valores válidos.');
+      this.validationMessage.set(this.translationService.get('proventos.validation.fillAllFields'));
       return null;
     }
 
     if (isFutureDate(data)) {
-      this.validationMessage.set('A data do provento não pode ser futura.');
+      this.validationMessage.set(this.translationService.get('proventos.validation.futureDate'));
       return null;
     }
 
     if (!isSupportedB3Ticker(codigo)) {
-      this.validationMessage.set('Código inválido. Use 4 letras + 2 dígitos (máx. 7), com sufixo F apenas para ações (ex.: PETR4F, TAEE11, AAPL34).');
+      this.validationMessage.set(this.translationService.get('proventos.validation.invalidCode'));
       return null;
     }
 

@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, Input, OnChanges, Output, SimpleChanges, signal } from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, Output, SimpleChanges, inject, signal } from '@angular/core';
 import { SimpleButtonComponent } from '../simple-button/SimpleButtonComponent';
 import { SimpleInputComponent } from '../simple-input/SimpleInputComponent';
 import { SimpleInputNumberComponent } from '../simple-input-number/SimpleInputNumberComponent';
@@ -7,15 +7,18 @@ import { CreatePortfolioPayload } from '../../models/CreatePortfolioPayloadModel
 import { PortfolioItem } from '../../models';
 import { isSupportedB3Ticker } from '../../../../../../common/utils/AssetTypeUtils';
 import { normalizeOrderCodigo } from '../../../../../../common/utils/OrderCodigoUtils';
+import { TranslationService } from '../../services/TranslationService';
+import { TranslatePipe } from '../../pipes/TranslatePipe';
 
 @Component({
   selector: 'app-add-portfolio-modal',
   standalone: true,
-  imports: [CommonModule, SimpleInputComponent, SimpleButtonComponent, SimpleInputNumberComponent],
+  imports: [CommonModule, SimpleInputComponent, SimpleButtonComponent, SimpleInputNumberComponent, TranslatePipe],
   templateUrl: './AddPortfolioModalComponent.html',
   styleUrls: ['./AddPortfolioModalComponent.scss'],
 })
 export class AddPortfolioModalComponent implements OnChanges {
+  private readonly translationService = inject(TranslationService);
   @Input() isOpen = false;
   @Input() isSaving = false;
   @Input() editingItem: PortfolioItem | null = null;
@@ -73,12 +76,12 @@ export class AddPortfolioModalComponent implements OnChanges {
     const precoMedio = this.precoMedio();
 
     if (!codigo || quantidade === null || quantidade <= 0 || precoMedio === null || precoMedio < 0) {
-      this.validationMessage.set('Preencha todos os campos com valores válidos.');
+      this.validationMessage.set(this.translationService.get('orders.validation.fillAllFields'));
       return null;
     }
 
     if (!isSupportedB3Ticker(codigo)) {
-      this.validationMessage.set('Código inválido. Use 4 letras + 2 dígitos (máx. 7), com sufixo F apenas para ações (ex.: PETR4F, TAEE11, AAPL34).');
+      this.validationMessage.set(this.translationService.get('orders.validation.invalidCode'));
       return null;
     }
 

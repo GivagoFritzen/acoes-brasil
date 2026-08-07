@@ -1,9 +1,11 @@
 import { TestBed } from '@angular/core/testing';
 import { of, throwError } from 'rxjs';
 import { HttpErrorResponse } from '@angular/common/http';
+import { vi } from 'vitest';
 import { OrdersService } from '../../services/OrdersService';
 import { ProventosService } from '../../services/ProventosService';
 import { PortfolioService } from '../../services/PortfolioService';
+import { TranslationService } from '../../services/TranslationService';
 import { ImportacaoComponent } from './ImportacaoComponent';
 
 describe('ImportacaoComponent', () => {
@@ -11,6 +13,7 @@ describe('ImportacaoComponent', () => {
   let ordersServiceMock: { importOrdersSpreadsheet: ReturnType<typeof vi.fn> };
   let proventosServiceMock: { importProventosSpreadsheet: ReturnType<typeof vi.fn> };
   let portfolioServiceMock: { importPortfolioSpreadsheet: ReturnType<typeof vi.fn> };
+  let mockTranslationService: { get: ReturnType<typeof vi.fn> };
 
   const mockFile = new File(['test'], 'test.xlsx', { type: 'application/vnd.ms-excel' });
 
@@ -24,6 +27,25 @@ describe('ImportacaoComponent', () => {
     portfolioServiceMock = {
       importPortfolioSpreadsheet: vi.fn(),
     };
+    mockTranslationService = {
+      get: vi.fn().mockImplementation((key: string) => {
+        const translations: Record<string, string> = {
+          'common.alerts.attention': 'Atenção',
+          'common.alerts.success': 'Sucesso',
+          'common.alerts.error': 'Erro',
+          'importacao.alerts.selectNegociacaoFile': 'Selecione um arquivo de negociação para importar.',
+          'importacao.alerts.selectProventoFile': 'Selecione um arquivo de proventos para importar.',
+          'importacao.alerts.selectPortfolioFile': 'Selecione um arquivo de portfólio para importar.',
+          'importacao.alerts.negociacaoSuccess': ' negociações importadas com sucesso.',
+          'importacao.alerts.proventoSuccess': ' proventos importados com sucesso.',
+          'importacao.alerts.portfolioSuccess': ' itens de portfólio importados com sucesso.',
+          'importacao.errors.negociacaoImportFailed': 'Não foi possível importar a planilha de negociação.',
+          'importacao.errors.proventoImportFailed': 'Não foi possível importar a planilha de proventos.',
+          'importacao.errors.portfolioImportFailed': 'Não foi possível importar a planilha de portfólio.',
+        };
+        return translations[key] ?? '';
+      }),
+    };
 
     await TestBed.configureTestingModule({
       imports: [ImportacaoComponent],
@@ -31,6 +53,7 @@ describe('ImportacaoComponent', () => {
         { provide: OrdersService, useValue: ordersServiceMock },
         { provide: ProventosService, useValue: proventosServiceMock },
         { provide: PortfolioService, useValue: portfolioServiceMock },
+        { provide: TranslationService, useValue: mockTranslationService },
       ],
     }).compileComponents();
 

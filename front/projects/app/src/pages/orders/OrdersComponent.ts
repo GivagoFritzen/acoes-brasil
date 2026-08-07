@@ -23,12 +23,10 @@ import { formatDateForDisplay } from '../../utils/DateUtils';
 import { OrdersFilters } from '../../models/OrdersFiltersModel';
 import { normalizeOrderCodigo } from '../../../../../../common/utils/OrderCodigoUtils';
 import { TranslatePipe } from '../../pipes/TranslatePipe';
+import { TranslationService } from '../../services/TranslationService';
 
 const DEFAULT_LIMIT = 10;
 const SELL_OPERATION: OrderOperacao = 'Venda';
-const LOAD_ORDERS_ERROR_MESSAGE = 'Não foi possível carregar as ordens.';
-const CREATE_ORDER_ERROR_MESSAGE = 'Não foi possível adicionar a ordem.';
-const DELETE_ORDER_ERROR_MESSAGE = 'Não foi possível deletar a ordem.';
 
 @Component({
   selector: 'app-orders',
@@ -52,6 +50,7 @@ const DELETE_ORDER_ERROR_MESSAGE = 'Não foi possível deletar a ordem.';
 export class OrdersComponent implements OnInit {
   private readonly ordersService = inject(OrdersService);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly translationService = inject(TranslationService);
 
   readonly formatDateForDisplay = formatDateForDisplay;
   readonly orders = signal<Order[]>([]);
@@ -67,8 +66,8 @@ export class OrdersComponent implements OnInit {
   readonly orderToEdit = signal<Order | null>(null);
 
   readonly operacaoOptions: SelectOption<OrderOperacao>[] = [
-    { label: 'Compra', value: 'Compra' },
-    { label: 'Venda', value: 'Venda' },
+    { label: this.translationService.get('orders.filterBuy'), value: 'Compra' },
+    { label: this.translationService.get('orders.filterSell'), value: 'Venda' },
   ];
 
   readonly filtroCodigo = signal('');
@@ -209,15 +208,15 @@ export class OrdersComponent implements OnInit {
           this.alerts.set([
             {
               variant: 'info',
-              title: 'Sucesso',
-              message: `Ordem ${order.codigo} adicionada com sucesso.`,
+              title: this.translationService.get('common.alerts.success'),
+              message: `${this.translationService.get('orders.alerts.orderCreated')} ${order.codigo}`,
               icon: '✓',
             },
           ]);
           this.loadOrders();
         },
         error: () => {
-          this.alerts.set([this.createErrorAlert(CREATE_ORDER_ERROR_MESSAGE)]);
+          this.alerts.set([this.createErrorAlert(this.translationService.get('orders.alerts.createFailed'))]);
         },
       });
   }
@@ -245,15 +244,15 @@ export class OrdersComponent implements OnInit {
           this.alerts.set([
             {
               variant: 'info',
-              title: 'Sucesso',
-              message: `Ordem ${order.codigo} removida com sucesso.`,
+              title: this.translationService.get('common.alerts.success'),
+              message: `${this.translationService.get('orders.alerts.orderDeleted')} ${order.codigo}`,
               icon: '✓',
             },
           ]);
           this.loadOrders();
         },
         error: () => {
-          this.alerts.set([this.createErrorAlert(DELETE_ORDER_ERROR_MESSAGE)]);
+          this.alerts.set([this.createErrorAlert(this.translationService.get('orders.alerts.deleteFailed'))]);
         },
       });
   }
@@ -281,15 +280,15 @@ export class OrdersComponent implements OnInit {
           this.alerts.set([
             {
               variant: 'info',
-              title: 'Sucesso',
-              message: `Ordem ${updated.codigo} atualizada com sucesso.`,
+              title: this.translationService.get('common.alerts.success'),
+              message: `${this.translationService.get('orders.alerts.orderUpdated')} ${updated.codigo}`,
               icon: '✓',
             },
           ]);
           this.loadOrders();
         },
         error: () => {
-          this.alerts.set([this.createErrorAlert(CREATE_ORDER_ERROR_MESSAGE)]);
+          this.alerts.set([this.createErrorAlert(this.translationService.get('orders.alerts.createFailed'))]);
         },
       });
   }
@@ -316,8 +315,8 @@ export class OrdersComponent implements OnInit {
       .subscribe({
         next: (response: OrdersResponse) => this.applyListResponse(response),
         error: () => {
-          this.errorMessage.set(LOAD_ORDERS_ERROR_MESSAGE);
-          this.alerts.set([this.createErrorAlert(LOAD_ORDERS_ERROR_MESSAGE)]);
+          this.errorMessage.set(this.translationService.get('orders.alerts.loadFailed'));
+          this.alerts.set([this.createErrorAlert(this.translationService.get('orders.alerts.loadFailed'))]);
         },
       });
   }
@@ -374,7 +373,7 @@ export class OrdersComponent implements OnInit {
   private createErrorAlert(message: string): AlertItem {
     return {
       variant: 'error',
-      title: 'Error!',
+      title: this.translationService.get('common.alerts.error'),
       message,
       icon: '✕',
     };

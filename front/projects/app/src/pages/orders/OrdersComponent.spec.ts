@@ -1,8 +1,10 @@
 import { TestBed } from '@angular/core/testing';
 import { of, throwError } from 'rxjs';
+import { vi } from 'vitest';
 import type { Order, OrdersResponse } from '../../models';
 import type { CreateOrderPayload } from '../../models/CreateOrderPayloadModel';
 import { OrdersService } from '../../services/OrdersService';
+import { TranslationService } from '../../services/TranslationService';
 import { OrdersComponent } from './OrdersComponent';
 
 describe('OrdersComponent', () => {
@@ -13,6 +15,7 @@ describe('OrdersComponent', () => {
     deleteOrder: ReturnType<typeof vi.fn>;
     updateOrder: ReturnType<typeof vi.fn>;
   };
+  let mockTranslationService: { get: ReturnType<typeof vi.fn> };
 
   const baseOrder: Order = {
     id: '1',
@@ -41,9 +44,30 @@ describe('OrdersComponent', () => {
     };
     ordersServiceMock.getOrders.mockReturnValue(of(defaultResponse));
 
+    mockTranslationService = {
+      get: vi.fn().mockImplementation((key: string) => {
+        const translations: Record<string, string> = {
+          'common.alerts.error': 'Erro',
+          'common.alerts.success': 'Sucesso',
+          'orders.filterBuy': 'Compra',
+          'orders.filterSell': 'Venda',
+          'orders.alerts.loadFailed': 'Não foi possível carregar as ordens.',
+          'orders.alerts.createFailed': 'Não foi possível adicionar a ordem.',
+          'orders.alerts.deleteFailed': 'Não foi possível deletar a ordem.',
+          'orders.alerts.orderCreated': 'Ordem adicionada com sucesso.',
+          'orders.alerts.orderDeleted': 'Ordem removida com sucesso.',
+          'orders.alerts.orderUpdated': 'Ordem atualizada com sucesso.',
+        };
+        return translations[key] ?? '';
+      }),
+    };
+
     await TestBed.configureTestingModule({
       imports: [OrdersComponent],
-      providers: [{ provide: OrdersService, useValue: ordersServiceMock }],
+      providers: [
+        { provide: OrdersService, useValue: ordersServiceMock },
+        { provide: TranslationService, useValue: mockTranslationService },
+      ],
     }).compileComponents();
 
     const fixture = TestBed.createComponent(OrdersComponent);

@@ -10,6 +10,7 @@ import { OrdersService } from '../../services/OrdersService';
 import { PortfolioService } from '../../services/PortfolioService';
 import { SellSnapshotExportRow } from '../../models/SellSnapshotExportRowModel';
 import { TranslatePipe } from '../../pipes/TranslatePipe';
+import { TranslationService } from '../../services/TranslationService';
 import { SelectOption } from '../../../../../../common/models/SelectOptionModel';
 
 @Component({
@@ -34,7 +35,8 @@ export class ExportacaoComponent {
 
   constructor(
     private readonly ordersService: OrdersService,
-    private readonly portfolioService: PortfolioService
+    private readonly portfolioService: PortfolioService,
+    private readonly translationService: TranslationService
   ) {
     this.destroyRef.onDestroy(() => {
       if (this.printTimeout) {
@@ -52,7 +54,7 @@ export class ExportacaoComponent {
     const frame = document.getElementById('print-acoes-frame') as HTMLIFrameElement | null;
 
     if (!frame) {
-      this.pushAlert('error', 'Erro', 'Não foi possível preparar a exportação da página de ações.', '✕');
+      this.pushAlert('error', this.translationService.get('common.alerts.error'), this.translationService.get('exportacao.alerts.prepareAcoesFailed'), '✕');
       return;
     }
 
@@ -66,9 +68,9 @@ export class ExportacaoComponent {
 
         frame.contentWindow.focus();
         frame.contentWindow.print();
-        this.pushAlert('info', 'Sucesso', 'Exportação iniciada. Salve como PDF no diálogo de impressão.', '✓');
+        this.pushAlert('info', this.translationService.get('common.alerts.success'), this.translationService.get('exportacao.alerts.pdfStarted'), '✓');
       } catch {
-        this.pushAlert('error', 'Erro', 'Não foi possível iniciar a exportação em PDF.', '✕');
+        this.pushAlert('error', this.translationService.get('common.alerts.error'), this.translationService.get('exportacao.alerts.pdfPrintFailed'), '✕');
       } finally {
         this.isExportingAcoes.set(false);
       }
@@ -91,10 +93,10 @@ export class ExportacaoComponent {
       .subscribe({
       next: (blob) => {
         downloadBlobAsFile(blob, `portfolio-${Date.now()}.xlsx`);
-        this.pushAlert('info', 'Sucesso', 'Exportação do portfólio em Excel concluída.', '✓');
+        this.pushAlert('info', this.translationService.get('common.alerts.success'), this.translationService.get('exportacao.alerts.portfolioExcelDone'), '✓');
       },
       error: () => {
-        this.pushAlert('error', 'Erro', 'Não foi possível exportar o portfólio em Excel.', '✕');
+        this.pushAlert('error', this.translationService.get('common.alerts.error'), this.translationService.get('exportacao.alerts.portfolioExcelFailed'), '✕');
       },
       complete: () => {
         this.isExportingPortfolio.set(false);
@@ -110,10 +112,10 @@ export class ExportacaoComponent {
       .subscribe({
       next: (blob) => {
         downloadBlobAsFile(blob, `ordersell-${Date.now()}.xlsx`);
-        this.pushAlert('info', 'Sucesso', 'Exportação de OrderSell em Excel concluída.', '✓');
+        this.pushAlert('info', this.translationService.get('common.alerts.success'), this.translationService.get('exportacao.alerts.orderSellExcelDone'), '✓');
       },
       error: () => {
-        this.pushAlert('error', 'Erro', 'Não foi possível exportar o OrderSell em Excel.', '✕');
+        this.pushAlert('error', this.translationService.get('common.alerts.error'), this.translationService.get('exportacao.alerts.orderSellExcelFailed'), '✕');
       },
       complete: () => {
         this.isExportingOrderSellExcel.set(false);
@@ -125,7 +127,7 @@ export class ExportacaoComponent {
     const frame = document.getElementById('print-ordersell-frame') as HTMLIFrameElement | null;
 
     if (!frame) {
-      this.pushAlert('error', 'Erro', 'Não foi possível preparar a exportação de OrderSell.', '✕');
+      this.pushAlert('error', this.translationService.get('common.alerts.error'), this.translationService.get('exportacao.alerts.prepareOrderSellFailed'), '✕');
       return;
     }
 
@@ -146,9 +148,9 @@ export class ExportacaoComponent {
 
             frame.contentWindow.focus();
             frame.contentWindow.print();
-            this.pushAlert('info', 'Sucesso', 'Exportação de OrderSell em PDF iniciada.', '✓');
+            this.pushAlert('info', this.translationService.get('common.alerts.success'), this.translationService.get('exportacao.alerts.orderSellPdfStarted'), '✓');
           } catch {
-            this.pushAlert('error', 'Erro', 'Não foi possível iniciar a exportação de OrderSell em PDF.', '✕');
+            this.pushAlert('error', this.translationService.get('common.alerts.error'), this.translationService.get('exportacao.alerts.orderSellPdfPrintFailed'), '✕');
           } finally {
             this.isExportingOrderSellPdf.set(false);
           }
@@ -162,7 +164,7 @@ export class ExportacaoComponent {
         frame.addEventListener('load', onLoaded);
       },
       error: () => {
-        this.pushAlert('error', 'Erro', 'Não foi possível carregar os dados de OrderSell para o PDF.', '✕');
+        this.pushAlert('error', this.translationService.get('common.alerts.error'), this.translationService.get('exportacao.alerts.orderSellDataLoadFailed'), '✕');
         this.isExportingOrderSellPdf.set(false);
       },
     });
@@ -221,7 +223,7 @@ export class ExportacaoComponent {
       <html lang="pt-BR">
         <head>
           <meta charset="UTF-8" />
-          <title>OrderSell - Exportação PDF</title>
+          <title>${this.translationService.get('exportacao.pdf.title')}</title>
           <style>
             body { font-family: Arial, sans-serif; padding: 24px; color: #0f172a; }
             h1 { margin: 0 0 16px; font-size: 20px; }
@@ -232,16 +234,16 @@ export class ExportacaoComponent {
           </style>
         </head>
         <body>
-          <h1>OrderSell - Relatório</h1>
+          <h1>${this.translationService.get('exportacao.pdf.reportTitle')}</h1>
           <table>
             <thead>
               <tr>
-                <th>Código</th>
-                <th>precoMedioAtual</th>
-                <th>Quantidade</th>
-                <th>valorAtualAcao</th>
-                <th>ganhos</th>
-                <th>data</th>
+                <th>${this.translationService.get('exportacao.pdf.headerCodigo')}</th>
+                <th>${this.translationService.get('exportacao.pdf.headerPrecoMedioAtual')}</th>
+                <th>${this.translationService.get('exportacao.pdf.headerQuantidade')}</th>
+                <th>${this.translationService.get('exportacao.pdf.headerValorAtualAcao')}</th>
+                <th>${this.translationService.get('exportacao.pdf.headerGanhos')}</th>
+                <th>${this.translationService.get('exportacao.pdf.headerData')}</th>
               </tr>
             </thead>
             <tbody>

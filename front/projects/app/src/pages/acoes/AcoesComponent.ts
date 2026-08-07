@@ -14,6 +14,7 @@ import { PortfolioService } from '../../services/PortfolioService';
 import { CreatePortfolioPayload } from '../../models/CreatePortfolioPayloadModel';
 import { UpdatePortfolioPayload } from '../../models/UpdatePortfolioPayloadModel';
 import { TranslatePipe } from '../../pipes/TranslatePipe';
+import { TranslationService } from '../../services/TranslationService';
 import { SettingsService } from '../../services/SettingsService';
 import { mesclarPorCodigo, removerSufixoF } from '../../../../../../common/utils/OrderCodigoUtils';
 
@@ -55,6 +56,7 @@ export class AcoesComponent implements OnInit {
         private readonly portfolioService: PortfolioService,
         private readonly router: Router,
         protected readonly settingsService: SettingsService,
+        private readonly translationService: TranslationService
     ) { }
 
     @HostListener('document:click', ['$event'])
@@ -86,12 +88,12 @@ export class AcoesComponent implements OnInit {
                     this.portfolios.set(this.mergePortfolios(portfolioItems));
                 },
                 error: () => {
-                    const message = 'Não foi possível carregar os portfolios.';
+                    const message = this.translationService.get('acoes.alerts.loadPortfoliosFailed');
                     this.errorMessage.set(message);
                     this.alerts.set([
                         {
                             variant: 'error',
-                            title: 'Error!',
+                            title: this.translationService.get('common.alerts.error'),
                             message,
                             icon: '✕',
                         },
@@ -168,8 +170,8 @@ export class AcoesComponent implements OnInit {
                 this.alerts.set([
                     {
                         variant: 'info',
-                        title: 'Sucesso',
-                        message: `Ativo ${portfolio.codigo} adicionado com sucesso.`,
+                        title: this.translationService.get('common.alerts.success'),
+                        message: `${this.translationService.get('acoes.alerts.assetCreated')} ${portfolio.codigo}`,
                         icon: '✓',
                     },
                 ]);
@@ -180,8 +182,8 @@ export class AcoesComponent implements OnInit {
                 this.alerts.set([
                     {
                         variant: 'error',
-                        title: 'Error!',
-                        message: 'Não foi possível adicionar o ativo ao portfólio.',
+                        title: this.translationService.get('common.alerts.error'),
+                        message: this.translationService.get('acoes.alerts.addAssetFailed'),
                         icon: '✕',
                     },
                 ]);
@@ -208,8 +210,8 @@ export class AcoesComponent implements OnInit {
                 this.alerts.set([
                     {
                         variant: 'info',
-                        title: 'Sucesso',
-                        message: `Ativo ${updated.codigo} atualizado com sucesso.`,
+                        title: this.translationService.get('common.alerts.success'),
+                        message: `${this.translationService.get('acoes.alerts.assetUpdated')} ${updated.codigo}`,
                         icon: '✓',
                     },
                 ]);
@@ -220,8 +222,8 @@ export class AcoesComponent implements OnInit {
                 this.alerts.set([
                     {
                         variant: 'error',
-                        title: 'Error!',
-                        message: 'Não foi possível atualizar o ativo do portfólio.',
+                        title: this.translationService.get('common.alerts.error'),
+                        message: this.translationService.get('acoes.alerts.updateAssetFailed'),
                         icon: '✕',
                     },
                 ]);
@@ -248,8 +250,8 @@ export class AcoesComponent implements OnInit {
                 this.alerts.set([
                     {
                         variant: 'info',
-                        title: 'Sucesso',
-                        message: `Ativo ${portfolio.codigo} removido com sucesso.`,
+                        title: this.translationService.get('common.alerts.success'),
+                        message: `${this.translationService.get('acoes.alerts.assetDeleted')} ${portfolio.codigo}`,
                         icon: '✓',
                     },
                 ]);
@@ -260,8 +262,8 @@ export class AcoesComponent implements OnInit {
                 this.alerts.set([
                     {
                         variant: 'error',
-                        title: 'Error!',
-                        message: 'Não foi possível deletar o ativo do portfólio.',
+                        title: this.translationService.get('common.alerts.error'),
+                        message: this.translationService.get('acoes.alerts.deleteAssetFailed'),
                         icon: '✕',
                     },
                 ]);
