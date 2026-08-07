@@ -97,7 +97,7 @@ export class ProventoController {
     }
 
     try {
-      const buffer = fs.readFileSync(file.path);
+      const buffer = await fs.promises.readFile(file.path);
       const { validRows, invalidLineNumbers } = this.spreadsheetParserService.parseProventoRowsAsync(buffer);
 
       if (!validRows.length) {

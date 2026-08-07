@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
-import { Component, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, inject, signal } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { AlertsComponent } from '../../components/alerts/AlertsComponent';
 import { FileInputComponent, SimpleButtonComponent } from '../../components';
 import { OrdersService } from '../../services/OrdersService';
@@ -17,8 +18,10 @@ import { TranslatePipe } from '../../pipes/TranslatePipe';
   imports: [CommonModule, AlertsComponent, SimpleButtonComponent, FileInputComponent, TranslatePipe],
   templateUrl: './ImportacaoComponent.html',
   styleUrls: ['./ImportacaoComponent.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ImportacaoComponent {
+  private readonly destroyRef = inject(DestroyRef);
   negociacaoFile = signal<File | null>(null);
   proventoFile = signal<File | null>(null);
   portfolioFile = signal<File | null>(null);
@@ -53,18 +56,20 @@ export class ImportacaoComponent {
     }
 
     this.isImportingNegociacao.set(true);
-    this.ordersService.importOrdersSpreadsheet(file).subscribe({
-      next: (response: ImportResponse) => {
-        this.pushAlert('info', 'Sucesso', `${response.imported} negociações importadas com sucesso.`, '✓');
-        this.negociacaoFile.set(null);
-        this.isImportingNegociacao.set(false);
-      },
-      error: (error: HttpErrorResponse) => {
-        const message = error?.error?.error ?? error?.error?.message ?? 'Não foi possível importar a planilha de negociação.';
-        this.pushAlert('error', 'Erro', message, '✕');
-        this.isImportingNegociacao.set(false);
-      },
-    });
+    this.ordersService.importOrdersSpreadsheet(file)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (response: ImportResponse) => {
+          this.pushAlert('info', 'Sucesso', `${response.imported} negociações importadas com sucesso.`, '✓');
+          this.negociacaoFile.set(null);
+          this.isImportingNegociacao.set(false);
+        },
+        error: (error: HttpErrorResponse) => {
+          const message = error?.error?.error ?? error?.error?.message ?? 'Não foi possível importar a planilha de negociação.';
+          this.pushAlert('error', 'Erro', message, '✕');
+          this.isImportingNegociacao.set(false);
+        },
+      });
   }
 
   importarProventos(): void {
@@ -75,18 +80,20 @@ export class ImportacaoComponent {
     }
 
     this.isImportingProvento.set(true);
-    this.proventosService.importProventosSpreadsheet(file).subscribe({
-      next: (response: ImportResponse) => {
-        this.pushAlert('info', 'Sucesso', `${response.imported} proventos importados com sucesso.`, '✓');
-        this.proventoFile.set(null);
-        this.isImportingProvento.set(false);
-      },
-      error: (error: HttpErrorResponse) => {
-        const message = error?.error?.error ?? error?.error?.message ?? 'Não foi possível importar a planilha de proventos.';
-        this.pushAlert('error', 'Erro', message, '✕');
-        this.isImportingProvento.set(false);
-      },
-    });
+    this.proventosService.importProventosSpreadsheet(file)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (response: ImportResponse) => {
+          this.pushAlert('info', 'Sucesso', `${response.imported} proventos importados com sucesso.`, '✓');
+          this.proventoFile.set(null);
+          this.isImportingProvento.set(false);
+        },
+        error: (error: HttpErrorResponse) => {
+          const message = error?.error?.error ?? error?.error?.message ?? 'Não foi possível importar a planilha de proventos.';
+          this.pushAlert('error', 'Erro', message, '✕');
+          this.isImportingProvento.set(false);
+        },
+      });
   }
 
   importarPortfolio(): void {
@@ -97,18 +104,20 @@ export class ImportacaoComponent {
     }
 
     this.isImportingPortfolio.set(true);
-    this.portfolioService.importPortfolioSpreadsheet(file).subscribe({
-      next: (response: ImportResponse) => {
-        this.pushAlert('info', 'Sucesso', `${response.imported} itens de portfólio importados com sucesso.`, '✓');
-        this.portfolioFile.set(null);
-        this.isImportingPortfolio.set(false);
-      },
-      error: (error: HttpErrorResponse) => {
-        const message = error?.error?.error ?? error?.error?.message ?? 'Não foi possível importar a planilha de portfólio.';
-        this.pushAlert('error', 'Erro', message, '✕');
-        this.isImportingPortfolio.set(false);
-      },
-    });
+    this.portfolioService.importPortfolioSpreadsheet(file)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (response: ImportResponse) => {
+          this.pushAlert('info', 'Sucesso', `${response.imported} itens de portfólio importados com sucesso.`, '✓');
+          this.portfolioFile.set(null);
+          this.isImportingPortfolio.set(false);
+        },
+        error: (error: HttpErrorResponse) => {
+          const message = error?.error?.error ?? error?.error?.message ?? 'Não foi possível importar a planilha de portfólio.';
+          this.pushAlert('error', 'Erro', message, '✕');
+          this.isImportingPortfolio.set(false);
+        },
+      });
   }
 
   handleAlertDismiss(alert: AlertItem): void {

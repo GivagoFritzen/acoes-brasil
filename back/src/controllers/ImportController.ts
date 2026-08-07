@@ -37,7 +37,7 @@ export class ImportController {
     }
 
     try {
-      const buffer = fs.readFileSync(file.path);
+      const buffer = await fs.promises.readFile(file.path);
       if (buffer.length < 4 || !XLSX_MAGIC_BYTES.every((byte, indice) => buffer[indice] === byte)) {
         return res.status(400).json({ message: "Tipo de arquivo inválido. Envie um arquivo .xlsx válido." });
       }

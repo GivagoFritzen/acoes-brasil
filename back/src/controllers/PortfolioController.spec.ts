@@ -286,7 +286,7 @@ describe("PortfolioController", () => {
     });
 
     it("deve importar portfolio com arquivo xlsx valido", async () => {
-      jest.spyOn(fs, "readFileSync").mockReturnValue(XLSX_MAGIC);
+      jest.spyOn(fs.promises, "readFile").mockResolvedValue(XLSX_MAGIC);
       mockSpreadsheetParser.parsePortfolioRowsAsync.mockReturnValue([
         { codigo: "VALE3", quantidade: 100, precoMedio: 50.0 },
       ]);
@@ -312,7 +312,7 @@ describe("PortfolioController", () => {
     });
 
     it("deve retornar 400 quando tipo de arquivo invalido", async () => {
-      jest.spyOn(fs, "readFileSync").mockReturnValue(Buffer.from([0x00, 0x00, 0x00, 0x00]));
+      jest.spyOn(fs.promises, "readFile").mockResolvedValue(Buffer.from([0x00, 0x00, 0x00, 0x00]));
 
       const req = createMockReq({ file: { path: filePath } });
       const res = createMockRes();
@@ -324,7 +324,7 @@ describe("PortfolioController", () => {
     });
 
     it("deve retornar 400 quando planilha sem dados", async () => {
-      jest.spyOn(fs, "readFileSync").mockReturnValue(XLSX_MAGIC);
+      jest.spyOn(fs.promises, "readFile").mockResolvedValue(XLSX_MAGIC);
       mockSpreadsheetParser.parsePortfolioRowsAsync.mockReturnValue([]);
 
       const req = createMockReq({ file: { path: filePath } });
@@ -337,7 +337,7 @@ describe("PortfolioController", () => {
     });
 
     it("deve retornar 400 quando erro no servico de importacao", async () => {
-      jest.spyOn(fs, "readFileSync").mockReturnValue(XLSX_MAGIC);
+      jest.spyOn(fs.promises, "readFile").mockResolvedValue(XLSX_MAGIC);
       mockSpreadsheetParser.parsePortfolioRowsAsync.mockReturnValue([
         { codigo: "VALE3", quantidade: 100, precoMedio: 50.0 },
       ]);
@@ -354,7 +354,7 @@ describe("PortfolioController", () => {
 
     it("deve deletar arquivo temporario apos importacao bem sucedida", async () => {
       const unlinkSpy = jest.spyOn(fs.promises, "unlink").mockResolvedValue(undefined);
-      jest.spyOn(fs, "readFileSync").mockReturnValue(XLSX_MAGIC);
+      jest.spyOn(fs.promises, "readFile").mockResolvedValue(XLSX_MAGIC);
       mockSpreadsheetParser.parsePortfolioRowsAsync.mockReturnValue([]);
 
       const req = createMockReq({ file: { path: filePath } });

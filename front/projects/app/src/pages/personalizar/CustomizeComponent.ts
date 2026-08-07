@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { TranslatePipe } from '../../pipes/TranslatePipe';
@@ -11,6 +11,7 @@ import { SettingsService } from '../../services/SettingsService';
     imports: [CommonModule, RouterLink, TranslatePipe],
     templateUrl: './CustomizeComponent.html',
     styleUrls: ['./CustomizeComponent.scss'],
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CustomizeComponent {
     protected readonly settingsService = inject(SettingsService);

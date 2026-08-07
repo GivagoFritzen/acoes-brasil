@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TranslatePipe } from '../../pipes/TranslatePipe';
 import { TranslationService } from '../../services/TranslationService';
@@ -10,6 +10,7 @@ import { SettingsService } from '../../services/SettingsService';
   imports: [CommonModule, TranslatePipe],
   templateUrl: './ConfiguracoesComponent.html',
   styleUrls: ['./ConfiguracoesComponent.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ConfiguracoesComponent {
   private translationService = inject(TranslationService);

@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component, OnInit, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, OnInit, inject, signal } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { finalize } from 'rxjs';
 import { AlertsComponent } from '../../components/alerts/AlertsComponent';
 import {
@@ -56,6 +57,7 @@ const DELETE_PROVENTO_ERROR_MESSAGE = 'Não foi possível deletar o provento.';
 })
 export class ProventosComponent implements OnInit {
   private readonly proventosService = inject(ProventosService);
+  private readonly destroyRef = inject(DestroyRef);
 
   readonly formatDateForDisplay = formatDateForDisplay;
   readonly proventos = signal<Provento[]>([]);
@@ -224,6 +226,7 @@ export class ProventosComponent implements OnInit {
           this.isCreating.set(false);
           this.isCreateModalOpen.set(false);
         }),
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe({
         next: (provento: Provento) => {
@@ -263,6 +266,7 @@ export class ProventosComponent implements OnInit {
           this.isDeleteModalOpen.set(false);
           this.proventoToDelete.set(null);
         }),
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe({
         next: () => {
@@ -300,6 +304,7 @@ export class ProventosComponent implements OnInit {
           this.isEditModalOpen.set(false);
           this.proventoToEdit.set(null);
         }),
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe({
         next: (updated: Provento) => {
@@ -335,7 +340,10 @@ export class ProventosComponent implements OnInit {
         page: this.page(),
         limit: this.limit(),
       })
-      .pipe(finalize(() => this.isLoading.set(false)))
+      .pipe(
+        finalize(() => this.isLoading.set(false)),
+        takeUntilDestroyed(this.destroyRef),
+      )
       .subscribe({
         next: (response: ProventosResponse) => {
           this.proventos.set(response.data ?? []);

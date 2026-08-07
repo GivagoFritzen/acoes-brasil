@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, computed, DestroyRef, inject, OnInit, signal, ViewEncapsulation } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, DestroyRef, inject, OnInit, signal, ViewEncapsulation } from '@angular/core';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { catchError, finalize, forkJoin, Observable, of } from 'rxjs';
@@ -29,6 +29,7 @@ import { AcaoDetailsSkeletonComponent } from './skeleton/AcaoDetailsSkeletonComp
     templateUrl: './AcaoDetailsComponent.html',
     styleUrls: ['./AcaoDetailsComponent.scss'],
     encapsulation: ViewEncapsulation.None,
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AcaoDetailsComponent implements OnInit {
 

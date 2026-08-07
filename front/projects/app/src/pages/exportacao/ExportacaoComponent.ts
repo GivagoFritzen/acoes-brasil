@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
-import { Component, DestroyRef, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, inject, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { AlertsComponent } from '../../components/alerts/AlertsComponent';
 import { SimpleButtonComponent, SimpleSelectComponent } from '../../components';
 import { AlertItem } from '../../models/alert/AlertItemModel';
@@ -17,6 +18,7 @@ import { SelectOption } from '../../../../../../common/models/SelectOptionModel'
   imports: [CommonModule, AlertsComponent, SimpleButtonComponent, SimpleSelectComponent, TranslatePipe],
   templateUrl: './ExportacaoComponent.html',
   styleUrls: ['./ExportacaoComponent.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ExportacaoComponent {
   private readonly destroyRef = inject(DestroyRef);
@@ -84,7 +86,9 @@ export class ExportacaoComponent {
   exportarPortfolioExcel(): void {
     this.isExportingPortfolio.set(true);
 
-    this.portfolioService.exportPortfolioSpreadsheet().subscribe({
+    this.portfolioService.exportPortfolioSpreadsheet()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
       next: (blob) => {
         downloadBlobAsFile(blob, `portfolio-${Date.now()}.xlsx`);
         this.pushAlert('info', 'Sucesso', 'Exportação do portfólio em Excel concluída.', '✓');
@@ -101,7 +105,9 @@ export class ExportacaoComponent {
   exportarOrderSellExcel(): void {
     this.isExportingOrderSellExcel.set(true);
 
-    this.ordersService.exportSellSnapshotsSpreadsheet(this.anoFiltro()).subscribe({
+    this.ordersService.exportSellSnapshotsSpreadsheet(this.anoFiltro())
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
       next: (blob) => {
         downloadBlobAsFile(blob, `ordersell-${Date.now()}.xlsx`);
         this.pushAlert('info', 'Sucesso', 'Exportação de OrderSell em Excel concluída.', '✓');
@@ -125,7 +131,9 @@ export class ExportacaoComponent {
 
     this.isExportingOrderSellPdf.set(true);
 
-    this.ordersService.getSellSnapshotsForPdf(this.anoFiltro()).subscribe({
+    this.ordersService.getSellSnapshotsForPdf(this.anoFiltro())
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
       next: (rows) => {
         const html = this.buildOrderSellPrintHtml(rows);
         frame.srcdoc = html;

@@ -2,8 +2,8 @@ import { beforeEach, describe, expect, it, jest } from "@jest/globals";
 
 jest.mock("fs", () => ({
   ...jest.requireActual("fs"),
-  readFileSync: jest.fn(),
   promises: {
+    readFile: jest.fn(),
     unlink: jest.fn().mockResolvedValue(undefined),
   },
   unlink: jest.fn((_path, cb) => cb && cb()),
@@ -14,7 +14,7 @@ import { ProventoController } from "./ProventoController";
 import * as fs from "fs";
 import { NotFoundException } from "../shared/exceptions/NotFoundException";
 
-const fsMock = fs as { readFileSync: jest.Mock };
+const fsMock = fs as { promises: { readFile: jest.Mock } };
 
 const mockCreateService = { executeAsync: jest.fn() };
 const mockUpdateService = { executeAsync: jest.fn() };
@@ -81,7 +81,7 @@ describe("ProventoController", () => {
 
   describe("importAsync", () => {
     it("deve retornar 201 ao importar planilha", async () => {
-      fsMock.readFileSync.mockReturnValue(Buffer.from("conteudo"));
+      fsMock.promises.readFile.mockResolvedValue(Buffer.from("conteudo"));
       mockSpreadsheetParser.parseProventoRowsAsync.mockReturnValue({ validRows: [{ codigo: "VALE3" }], invalidLineNumbers: [3] });
       mockImportService.executeAsync.mockResolvedValue({ imported: 5 });
 
@@ -104,7 +104,7 @@ describe("ProventoController", () => {
     });
 
     it("deve retornar 400 quando planilha sem dados", async () => {
-      fsMock.readFileSync.mockReturnValue(Buffer.from("conteudo"));
+      fsMock.promises.readFile.mockResolvedValue(Buffer.from("conteudo"));
       mockSpreadsheetParser.parseProventoRowsAsync.mockReturnValue({ validRows: [], invalidLineNumbers: [] });
 
       const req = createMockReq({ file: { path: "/tmp/test.xlsx" } as Express.Multer.File });

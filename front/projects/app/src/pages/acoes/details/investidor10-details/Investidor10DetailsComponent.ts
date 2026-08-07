@@ -1,9 +1,9 @@
-import { Component, computed, Input, signal, ViewEncapsulation } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, Input, signal, ViewEncapsulation } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HelpTipComponent } from '../../../../components/help-tip/HelpTipComponent';
 import { TranslatePipe } from '../../../../pipes/TranslatePipe';
 import { TranslationService } from '../../../../services/TranslationService';
-import { Investidor10AcaoDetails, Investidor10FiiDetails, Investidor10FiiIndicadorFundamentalista, Investidor10HistoricoIndicador, Investidor10ValorHistorico, Investidor10ValorPorPeriodo } from '../../../../models';
+import { Investidor10AcaoDetails, Investidor10FiiDetails, Investidor10HistoricoIndicador, Investidor10ValorHistorico } from '../../../../models';
 import { normalizeLabel } from '../../../../utils/LabelUtils';
 
 @Component({
@@ -12,6 +12,7 @@ import { normalizeLabel } from '../../../../utils/LabelUtils';
     imports: [CommonModule, HelpTipComponent, TranslatePipe],
     templateUrl: './Investidor10DetailsComponent.html',
     encapsulation: ViewEncapsulation.None,
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class Investidor10DetailsComponent {
     investidor10Value = signal<Investidor10AcaoDetails | Investidor10FiiDetails | null>(null);
@@ -20,7 +21,7 @@ export class Investidor10DetailsComponent {
         this.investidor10Value.set(value);
     }
 
-    constructor(private readonly translationService: TranslationService) {}
+    constructor(private readonly translationService: TranslationService) { }
 
     isFii = computed(() => {
         const inv = this.investidor10Value();

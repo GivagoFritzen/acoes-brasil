@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
-import { Component, HostListener, OnInit, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, HostListener, OnInit, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { finalize } from 'rxjs';
 import { AlertsComponent } from '../../components/alerts/AlertsComponent';
 import { AddPortfolioModalComponent, SimpleButtonComponent } from '../../components';
@@ -30,8 +31,10 @@ import { mesclarPorCodigo, removerSufixoF } from '../../../../../../common/utils
     ],
     templateUrl: './AcoesComponent.html',
     styleUrls: ['./AcoesComponent.scss'],
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AcoesComponent implements OnInit {
+    private readonly destroyRef = inject(DestroyRef);
     readonly portfolios = signal<PortfolioItem[]>([]);
     readonly isLoading = signal(false);
     readonly isDeleting = signal(false);
@@ -73,7 +76,10 @@ export class AcoesComponent implements OnInit {
 
         this.portfolioService
             .getPortfolios()
-            .pipe(finalize(() => this.isLoading.set(false)))
+            .pipe(
+                finalize(() => this.isLoading.set(false)),
+                takeUntilDestroyed(this.destroyRef)
+            )
             .subscribe({
                 next: (portfolios) => {
                     const portfolioItems = portfolios ?? [];
@@ -153,7 +159,9 @@ export class AcoesComponent implements OnInit {
     confirmCreatePortfolio(payload: CreatePortfolioPayload): void {
         this.isCreating.set(true);
 
-        this.portfolioService.createPortfolio(payload).subscribe({
+        this.portfolioService.createPortfolio(payload)
+            .pipe(takeUntilDestroyed(this.destroyRef))
+            .subscribe({
             next: (portfolio) => {
                 this.isCreating.set(false);
                 this.closeCreateModal();
@@ -191,7 +199,9 @@ export class AcoesComponent implements OnInit {
 
         const ids = this.codigoParaIdsMap.get(portfolio.codigo) ?? [portfolio.id];
 
-        this.portfolioService.updatePortfolio(ids[0], payload).subscribe({
+        this.portfolioService.updatePortfolio(ids[0], payload)
+            .pipe(takeUntilDestroyed(this.destroyRef))
+            .subscribe({
             next: (updated) => {
                 this.isEditing.set(false);
                 this.closeEditModal();
@@ -229,7 +239,9 @@ export class AcoesComponent implements OnInit {
 
         const ids = this.codigoParaIdsMap.get(portfolio.codigo) ?? [portfolio.id];
 
-        this.portfolioService.deletePortfolio(ids[0]).subscribe({
+        this.portfolioService.deletePortfolio(ids[0])
+            .pipe(takeUntilDestroyed(this.destroyRef))
+            .subscribe({
             next: () => {
                 this.isDeleting.set(false);
                 this.closeDeleteModal();

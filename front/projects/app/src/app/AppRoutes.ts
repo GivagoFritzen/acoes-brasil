@@ -1,8 +1,6 @@
 import { Routes } from '@angular/router';
 import { AcoesComponent } from '../pages/acoes/AcoesComponent';
 import { AcaoDetailsComponent } from '../pages/acoes/details/AcaoDetailsComponent';
-import { ExportacaoComponent } from '../pages/exportacao/ExportacaoComponent';
-import { ImportacaoComponent } from '../pages/importacao/ImportacaoComponent';
 import { OrdersComponent } from '../pages/orders/OrdersComponent';
 import { CustomizeComponent } from '../pages/personalizar/CustomizeComponent';
 import { ProventosComponent } from '../pages/proventos/ProventosComponent';
@@ -31,11 +29,13 @@ export const routes: Routes = [
   },
   {
     path: 'importacao',
-    component: ImportacaoComponent,
+    loadComponent: () => import('../pages/importacao/ImportacaoComponent')
+      .then(m => m.ImportacaoComponent),
   },
   {
     path: 'exportacao',
-    component: ExportacaoComponent,
+    loadComponent: () => import('../pages/exportacao/ExportacaoComponent')
+      .then(m => m.ExportacaoComponent),
   },
   {
     path: 'configuracoes',

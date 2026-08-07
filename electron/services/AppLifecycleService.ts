@@ -12,11 +12,16 @@ export class AppLifecycleService implements IAppLifecycle {
   async initialize(): Promise<void> {
     await app.whenReady();
 
-    if (app.isPackaged) {
-      await this.backendManager.startBackend();
-    }
-
     await this.windowManager.createWindow();
+    this.windowManager.showLoadingScreen();
+
+    if (app.isPackaged) {
+      this.backendManager.startBackend().then(() => {
+        this.windowManager.loadApp();
+      });
+    } else {
+      this.windowManager.loadApp();
+    }
 
     this.setupAppEventHandlers();
   }

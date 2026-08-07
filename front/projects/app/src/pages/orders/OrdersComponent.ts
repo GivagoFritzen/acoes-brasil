@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component, OnInit, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, OnInit, inject, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { finalize } from 'rxjs';
 import { AlertsComponent } from '../../components/alerts/AlertsComponent';
 import {
@@ -50,6 +51,7 @@ const DELETE_ORDER_ERROR_MESSAGE = 'Não foi possível deletar a ordem.';
 })
 export class OrdersComponent implements OnInit {
   private readonly ordersService = inject(OrdersService);
+  private readonly destroyRef = inject(DestroyRef);
 
   readonly formatDateForDisplay = formatDateForDisplay;
   readonly orders = signal<Order[]>([]);
@@ -200,6 +202,7 @@ export class OrdersComponent implements OnInit {
           this.isCreating.set(false);
           this.isCreateModalOpen.set(false);
         }),
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe({
         next: (order: Order) => {
@@ -235,6 +238,7 @@ export class OrdersComponent implements OnInit {
           this.isDeleteModalOpen.set(false);
           this.orderToDelete.set(null);
         }),
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe({
         next: () => {
@@ -270,6 +274,7 @@ export class OrdersComponent implements OnInit {
           this.isEditModalOpen.set(false);
           this.orderToEdit.set(null);
         }),
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe({
         next: (updated: Order) => {
@@ -304,7 +309,10 @@ export class OrdersComponent implements OnInit {
         page: this.page(),
         limit: this.limit(),
       })
-      .pipe(finalize(() => this.isLoading.set(false)))
+      .pipe(
+        finalize(() => this.isLoading.set(false)),
+        takeUntilDestroyed(this.destroyRef),
+      )
       .subscribe({
         next: (response: OrdersResponse) => this.applyListResponse(response),
         error: () => {

@@ -2,8 +2,8 @@ import { beforeEach, describe, expect, it, jest } from "@jest/globals";
 
 jest.mock("fs", () => ({
   ...jest.requireActual("fs"),
-  readFileSync: jest.fn(),
   promises: {
+    readFile: jest.fn(),
     unlink: jest.fn().mockResolvedValue(undefined),
   },
   unlink: jest.fn((_path, cb) => cb && cb()),
@@ -13,7 +13,7 @@ import { Response } from "express";
 import { ImportController } from "./ImportController";
 import * as fs from "fs";
 
-const fsMock = fs as { readFileSync: jest.Mock };
+const fsMock = fs as { promises: { readFile: jest.Mock } };
 
 const mockParser = { parseOrderRowsAsync: jest.fn() };
 const mockImportService = { executeAsync: jest.fn() };
@@ -38,7 +38,7 @@ describe("ImportController", () => {
   });
 
   it("deve retornar 201 ao importar arquivo com dados", async () => {
-    fsMock.readFileSync.mockReturnValue(Buffer.from([0x50, 0x4b, 0x03, 0x04, 0x00]));
+    fsMock.promises.readFile.mockResolvedValue(Buffer.from([0x50, 0x4b, 0x03, 0x04, 0x00]));
     mockParser.parseOrderRowsAsync.mockReturnValue([{ codigo: "VALE3", quantidade: 100 }]);
     mockImportService.executeAsync.mockResolvedValue(5);
 
@@ -62,7 +62,7 @@ describe("ImportController", () => {
   });
 
   it("deve retornar 400 quando planilha sem dados", async () => {
-    fsMock.readFileSync.mockReturnValue(Buffer.from([0x50, 0x4b, 0x03, 0x04, 0x00]));
+    fsMock.promises.readFile.mockResolvedValue(Buffer.from([0x50, 0x4b, 0x03, 0x04, 0x00]));
     mockParser.parseOrderRowsAsync.mockReturnValue([]);
 
     const req = createMockReq({ file: { path: "/tmp/test.xlsx" } as Express.Multer.File });
@@ -75,7 +75,7 @@ describe("ImportController", () => {
   });
 
   it("deve retornar 400 quando ocorre erro no parser", async () => {
-    fsMock.readFileSync.mockReturnValue(Buffer.from([0x50, 0x4b, 0x03, 0x04, 0x00]));
+    fsMock.promises.readFile.mockResolvedValue(Buffer.from([0x50, 0x4b, 0x03, 0x04, 0x00]));
     mockParser.parseOrderRowsAsync.mockImplementation(() => {
       throw new Error("Erro ao processar planilha");
     });

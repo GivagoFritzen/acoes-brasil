@@ -10,6 +10,7 @@ describe('Investidor10DetailsComponent', () => {
         get: ReturnType<typeof vi.fn>;
         has: ReturnType<typeof vi.fn>;
         currentLang$: Subject<string>;
+        getCurrentLanguage: ReturnType<typeof vi.fn>;
     };
 
     const baseAcao: Investidor10AcaoDetails = {
@@ -42,6 +43,7 @@ describe('Investidor10DetailsComponent', () => {
         get: vi.fn((key: string) => key),
         has: vi.fn((key: string) => false),
         currentLang$: new Subject<string>(),
+        getCurrentLanguage: vi.fn(() => 'pt-BR'),
     };
 
         await TestBed.configureTestingModule({

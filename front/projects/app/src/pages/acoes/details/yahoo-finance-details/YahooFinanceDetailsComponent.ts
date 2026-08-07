@@ -1,4 +1,4 @@
-import { Component, Input, signal, ViewEncapsulation } from '@angular/core';
+import { ChangeDetectionStrategy, Component, Input, signal, ViewEncapsulation } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HelpTipComponent } from '../../../../components/help-tip/HelpTipComponent';
 import { TranslatePipe } from '../../../../pipes/TranslatePipe';
@@ -12,6 +12,7 @@ import { normalizeLabel } from '../../../../utils/LabelUtils';
     imports: [CommonModule, HelpTipComponent, TranslatePipe],
     templateUrl: './YahooFinanceDetailsComponent.html',
     encapsulation: ViewEncapsulation.None,
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class YahooFinanceDetailsComponent {
     yahooFinanceValue = signal<YahooFinanceDetails | null>(null);

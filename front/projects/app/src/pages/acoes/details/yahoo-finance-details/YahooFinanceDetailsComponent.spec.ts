@@ -8,6 +8,7 @@ describe('YahooFinanceDetailsComponent', () => {
     let translationServiceMock: {
         get: ReturnType<typeof vi.fn>;
         has: ReturnType<typeof vi.fn>;
+        getCurrentLanguage: ReturnType<typeof vi.fn>;
     };
 
     const baseYahooFinance: YahooFinanceDetails = {
@@ -78,6 +79,7 @@ describe('YahooFinanceDetailsComponent', () => {
         translationServiceMock = {
             get: vi.fn((key: string) => key),
             has: vi.fn((key: string) => false),
+            getCurrentLanguage: vi.fn(() => 'pt-BR'),
         };
 
         await TestBed.configureTestingModule({

@@ -25,6 +25,7 @@ describe('FileInputComponent', () => {
                 return translations[key] || key;
             }),
             currentLang$: currentLangSubject,
+            getCurrentLanguage: vi.fn(() => 'pt-BR'),
         };
         currentLangSubject.next('pt-BR');
 

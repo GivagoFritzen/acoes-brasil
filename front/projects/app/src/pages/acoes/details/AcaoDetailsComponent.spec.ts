@@ -23,6 +23,7 @@ describe('AcaoDetailsComponent', () => {
     get: ReturnType<typeof vi.fn>;
     has: ReturnType<typeof vi.fn>;
     currentLang$: Subject<string>;
+    getCurrentLanguage: ReturnType<typeof vi.fn>;
   };
   let routeMock: any;
 
@@ -174,6 +175,7 @@ describe('AcaoDetailsComponent', () => {
       get: vi.fn((key: string) => key),
       has: vi.fn((key: string) => false),
       currentLang$: new Subject<string>(),
+      getCurrentLanguage: vi.fn(() => 'pt-BR'),
     };
     routeMock = {
       paramMap: of({ get: (key: string) => (key === 'codigo' ? 'PETR4' : null) }),
