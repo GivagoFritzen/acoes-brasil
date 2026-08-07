@@ -209,10 +209,16 @@
   .orders {
     margin: 24px;
     padding: 20px;
+    overflow-x: auto;
 
     .orders__row {
-      grid-template-columns: repeat(8, minmax(90px, 1fr));
+      grid-template-columns: repeat(8, minmax(0, 1fr));
       column-gap: 10px;
+      min-width: 600px;
+    }
+
+    .orders__row--head {
+      min-width: 600px;
     }
   }
 }
