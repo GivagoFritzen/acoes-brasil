@@ -4,7 +4,7 @@ import { TranslationService } from '../services/TranslationService';
 @Pipe({
   name: 'translate',
   standalone: true,
-  pure: true
+  pure: false
 })
 export class TranslatePipe implements PipeTransform {
   private translationService = inject(TranslationService);
