@@ -65,6 +65,21 @@ describe("ProventoController", () => {
       expect(res.json).toHaveBeenCalledWith({ id: "1", codigo: "VALE3" });
     });
 
+    it("deve normalizar data para ISO ao criar provento", async () => {
+      mockCreateService.executeAsync.mockResolvedValue({ id: "1", codigo: "VALE3" });
+
+      const req = createMockReq({
+        body: { codigo: "VALE3", data: "31-07-2026", tipo: "DIVIDENDO", instituicao: "B3", quantidade: 100, precoUnitario: 1.5, valorLiquido: 150 },
+      });
+      const res = createMockRes();
+
+      await controller.createAsync(req, res);
+
+      expect(mockCreateService.executeAsync).toHaveBeenCalledWith(
+        expect.objectContaining({ data: "2026-07-31" })
+      );
+    });
+
     it("deve retornar 500 quando servico lanca erro", async () => {
       mockCreateService.executeAsync.mockRejectedValue(new Error("erro ao criar"));
 
@@ -223,6 +238,23 @@ describe("ProventoController", () => {
       await controller.updateAsync(req, res);
 
       expect(res.json).toHaveBeenCalledWith({ id: "1", codigo: "VALE3" });
+    });
+
+    it("deve normalizar data para ISO ao atualizar provento", async () => {
+      mockUpdateService.executeAsync.mockResolvedValue({ id: "1", codigo: "VALE3" });
+
+      const req = createMockReq({
+        params: { id: "550e8400-e29b-41d4-a716-446655440000" },
+        body: { codigo: "VALE3", data: "31-07-2026", tipo: "DIVIDENDO", instituicao: "B3", quantidade: 100, precoUnitario: 1.5, valorLiquido: 150 },
+      });
+      const res = createMockRes();
+
+      await controller.updateAsync(req, res);
+
+      expect(mockUpdateService.executeAsync).toHaveBeenCalledWith(
+        "550e8400-e29b-41d4-a716-446655440000",
+        expect.objectContaining({ data: "2026-07-31" })
+      );
     });
 
     it("deve retornar 400 quando campos obrigatórios estão faltando", async () => {

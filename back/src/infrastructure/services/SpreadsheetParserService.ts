@@ -28,7 +28,8 @@ export class SpreadsheetParserService {
       );
       const quantidadeRaw = parseDecimal(extractField(row, ["Quantidade"]));
       const preco = parseDecimal(extractField(row, ["Preço", "Preco"]));
-      const data = toBrDateString(extractField(row, ["Data do Negócio", "Data do Negocio", "Data"]));
+      const brData = toBrDateString(extractField(row, ["Data do Negócio", "Data do Negocio", "Data"]));
+      const data = brData ? DateUtils.normalizeToIsoDate(brData) ?? brData : "";
       const operacao = this.normalizeOperacao(extractField(row, ["Tipo de Movimentação", "Tipo de Movimentacao"]));
       const tipo = detectSupportedAssetTypeFromTicker(codigo);
       const quantidade = quantidadeRaw === null ? null : Math.trunc(quantidadeRaw);

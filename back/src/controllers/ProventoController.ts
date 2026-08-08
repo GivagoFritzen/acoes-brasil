@@ -9,6 +9,7 @@ import { ImportProventosService } from "../application/services/ImportProventosS
 import { ListProventosService } from "../application/services/ListProventosService";
 import { SpreadsheetParserService } from "../infrastructure/services/SpreadsheetParserService";
 import { ErrorHandler } from "../shared/error-handler/ErrorHandler";
+import { DateUtils } from "../shared/utils/DateUtils";
 
 export class ProventoController {
   constructor(
@@ -23,7 +24,8 @@ export class ProventoController {
   async createAsync(req: Request, res: Response): Promise<Response> {
     try {
       const codigo = String(req.body?.codigo ?? "").trim();
-      const data = String(req.body?.data ?? "").trim();
+      const dataRaw = String(req.body?.data ?? "").trim();
+      const data = DateUtils.normalizeToIsoDate(dataRaw) ?? dataRaw;
 
       if (!codigo || !data) {
         return res.status(400).json({ message: "Campos obrigatórios: codigo, data." });
@@ -68,7 +70,8 @@ export class ProventoController {
     try {
       const id = String(req.params.id);
       const codigo = String(req.body?.codigo ?? "").trim();
-      const data = String(req.body?.data ?? "").trim();
+      const dataRaw = String(req.body?.data ?? "").trim();
+      const data = DateUtils.normalizeToIsoDate(dataRaw) ?? dataRaw;
 
       if (!codigo || !data) {
         return res.status(400).json({ message: "Campos obrigatórios: codigo, data." });

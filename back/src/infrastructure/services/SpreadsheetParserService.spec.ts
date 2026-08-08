@@ -69,6 +69,38 @@ describe("SpreadsheetParserService", () => {
       expect(resultado[1].codigo).toBe("VALE3");
     });
 
+    it("Deve normalizar data para ISO quando data em formato BR com hifens", () => {
+      const buffer = criarBufferExcel([
+        {
+          "Código de Negociação": "VALE3",
+          Quantidade: "100",
+          Preço: "50,00",
+          "Data do Negócio": "15-01-2024",
+          "Tipo de Movimentação": "Compra",
+        },
+      ]);
+
+      const resultado = service.parseOrderRowsAsync(buffer);
+
+      expect(resultado[0].data).toBe("2024-01-15");
+    });
+
+    it("Deve normalizar data para ISO quando data em formato BR com barras", () => {
+      const buffer = criarBufferExcel([
+        {
+          "Código de Negociação": "VALE3",
+          Quantidade: "100",
+          Preço: "50,00",
+          "Data do Negócio": "31/07/2026",
+          "Tipo de Movimentação": "Compra",
+        },
+      ]);
+
+      const resultado = service.parseOrderRowsAsync(buffer);
+
+      expect(resultado[0].data).toBe("2026-07-31");
+    });
+
     it("Deve detectar operacao como Venda quando texto contem venda", () => {
       const buffer = criarBufferExcel([
         {
