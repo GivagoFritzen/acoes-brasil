@@ -69,6 +69,7 @@
       <span [attr.data-label]="'orders.sum' | translate">{{ (item.quantidade * item.valor) | currency:'BRL' }}</span>
       <span [attr.data-label]="'orders.date' | translate">{{ formatDateForDisplay(item.data) }}</span>
       <span class="orders__actions" [attr.data-label]="'orders.actions' | translate">
+        <app-action-button variant="primary" icon="edit" title="{{ 'orders.editOrderTitle' | translate }}" (actionClick)="openEditModal(item)"></app-action-button>
         <app-action-button title="{{ 'orders.deleteOrderTitle' | translate }}" (actionClick)="openDeleteModal(item)"></app-action-button>
       </span>
     </article>
@@ -106,5 +107,9 @@
 
   <app-add-order-modal [isOpen]="isCreateModalOpen()" [isSaving]="isCreating()" [operacaoOptions]="operacaoOptions"
     (closed)="closeCreateModal()" (saved)="confirmCreateOrder($event)">
+  </app-add-order-modal>
+
+  <app-add-order-modal [isOpen]="isEditModalOpen()" [isSaving]="isCreating()" [operacaoOptions]="operacaoOptions"
+    [editingItem]="orderToEdit()" (closed)="closeEditModal()" (saved)="confirmEditOrder($event)">
   </app-add-order-modal>
 </section>

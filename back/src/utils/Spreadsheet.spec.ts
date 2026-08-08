@@ -1,4 +1,5 @@
-import { readSpreadsheetRows, extractField, parseDecimal, toBrDateString } from "./Spreadsheet";
+import { readSpreadsheetRows, extractField, toBrDateString } from "./Spreadsheet";
+import { parseDecimal } from "../../../common/utils/parseDecimal";
 
 describe("Spreadsheet", () => {
   describe("readSpreadsheetRows", () => {

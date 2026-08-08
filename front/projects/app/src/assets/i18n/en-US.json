@@ -1,4 +1,21 @@
 {
+    "common": {
+        "alerts": {
+            "success": "Success",
+            "error": "Error",
+            "attention": "Attention"
+        },
+        "button": {
+            "cancel": "Cancel",
+            "saving": "Saving...",
+            "save": "Save"
+        },
+        "assetType": {
+            "action": "Stock",
+            "fii": "FII",
+            "bdr": "BDR"
+        }
+    },
     "indicators": {
         "Papel": "Stock ticker symbol.",
         "Cotacao": "Closing price of the stock in the last trading session.",
@@ -134,7 +151,8 @@
         "configuracoes": "Settings",
         "tour": "Guided Tour",
         "marketOpen": "Market Open",
-        "marketClosed": "Market Closed"
+        "marketClosed": "Market Closed",
+        "marketOffline": "Offline"
     },
     "tour": {
         "next": "Next",
@@ -199,7 +217,18 @@
         "cancel": "Cancel",
         "delete": "Delete",
         "deleting": "Deleting...",
-        "deleteAssetTitle": "Delete Asset"
+        "deleteAssetTitle": "Delete Asset",
+        "edit": "Edit",
+        "deleteAsset": "Delete",
+        "alerts": {
+            "loadPortfoliosFailed": "Could not load portfolios.",
+            "assetCreated": "Asset added successfully.",
+            "addAssetFailed": "Could not add asset to portfolio.",
+            "assetUpdated": "Asset updated successfully.",
+            "updateAssetFailed": "Could not update asset in portfolio.",
+            "assetDeleted": "Asset removed successfully.",
+            "deleteAssetFailed": "Could not delete asset from portfolio."
+        }
     },
     "orders": {
         "title": "Orders",
@@ -223,7 +252,34 @@
         "cancel": "Cancel",
         "delete": "Delete",
         "deleting": "Deleting...",
-        "deleteOrderTitle": "Delete Order"
+        "deleteOrderTitle": "Delete Order",
+        "filterBuy": "Buy",
+        "filterSell": "Sell",
+        "modal": {
+            "newTitle": "New order",
+            "editTitle": "Edit order"
+        },
+        "field": {
+            "code": "Code",
+            "type": "Type",
+            "operation": "Operation",
+            "quantity": "Quantity",
+            "value": "Value",
+            "date": "Date"
+        },
+        "validation": {
+            "fillAllFields": "Fill in all fields with valid values.",
+            "invalidCode": "Invalid code. Use 4 letters + 2 digits (max. 7), with suffix F only for stocks (e.g.: PETR4F, TAEE11, AAPL34).",
+            "futureDate": "The order date cannot be in the future."
+        },
+        "alerts": {
+            "loadFailed": "Could not load orders.",
+            "createFailed": "Could not add order.",
+            "deleteFailed": "Could not delete order.",
+            "orderCreated": "Order added successfully.",
+            "orderDeleted": "Order removed successfully.",
+            "orderUpdated": "Order updated successfully."
+        }
     },
     "proventos": {
         "title": "Dividends",
@@ -248,7 +304,37 @@
         "cancel": "Cancel",
         "delete": "Delete",
         "deleting": "Deleting...",
-        "deleteProventoTitle": "Delete Dividend"
+        "deleteProventoTitle": "Delete Dividend",
+        "filterDividendo": "Dividend",
+        "filterJcp": "JCP",
+        "filterRendimento": "Income",
+        "modal": {
+            "newTitle": "New dividend",
+            "editTitle": "Edit dividend"
+        },
+        "field": {
+            "code": "Code",
+            "type": "Type",
+            "institution": "Institution",
+            "quantity": "Quantity",
+            "unitPrice": "Unit Price",
+            "netValue": "Net Value",
+            "date": "Date"
+        },
+        "validation": {
+            "fillAllFields": "Fill in all fields with valid values.",
+            "futureDate": "The dividend date cannot be in the future.",
+            "invalidCode": "Invalid code. Use 4 letters + 2 digits (max. 7), with suffix F only for stocks (e.g.: PETR4F, TAEE11, AAPL34)."
+        },
+        "alerts": {
+            "loadFailed": "Could not load dividends.",
+            "createFailed": "Could not add dividend.",
+            "deleteFailed": "Could not delete dividend.",
+            "created": "Dividend added successfully.",
+            "deletedGroup": "Dividends removed successfully.",
+            "deletedSingle": "Dividend removed successfully.",
+            "updated": "Dividend updated successfully."
+        }
     },
     "importacao": {
         "title": "Spreadsheet Import",
@@ -267,7 +353,20 @@
         "portfolioTitle": "Sheet → Portfolio",
         "portfolioHint": "Expected headers: Code, Quantity, Average Price.",
         "portfolioFileLabel": "Portfolio file",
-        "importPortfolio": "Import portfolio"
+        "importPortfolio": "Import portfolio",
+        "alerts": {
+            "selectNegociacaoFile": "Select a trade file to import.",
+            "selectProventoFile": "Select a dividend file to import.",
+            "selectPortfolioFile": "Select a portfolio file to import.",
+            "negociacaoSuccess": " trades imported successfully.",
+            "proventoSuccess": " dividends imported successfully.",
+            "portfolioSuccess": " portfolio items imported successfully."
+        },
+        "errors": {
+            "negociacaoImportFailed": "Could not import the trade spreadsheet.",
+            "proventoImportFailed": "Could not import the dividend spreadsheet.",
+            "portfolioImportFailed": "Could not import the portfolio spreadsheet."
+        }
     },
     "configuracoes": {
         "title": "Settings",
@@ -307,7 +406,30 @@
         "orderSellPdfHint": "Generates PDF with fields: Code, currentAveragePrice, Quantity, currentStockValue, gains and date.",
         "exportOrderSellPdf": "Export OrderSell to PDF",
         "filtrarAno": "Filter by year",
-        "todosAnos": "All years"
+        "todosAnos": "All years",
+        "alerts": {
+            "prepareAcoesFailed": "Could not prepare the stocks page export.",
+            "pdfStarted": "Export started. Save as PDF in the print dialog.",
+            "pdfPrintFailed": "Could not start the PDF export.",
+            "portfolioExcelDone": "Portfolio Excel export completed.",
+            "portfolioExcelFailed": "Could not export portfolio to Excel.",
+            "orderSellExcelDone": "OrderSell Excel export completed.",
+            "orderSellExcelFailed": "Could not export OrderSell to Excel.",
+            "prepareOrderSellFailed": "Could not prepare the OrderSell export.",
+            "orderSellPdfStarted": "OrderSell PDF export started.",
+            "orderSellPdfPrintFailed": "Could not start the OrderSell PDF export.",
+            "orderSellDataLoadFailed": "Could not load OrderSell data for PDF."
+        },
+        "pdf": {
+            "title": "OrderSell - PDF Export",
+            "reportTitle": "OrderSell - Report",
+            "headerCodigo": "Code",
+            "headerPrecoMedioAtual": "Current Average Price",
+            "headerQuantidade": "Quantity",
+            "headerValorAtualAcao": "Current Stock Value",
+            "headerGanhos": "Gains",
+            "headerData": "Date"
+        }
     },
     "fileInput": {
         "clickToUpload": "Click the button below to upload",

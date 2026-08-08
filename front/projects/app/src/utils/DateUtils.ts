@@ -34,3 +34,26 @@ export function formatDateForDisplay(dateValue: string | Date | null | undefined
 
   return raw;
 }
+
+export function compareIsoDates(dataA: string, dataB: string): number {
+  return dataA.localeCompare(dataB);
+}
+
+export function isFutureDate(dateValue: string | Date): boolean {
+  let candidate: Date;
+
+  if (dateValue instanceof Date) {
+    candidate = new Date(dateValue);
+  } else {
+    const parsed = new Date(`${dateValue}T00:00:00`);
+    if (Number.isNaN(parsed.getTime())) {
+      return false;
+    }
+    candidate = parsed;
+  }
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  candidate.setHours(0, 0, 0, 0);
+  return candidate.getTime() > today.getTime();
+}

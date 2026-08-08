@@ -4,6 +4,26 @@ import { IErrorHandler } from '../interfaces/IErrorHandler';
 import path from 'path';
 import { AppConfig } from '../interfaces/IAppConfig';
 
+const LOADING_HTML = `<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <style>
+    body { margin: 0; display: flex; justify-content: center; align-items: center; height: 100vh; background: #1a1a2e; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+    .loader { text-align: center; }
+    .spinner { width: 40px; height: 40px; border: 4px solid #f3f3f3; border-top: 4px solid #3498db; border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 20px; }
+    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    p { color: #fff; font-size: 14px; }
+  </style>
+</head>
+<body>
+  <div class="loader">
+    <div class="spinner"></div>
+    <p>Carregando aplicação...</p>
+  </div>
+</body>
+</html>`;
+
 export class WindowManagerService implements IWindowManager {
   private mainWindow: BrowserWindow | null = null;
   private config: AppConfig;
@@ -28,17 +48,26 @@ export class WindowManagerService implements IWindowManager {
         contextIsolation: true,
         nodeIntegration: false,
         sandbox: true,
-        webSecurity: false,
+        webSecurity: app.isPackaged,
       },
     });
-
-    await this.loadRenderer(this.mainWindow);
 
     this.mainWindow.on('closed', () => {
       this.mainWindow = null;
     });
 
     return this.mainWindow;
+  }
+
+  showLoadingScreen(): void {
+    if (this.mainWindow) {
+      this.mainWindow.loadURL(`data:text/html;charset=utf-8,${encodeURIComponent(LOADING_HTML)}`);
+    }
+  }
+
+  async loadApp(): Promise<void> {
+    if (!this.mainWindow) return;
+    await this.loadRenderer(this.mainWindow);
   }
 
   async loadRenderer(window: BrowserWindow): Promise<void> {

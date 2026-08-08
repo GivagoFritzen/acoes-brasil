@@ -1,8 +1,8 @@
 import type { Investidor10AcaoDetails, Investidor10FiiDetails, Investidor10HistoricoIndicador, Investidor10Indicator, Investidor10Provento, Investidor10ProventosResponse, Investidor10ValorHistorico, Investidor10ReceitaAno, Investidor10SegmentoReceita, Investidor10RegiaoReceita, Investidor10Imovel, Investidor10InformacaoFii, Investidor10FiiIndicadorFundamentalista, Investidor10ValorPorPeriodo } from "../../../../common/models/investidor10";
 import type { JsonValue } from "../../models/JsonValue";
 import { stripHtml } from "../../shared/utils/FundamentusUtils";
+import { fetchWithTimeout } from "../../shared/utils/FetchWithTimeout";
 
-const REQUEST_TIMEOUT_MS = 15_000;
 const MAX_HTML_LENGTH = 2_000_000;
 
 const API_BASE = "https://investidor10.com.br";
@@ -97,20 +97,17 @@ export class Investidor10ScraperService {
   }
 
   private async fetchHtmlAsync(url: string): Promise<string | null> {
-    const abortController = new AbortController();
-    const timeoutId = setTimeout(() => abortController.abort(), REQUEST_TIMEOUT_MS);
-
     let response: Response;
     try {
-      response = await fetch(url, {
-        signal: abortController.signal,
+      response = await fetchWithTimeout(url, {
         headers: {
           "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
           Accept: "text/html,application/xhtml+xml",
         },
+        timeoutMs: 15_000,
       });
-    } finally {
-      clearTimeout(timeoutId);
+    } catch {
+      return null;
     }
 
     if (!response.ok) return null;
@@ -162,29 +159,29 @@ export class Investidor10ScraperService {
   }
 
   private async fetchJsonAsync(url: string, isFii: boolean = false): Promise<Record<string, JsonValue> | null> {
-    const abortController = new AbortController();
-    const timeoutId = setTimeout(() => abortController.abort(), REQUEST_TIMEOUT_MS);
-
+    let response: Response;
     try {
-      const response = await fetch(url, {
-        signal: abortController.signal,
+      response = await fetchWithTimeout(url, {
         headers: {
           "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
           Referer: isFii ? `${API_BASE}/fiis/` : `${API_BASE}/acoes/`,
           Accept: "application/json, text/javascript, */*; q=0.01",
           "X-Requested-With": "XMLHttpRequest",
         },
+        timeoutMs: 15_000,
       });
+    } catch {
+      return null;
+    }
 
-      if (!response.ok) return null;
-      const text = await response.text();
-      if (!text) return null;
+    if (!response.ok) return null;
+    const text = await response.text();
+    if (!text) return null;
 
+    try {
       return JSON.parse(text);
     } catch {
       return null;
-    } finally {
-      clearTimeout(timeoutId);
     }
   }
 
@@ -764,7 +761,7 @@ export class Investidor10ScraperService {
   }
 
   private extractJSObject(html: string, varName: string): string | null {
-    const regex = new RegExp(`let\s+${varName}\s*=\s*`);
+    const regex = new RegExp(`let\\s+${varName}\\s*=\\s*`);
     const match = regex.exec(html);
     if (!match) return null;
 

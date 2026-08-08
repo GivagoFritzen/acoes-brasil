@@ -146,7 +146,7 @@ describe("database/index", () => {
             logging: false,
             dialectOptions: {
               options: {
-                encrypt: false,
+                encrypt: true,
                 trustServerCertificate: true,
               },
             },

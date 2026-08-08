@@ -1,16 +1,4 @@
 export class DateUtils {
-  static normalizeToBrDateString(val: string | number | boolean | null | undefined): string {
-    if (!val) return "";
-    const str = String(val).trim();
-    const brDatePattern = /^(\d{2})-(\d{2})-(\d{4})$/;
-    if (brDatePattern.test(str)) return str;
-    const isoMatch = str.match(/^(\d{4})-(\d{2})-(\d{2})$/);
-    if (isoMatch) return `${isoMatch[3]}-${isoMatch[2]}-${isoMatch[1]}`;
-    const isoFullMatch = str.match(/^(\d{4})-(\d{2})-(\d{2})T/);
-    if (isoFullMatch) return `${isoFullMatch[3]}-${isoFullMatch[2]}-${isoFullMatch[1]}`;
-    return str;
-  }
-
   static normalizeToIsoDate(value: string | null | undefined): string | null {
     if (typeof value !== "string") return null;
     const trimmedValue = value.trim();
@@ -34,10 +22,6 @@ export class DateUtils {
     today.setHours(0, 0, 0, 0);
 
     return parsed.getTime() > today.getTime();
-  }
-
-  static isFutureBrDate(value: string): boolean {
-    return this.isFutureDate(value);
   }
 
   static isValidBrDate(value: string): boolean {

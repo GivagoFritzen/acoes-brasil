@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component, OnInit, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, OnInit, inject, signal } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { finalize } from 'rxjs';
 import { AlertsComponent } from '../../components/alerts/AlertsComponent';
 import {
@@ -19,18 +20,18 @@ import {
   ProventosResponse,
 } from '../../models';
 import { CreateProventoPayload } from '../../models/CreateProventoPayloadModel';
+import { UpdateProventoPayload } from '../../models/UpdateProventoPayloadModel';
 import { SimpleCheckboxComponent } from '../../components/simple-checkbox/SimpleCheckboxComponent';
 import { AlertItem } from '../../models/alert/AlertItemModel';
+import { filterAlert } from '../../utils/AlertUtils';
 import type { SelectOption } from '../../../../../../common/models/SelectOptionModel';
 import { ProventosService } from '../../services/ProventosService';
-import { formatDateForDisplay } from '../../utils/DateUtils';
+import { formatDateForDisplay, compareIsoDates } from '../../utils/DateUtils';
 import { ProventosFilters } from '../../models/ProventosFiltersModel';
 import { TranslatePipe } from '../../pipes/TranslatePipe';
+import { TranslationService } from '../../services/TranslationService';
 
 const DEFAULT_LIMIT = 10;
-const LOAD_PROVENTOS_ERROR_MESSAGE = 'Não foi possível carregar os proventos.';
-const CREATE_PROVENTO_ERROR_MESSAGE = 'Não foi possível adicionar o provento.';
-const DELETE_PROVENTO_ERROR_MESSAGE = 'Não foi possível deletar o provento.';
 
 @Component({
   selector: 'app-proventos',
@@ -54,6 +55,8 @@ const DELETE_PROVENTO_ERROR_MESSAGE = 'Não foi possível deletar o provento.';
 })
 export class ProventosComponent implements OnInit {
   private readonly proventosService = inject(ProventosService);
+  private readonly destroyRef = inject(DestroyRef);
+  private readonly translationService = inject(TranslationService);
 
   readonly formatDateForDisplay = formatDateForDisplay;
   readonly proventos = signal<Provento[]>([]);
@@ -66,12 +69,14 @@ export class ProventosComponent implements OnInit {
   readonly alerts = signal<AlertItem[]>([]);
   readonly isDeleteModalOpen = signal(false);
   readonly isCreateModalOpen = signal(false);
+  readonly isEditModalOpen = signal(false);
   readonly proventoToDelete = signal<Provento | null>(null);
+  readonly proventoToEdit = signal<Provento | null>(null);
 
   readonly tipoOptions: SelectOption<ProventoTipo>[] = [
-    { label: 'Dividendo', value: ProventoTipos.Dividendo },
-    { label: 'JCP', value: ProventoTipos.JurosSobreCapitalProprio },
-    { label: 'Rendimento', value: ProventoTipos.Rendimento },
+    { label: this.translationService.get('proventos.filterDividendo'), value: ProventoTipos.Dividendo },
+    { label: this.translationService.get('proventos.filterJcp'), value: ProventoTipos.JurosSobreCapitalProprio },
+    { label: this.translationService.get('proventos.filterRendimento'), value: ProventoTipos.Rendimento },
   ];
 
   readonly filtroCodigo = signal('');
@@ -94,6 +99,11 @@ export class ProventosComponent implements OnInit {
 
   handleFilterStartChange(value: string): void {
     this.filtroData.set(value);
+
+    const dataFinalAtual = this.filtroDataFinal();
+    if (value && dataFinalAtual && compareIsoDates(value, dataFinalAtual) > 0) {
+      this.filtroDataFinal.set(value);
+    }
   }
 
   handleFilterCodeChange(value: string): void {
@@ -106,6 +116,11 @@ export class ProventosComponent implements OnInit {
 
   handleFilterEndChange(value: string): void {
     this.filtroDataFinal.set(value);
+
+    const dataInicialAtual = this.filtroData();
+    if (value && dataInicialAtual && compareIsoDates(value, dataInicialAtual) < 0) {
+      this.filtroData.set(value);
+    }
   }
 
   handleJuntarPorCodigoChange(value: boolean): void {
@@ -146,15 +161,7 @@ export class ProventosComponent implements OnInit {
   }
 
   handleAlertDismiss(alert: AlertItem): void {
-    this.alerts.update((items) =>
-      items.filter(
-        (item) =>
-          item.variant !== alert.variant ||
-          item.title !== alert.title ||
-          item.message !== alert.message ||
-          item.icon !== alert.icon,
-      ),
-    );
+    this.alerts.update((items) => items.filter(filterAlert(alert)));
   }
 
   formatTipo(tipo: ProventoTipo): string {
@@ -204,6 +211,20 @@ export class ProventosComponent implements OnInit {
     this.isCreateModalOpen.set(false);
   }
 
+  openEditModal(provento: Provento): void {
+    this.proventoToEdit.set(provento);
+    this.isEditModalOpen.set(true);
+  }
+
+  closeEditModal(): void {
+    if (this.isCreating()) {
+      return;
+    }
+
+    this.isEditModalOpen.set(false);
+    this.proventoToEdit.set(null);
+  }
+
   confirmCreateProvento(payload: CreateProventoPayload): void {
     this.isCreating.set(true);
 
@@ -214,14 +235,15 @@ export class ProventosComponent implements OnInit {
           this.isCreating.set(false);
           this.isCreateModalOpen.set(false);
         }),
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe({
         next: (provento: Provento) => {
           this.alerts.set([
             {
               variant: 'info',
-              title: 'Sucesso',
-              message: `Provento ${provento.codigo} adicionado com sucesso.`,
+              title: this.translationService.get('common.alerts.success'),
+              message: `${this.translationService.get('proventos.alerts.created')} ${provento.codigo}`,
               icon: '✓',
             },
           ]);
@@ -242,29 +264,71 @@ export class ProventosComponent implements OnInit {
 
     this.isDeleting.set(true);
 
-    this.proventosService
-      .deleteProvento(provento.id)
+    const deleteObservable = this.juntarPorCodigo()
+      ? this.proventosService.deleteProventosByCodigo(provento.codigo)
+      : this.proventosService.deleteProvento(provento.id);
+
+    deleteObservable
       .pipe(
         finalize(() => {
           this.isDeleting.set(false);
           this.isDeleteModalOpen.set(false);
           this.proventoToDelete.set(null);
         }),
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe({
         next: () => {
           this.alerts.set([
             {
               variant: 'info',
-              title: 'Sucesso',
-              message: `Provento ${provento.codigo} removido com sucesso.`,
+              title: this.translationService.get('common.alerts.success'),
+              message: this.juntarPorCodigo()
+                ? `${this.translationService.get('proventos.alerts.deletedGroup')} ${provento.codigo}`
+                : `${this.translationService.get('proventos.alerts.deletedSingle')} ${provento.codigo}`,
               icon: '✓',
             },
           ]);
           this.loadProventos();
         },
         error: () => {
-          this.alerts.set([this.createErrorAlert(DELETE_PROVENTO_ERROR_MESSAGE)]);
+          this.alerts.set([this.createErrorAlert(this.translationService.get('proventos.alerts.deleteFailed'))]);
+        },
+      });
+  }
+
+  confirmEditProvento(payload: UpdateProventoPayload): void {
+    const provento = this.proventoToEdit();
+    if (!provento) {
+      return;
+    }
+
+    this.isCreating.set(true);
+
+    this.proventosService
+      .updateProvento(provento.id, payload)
+      .pipe(
+        finalize(() => {
+          this.isCreating.set(false);
+          this.isEditModalOpen.set(false);
+          this.proventoToEdit.set(null);
+        }),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe({
+        next: (updated: Provento) => {
+          this.alerts.set([
+            {
+              variant: 'info',
+              title: this.translationService.get('common.alerts.success'),
+              message: `${this.translationService.get('proventos.alerts.updated')} ${updated.codigo}`,
+              icon: '✓',
+            },
+          ]);
+          this.loadProventos();
+        },
+        error: () => {
+          this.alerts.set([this.createErrorAlert(this.translationService.get('proventos.alerts.createFailed'))]);
         },
       });
   }
@@ -285,7 +349,10 @@ export class ProventosComponent implements OnInit {
         page: this.page(),
         limit: this.limit(),
       })
-      .pipe(finalize(() => this.isLoading.set(false)))
+      .pipe(
+        finalize(() => this.isLoading.set(false)),
+        takeUntilDestroyed(this.destroyRef),
+      )
       .subscribe({
         next: (response: ProventosResponse) => {
           this.proventos.set(response.data ?? []);
@@ -294,8 +361,8 @@ export class ProventosComponent implements OnInit {
           this.totalPages.set(response.totalPages);
         },
         error: () => {
-          this.errorMessage.set(LOAD_PROVENTOS_ERROR_MESSAGE);
-          this.alerts.set([this.createErrorAlert(LOAD_PROVENTOS_ERROR_MESSAGE)]);
+          this.errorMessage.set(this.translationService.get('proventos.alerts.loadFailed'));
+          this.alerts.set([this.createErrorAlert(this.translationService.get('proventos.alerts.loadFailed'))]);
         },
       });
   }
@@ -333,7 +400,7 @@ export class ProventosComponent implements OnInit {
 
   private extractCreateProventoErrorMessage(error: HttpErrorResponse): string {
     const errorResponse = error.error as { message?: string } | null;
-    return errorResponse?.message ?? CREATE_PROVENTO_ERROR_MESSAGE;
+    return errorResponse?.message ?? this.translationService.get('proventos.alerts.createFailed');
   }
 
   private toProventoTipo(value: string): ProventoTipo | '' {
@@ -351,7 +418,7 @@ export class ProventosComponent implements OnInit {
   private createErrorAlert(message: string): AlertItem {
     return {
       variant: 'error',
-      title: 'Error!',
+      title: this.translationService.get('common.alerts.error'),
       message,
       icon: '✕',
     };

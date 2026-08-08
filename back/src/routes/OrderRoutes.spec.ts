@@ -5,6 +5,7 @@ import { OrderController } from "../controllers/OrderController";
 import { ImportController } from "../controllers/ImportController";
 
 const mockCreateService = { executeAsync: jest.fn().mockResolvedValue({ id: "1" }) };
+const mockUpdateService = { executeAsync: jest.fn().mockResolvedValue({ id: "1" }) };
 const mockDeleteService = { executeAsync: jest.fn().mockResolvedValue({}) };
 const mockListService = { executeAsync: jest.fn().mockResolvedValue({ items: [], total: 0 }) };
 const mockGetSellSnapshotsService = { executeAsync: jest.fn().mockResolvedValue([]) };
@@ -18,6 +19,7 @@ jest.mock("../../shared/dependency-injection/Container", () => ({
       if (name === "OrderController") {
         return new OrderController(
           mockCreateService as any,
+          mockUpdateService as any,
           mockDeleteService as any,
           mockListService as any,
           mockGetSellSnapshotsService as any,

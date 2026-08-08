@@ -18,6 +18,8 @@ export class TourComponent implements OnDestroy {
 
   private pollId: number | null = null;
   private listenersAttached = false;
+  private pollAttempts = 0;
+  private static readonly MAX_POLL_ATTEMPTS = 100;
 
   constructor() {
     effect(() => {
@@ -67,6 +69,7 @@ export class TourComponent implements OnDestroy {
   private startPoll(): void {
     if (!isPlatformBrowser(this.platformId)) return;
     this.stopPoll();
+    this.pollAttempts = 0;
     this.reposition();
     this.pollId = window.setInterval(() => this.reposition(), 300);
   }
@@ -83,11 +86,19 @@ export class TourComponent implements OnDestroy {
     const step = this.tourService.currentStep;
     if (!step || !this.tourService.isActive()) {
       this.state.set(null);
+      this.stopPoll();
       return;
     }
 
     if (!step.elementSelector) {
       this.state.set(null);
+      this.stopPoll();
+      return;
+    }
+
+    this.pollAttempts++;
+    if (this.pollAttempts >= TourComponent.MAX_POLL_ATTEMPTS) {
+      this.stopPoll();
       return;
     }
 

@@ -1,27 +1,33 @@
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, Input, OnChanges, Output, SimpleChanges, signal } from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, Output, SimpleChanges, inject, signal } from '@angular/core';
 import { DatePickerComponent } from '../date-range-filter/DatePickerComponent';
 import { SimpleButtonComponent } from '../simple-button/SimpleButtonComponent';
 import { SimpleInputComponent } from '../simple-input/SimpleInputComponent';
 import { SimpleInputNumberComponent } from '../simple-input-number/SimpleInputNumberComponent';
 import { SimpleSelectComponent } from '../simple-select/SimpleSelectComponent';
-import { OrderOperacao, OrderTipo } from '../../models';
+import { OrderOperacao, OrderTipo, Order } from '../../models';
 import { SelectOption } from '../../../../../../common/models/SelectOptionModel';
 import { CreateOrderPayload } from '../../models/CreateOrderPayloadModel';
 import { normalizeOrderCodigo } from '../../../../../../common/utils/OrderCodigoUtils';
 import { detectSupportedAssetTypeFromTicker } from '../../../../../../common/utils/AssetTypeUtils';
+import { isFutureDate } from '../../utils/DateUtils';
+import { TranslationService } from '../../services/TranslationService';
+import { TranslatePipe } from '../../pipes/TranslatePipe';
 
 @Component({
   selector: 'app-add-order-modal',
   standalone: true,
-  imports: [CommonModule, SimpleInputComponent, SimpleInputNumberComponent, SimpleSelectComponent, DatePickerComponent, SimpleButtonComponent],
+  imports: [CommonModule, SimpleInputComponent, SimpleInputNumberComponent, SimpleSelectComponent, DatePickerComponent, SimpleButtonComponent, TranslatePipe],
   templateUrl: './AddOrderModalComponent.html',
   styleUrls: ['./AddOrderModalComponent.scss'],
 })
 export class AddOrderModalComponent implements OnChanges {
+  private readonly translationService = inject(TranslationService);
+
   @Input() isOpen = false;
   @Input() isSaving = false;
   @Input() operacaoOptions: SelectOption<OrderOperacao>[] = [];
+  @Input() editingItem: Order | null = null;
 
   @Output() closed = new EventEmitter<void>();
   @Output() saved = new EventEmitter<CreateOrderPayload>();
@@ -35,14 +41,17 @@ export class AddOrderModalComponent implements OnChanges {
 
   tipoDetectado = signal<OrderTipo | null>(null);
   readonly tipoOptions: SelectOption<OrderTipo>[] = [
-    { label: 'Ação', value: 'ACAO' },
-    { label: 'FII', value: 'FII' },
-    { label: 'BDR', value: 'BDR' },
+    { label: this.translationService.get('common.assetType.action'), value: 'ACAO' },
+    { label: this.translationService.get('common.assetType.fii'), value: 'FII' },
+    { label: this.translationService.get('common.assetType.bdr'), value: 'BDR' },
   ];
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['isOpen']?.currentValue && !changes['isOpen']?.previousValue) {
       this.resetForm();
+      if (this.editingItem) {
+        this.populateForm(this.editingItem);
+      }
     }
   }
 
@@ -93,17 +102,17 @@ export class AddOrderModalComponent implements OnChanges {
     const tipoDetectado = detectSupportedAssetTypeFromTicker(codigo);
 
     if (!codigo || !data || quantidade === null || quantidade <= 0 || valor === null || valor <= 0) {
-      this.validationMessage.set('Preencha todos os campos com valores válidos.');
+      this.validationMessage.set(this.translationService.get('orders.validation.fillAllFields'));
       return null;
     }
 
     if (!tipoDetectado) {
-      this.validationMessage.set('Código inválido. Use 4 letras + 2 dígitos (máx. 7), com sufixo F apenas para ações (ex.: PETR4F, TAEE11, AAPL34).');
+      this.validationMessage.set(this.translationService.get('orders.validation.invalidCode'));
       return null;
     }
 
-    if (this.isFutureDate(data)) {
-      this.validationMessage.set('A data da ordem não pode ser futura.');
+    if (isFutureDate(data)) {
+      this.validationMessage.set(this.translationService.get('orders.validation.futureDate'));
       return null;
     }
 
@@ -119,17 +128,6 @@ export class AddOrderModalComponent implements OnChanges {
     };
   }
 
-  private isFutureDate(value: string): boolean {
-    const parsed = new Date(`${value}T00:00:00`);
-    if (Number.isNaN(parsed.getTime())) {
-      return false;
-    }
-
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    return parsed.getTime() > today.getTime();
-  }
-
   private resetForm(): void {
     this.codigo.set('');
     this.operacao.set('Compra');
@@ -138,5 +136,14 @@ export class AddOrderModalComponent implements OnChanges {
     this.valor.set(null);
     this.data.set('');
     this.validationMessage.set('');
+  }
+
+  private populateForm(item: Order): void {
+    this.codigo.set(item.codigo);
+    this.operacao.set(item.operacao);
+    this.tipoDetectado.set(item.tipo);
+    this.quantidade.set(item.quantidade);
+    this.valor.set(item.valor);
+    this.data.set(item.data);
   }
 }

@@ -1,10 +1,10 @@
 import { DataTypes, Model } from "sequelize";
 import { sequelize } from "../../database";
 import { PortfolioAttributes } from "./PortfolioAttributes";
-import { portfolioCreationAttributes } from "./PortfolioCreationAttributes";
+import { PortfolioCreationAttributes } from "./PortfolioCreationAttributes";
 
 export class Portfolio
-  extends Model<PortfolioAttributes, portfolioCreationAttributes>
+  extends Model<PortfolioAttributes, PortfolioCreationAttributes>
   implements PortfolioAttributes {
   declare id: string;
   declare codigo: string;
@@ -37,5 +37,8 @@ Portfolio.init(
   {
     sequelize,
     tableName: "Portfolios",
+    indexes: [
+      { fields: ["codigo"] },
+    ],
   }
 );

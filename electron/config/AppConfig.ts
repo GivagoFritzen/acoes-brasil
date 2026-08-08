@@ -18,7 +18,6 @@ export const createAppConfig = (projectRoot: string, userDataPath: string): AppC
     },
     renderer: {
       devUrl: 'http://localhost:4200',
-      prodIndexPath: `${projectRoot}/front/dist/app/browser/index.csr.html`,
       connectionAttempts: 30,
       retryDelay: 1000,
     },

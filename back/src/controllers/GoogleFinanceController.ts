@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { GoogleFinanceService } from "../infrastructure/services/GoogleFinanceService";
 import { Container } from "../shared/dependency-injection/Container";
+import { logger } from "../shared/logger/Logger";
 
 export class GoogleFinanceController {
   private googleFinanceService: GoogleFinanceService;
@@ -18,15 +19,16 @@ export class GoogleFinanceController {
     }
 
     try {
-      const data = await this.googleFinanceService.getDataAsync(codigo, chartWindow);
-      return res.json(data);
+      const financeData = await this.googleFinanceService.getDataAsync(codigo, chartWindow);
+      return res.json(financeData);
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
-      return res.json({
+      logger.error("Erro ao buscar dados do Google Finance", { error: message });
+      return res.status(500).json({
         quote: null,
         chart: null,
         updatedAt: new Date().toISOString(),
-        error: message,
+        error: "Erro ao buscar dados do ativo",
       });
     }
   }

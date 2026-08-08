@@ -15,6 +15,7 @@ import { TranslatePipe } from '../../pipes/TranslatePipe';
 export class SidebarComponent implements OnInit {
     showSidebar = true;
     isMarketOpen = false;
+    marketStatusOffline = true;
 
     constructor(
         private readonly tradingHoursService: TradingHoursService,
@@ -38,9 +39,16 @@ export class SidebarComponent implements OnInit {
     private fetchMarketStatus(): void {
         this.tradingHoursService.getBvmfTradingHours().subscribe({
             next: (response) => {
-                this.setMarketStatus(response.data.isOpen);
+                if (response?.success && response.data) {
+                    this.marketStatusOffline = false;
+                    this.setMarketStatus(response.data.isOpen);
+                } else {
+                    this.marketStatusOffline = true;
+                    this.setMarketStatus(false);
+                }
             },
             error: () => {
+                this.marketStatusOffline = true;
                 this.setMarketStatus(false);
             },
         });

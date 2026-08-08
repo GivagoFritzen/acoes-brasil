@@ -1,6 +1,8 @@
 import { Request, Response } from "express";
 import { CreateOrderDto } from "../application/dto/CreateOrderDto";
+import { UpdateOrderDto } from "../application/dto/UpdateOrderDto";
 import { CreateOrderService } from "../application/services/CreateOrderService";
+import { UpdateOrderService } from "../application/services/UpdateOrderService";
 import { DeleteOrderService } from "../application/services/DeleteOrderService";
 import { ListOrdersService } from "../application/services/ListOrdersService";
 import { GetSellSnapshotsService } from "../application/services/GetSellSnapshotsService";
@@ -8,10 +10,12 @@ import { ExportSellSnapshotsService } from "../application/services/ExportSellSn
 import { IOrderFilters } from "../domain/interfaces/IOrderFilters";
 import { ErrorHandler } from "../shared/error-handler/ErrorHandler";
 import { normalizeOrderCodigo } from "../../../common/utils/OrderCodigoUtils";
+import { ValidatedRequest } from "../models/ValidatedRequest";
 
 export class OrderController {
   constructor(
     private createOrderService: CreateOrderService,
+    private updateOrderService: UpdateOrderService,
     private deleteOrderService: DeleteOrderService,
     private listOrdersService: ListOrdersService,
     private getSellSnapshotsService: GetSellSnapshotsService,
@@ -20,7 +24,7 @@ export class OrderController {
 
   async createAsync(req: Request, res: Response): Promise<Response> {
     try {
-      const dto = (req as any).validatedBody as CreateOrderDto;
+      const dto = (req as ValidatedRequest<CreateOrderDto>).validatedBody;
       const order = await this.createOrderService.executeAsync(dto);
       return res.status(201).json(order);
     } catch (error) {
@@ -33,6 +37,17 @@ export class OrderController {
       const { id } = req.params;
       await this.deleteOrderService.executeAsync(String(id));
       return res.json({ message: "Ordem deletada com sucesso." });
+    } catch (error) {
+      return ErrorHandler.handle(error as Error, res);
+    }
+  }
+
+  async updateAsync(req: Request, res: Response): Promise<Response> {
+    try {
+      const { id } = req.params;
+      const dto = (req as ValidatedRequest<UpdateOrderDto>).validatedBody;
+      const order = await this.updateOrderService.executeAsync(String(id), dto);
+      return res.json(order);
     } catch (error) {
       return ErrorHandler.handle(error as Error, res);
     }

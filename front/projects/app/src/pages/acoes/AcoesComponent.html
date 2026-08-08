@@ -14,27 +14,24 @@
                 <app-simple-button (btnClick)="openCreateModal()">
                     {{ 'acoes.addAsset' | translate }}
                 </app-simple-button>
-                <app-simple-button variant="cancelar" (btnClick)="toggleDeleteMode()">
-                    {{ isDeleteMode() ? ('acoes.cancelDelete' | translate) : ('acoes.deleteMode' | translate) }}
-                </app-simple-button>
             </div>
         </header>
 
         <div class="acoes__table" data-tour="acoes-table">
-            <div class="acoes__row acoes__row--head" [class.acoes__row--with-actions]="isDeleteMode()">
+            <div class="acoes__row acoes__row--head acoes__row--with-actions">
                 <span>{{ 'acoes.code' | translate }}</span>
                 <span>{{ 'acoes.averagePrice' | translate }}</span>
                 <span>{{ 'acoes.totalShares' | translate }}</span>
                 <span>{{ 'acoes.totalValue' | translate }}</span>
-                <span *ngIf="isDeleteMode()">{{ 'acoes.actions' | translate }}</span>
+                <span>{{ 'acoes.actions' | translate }}</span>
             </div>
 
             <div *ngIf="isLoading() && !errorMessage() && portfolios().length === 0" class="acoes__row">
                 <span>{{ 'acoes.loadingPortfolios' | translate }}</span>
             </div>
 
-            <article class="acoes__row acoes__row--clickable" [class.acoes__row--with-actions]="isDeleteMode()"
-                *ngFor="let item of portfolios()" (click)="goToPortfolioDetails(item)">
+            <article class="acoes__row acoes__row--clickable acoes__row--with-actions"
+                *ngFor="let item of portfolios(); let i = index" (click)="goToPortfolioDetails(item)">
                 <div class="acoes__name">
                     <ng-template #defaultAcaoLogo>
                         <div class="acoes__logo acoes__logo--blue">
@@ -57,8 +54,18 @@
                 <div class="acoes__value">
                     {{ item.precoMedio * item.quantidade | currency:'BRL' }}
                 </div>
-                <span *ngIf="isDeleteMode()" class="acoes__actions" (click)="$event.stopPropagation()">
-                    <app-action-button title="{{ 'acoes.deleteAssetTitle' | translate }}" (actionClick)="openDeleteModal(item)"></app-action-button>
+                <span class="acoes__actions" (click)="$event.stopPropagation()">
+                    <div class="acoes__dropdown-container">
+                        <button class="acoes__dropdown-trigger" (click)="toggleDropdown(i)">...</button>
+                        <div class="acoes__dropdown-menu" *ngIf="openDropdownIndex() === i">
+                            <button class="acoes__dropdown-item" (click)="openEditModal(item); closeDropdown()">
+                                {{ 'acoes.edit' | translate }}
+                            </button>
+                            <button class="acoes__dropdown-item acoes__dropdown-item--danger" (click)="openDeleteModal(item); closeDropdown()">
+                                {{ 'acoes.deleteAsset' | translate }}
+                            </button>
+                        </div>
+                    </div>
                 </span>
             </article>
         </div>
@@ -77,6 +84,10 @@
 
     <app-add-portfolio-modal [isOpen]="isCreateModalOpen()" [isSaving]="isCreating()" (closed)="closeCreateModal()"
         (saved)="confirmCreatePortfolio($event)">
+    </app-add-portfolio-modal>
+
+    <app-add-portfolio-modal [isOpen]="isEditModalOpen()" [isSaving]="isCreating()" [editingItem]="portfolioToEdit()"
+        (closed)="closeEditModal()" (saved)="confirmEditPortfolio($event)">
     </app-add-portfolio-modal>
 
     <div class="acoes__modal-backdrop" *ngIf="isDeleteModalOpen()" (click)="closeDeleteModal()">

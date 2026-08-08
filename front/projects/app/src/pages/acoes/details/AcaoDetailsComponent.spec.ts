@@ -1,7 +1,7 @@
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { ActivatedRoute } from '@angular/router';
-import { of, throwError } from 'rxjs';
+import { of, Subject, throwError } from 'rxjs';
 import type { FundamentusAcaoDetails, FundamentusIndicator, Investidor10AcaoDetails, ProventosResponse, YahooFinanceDetails } from '../../../models';
 import { FundamentusService } from '../../../services/FundamentusService';
 import { Investidor10Service } from '../../../services/Investidor10Service';
@@ -22,17 +22,10 @@ describe('AcaoDetailsComponent', () => {
   let translationServiceMock: {
     get: ReturnType<typeof vi.fn>;
     has: ReturnType<typeof vi.fn>;
+    currentLang$: Subject<string>;
+    getCurrentLanguage: ReturnType<typeof vi.fn>;
   };
-  let routeMock: {
-    paramMap: {
-      subscribe: ReturnType<typeof vi.fn>;
-    };
-    snapshot: {
-      paramMap: {
-        get: ReturnType<typeof vi.fn>;
-      };
-    };
-  };
+  let routeMock: any;
 
   const baseInvestidor10: Investidor10AcaoDetails = {
     codigo: 'VIVT3',
@@ -181,13 +174,11 @@ describe('AcaoDetailsComponent', () => {
     translationServiceMock = {
       get: vi.fn((key: string) => key),
       has: vi.fn((key: string) => false),
+      currentLang$: new Subject<string>(),
+      getCurrentLanguage: vi.fn(() => 'pt-BR'),
     };
     routeMock = {
-      paramMap: {
-        subscribe: vi.fn((callback: (params: { get: (key: string) => string | null }) => void) => {
-          callback({ get: (key: string) => (key === 'codigo' ? 'PETR4' : null) });
-        }),
-      },
+      paramMap: of({ get: (key: string) => (key === 'codigo' ? 'PETR4' : null) }),
       snapshot: {
         paramMap: {
           get: vi.fn((key: string) => (key === 'codigo' ? 'PETR4' : null)),
@@ -247,11 +238,7 @@ describe('AcaoDetailsComponent', () => {
     });
 
     it('deve setar erro quando codigo for null', () => {
-      routeMock.paramMap = {
-        subscribe: vi.fn((callback: (params: { get: (key: string) => string | null }) => void) => {
-          callback({ get: (key: string) => null });
-        }),
-      };
+      routeMock.paramMap = of({ get: (key: string) => null });
       const fixture = TestBed.createComponent(AcaoDetailsComponent);
       const componentWithoutCode = fixture.componentInstance;
 

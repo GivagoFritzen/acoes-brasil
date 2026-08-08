@@ -5,7 +5,6 @@ export interface AppConfig {
     };
     readonly renderer: {
         devUrl: string;
-        prodIndexPath: string;
         connectionAttempts: number;
         retryDelay: number;
     };

@@ -81,11 +81,16 @@
     border-top: 1px solid var(--color-border);
     font-size: 14px;
     color: var(--color-text);
+    text-align: center;
   }
 
   .proventos__actions {
     display: flex;
     justify-content: flex-end;
+
+    app-action-button:first-child {
+      margin-right: 5px;
+    }
   }
 
   .proventos__row--head {
@@ -95,6 +100,7 @@
     color: var(--color-text-muted);
     text-transform: uppercase;
     letter-spacing: 0.04em;
+    text-align: center;
   }
 
   .proventos__code {
@@ -245,10 +251,16 @@
   .proventos {
     margin: 24px;
     padding: 20px;
+    overflow-x: auto;
 
     .proventos__row {
-      grid-template-columns: repeat(8, minmax(90px, 1fr));
+      grid-template-columns: repeat(8, minmax(0, 1fr));
       column-gap: 10px;
+      min-width: 600px;
+    }
+
+    .proventos__row--head {
+      min-width: 600px;
     }
   }
 }

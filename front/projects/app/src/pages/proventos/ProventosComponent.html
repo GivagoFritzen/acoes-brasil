@@ -75,6 +75,7 @@
       <span [attr.data-label]="'proventos.netValue' | translate">{{ item.valorLiquido | currency:'BRL' }}</span>
       <span [attr.data-label]="'proventos.date' | translate">{{ formatDateForDisplay(item.data) }}</span>
       <span class="proventos__actions" [attr.data-label]="'proventos.actions' | translate">
+        <app-action-button *ngIf="!juntarPorCodigo()" variant="primary" icon="edit" title="{{ 'proventos.editProventoTitle' | translate }}" (actionClick)="openEditModal(item)"></app-action-button>
         <app-action-button title="{{ 'proventos.deleteProventoTitle' | translate }}" (actionClick)="openDeleteModal(item)"></app-action-button>
       </span>
     </article>
@@ -107,5 +108,9 @@
 
   <app-add-provento-modal [isOpen]="isCreateModalOpen()" [isSaving]="isCreating()" [tipoOptions]="tipoOptions"
     (closed)="closeCreateModal()" (saved)="confirmCreateProvento($event)">
+  </app-add-provento-modal>
+
+  <app-add-provento-modal [isOpen]="isEditModalOpen()" [isSaving]="isCreating()" [tipoOptions]="tipoOptions"
+    [editingItem]="proventoToEdit()" (closed)="closeEditModal()" (saved)="confirmEditProvento($event)">
   </app-add-provento-modal>
 </section>

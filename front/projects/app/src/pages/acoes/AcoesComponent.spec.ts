@@ -1,8 +1,10 @@
 import { TestBed } from '@angular/core/testing';
 import { of, throwError } from 'rxjs';
+import { vi } from 'vitest';
 import type { PortfolioItem } from '../../models';
 import type { CreatePortfolioPayload } from '../../models/CreatePortfolioPayloadModel';
 import { PortfolioService } from '../../services/PortfolioService';
+import { TranslationService } from '../../services/TranslationService';
 import { AcoesComponent } from './AcoesComponent';
 import { Router } from '@angular/router';
 
@@ -14,6 +16,7 @@ describe('AcoesComponent', () => {
     deletePortfolio: ReturnType<typeof vi.fn>;
   };
   let routerMock: { navigate: ReturnType<typeof vi.fn> };
+  let mockTranslationService: { get: ReturnType<typeof vi.fn> };
 
   const basePortfolio: PortfolioItem = {
     id: '1',
@@ -34,11 +37,29 @@ describe('AcoesComponent', () => {
       navigate: vi.fn(),
     };
 
+    mockTranslationService = {
+      get: vi.fn().mockImplementation((key: string) => {
+        const translations: Record<string, string> = {
+          'common.alerts.error': 'Erro',
+          'common.alerts.success': 'Sucesso',
+          'acoes.alerts.loadPortfoliosFailed': 'Não foi possível carregar os portfolios.',
+          'acoes.alerts.assetCreated': 'Ativo adicionado com sucesso.',
+          'acoes.alerts.addAssetFailed': 'Não foi possível adicionar o ativo ao portfólio.',
+          'acoes.alerts.assetUpdated': 'Ativo atualizado com sucesso.',
+          'acoes.alerts.updateAssetFailed': 'Não foi possível atualizar o ativo do portfólio.',
+          'acoes.alerts.assetDeleted': 'Ativo removido com sucesso.',
+          'acoes.alerts.deleteAssetFailed': 'Não foi possível deletar o ativo do portfólio.',
+        };
+        return translations[key] ?? '';
+      }),
+    };
+
     await TestBed.configureTestingModule({
       imports: [AcoesComponent],
       providers: [
         { provide: PortfolioService, useValue: portfolioServiceMock },
         { provide: Router, useValue: routerMock },
+        { provide: TranslationService, useValue: mockTranslationService },
       ],
     }).compileComponents();
 
@@ -101,38 +122,60 @@ describe('AcoesComponent', () => {
     expect(component.isCreateModalOpen()).toBe(true);
   });
 
-  it('deve alternar modo edit', () => {
-    expect(component.isEditing()).toBe(false);
+  it('deve abrir dropdown no indice correto', () => {
+    component.toggleDropdown(2);
 
-    component.toggleEditMode();
-
-    expect(component.isEditing()).toBe(true);
+    expect(component.openDropdownIndex()).toBe(2);
   });
 
-  it('deve alternar modo edit de volta para false', () => {
-    component.isEditing.set(true);
+  it('deve fechar dropdown ao clicar no mesmo indice', () => {
+    component.openDropdownIndex.set(2);
 
-    component.toggleEditMode();
+    component.toggleDropdown(2);
 
-    expect(component.isEditing()).toBe(false);
+    expect(component.openDropdownIndex()).toBeNull();
   });
 
-  it('deve alternar modo delete', () => {
-    expect(component.isDeleteMode()).toBe(false);
+  it('deve trocar dropdown para novo indice', () => {
+    component.openDropdownIndex.set(1);
 
-    component.toggleDeleteMode();
+    component.toggleDropdown(3);
 
-    expect(component.isDeleteMode()).toBe(true);
+    expect(component.openDropdownIndex()).toBe(3);
   });
 
-  it('deve alternar modo delete para false e fechar modal de deleção', () => {
-    component.isDeleteMode.set(true);
-    component.isDeleteModalOpen.set(true);
+  it('deve fechar dropdown com closeDropdown', () => {
+    component.openDropdownIndex.set(0);
 
-    component.toggleDeleteMode();
+    component.closeDropdown();
 
-    expect(component.isDeleteMode()).toBe(false);
-    expect(component.isDeleteModalOpen()).toBe(false);
+    expect(component.openDropdownIndex()).toBeNull();
+  });
+
+  it('deve fechar dropdown ao clicar fora do container', () => {
+    component.openDropdownIndex.set(1);
+
+    const event = new MouseEvent('click');
+    Object.defineProperty(event, 'target', { value: document.body });
+    component.onDocumentClick(event);
+
+    expect(component.openDropdownIndex()).toBeNull();
+  });
+
+  it('deve manter dropdown aberto ao clicar dentro do container', () => {
+    component.openDropdownIndex.set(1);
+
+    const dropdownContainer = document.createElement('div');
+    dropdownContainer.className = 'acoes__dropdown-container';
+    document.body.appendChild(dropdownContainer);
+
+    const event = new MouseEvent('click');
+    Object.defineProperty(event, 'target', { value: dropdownContainer });
+    component.onDocumentClick(event);
+
+    expect(component.openDropdownIndex()).toBe(1);
+
+    document.body.removeChild(dropdownContainer);
   });
 
   it('deve abrir modal de deleção com item', () => {
@@ -239,20 +282,10 @@ describe('AcoesComponent', () => {
     expect(component.alerts()[0].message).toBe('Não foi possível deletar o ativo do portfólio.');
   });
 
-  it('deve navegar para detalhes quando não está em modo delete', () => {
-    component.isDeleteMode.set(false);
-
+  it('deve navegar para detalhes', () => {
     component.goToPortfolioDetails(basePortfolio);
 
     expect(routerMock.navigate).toHaveBeenCalledWith(['/acoes', 'PETR4']);
-  });
-
-  it('deve navegar para detalhes quando está em modo delete', () => {
-    component.isDeleteMode.set(true);
-
-    component.goToPortfolioDetails(basePortfolio);
-
-    expect(routerMock.navigate).not.toHaveBeenCalled();
   });
 
   it('confirmDeletePortfolio sem portfolioToDelete: não deve chamar service', () => {

@@ -1,6 +1,8 @@
 import path from "path";
 import cors from "cors";
 import express from "express";
+import helmet from "helmet";
+import rateLimit from "express-rate-limit";
 import { env } from "./config/EnvConfig";
 import { sequelize } from "./database";
 import { fundamentusRoutes } from "./routes/FundamentusRoutes";
@@ -13,12 +15,23 @@ import { portfolioRoutes } from "./routes/PortfolioRoutes";
 import { proventoRoutes } from "./routes/ProventoRoutes";
 import { registerServices } from "./shared/dependency-injection/ServiceRegistration";
 import { logger } from "./shared/logger/Logger";
+import { RATE_LIMIT_WINDOW_MS, RATE_LIMIT_MAX } from "./shared/constants/ProjectConstants";
 
 const app = express();
 
 app.disable("x-powered-by");
-app.use(cors({ origin: process.env.CORS_ORIGIN?.split(",") ?? "*" }));
+app.use(helmet());
+app.use(cors({ origin: process.env.CORS_ORIGIN?.split(",") ?? ["http://localhost:4200"] }));
 app.use(express.json());
+
+const limiter = rateLimit({
+  windowMs: RATE_LIMIT_WINDOW_MS,
+  max: RATE_LIMIT_MAX,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { message: "Muitas requisições. Tente novamente mais tarde." },
+});
+app.use(limiter);
 
 const browserDir = path.resolve(__dirname, "../../../../front/dist/app/browser");
 
@@ -47,6 +60,8 @@ if (process.env.SERVE_STATIC === "true") {
 }
 
 async function start() {
+  let server: ReturnType<typeof app.listen> | undefined;
+
   try {
     registerServices();
     await sequelize.authenticate();
@@ -57,9 +72,24 @@ async function start() {
 
     logger.info("Conectado ao banco com sucesso");
 
-    const server = app.listen(env.port, () => {
+    server = app.listen(env.port, () => {
       logger.info(`Servidor rodando na porta ${env.port}`);
     });
+
+    const shutdown = async () => {
+      logger.info("Desligando servidor...");
+      if (server) {
+        server.close(() => {
+          logger.info("Servidor HTTP fechado.");
+        });
+      }
+      await sequelize.close();
+      logger.info("Conexão com banco fechada.");
+      process.exit(0);
+    };
+
+    process.on("SIGINT", shutdown);
+    process.on("SIGTERM", shutdown);
 
     return server;
   } catch (error) {

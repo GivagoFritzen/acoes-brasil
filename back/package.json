@@ -1,10 +1,10 @@
 {
   "name": "back",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "main": "dist/index.js",
   "scripts": {
     "dev": "ts-node-dev --respawn --transpile-only src/index.ts",
-    "build": "tsc -p tsconfig.json",
+    "build": "tsc -p tsconfig.build.json",
     "start": "node dist/index.js",
     "test": "jest --coverage"
   },
@@ -19,6 +19,8 @@
     "cors": "^2.8.6",
     "dotenv": "^17.2.4",
     "express": "^5.2.1",
+    "express-rate-limit": "^8.6.2",
+    "helmet": "^8.3.0",
     "multer": "^2.1.1",
     "sequelize": "^6.37.8",
     "sqlite3": "^5.1.7",

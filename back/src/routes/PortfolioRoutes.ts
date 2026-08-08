@@ -1,24 +1,22 @@
 import fs from "fs";
 import os from "os";
 import path from "path";
-import multer from "multer";
 import { Router } from "express";
 import { Container } from "../shared/dependency-injection/Container";
 import { PortfolioController } from "../controllers/PortfolioController";
 import { ValidationMiddleware } from "../middlewares/ValidationMiddleware";
+import { createMulterUpload } from "../shared/multer/MulterConfigFactory";
 
-const uploadDir = fs.mkdtempSync(path.join(os.tmpdir(), "acoes-portfolio-upload-"));
-const upload = multer({
-  dest: uploadDir,
-  limits: { fileSize: 1048576 },
-  fileFilter: (_req, file, cb) => {
-    const ext = path.extname(file.originalname).toLowerCase();
-    if (ext !== ".xlsx") {
-      return cb(new Error("Apenas arquivos .xlsx são permitidos."));
-    }
-    cb(null, true);
-  },
-});
+let uploadDir: string | null = null;
+let upload: ReturnType<typeof createMulterUpload> | null = null;
+
+const getUpload = () => {
+  if (!uploadDir) {
+    uploadDir = fs.mkdtempSync(path.join(os.tmpdir(), "acoes-portfolio-upload-"));
+    upload = createMulterUpload(uploadDir);
+  }
+  return upload!;
+};
 
 export const portfolioRoutes = Router();
 
@@ -36,10 +34,16 @@ portfolioRoutes.get("/export", (req, res) => {
   return getController().exportPortfolioAsync(req, res);
 });
 
-portfolioRoutes.post("/import", upload.single("file"), (req, res) => {
-  return getController().importPortfolioAsync(req, res);
+portfolioRoutes.post("/import", (req, res) => {
+  return getUpload().single("file")(req, res, () => {
+    return getController().importPortfolioAsync(req, res);
+  });
 });
 
 portfolioRoutes.delete("/:id", ValidationMiddleware.validateUuidParam("id"), (req, res) => {
   return getController().deleteAsync(req, res);
+});
+
+portfolioRoutes.put("/:id", ValidationMiddleware.validateUuidParam("id"), (req, res) => {
+  return getController().updateAsync(req, res);
 });

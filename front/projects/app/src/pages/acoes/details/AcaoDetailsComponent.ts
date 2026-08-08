@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
-import { Component, computed, OnInit, signal, ViewEncapsulation } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, DestroyRef, inject, OnInit, signal, ViewEncapsulation } from '@angular/core';
 import { ActivatedRoute, RouterModule } from '@angular/router';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { catchError, finalize, forkJoin, Observable, of } from 'rxjs';
 import { AlertsComponent } from '../../../components/alerts/AlertsComponent';
 import { SimpleButtonComponent } from '../../../components/simple-button/SimpleButtonComponent';
@@ -13,19 +14,22 @@ import { ProventosService } from '../../../services/ProventosService';
 import { TranslatePipe } from '../../../pipes/TranslatePipe';
 import { TranslationService } from '../../../services/TranslationService';
 import { AlertItem } from '../../../models/alert/AlertItemModel';
+import { filterAlert } from '../../../utils/AlertUtils';
 import { FundamentusAcaoDetails, FundamentusProventosResponse, Investidor10AcaoDetails, Investidor10FiiDetails, Investidor10ProventosResponse, ProventosResponse, YahooFinanceDetails } from '../../../models';
 import { CHART_WINDOWS, GoogleFinanceChartWindow, GoogleFinanceResponse } from '../../../../../../../common/models/google-finance';
 import { FundamentusDetailsComponent } from './fundamentus-details/FundamentusDetailsComponent';
 import { Investidor10DetailsComponent } from './investidor10-details/Investidor10DetailsComponent';
 import { YahooFinanceDetailsComponent } from './yahoo-finance-details/YahooFinanceDetailsComponent';
+import { AcaoDetailsSkeletonComponent } from './skeleton/AcaoDetailsSkeletonComponent';
 
 @Component({
     selector: 'app-acao-details',
     standalone: true,
-    imports: [CommonModule, RouterModule, AlertsComponent, SimpleButtonComponent, StockChartComponent, TranslatePipe, FundamentusDetailsComponent, Investidor10DetailsComponent, YahooFinanceDetailsComponent],
+    imports: [CommonModule, RouterModule, AlertsComponent, SimpleButtonComponent, StockChartComponent, TranslatePipe, FundamentusDetailsComponent, Investidor10DetailsComponent, YahooFinanceDetailsComponent, AcaoDetailsSkeletonComponent],
     templateUrl: './AcaoDetailsComponent.html',
     styleUrls: ['./AcaoDetailsComponent.scss'],
     encapsulation: ViewEncapsulation.None,
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AcaoDetailsComponent implements OnInit {
 
@@ -59,6 +63,8 @@ export class AcaoDetailsComponent implements OnInit {
     detailOptions = ['fundamentus', 'investidor10', 'yahoo'] as const;
     detailSource = signal<'fundamentus' | 'investidor10' | 'yahoo'>(this.loadSavedSource());
 
+    private readonly destroyRef = inject(DestroyRef);
+
     constructor(
         private readonly route: ActivatedRoute,
         private readonly fundamentusService: FundamentusService,
@@ -70,7 +76,7 @@ export class AcaoDetailsComponent implements OnInit {
     ) { }
 
     ngOnInit(): void {
-        this.route.paramMap.subscribe((params) => {
+        this.route.paramMap.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((params) => {
             const codigo = params.get('codigo');
 
             if (!codigo) {
@@ -108,14 +114,7 @@ export class AcaoDetailsComponent implements OnInit {
     }
 
     handleAlertDismiss(alert: AlertItem): void {
-        this.alerts.update(items =>
-            items.filter(item =>
-                item.variant !== alert.variant ||
-                item.title !== alert.title ||
-                item.message !== alert.message ||
-                item.icon !== alert.icon
-            )
-        );
+        this.alerts.update((items) => items.filter(filterAlert(alert)));
     }
 
     changeChartWindow(window: GoogleFinanceChartWindow): void {
@@ -124,7 +123,7 @@ export class AcaoDetailsComponent implements OnInit {
         const codigo = this.route.snapshot.paramMap.get('codigo');
         if (!codigo) return;
 
-        this.googleFinanceService.getData(codigo, window).subscribe({
+        this.googleFinanceService.getData(codigo, window).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
             next: (data) => this.googleFinance.set(data),
             error: () => {
                 this.pushAlert(
@@ -200,7 +199,10 @@ export class AcaoDetailsComponent implements OnInit {
         }
 
         forkJoin(observables)
-            .pipe(finalize(() => this.isLoading.set(false)))
+            .pipe(
+                finalize(() => this.isLoading.set(false)),
+                takeUntilDestroyed(this.destroyRef)
+            )
             .subscribe({
                 next: (result) => {
                     if (source === 'investidor10') {

@@ -19,12 +19,12 @@ import type {
   RawKeyStatistics,
 } from "../../models/yahoo";
 import type { JsonValue } from "../../models/JsonValue";
+import { fetchWithTimeout } from "../../shared/utils/FetchWithTimeout";
 
 const CRUMB_URL = "https://query2.finance.yahoo.com/v1/test/getcrumb";
 const QUOTE_SUMMARY_URL = "https://query2.finance.yahoo.com/v10/finance/quoteSummary";
 const CONSENT_URL = "https://fc.yahoo.com/";
 const FUNDAMENTALS_TIMESERIES_URL = "https://query1.finance.yahoo.com/ws/fundamentals-timeseries/v1/finance/timeseries";
-const REQUEST_TIMEOUT_MS = 15_000;
 
 const BALANCE_SHEET_API_KEYS = [
   "TotalAssets",
@@ -177,9 +177,6 @@ export class YahooFinanceScraperService {
   }
 
   private async fetchCrumbAsync(): Promise<string | null> {
-    const abortController = new AbortController();
-    const timeoutId = setTimeout(() => abortController.abort(), REQUEST_TIMEOUT_MS);
-
     try {
       const headers: Record<string, string> = {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
@@ -188,9 +185,9 @@ export class YahooFinanceScraperService {
         headers["Cookie"] = this.cookie;
       }
 
-      const response = await fetch(CRUMB_URL, {
-        signal: abortController.signal,
+      const response = await fetchWithTimeout(CRUMB_URL, {
         headers,
+        timeoutMs: 15_000,
       });
 
       if (!response.ok) return null;
@@ -201,22 +198,17 @@ export class YahooFinanceScraperService {
       return text;
     } catch {
       return null;
-    } finally {
-      clearTimeout(timeoutId);
     }
   }
 
   private async fetchSessionAsync(): Promise<{ cookie: string; crumb: string } | null> {
-    const abortController = new AbortController();
-    const timeoutId = setTimeout(() => abortController.abort(), REQUEST_TIMEOUT_MS);
-
     try {
-      const response = await fetch(CONSENT_URL, {
-        signal: abortController.signal,
+      const response = await fetchWithTimeout(CONSENT_URL, {
         headers: {
           "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
         },
         redirect: "follow",
+        timeoutMs: 15_000,
       });
 
       if (!response.ok && response.status !== 404) return null;
@@ -224,12 +216,12 @@ export class YahooFinanceScraperService {
       const cookie = response.headers.get("set-cookie") ?? "";
       if (!cookie) return null;
 
-      const crumbResponse = await fetch(CRUMB_URL, {
-        signal: abortController.signal,
+      const crumbResponse = await fetchWithTimeout(CRUMB_URL, {
         headers: {
           "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
           Cookie: cookie,
         },
+        timeoutMs: 15_000,
       });
 
       if (!crumbResponse.ok) return null;
@@ -240,8 +232,6 @@ export class YahooFinanceScraperService {
       return { cookie, crumb };
     } catch {
       return null;
-    } finally {
-      clearTimeout(timeoutId);
     }
   }
 
@@ -251,20 +241,17 @@ export class YahooFinanceScraperService {
     periodType: string = "quarterly",
     yearsBack: number = 5
   ): Promise<Record<number, Record<string, { raw: number; fmt: string }>> | null> {
-    const abortController = new AbortController();
-    const timeoutId = setTimeout(() => abortController.abort(), REQUEST_TIMEOUT_MS);
-
     try {
       const period2 = Math.floor(Date.now() / 1000);
       const period1 = Math.floor(new Date().getTime() / 1000 - yearsBack * 365.25 * 86400);
       const typeParam = apiKeys.map((apiKey) => `${periodType}${apiKey}`).join(",");
       const url = `${FUNDAMENTALS_TIMESERIES_URL}/${encodeURIComponent(symbol)}?period1=${period1}&period2=${period2}&type=${typeParam}`;
 
-      const response = await fetch(url, {
-        signal: abortController.signal,
+      const response = await fetchWithTimeout(url, {
         headers: {
           "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
         },
+        timeoutMs: 15_000,
       });
 
       if (!response.ok) return null;
@@ -281,8 +268,6 @@ export class YahooFinanceScraperService {
       return grouped;
     } catch {
       return null;
-    } finally {
-      clearTimeout(timeoutId);
     }
   }
 
@@ -309,29 +294,22 @@ export class YahooFinanceScraperService {
   }
 
   private async fetchQuoteSummaryAsync(codigo: string): Promise<{ quoteSummary?: { result?: Record<string, JsonValue>[] } }> {
-    const abortController = new AbortController();
-    const timeoutId = setTimeout(() => abortController.abort(), REQUEST_TIMEOUT_MS);
+    const url = `${QUOTE_SUMMARY_URL}/${encodeURIComponent(codigo)}?modules=${QUOTE_MODULES}&crumb=${this.crumb}`;
 
-    try {
-      const url = `${QUOTE_SUMMARY_URL}/${encodeURIComponent(codigo)}?modules=${QUOTE_MODULES}&crumb=${this.crumb}`;
-
-      const headers: Record<string, string> = {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-      };
-      if (this.cookie) {
-        headers["Cookie"] = this.cookie;
-      }
-
-      const response = await fetch(url, { signal: abortController.signal, headers });
-
-      if (!response.ok) {
-        throw new Error(`Yahoo Finance retornou status ${response.status}.`);
-      }
-
-      return await response.json();
-    } finally {
-      clearTimeout(timeoutId);
+    const headers: Record<string, string> = {
+      "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+    };
+    if (this.cookie) {
+      headers["Cookie"] = this.cookie;
     }
+
+    const response = await fetchWithTimeout(url, { headers, timeoutMs: 15_000 });
+
+    if (!response.ok) {
+      throw new Error(`Yahoo Finance retornou status ${response.status}.`);
+    }
+
+    return await response.json();
   }
 
   private extractValue(value: RawValue | undefined): string | null {

@@ -1,14 +1,42 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { vi } from 'vitest';
 import { AddProventoModalComponent } from './AddProventoModalComponent';
+import { TranslationService } from '../../services/TranslationService';
 
 describe('AddProventoModalComponent', () => {
   let component: AddProventoModalComponent;
   let fixture: ComponentFixture<AddProventoModalComponent>;
+  let mockTranslationService: { get: ReturnType<typeof vi.fn> };
 
   beforeEach(async () => {
+    mockTranslationService = {
+      get: vi.fn().mockImplementation((key: string) => {
+        const translations: Record<string, string> = {
+          'common.button.cancel': 'Cancelar',
+          'common.button.saving': 'Salvando...',
+          'common.button.save': 'Salvar',
+          'proventos.modal.newTitle': 'Novo provento',
+          'proventos.modal.editTitle': 'Editar provento',
+          'proventos.field.code': 'Código',
+          'proventos.field.type': 'Tipo',
+          'proventos.field.institution': 'Instituição',
+          'proventos.field.quantity': 'Quantidade',
+          'proventos.field.unitPrice': 'Preço Unitário',
+          'proventos.field.netValue': 'Valor Líquido',
+          'proventos.field.date': 'Data',
+          'proventos.validation.fillAllFields': 'Preencha todos os campos com valores válidos.',
+          'proventos.validation.futureDate': 'A data do provento não pode ser futura.',
+          'proventos.validation.invalidCode': 'Código inválido. Use 4 letras + 2 dígitos (máx. 7), com sufixo F apenas para ações (ex.: PETR4F, TAEE11, AAPL34).',
+        };
+        return translations[key] ?? '';
+      }),
+    };
+
     await TestBed.configureTestingModule({
       imports: [AddProventoModalComponent],
+      providers: [
+        { provide: TranslationService, useValue: mockTranslationService },
+      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(AddProventoModalComponent);

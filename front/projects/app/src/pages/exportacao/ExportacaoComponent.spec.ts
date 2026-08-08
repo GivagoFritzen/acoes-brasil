@@ -1,7 +1,10 @@
 import { TestBed } from '@angular/core/testing';
 import { of, throwError } from 'rxjs';
+import { vi } from 'vitest';
 import { SellSnapshotExportRow } from '../../models/SellSnapshotExportRowModel';
 import { OrdersService } from '../../services/OrdersService';
+import { PortfolioService } from '../../services/PortfolioService';
+import { TranslationService } from '../../services/TranslationService';
 import { ExportacaoComponent } from './ExportacaoComponent';
 
 describe('ExportacaoComponent', () => {
@@ -10,6 +13,10 @@ describe('ExportacaoComponent', () => {
     exportSellSnapshotsSpreadsheet: ReturnType<typeof vi.fn>;
     getSellSnapshotsForPdf: ReturnType<typeof vi.fn>;
   };
+  let portfolioServiceMock: {
+    exportPortfolioSpreadsheet: ReturnType<typeof vi.fn>;
+  };
+  let mockTranslationService: { get: ReturnType<typeof vi.fn> };
 
   const baseRows: SellSnapshotExportRow[] = [
     {
@@ -47,10 +54,45 @@ describe('ExportacaoComponent', () => {
       exportSellSnapshotsSpreadsheet: vi.fn(),
       getSellSnapshotsForPdf: vi.fn(),
     };
+    portfolioServiceMock = {
+      exportPortfolioSpreadsheet: vi.fn(),
+    };
+    mockTranslationService = {
+      get: vi.fn().mockImplementation((key: string) => {
+        const translations: Record<string, string> = {
+          'common.alerts.error': 'Erro',
+          'common.alerts.success': 'Sucesso',
+          'exportacao.alerts.prepareAcoesFailed': 'Não foi possível preparar a exportação da página de ações.',
+          'exportacao.alerts.pdfStarted': 'Exportação iniciada. Salve como PDF no diálogo de impressão.',
+          'exportacao.alerts.pdfPrintFailed': 'Não foi possível iniciar a exportação em PDF.',
+          'exportacao.alerts.portfolioExcelDone': 'Exportação do portfólio em Excel concluída.',
+          'exportacao.alerts.portfolioExcelFailed': 'Não foi possível exportar o portfólio em Excel.',
+          'exportacao.alerts.orderSellExcelDone': 'Exportação de OrderSell em Excel concluída.',
+          'exportacao.alerts.orderSellExcelFailed': 'Não foi possível exportar o OrderSell em Excel.',
+          'exportacao.alerts.prepareOrderSellFailed': 'Não foi possível preparar a exportação de OrderSell.',
+          'exportacao.alerts.orderSellPdfStarted': 'Exportação de OrderSell em PDF iniciada.',
+          'exportacao.alerts.orderSellPdfPrintFailed': 'Não foi possível iniciar a exportação de OrderSell em PDF.',
+          'exportacao.alerts.orderSellDataLoadFailed': 'Não foi possível carregar os dados de OrderSell para o PDF.',
+          'exportacao.pdf.title': 'OrderSell - Exportação PDF',
+          'exportacao.pdf.reportTitle': 'OrderSell - Relatório',
+          'exportacao.pdf.headerCodigo': 'Código',
+          'exportacao.pdf.headerPrecoMedioAtual': 'Preço Médio Atual',
+          'exportacao.pdf.headerQuantidade': 'Quantidade',
+          'exportacao.pdf.headerValorAtualAcao': 'Valor Atual Ação',
+          'exportacao.pdf.headerGanhos': 'Ganhos',
+          'exportacao.pdf.headerData': 'Data',
+        };
+        return translations[key] ?? '';
+      }),
+    };
 
     await TestBed.configureTestingModule({
       imports: [ExportacaoComponent],
-      providers: [{ provide: OrdersService, useValue: ordersServiceMock }],
+      providers: [
+        { provide: OrdersService, useValue: ordersServiceMock },
+        { provide: PortfolioService, useValue: portfolioServiceMock },
+        { provide: TranslationService, useValue: mockTranslationService },
+      ],
     }).compileComponents();
 
     const fixture = TestBed.createComponent(ExportacaoComponent);
@@ -363,5 +405,58 @@ describe('ExportacaoComponent', () => {
     component.handleAlertDismiss({ variant: 'warning', title: 'C', message: 'c', icon: '?' });
 
     expect(component.alerts().length).toBe(2);
+  });
+
+  it('deve exportar portfolio em Excel com sucesso', () => {
+    const mockBlob = new Blob(['test'], { type: 'application/vnd.ms-excel' });
+    portfolioServiceMock.exportPortfolioSpreadsheet.mockReturnValue(of(mockBlob));
+
+    createElementSpy = vi.spyOn(document, 'createElement').mockImplementation((tag: string) => {
+      if (tag === 'a') {
+        return mockAnchor as unknown as HTMLAnchorElement;
+      }
+      return originalCreateElement(tag);
+    });
+    appendChildSpy = vi.spyOn(document.body, 'appendChild').mockReturnValue(mockAnchor as unknown as HTMLAnchorElement);
+    removeChildSpy = vi.spyOn(document.body, 'removeChild').mockReturnValue(mockAnchor as unknown as HTMLAnchorElement);
+    vi.spyOn(URL, 'createObjectURL').mockReturnValue('blob:url');
+    vi.spyOn(URL, 'revokeObjectURL').mockImplementation(() => {});
+
+    component.exportarPortfolioExcel();
+
+    expect(portfolioServiceMock.exportPortfolioSpreadsheet).toHaveBeenCalled();
+    expect(component.isExportingPortfolio()).toBe(false);
+    expect(component.alerts().length).toBe(1);
+    expect(component.alerts()[0].variant).toBe('info');
+    expect(component.alerts()[0].message).toBe('Exportação do portfólio em Excel concluída.');
+  });
+
+  it('deve tratar erro ao exportar portfolio em Excel', () => {
+    portfolioServiceMock.exportPortfolioSpreadsheet.mockReturnValue(throwError(() => new Error('erro')));
+
+    component.exportarPortfolioExcel();
+
+    expect(component.alerts().length).toBe(1);
+    expect(component.alerts()[0].variant).toBe('error');
+    expect(component.alerts()[0].message).toBe('Não foi possível exportar o portfólio em Excel.');
+  });
+
+  it('deve resetar isExportingPortfolio apos conclusao', () => {
+    portfolioServiceMock.exportPortfolioSpreadsheet.mockReturnValue(of(new Blob()));
+
+    createElementSpy = vi.spyOn(document, 'createElement').mockImplementation((tag: string) => {
+      if (tag === 'a') {
+        return mockAnchor as unknown as HTMLAnchorElement;
+      }
+      return originalCreateElement(tag);
+    });
+    appendChildSpy = vi.spyOn(document.body, 'appendChild').mockReturnValue(mockAnchor as unknown as HTMLAnchorElement);
+    removeChildSpy = vi.spyOn(document.body, 'removeChild').mockReturnValue(mockAnchor as unknown as HTMLAnchorElement);
+    vi.spyOn(URL, 'createObjectURL').mockReturnValue('blob:url');
+    vi.spyOn(URL, 'revokeObjectURL').mockImplementation(() => {});
+
+    component.exportarPortfolioExcel();
+
+    expect(component.isExportingPortfolio()).toBe(false);
   });
 });

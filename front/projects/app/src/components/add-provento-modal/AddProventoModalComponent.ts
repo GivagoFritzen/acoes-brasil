@@ -1,27 +1,32 @@
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, Input, OnChanges, Output, SimpleChanges, signal } from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, Output, SimpleChanges, inject, signal } from '@angular/core';
 import { DatePickerComponent } from '../date-range-filter/DatePickerComponent';
 import { SimpleButtonComponent } from '../simple-button/SimpleButtonComponent';
 import { SimpleInputComponent } from '../simple-input/SimpleInputComponent';
 import { SimpleSelectComponent } from '../simple-select/SimpleSelectComponent';
-import { ProventoTipo, ProventoTipos } from '../../models';
+import { ProventoTipo, ProventoTipos, Provento } from '../../models';
 import { SelectOption } from '../../../../../../common/models/SelectOptionModel';
 import { CreateProventoPayload } from '../../models/CreateProventoPayloadModel';
 import { SimpleInputNumberComponent } from '../simple-input-number/SimpleInputNumberComponent';
 import { normalizeOrderCodigo } from '../../../../../../common/utils/OrderCodigoUtils';
 import { isSupportedB3Ticker } from '../../../../../../common/utils/AssetTypeUtils';
+import { isFutureDate } from '../../utils/DateUtils';
+import { TranslationService } from '../../services/TranslationService';
+import { TranslatePipe } from '../../pipes/TranslatePipe';
 
 @Component({
   selector: 'app-add-provento-modal',
   standalone: true,
-  imports: [CommonModule, SimpleInputComponent, SimpleSelectComponent, DatePickerComponent, SimpleButtonComponent, SimpleInputNumberComponent],
+  imports: [CommonModule, SimpleInputComponent, SimpleSelectComponent, DatePickerComponent, SimpleButtonComponent, SimpleInputNumberComponent, TranslatePipe],
   templateUrl: './AddProventoModalComponent.html',
   styleUrls: ['./AddProventoModalComponent.scss'],
 })
 export class AddProventoModalComponent implements OnChanges {
+  private readonly translationService = inject(TranslationService);
   @Input() isOpen = false;
   @Input() isSaving = false;
   @Input() tipoOptions: SelectOption<ProventoTipo>[] = [];
+  @Input() editingItem: Provento | null = null;
 
   @Output() closed = new EventEmitter<void>();
   @Output() saved = new EventEmitter<CreateProventoPayload>();
@@ -38,6 +43,9 @@ export class AddProventoModalComponent implements OnChanges {
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['isOpen']?.currentValue && !changes['isOpen']?.previousValue) {
       this.resetForm();
+      if (this.editingItem) {
+        this.populateForm(this.editingItem);
+      }
     }
   }
 
@@ -112,17 +120,17 @@ export class AddProventoModalComponent implements OnChanges {
       valorLiquido === null ||
       valorLiquido < 0
     ) {
-      this.validationMessage.set('Preencha todos os campos com valores válidos.');
+      this.validationMessage.set(this.translationService.get('proventos.validation.fillAllFields'));
       return null;
     }
 
-    if (this.isFutureDate(data)) {
-      this.validationMessage.set('A data do provento não pode ser futura.');
+    if (isFutureDate(data)) {
+      this.validationMessage.set(this.translationService.get('proventos.validation.futureDate'));
       return null;
     }
 
     if (!isSupportedB3Ticker(codigo)) {
-      this.validationMessage.set('Código inválido. Use 4 letras + 2 dígitos (máx. 7), com sufixo F apenas para ações (ex.: PETR4F, TAEE11, AAPL34).');
+      this.validationMessage.set(this.translationService.get('proventos.validation.invalidCode'));
       return null;
     }
 
@@ -139,17 +147,6 @@ export class AddProventoModalComponent implements OnChanges {
     };
   }
 
-  private isFutureDate(value: string): boolean {
-    const parsed = new Date(`${value}T00:00:00`);
-    if (Number.isNaN(parsed.getTime())) {
-      return false;
-    }
-
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    return parsed.getTime() > today.getTime();
-  }
-
   private resetForm(): void {
     this.codigo.set('');
     this.tipo.set(ProventoTipos.Dividendo);
@@ -159,5 +156,15 @@ export class AddProventoModalComponent implements OnChanges {
     this.valorLiquido.set(null);
     this.data.set('');
     this.validationMessage.set('');
+  }
+
+  private populateForm(item: Provento): void {
+    this.codigo.set(item.codigo);
+    this.tipo.set(item.tipo);
+    this.instituicao.set(item.instituicao);
+    this.quantidade.set(item.quantidade);
+    this.precoUnitario.set(item.precoUnitario);
+    this.valorLiquido.set(item.valorLiquido);
+    this.data.set(item.data);
   }
 }

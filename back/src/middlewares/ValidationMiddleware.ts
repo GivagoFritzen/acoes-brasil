@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import { AppException } from "../shared/exceptions/AppException";
 import { isValidUuid } from "../shared/validators/IdValidator";
+import { ValidatedRequest } from "../models/ValidatedRequest";
 
 export type ValidationSchema = (body: any) => Record<string, any>;
 
@@ -9,7 +10,7 @@ export class ValidationMiddleware {
     return (req, res, next) => {
       try {
         const validated = schema(req.body);
-        (req as any).validatedBody = validated;
+        (req as ValidatedRequest).validatedBody = validated;
         next();
       } catch (error) {
         const status = error instanceof AppException ? error.statusCode : 400;

@@ -1,5 +1,5 @@
 import type { SpreadsheetRow } from "../../models/SpreadsheetRow";
-import { extractField, parseDecimal, readSpreadsheetRows, toBrDateString } from "../../utils/Spreadsheet";
+import { extractField, readSpreadsheetRows, toBrDateString } from "../../utils/Spreadsheet";
 import type { ProventoTipo as proventoTipo } from "../../../../common/models/provento";
 import { CreateOrderDto } from "../../application/dto/CreateOrderDto";
 import { CreateProventoDto } from "../../application/dto/CreateProventoDto";
@@ -8,6 +8,8 @@ import type { OrderOperacao as orderOperacao } from "../../../../common/models/o
 import { normalizeOrderCodigo } from "../../../../common/utils/OrderCodigoUtils";
 import { detectSupportedAssetTypeFromTicker } from "../../../../common/utils/AssetTypeUtils";
 import { ParseProventoResult } from "../../models/ParseProventoResult";
+import { DateUtils } from "../../shared/utils/DateUtils";
+import { parseDecimal } from "../../../../common/utils/parseDecimal";
 
 export class SpreadsheetParserService {
   parseOrderRowsAsync(buffer: Buffer): CreateOrderDto[] {
@@ -26,7 +28,8 @@ export class SpreadsheetParserService {
       );
       const quantidadeRaw = parseDecimal(extractField(row, ["Quantidade"]));
       const preco = parseDecimal(extractField(row, ["Preço", "Preco"]));
-      const data = toBrDateString(extractField(row, ["Data do Negócio", "Data do Negocio", "Data"]));
+      const brData = toBrDateString(extractField(row, ["Data do Negócio", "Data do Negocio", "Data"]));
+      const data = brData ? DateUtils.normalizeToIsoDate(brData) ?? brData : "";
       const operacao = this.normalizeOperacao(extractField(row, ["Tipo de Movimentação", "Tipo de Movimentacao"]));
       const tipo = detectSupportedAssetTypeFromTicker(codigo);
       const quantidade = quantidadeRaw === null ? null : Math.trunc(quantidadeRaw);
@@ -61,32 +64,34 @@ export class SpreadsheetParserService {
       const precoField = extractField(row, ["Preço unitário", "Preco unitario", "Preço", "Preco"]);
       const valorField = extractField(row, ["Valor líquido", "Valor liquido", "Valor"]);
 
-      const seemsHeaderRow =
-        this.isHeaderCell(produtoField, ["Produto", "Código", "Codigo"]) ||
-        this.isHeaderCell(tipoField, ["Tipo de Evento", "Tipo"]);
-
-      if (seemsHeaderRow) {
+      if (this.isHeaderRow(produtoField, tipoField)) {
         continue;
       }
 
-      const hasAnyMainField = [produtoField, pagamentoField, tipoField, instituicaoField, quantidadeField, precoField, valorField]
-        .some((value) => String(value ?? "").trim() !== "");
-
-      if (!hasAnyMainField) {
+      if (!this.hasAnyMainField(
+        produtoField,
+        pagamentoField,
+        tipoField,
+        instituicaoField,
+        quantidadeField,
+        precoField,
+        valorField
+      )) {
         invalidLineNumbers.push(lineNumber);
         continue;
       }
 
-      const codigo = this.normalizeCodigoFromProduto(produtoField);
-      const data = toBrDateString(pagamentoField) ?? "";
-      const tipo = this.normalizeTipoProvento(tipoField);
-      const instituicao = String(instituicaoField ?? "").trim();
-      const quantidadeRaw = parseDecimal(quantidadeField);
-      const precoUnitario = parseDecimal(precoField) ?? 0;
-      const valorLiquido = parseDecimal(valorField) ?? 0;
-      const quantidade = quantidadeRaw === null ? 0 : Math.trunc(quantidadeRaw);
-
-      validRows.push({ codigo, data, tipo, instituicao, quantidade, precoUnitario, valorLiquido });
+      validRows.push(
+        this.parseProventoRowFields(
+          produtoField,
+          pagamentoField,
+          tipoField,
+          instituicaoField,
+          quantidadeField,
+          precoField,
+          valorField
+        )
+      );
     }
 
     return { validRows, invalidLineNumbers };
@@ -114,6 +119,66 @@ export class SpreadsheetParserService {
     }
 
     return portfolios;
+  }
+
+  private parseProventoRowFields(
+    produtoField: string | undefined,
+    pagamentoField: string | undefined,
+    tipoField: string | undefined,
+    instituicaoField: string | undefined,
+    quantidadeField: string | undefined,
+    precoField: string | undefined,
+    valorField: string | undefined
+  ): CreateProventoDto {
+    const codigo = this.normalizeCodigoFromProduto(produtoField);
+    const brData = toBrDateString(pagamentoField);
+    const data = brData ? DateUtils.normalizeToIsoDate(brData) ?? brData : "";
+    const tipo = this.normalizeTipoProvento(tipoField);
+    const instituicao = String(instituicaoField ?? "").trim();
+    const quantidadeRaw = parseDecimal(quantidadeField);
+    const precoUnitario = parseDecimal(precoField) ?? 0;
+    const valorLiquido = parseDecimal(valorField) ?? 0;
+    const quantidade = quantidadeRaw === null ? 0 : Math.trunc(quantidadeRaw);
+
+    return {
+      codigo,
+      data,
+      tipo,
+      instituicao,
+      quantidade,
+      precoUnitario,
+      valorLiquido,
+    };
+  }
+
+  private isHeaderRow(
+    produtoField: string | undefined,
+    tipoField: string | undefined
+  ): boolean {
+    return (
+      this.isHeaderCell(produtoField, ["Produto", "Código", "Codigo"]) ||
+      this.isHeaderCell(tipoField, ["Tipo de Evento", "Tipo"])
+    );
+  }
+
+  private hasAnyMainField(
+    produtoField: string | undefined,
+    pagamentoField: string | undefined,
+    tipoField: string | undefined,
+    instituicaoField: string | undefined,
+    quantidadeField: string | undefined,
+    precoField: string | undefined,
+    valorField: string | undefined
+  ): boolean {
+    return [
+      produtoField,
+      pagamentoField,
+      tipoField,
+      instituicaoField,
+      quantidadeField,
+      precoField,
+      valorField,
+    ].some((value) => String(value ?? "").trim() !== "");
   }
 
   private normalizeOperacao(value: string | undefined): orderOperacao | null {

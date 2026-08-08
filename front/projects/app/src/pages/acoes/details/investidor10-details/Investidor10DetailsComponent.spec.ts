@@ -1,4 +1,5 @@
 import { TestBed } from '@angular/core/testing';
+import { of, Subject } from 'rxjs';
 import type { Investidor10AcaoDetails, Investidor10FiiDetails } from '../../../../models';
 import { TranslationService } from '../../../../services/TranslationService';
 import { Investidor10DetailsComponent } from './Investidor10DetailsComponent';
@@ -8,6 +9,8 @@ describe('Investidor10DetailsComponent', () => {
     let translationServiceMock: {
         get: ReturnType<typeof vi.fn>;
         has: ReturnType<typeof vi.fn>;
+        currentLang$: Subject<string>;
+        getCurrentLanguage: ReturnType<typeof vi.fn>;
     };
 
     const baseAcao: Investidor10AcaoDetails = {
@@ -36,10 +39,12 @@ describe('Investidor10DetailsComponent', () => {
     };
 
     beforeEach(async () => {
-        translationServiceMock = {
-            get: vi.fn((key: string) => key),
-            has: vi.fn((key: string) => false),
-        };
+    translationServiceMock = {
+        get: vi.fn((key: string) => key),
+        has: vi.fn((key: string) => false),
+        currentLang$: new Subject<string>(),
+        getCurrentLanguage: vi.fn(() => 'pt-BR'),
+    };
 
         await TestBed.configureTestingModule({
             imports: [Investidor10DetailsComponent],

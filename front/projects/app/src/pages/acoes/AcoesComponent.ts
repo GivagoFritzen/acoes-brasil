@@ -1,16 +1,20 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, HostListener, OnInit, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { finalize } from 'rxjs';
 import { AlertsComponent } from '../../components/alerts/AlertsComponent';
-import { ActionButtonComponent, AddPortfolioModalComponent, SimpleButtonComponent } from '../../components';
+import { AddPortfolioModalComponent, SimpleButtonComponent } from '../../components';
 import { PortfolioPieChartComponent } from '../../components/portfolio-pie-chart/PortfolioPieChartComponent';
 import { PortfolioItem } from '../../models';
 import { PortfolioProfitLossChartComponent } from '../../components/portfolio-profit-loss-chart/PortfolioProfitLossChartComponent';
 import { AlertItem } from '../../models/alert/AlertItemModel';
+import { filterAlert } from '../../utils/AlertUtils';
 import { PortfolioService } from '../../services/PortfolioService';
 import { CreatePortfolioPayload } from '../../models/CreatePortfolioPayloadModel';
+import { UpdatePortfolioPayload } from '../../models/UpdatePortfolioPayloadModel';
 import { TranslatePipe } from '../../pipes/TranslatePipe';
+import { TranslationService } from '../../services/TranslationService';
 import { SettingsService } from '../../services/SettingsService';
 import { mesclarPorCodigo, removerSufixoF } from '../../../../../../common/utils/OrderCodigoUtils';
 
@@ -21,7 +25,6 @@ import { mesclarPorCodigo, removerSufixoF } from '../../../../../../common/utils
         CommonModule,
         AlertsComponent,
         SimpleButtonComponent,
-        ActionButtonComponent,
         AddPortfolioModalComponent,
         PortfolioPieChartComponent,
         PortfolioProfitLossChartComponent,
@@ -29,19 +32,23 @@ import { mesclarPorCodigo, removerSufixoF } from '../../../../../../common/utils
     ],
     templateUrl: './AcoesComponent.html',
     styleUrls: ['./AcoesComponent.scss'],
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AcoesComponent implements OnInit {
-    portfolios = signal<PortfolioItem[]>([]);
-    isLoading = signal(false);
-    isEditing = signal(false);
-    isDeleteMode = signal(false);
-    isDeleting = signal(false);
-    isCreating = signal(false);
-    errorMessage = signal('');
-    alerts = signal<AlertItem[]>([]);
-    isDeleteModalOpen = signal(false);
-    isCreateModalOpen = signal(false);
-    portfolioToDelete = signal<PortfolioItem | null>(null);
+    private readonly destroyRef = inject(DestroyRef);
+    readonly portfolios = signal<PortfolioItem[]>([]);
+    readonly isLoading = signal(false);
+    readonly isDeleting = signal(false);
+    readonly isCreating = signal(false);
+    readonly isEditing = signal(false);
+    readonly errorMessage = signal('');
+    readonly alerts = signal<AlertItem[]>([]);
+    readonly isDeleteModalOpen = signal(false);
+    readonly isCreateModalOpen = signal(false);
+    readonly isEditModalOpen = signal(false);
+    readonly portfolioToDelete = signal<PortfolioItem | null>(null);
+    readonly portfolioToEdit = signal<PortfolioItem | null>(null);
+    readonly openDropdownIndex = signal<number | null>(null);
 
     private readonly codigoParaIdsMap = new Map<string, string[]>();
 
@@ -49,7 +56,16 @@ export class AcoesComponent implements OnInit {
         private readonly portfolioService: PortfolioService,
         private readonly router: Router,
         protected readonly settingsService: SettingsService,
+        private readonly translationService: TranslationService
     ) { }
+
+    @HostListener('document:click', ['$event'])
+    onDocumentClick(event: MouseEvent): void {
+        const target = event.target as HTMLElement;
+        if (!target.closest('.acoes__dropdown-container')) {
+            this.openDropdownIndex.set(null);
+        }
+    }
 
     ngOnInit(): void {
         this.loadPortfolios();
@@ -62,19 +78,22 @@ export class AcoesComponent implements OnInit {
 
         this.portfolioService
             .getPortfolios()
-            .pipe(finalize(() => this.isLoading.set(false)))
+            .pipe(
+                finalize(() => this.isLoading.set(false)),
+                takeUntilDestroyed(this.destroyRef)
+            )
             .subscribe({
                 next: (portfolios) => {
                     const portfolioItems = portfolios ?? [];
                     this.portfolios.set(this.mergePortfolios(portfolioItems));
                 },
                 error: () => {
-                    const message = 'Não foi possível carregar os portfolios.';
+                    const message = this.translationService.get('acoes.alerts.loadPortfoliosFailed');
                     this.errorMessage.set(message);
                     this.alerts.set([
                         {
                             variant: 'error',
-                            title: 'Error!',
+                            title: this.translationService.get('common.alerts.error'),
                             message,
                             icon: '✕',
                         },
@@ -84,32 +103,23 @@ export class AcoesComponent implements OnInit {
     }
 
     handleAlertDismiss(alert: AlertItem): void {
-        this.alerts.update((items) =>
-            items.filter(
-                (item) =>
-                    item.variant !== alert.variant ||
-                    item.title !== alert.title ||
-                    item.message !== alert.message ||
-                    item.icon !== alert.icon
-            )
-        );
+        this.alerts.update((items) => items.filter(filterAlert(alert)));
     }
 
     openCreateModal(): void {
         this.isCreateModalOpen.set(true);
     }
 
-    toggleEditMode(): void {
-        this.isEditing.update(v => !v);
+    toggleDropdown(index: number): void {
+        if (this.openDropdownIndex() === index) {
+            this.openDropdownIndex.set(null);
+        } else {
+            this.openDropdownIndex.set(index);
+        }
     }
 
-    toggleDeleteMode(): void {
-        const nextValue = !this.isDeleteMode();
-        this.isDeleteMode.set(nextValue);
-
-        if (!nextValue) {
-            this.closeDeleteModal();
-        }
+    closeDropdown(): void {
+        this.openDropdownIndex.set(null);
     }
 
     openDeleteModal(item: PortfolioItem): void {
@@ -134,18 +144,34 @@ export class AcoesComponent implements OnInit {
         this.isCreateModalOpen.set(false);
     }
 
+    openEditModal(item: PortfolioItem): void {
+        this.portfolioToEdit.set(item);
+        this.isEditModalOpen.set(true);
+    }
+
+    closeEditModal(): void {
+        if (this.isCreating()) {
+            return;
+        }
+
+        this.isEditModalOpen.set(false);
+        this.portfolioToEdit.set(null);
+    }
+
     confirmCreatePortfolio(payload: CreatePortfolioPayload): void {
         this.isCreating.set(true);
 
-        this.portfolioService.createPortfolio(payload).subscribe({
+        this.portfolioService.createPortfolio(payload)
+            .pipe(takeUntilDestroyed(this.destroyRef))
+            .subscribe({
             next: (portfolio) => {
                 this.isCreating.set(false);
                 this.closeCreateModal();
                 this.alerts.set([
                     {
                         variant: 'info',
-                        title: 'Sucesso',
-                        message: `Ativo ${portfolio.codigo} adicionado com sucesso.`,
+                        title: this.translationService.get('common.alerts.success'),
+                        message: `${this.translationService.get('acoes.alerts.assetCreated')} ${portfolio.codigo}`,
                         icon: '✓',
                     },
                 ]);
@@ -156,8 +182,48 @@ export class AcoesComponent implements OnInit {
                 this.alerts.set([
                     {
                         variant: 'error',
-                        title: 'Error!',
-                        message: 'Não foi possível adicionar o ativo ao portfólio.',
+                        title: this.translationService.get('common.alerts.error'),
+                        message: this.translationService.get('acoes.alerts.addAssetFailed'),
+                        icon: '✕',
+                    },
+                ]);
+            },
+        });
+    }
+
+    confirmEditPortfolio(payload: UpdatePortfolioPayload): void {
+        const portfolio = this.portfolioToEdit();
+        if (!portfolio) {
+            return;
+        }
+
+        this.isEditing.set(true);
+
+        const ids = this.codigoParaIdsMap.get(portfolio.codigo) ?? [portfolio.id];
+
+        this.portfolioService.updatePortfolio(ids[0], payload)
+            .pipe(takeUntilDestroyed(this.destroyRef))
+            .subscribe({
+            next: (updated) => {
+                this.isEditing.set(false);
+                this.closeEditModal();
+                this.alerts.set([
+                    {
+                        variant: 'info',
+                        title: this.translationService.get('common.alerts.success'),
+                        message: `${this.translationService.get('acoes.alerts.assetUpdated')} ${updated.codigo}`,
+                        icon: '✓',
+                    },
+                ]);
+                this.loadPortfolios();
+            },
+            error: () => {
+                this.isEditing.set(false);
+                this.alerts.set([
+                    {
+                        variant: 'error',
+                        title: this.translationService.get('common.alerts.error'),
+                        message: this.translationService.get('acoes.alerts.updateAssetFailed'),
                         icon: '✕',
                     },
                 ]);
@@ -175,15 +241,17 @@ export class AcoesComponent implements OnInit {
 
         const ids = this.codigoParaIdsMap.get(portfolio.codigo) ?? [portfolio.id];
 
-        this.portfolioService.deletePortfolio(ids[0]).subscribe({
+        this.portfolioService.deletePortfolio(ids[0])
+            .pipe(takeUntilDestroyed(this.destroyRef))
+            .subscribe({
             next: () => {
                 this.isDeleting.set(false);
                 this.closeDeleteModal();
                 this.alerts.set([
                     {
                         variant: 'info',
-                        title: 'Sucesso',
-                        message: `Ativo ${portfolio.codigo} removido com sucesso.`,
+                        title: this.translationService.get('common.alerts.success'),
+                        message: `${this.translationService.get('acoes.alerts.assetDeleted')} ${portfolio.codigo}`,
                         icon: '✓',
                     },
                 ]);
@@ -194,8 +262,8 @@ export class AcoesComponent implements OnInit {
                 this.alerts.set([
                     {
                         variant: 'error',
-                        title: 'Error!',
-                        message: 'Não foi possível deletar o ativo do portfólio.',
+                        title: this.translationService.get('common.alerts.error'),
+                        message: this.translationService.get('acoes.alerts.deleteAssetFailed'),
                         icon: '✕',
                     },
                 ]);
@@ -204,10 +272,6 @@ export class AcoesComponent implements OnInit {
     }
 
     goToPortfolioDetails(item: PortfolioItem): void {
-        if (this.isDeleteMode()) {
-            return;
-        }
-
         this.router.navigate(['/acoes', item.codigo]);
     }
 

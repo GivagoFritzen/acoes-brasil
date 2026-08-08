@@ -6,7 +6,7 @@ import { DateUtils } from "../../shared/utils/DateUtils";
 export class ExportSellSnapshotsService {
   constructor(
     private sellSnapshotRepository: IOrderSellSnapshotRepository,
-    private ExcelExportService: ExcelExportService
+    private excelExportService: ExcelExportService
   ) {}
 
   async executeAsync(ano?: string): Promise<{ buffer: Buffer; fileName: string }> {
@@ -31,7 +31,7 @@ export class ExportSellSnapshotsService {
     });
 
     const fileName = DateUtils.generateFileName("vendas");
-    const buffer = this.ExcelExportService.generateAsync(rows);
+    const buffer = this.excelExportService.generateAsync(rows);
 
     return { buffer, fileName };
   }

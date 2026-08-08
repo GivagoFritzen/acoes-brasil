@@ -1,11 +1,11 @@
 import { DataTypes, Model } from "sequelize";
 import { sequelize } from "../../database";
-import { orderCreationAttributes } from "./OrderCreationAttributes";
+import { OrderCreationAttributes } from "./OrderCreationAttributes";
 import { OrderAttributes } from "./OrderAttributes";
 import { DateUtils } from "../../shared/utils/DateUtils";
 import type { OrderOperacao as orderOperacao, OrderTipo as orderTipo } from "../../../../common/models/order";
 
-export class Order extends Model<OrderAttributes, orderCreationAttributes> implements OrderAttributes {
+export class Order extends Model<OrderAttributes, OrderCreationAttributes> implements OrderAttributes {
   declare id: string;
   declare codigo: string;
   declare valor: number;
@@ -55,5 +55,10 @@ Order.init(
   {
     sequelize,
     tableName: "Orders",
+    indexes: [
+      { fields: ["codigo"] },
+      { fields: ["data"] },
+      { fields: ["codigo", "data"] },
+    ],
   }
 );

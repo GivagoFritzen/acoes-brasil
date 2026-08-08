@@ -1,4 +1,4 @@
-import { formatDateForDisplay } from './DateUtils';
+import { formatDateForDisplay, compareIsoDates } from './DateUtils';
 
 describe('formatDateForDisplay', () => {
   describe('Deve_retornar_string_vazia_quando_receber_null', () => {
@@ -78,5 +78,29 @@ describe('formatDateForDisplay', () => {
       const resultado = formatDateForDisplay('not-a-date');
       expect(resultado).toBe('not-a-date');
     });
+  });
+});
+
+describe('compareIsoDates', () => {
+  it('deve retornar valor positivo quando primeira data é posterior', () => {
+    expect(compareIsoDates('2024-01-15', '2024-01-10')).toBeGreaterThan(0);
+  });
+
+  it('deve retornar valor negativo quando primeira data é anterior', () => {
+    expect(compareIsoDates('2024-01-10', '2024-01-15')).toBeLessThan(0);
+  });
+
+  it('deve retornar zero quando datas são iguais', () => {
+    expect(compareIsoDates('2024-01-10', '2024-01-10')).toBe(0);
+  });
+
+  it('deve comparar datas de meses diferentes corretamente', () => {
+    expect(compareIsoDates('2024-03-01', '2024-02-28')).toBeGreaterThan(0);
+    expect(compareIsoDates('2024-02-28', '2024-03-01')).toBeLessThan(0);
+  });
+
+  it('deve comparar datas de anos diferentes corretamente', () => {
+    expect(compareIsoDates('2025-01-01', '2024-12-31')).toBeGreaterThan(0);
+    expect(compareIsoDates('2023-12-31', '2024-01-01')).toBeLessThan(0);
   });
 });

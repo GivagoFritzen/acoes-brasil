@@ -3,7 +3,6 @@ import { CommonModule } from '@angular/common';
 import { isPlatformBrowser } from '@angular/common';
 import { BehaviorSubject, Observable, combineLatest, forkJoin, of } from 'rxjs';
 import { catchError, map, switchMap } from 'rxjs/operators';
-import { Info } from '../../enums/InfoEnum';
 import { FundamentusAcaoDetails, PortfolioItem } from '../../models';
 import type { BarChartItem } from '../../models/graphics/BarChartItemModel';
 import type { PositionedDataItem } from '../../models/graphics/PositionedDataItemModel';
@@ -11,6 +10,10 @@ import type { ProfitLossDataItem } from '../../models/graphics/ProfitLossDataIte
 import { FundamentusService } from '../../services/FundamentusService';
 import { PortfolioService } from '../../services/PortfolioService';
 import { mesclarPorCodigo } from '../../../../../../common/utils/OrderCodigoUtils';
+import { normalizeLabel } from '../../utils/LabelUtils';
+
+const COR_POSITIVO = '#5AA454';
+const COR_NEGATIVO = '#A10A28';
 
 @Component({
   selector: 'app-portfolio-profit-loss-chart',
@@ -144,8 +147,6 @@ export class PortfolioProfitLossChartComponent implements OnInit {
       const barWidth = maxAbsValue > 0
         ? (Math.abs(item.value) / maxAbsValue) * (isPositive ? positiveWidth : negativeWidth)
         : 0;
-      const COR_POSITIVO = '#5AA454';
-      const COR_NEGATIVO = '#A10A28';
       const posicaoY = item.index * (this.barHeight + this.verticalMargin);
       const posicaoX = isPositive ? this.yAxisX : this.yAxisX - barWidth;
 
@@ -185,8 +186,6 @@ export class PortfolioProfitLossChartComponent implements OnInit {
       const barHeight = maxAbsValue > 0
         ? (Math.abs(item.value) / maxAbsValue) * availableHalfHeight
         : 0;
-      const COR_POSITIVO = '#5AA454';
-      const COR_NEGATIVO = '#A10A28';
       const posicaoX = this.mobileLeftPadding + item.index * (this.mobileBarWidth + this.mobileGap);
       const posicaoY = isPositive ? this.mobileXAxisY - barHeight : this.mobileXAxisY;
 
@@ -216,18 +215,10 @@ export class PortfolioProfitLossChartComponent implements OnInit {
     }
 
     const cotacaoIndicator = details.indicadores.find(
-      (indicator) => this.normalizeLabel(indicator.label) === this.normalizeLabel(Info.Cotacao)
+      (indicator) => normalizeLabel(indicator.label) === normalizeLabel('Cotacao')
     );
 
     return this.parseBrazilianNumber(cotacaoIndicator?.value);
-  }
-
-  private normalizeLabel(value: string): string {
-    return (value ?? '')
-      .normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, '')
-      .replace(/[^a-zA-Z0-9]/g, '')
-      .toLowerCase();
   }
 
   private parseBrazilianNumber(value?: string | null): number {

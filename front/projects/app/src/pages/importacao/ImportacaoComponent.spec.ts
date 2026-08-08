@@ -1,14 +1,19 @@
 import { TestBed } from '@angular/core/testing';
 import { of, throwError } from 'rxjs';
 import { HttpErrorResponse } from '@angular/common/http';
+import { vi } from 'vitest';
 import { OrdersService } from '../../services/OrdersService';
 import { ProventosService } from '../../services/ProventosService';
+import { PortfolioService } from '../../services/PortfolioService';
+import { TranslationService } from '../../services/TranslationService';
 import { ImportacaoComponent } from './ImportacaoComponent';
 
 describe('ImportacaoComponent', () => {
   let component: ImportacaoComponent;
   let ordersServiceMock: { importOrdersSpreadsheet: ReturnType<typeof vi.fn> };
   let proventosServiceMock: { importProventosSpreadsheet: ReturnType<typeof vi.fn> };
+  let portfolioServiceMock: { importPortfolioSpreadsheet: ReturnType<typeof vi.fn> };
+  let mockTranslationService: { get: ReturnType<typeof vi.fn> };
 
   const mockFile = new File(['test'], 'test.xlsx', { type: 'application/vnd.ms-excel' });
 
@@ -19,12 +24,36 @@ describe('ImportacaoComponent', () => {
     proventosServiceMock = {
       importProventosSpreadsheet: vi.fn(),
     };
+    portfolioServiceMock = {
+      importPortfolioSpreadsheet: vi.fn(),
+    };
+    mockTranslationService = {
+      get: vi.fn().mockImplementation((key: string) => {
+        const translations: Record<string, string> = {
+          'common.alerts.attention': 'Atenção',
+          'common.alerts.success': 'Sucesso',
+          'common.alerts.error': 'Erro',
+          'importacao.alerts.selectNegociacaoFile': 'Selecione um arquivo de negociação para importar.',
+          'importacao.alerts.selectProventoFile': 'Selecione um arquivo de proventos para importar.',
+          'importacao.alerts.selectPortfolioFile': 'Selecione um arquivo de portfólio para importar.',
+          'importacao.alerts.negociacaoSuccess': ' negociações importadas com sucesso.',
+          'importacao.alerts.proventoSuccess': ' proventos importados com sucesso.',
+          'importacao.alerts.portfolioSuccess': ' itens de portfólio importados com sucesso.',
+          'importacao.errors.negociacaoImportFailed': 'Não foi possível importar a planilha de negociação.',
+          'importacao.errors.proventoImportFailed': 'Não foi possível importar a planilha de proventos.',
+          'importacao.errors.portfolioImportFailed': 'Não foi possível importar a planilha de portfólio.',
+        };
+        return translations[key] ?? '';
+      }),
+    };
 
     await TestBed.configureTestingModule({
       imports: [ImportacaoComponent],
       providers: [
         { provide: OrdersService, useValue: ordersServiceMock },
         { provide: ProventosService, useValue: proventosServiceMock },
+        { provide: PortfolioService, useValue: portfolioServiceMock },
+        { provide: TranslationService, useValue: mockTranslationService },
       ],
     }).compileComponents();
 
@@ -167,5 +196,81 @@ describe('ImportacaoComponent', () => {
     component.importarProventos();
 
     expect(component.alerts()[0].message).toBe('Não foi possível importar a planilha de proventos.');
+  });
+
+  describe('handlePortfolioFileChange', () => {
+    it('deve setar arquivo de portfólio', () => {
+      component.handlePortfolioFileChange(mockFile);
+
+      expect(component.portfolioFile()).toEqual(mockFile);
+    });
+
+    it('deve setar null quando arquivo é null', () => {
+      component.handlePortfolioFileChange(mockFile);
+      component.handlePortfolioFileChange(null);
+
+      expect(component.portfolioFile()).toBeNull();
+    });
+  });
+
+  describe('importarPortfolio', () => {
+    it('deve importar portfólio com sucesso', () => {
+      const response = { imported: 8 };
+      portfolioServiceMock.importPortfolioSpreadsheet.mockReturnValue(of(response));
+      component.portfolioFile.set(mockFile);
+
+      component.importarPortfolio();
+
+      expect(portfolioServiceMock.importPortfolioSpreadsheet).toHaveBeenCalledWith(mockFile);
+      expect(component.alerts().length).toBe(1);
+      expect(component.alerts()[0].variant).toBe('info');
+      expect(component.alerts()[0].message).toBe('8 itens de portfólio importados com sucesso.');
+      expect(component.portfolioFile()).toBeNull();
+      expect(component.isImportingPortfolio()).toBe(false);
+    });
+
+    it('deve tratar erro ao importar portfólio com error.error.error', () => {
+      const error = { error: { error: 'Erro específico portfolio' } } as HttpErrorResponse;
+      portfolioServiceMock.importPortfolioSpreadsheet.mockReturnValue(throwError(() => error));
+      component.portfolioFile.set(mockFile);
+
+      component.importarPortfolio();
+
+      expect(component.alerts().length).toBe(1);
+      expect(component.alerts()[0].variant).toBe('error');
+      expect(component.alerts()[0].message).toBe('Erro específico portfolio');
+      expect(component.isImportingPortfolio()).toBe(false);
+    });
+
+    it('deve tratar erro ao importar portfólio com error.error.message', () => {
+      const error = { error: { message: 'Mensagem de erro' } } as HttpErrorResponse;
+      portfolioServiceMock.importPortfolioSpreadsheet.mockReturnValue(throwError(() => error));
+      component.portfolioFile.set(mockFile);
+
+      component.importarPortfolio();
+
+      expect(component.alerts()[0].message).toBe('Mensagem de erro');
+    });
+
+    it('deve exibir warning quando não há arquivo para importação de portfólio', () => {
+      component.portfolioFile.set(null);
+
+      component.importarPortfolio();
+
+      expect(portfolioServiceMock.importPortfolioSpreadsheet).not.toHaveBeenCalled();
+      expect(component.alerts().length).toBe(1);
+      expect(component.alerts()[0].variant).toBe('warning');
+      expect(component.alerts()[0].message).toBe('Selecione um arquivo de portfólio para importar.');
+    });
+
+    it('deve tratar erro genérico ao importar portfólio quando error sem mensagem específica', () => {
+      const error = {} as HttpErrorResponse;
+      portfolioServiceMock.importPortfolioSpreadsheet.mockReturnValue(throwError(() => error));
+      component.portfolioFile.set(mockFile);
+
+      component.importarPortfolio();
+
+      expect(component.alerts()[0].message).toBe('Não foi possível importar a planilha de portfólio.');
+    });
   });
 });

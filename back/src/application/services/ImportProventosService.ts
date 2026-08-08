@@ -14,8 +14,8 @@ export class ImportProventosService {
 
   public async executeAsync(linhas: CreateProventoDto[]): Promise<ImportProventosResult> {
     return this.transactionManager.executeAsync(async (tx) => {
-      let imported = 0;
       const invalidLines: number[] = [];
+      const validLinhas: CreateProventoDto[] = [];
 
       for (const [index, linha] of linhas.entries()) {
         const lineNumber = index + 1;
@@ -34,15 +34,18 @@ export class ImportProventosService {
           continue;
         }
 
-        await this.proventoRepository.createAsync(linha, tx);
-        imported++;
+        validLinhas.push(linha);
       }
 
-      if (imported === 0 && invalidLines.length > 0) {
+      if (validLinhas.length === 0 && invalidLines.length > 0) {
         throw new BusinessException(`Nenhuma linha válida encontrada. Primeira linha inválida: ${invalidLines[0]}.`);
       }
 
-      return { imported, skipped: invalidLines.length, invalidLines };
+      if (validLinhas.length > 0) {
+        await this.proventoRepository.createManyAsync(validLinhas, tx);
+      }
+
+      return { imported: validLinhas.length, skipped: invalidLines.length, invalidLines };
     });
   }
 }

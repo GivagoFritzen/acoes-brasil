@@ -1,8 +1,8 @@
 import { logger } from "../../shared/logger/Logger";
 import type { ScrapedTradingHours } from "../../models/ScrapedTradingHours";
+import { fetchWithTimeout } from "../../shared/utils/FetchWithTimeout";
 
 const TRADINGHOURS_URL = "https://www.tradinghours.com/markets/bovespa";
-const REQUEST_TIMEOUT_MS = 10_000;
 
 const BROWSER_UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36";
 
@@ -17,20 +17,17 @@ const DEFAULT_HOURS: ScrapedTradingHours = {
 export class TradingHoursScraperService {
   async scrapeAsync(): Promise<ScrapedTradingHours> {
     try {
-      const abortController = new AbortController();
-      const timeoutId = setTimeout(() => abortController.abort(), REQUEST_TIMEOUT_MS);
-
       let response: Response;
       try {
-        response = await fetch(TRADINGHOURS_URL, {
-          signal: abortController.signal,
+        response = await fetchWithTimeout(TRADINGHOURS_URL, {
           headers: {
             "User-Agent": BROWSER_UA,
             "Accept": "text/html",
           },
         });
-      } finally {
-        clearTimeout(timeoutId);
+      } catch {
+        logger.warn("TradingHours timeout");
+        return { ...DEFAULT_HOURS };
       }
 
       if (!response.ok) {

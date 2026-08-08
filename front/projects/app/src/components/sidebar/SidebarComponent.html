@@ -43,8 +43,14 @@
     </div>
 
     <div class="sidebar__status">
-        <span class="dot" [class.dot--open]="isMarketOpen" [class.dot--closed]="!isMarketOpen"></span>
-        <span class="status-label" *ngIf="showSidebar">{{ isMarketOpen ? ('sidebar.marketOpen' | translate) :
-            ('sidebar.marketClosed' | translate) }}</span>
+        <span class="dot"
+              [class.dot--open]="!marketStatusOffline && isMarketOpen"
+              [class.dot--closed]="!marketStatusOffline && !isMarketOpen"
+              [class.dot--offline]="marketStatusOffline"></span>
+        <span class="status-label" *ngIf="showSidebar">{{
+            marketStatusOffline
+                ? ('sidebar.marketOffline' | translate)
+                : (isMarketOpen ? ('sidebar.marketOpen' | translate) : ('sidebar.marketClosed' | translate))
+        }}</span>
     </div>
 </aside>

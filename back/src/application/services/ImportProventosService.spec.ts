@@ -2,7 +2,6 @@ import { ImportProventosService } from "./ImportProventosService";
 import { IProventoRepository } from "../../domain/interfaces/IProventoRepository";
 import { ITransactionManager } from "../../domain/interfaces/ITransactionManager";
 import { CreateProventoDto } from "../dto/CreateProventoDto";
-import { ProventoEntity } from "../../domain/entities/ProventoEntity";
 
 describe("ImportProventosService", () => {
   let proventoRepositoryMock: jest.Mocked<IProventoRepository>;
@@ -11,8 +10,8 @@ describe("ImportProventosService", () => {
 
   beforeEach(() => {
     proventoRepositoryMock = {
-      createAsync: jest.fn().mockResolvedValue(new ProventoEntity("1", "VALE3", "2024-01-01", "JurosSobreCapitalProprio", "Banco do Brasil", 100, 1.0, 100.0)),
-      createManyAsync: jest.fn(),
+      createAsync: jest.fn(),
+      createManyAsync: jest.fn().mockResolvedValue([]),
       findByIdAsync: jest.fn(),
       findAllAsync: jest.fn(),
       deleteAsync: jest.fn(),
@@ -33,7 +32,7 @@ describe("ImportProventosService", () => {
     const resultado = await service.executeAsync(linhas);
 
     expect(resultado.imported).toBe(1);
-    expect(proventoRepositoryMock.createAsync).toHaveBeenCalled();
+    expect(proventoRepositoryMock.createManyAsync).toHaveBeenCalled();
   });
 
   it("Deve pular linhas invalidas", async () => {

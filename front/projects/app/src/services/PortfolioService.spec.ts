@@ -6,6 +6,8 @@ import { PortfolioService } from './PortfolioService';
 import { API_CONFIG } from '../config/ApiConfig';
 import { DeleteResponse } from '../models/DeleteResponseModel';
 import { CreatePortfolioPayload } from '../models/CreatePortfolioPayloadModel';
+import { UpdatePortfolioPayload } from '../models/UpdatePortfolioPayloadModel';
+import { ImportResponse } from '../models/ImportResponseModel';
 import { firstValueFrom } from 'rxjs';
 
 describe('PortfolioService', () => {
@@ -172,6 +174,130 @@ describe('PortfolioService', () => {
       } catch (error: unknown) {
         const httpError = error as HttpErrorResponse;
         expect(httpError.status).toBe(404);
+      }
+    });
+  });
+
+  describe('updatePortfolio', () => {
+    it('deve atualizar carteira com PUT', () => {
+      const id = '123';
+      const payload = { quantidade: 200 } as UpdatePortfolioPayload;
+      const response = { id, codigo: 'PETR4', quantidade: 200 } as PortfolioItem;
+
+      service.updatePortfolio(id, payload).subscribe(data => expect(data).toEqual(response));
+
+      const req = httpMock.expectOne(`${baseUrl}/${id}`);
+      expect(req.request.method).toBe('PUT');
+      expect(req.request.body).toEqual(payload);
+      req.flush(response);
+    });
+
+    it('deve tratar erro HTTP 400 ao atualizar carteira', async () => {
+      const id = '123';
+      const payload = { quantidade: -1 } as UpdatePortfolioPayload;
+      const promise = firstValueFrom(service.updatePortfolio(id, payload));
+
+      const req = httpMock.expectOne(`${baseUrl}/${id}`);
+      req.flush('Bad request', { status: 400, statusText: 'Bad Request' });
+
+      try {
+        await promise;
+        expect('não deveria chegar aqui').toBe(false);
+      } catch (error: unknown) {
+        const httpError = error as HttpErrorResponse;
+        expect(httpError.status).toBe(400);
+      }
+    });
+
+    it('deve tratar erro HTTP 404 ao atualizar carteira inexistente', async () => {
+      const id = '999';
+      const payload = { quantidade: 100 } as UpdatePortfolioPayload;
+      const promise = firstValueFrom(service.updatePortfolio(id, payload));
+
+      const req = httpMock.expectOne(`${baseUrl}/${id}`);
+      req.flush('Not found', { status: 404, statusText: 'Not Found' });
+
+      try {
+        await promise;
+        expect('não deveria chegar aqui').toBe(false);
+      } catch (error: unknown) {
+        const httpError = error as HttpErrorResponse;
+        expect(httpError.status).toBe(404);
+      }
+    });
+  });
+
+  describe('exportPortfolioSpreadsheet', () => {
+    it('deve exportar planilha como blob com GET', () => {
+      const blob = new Blob(['conteudo'], { type: 'application/octet-stream' });
+
+      service.exportPortfolioSpreadsheet().subscribe(data => {
+        expect(data).toEqual(blob);
+      });
+
+      const req = httpMock.expectOne(`${baseUrl}/export`);
+      expect(req.request.method).toBe('GET');
+      req.flush(blob);
+    });
+
+    it('deve tratar erro HTTP 500 ao exportar', async () => {
+      const promise = firstValueFrom(service.exportPortfolioSpreadsheet());
+
+      const req = httpMock.expectOne(`${baseUrl}/export`);
+      req.error(new ErrorEvent('Server error'), { status: 500, statusText: 'Internal Server Error' });
+
+      try {
+        await promise;
+        expect('não deveria chegar aqui').toBe(false);
+      } catch (error: unknown) {
+        const httpError = error as HttpErrorResponse;
+        expect(httpError.status).toBe(500);
+      }
+    });
+  });
+
+  describe('importPortfolioSpreadsheet', () => {
+    it('deve importar planilha com POST e FormData', () => {
+      const file = new File(['conteudo'], 'planilha.xlsx', { type: 'application/vnd.ms-excel' });
+      const response = { imported: 10 } as ImportResponse;
+
+      service.importPortfolioSpreadsheet(file).subscribe(data => expect(data).toEqual(response));
+
+      const req = httpMock.expectOne(`${baseUrl}/import`);
+      expect(req.request.method).toBe('POST');
+      expect(req.request.body).toBeInstanceOf(FormData);
+      req.flush(response);
+    });
+
+    it('deve tratar erro HTTP 400 ao importar planilha vazia', async () => {
+      const file = new File([''], 'vazio.xlsx', { type: 'application/vnd.ms-excel' });
+      const promise = firstValueFrom(service.importPortfolioSpreadsheet(file));
+
+      const req = httpMock.expectOne(`${baseUrl}/import`);
+      req.flush('Bad request', { status: 400, statusText: 'Bad Request' });
+
+      try {
+        await promise;
+        expect('não deveria chegar aqui').toBe(false);
+      } catch (error: unknown) {
+        const httpError = error as HttpErrorResponse;
+        expect(httpError.status).toBe(400);
+      }
+    });
+
+    it('deve tratar erro HTTP 500 ao importar', async () => {
+      const file = new File(['conteudo'], 'planilha.xlsx', { type: 'application/vnd.ms-excel' });
+      const promise = firstValueFrom(service.importPortfolioSpreadsheet(file));
+
+      const req = httpMock.expectOne(`${baseUrl}/import`);
+      req.flush('Server error', { status: 500, statusText: 'Internal Server Error' });
+
+      try {
+        await promise;
+        expect('não deveria chegar aqui').toBe(false);
+      } catch (error: unknown) {
+        const httpError = error as HttpErrorResponse;
+        expect(httpError.status).toBe(500);
       }
     });
   });

@@ -69,6 +69,38 @@ describe("SpreadsheetParserService", () => {
       expect(resultado[1].codigo).toBe("VALE3");
     });
 
+    it("Deve normalizar data para ISO quando data em formato BR com hifens", () => {
+      const buffer = criarBufferExcel([
+        {
+          "Código de Negociação": "VALE3",
+          Quantidade: "100",
+          Preço: "50,00",
+          "Data do Negócio": "15-01-2024",
+          "Tipo de Movimentação": "Compra",
+        },
+      ]);
+
+      const resultado = service.parseOrderRowsAsync(buffer);
+
+      expect(resultado[0].data).toBe("2024-01-15");
+    });
+
+    it("Deve normalizar data para ISO quando data em formato BR com barras", () => {
+      const buffer = criarBufferExcel([
+        {
+          "Código de Negociação": "VALE3",
+          Quantidade: "100",
+          Preço: "50,00",
+          "Data do Negócio": "31/07/2026",
+          "Tipo de Movimentação": "Compra",
+        },
+      ]);
+
+      const resultado = service.parseOrderRowsAsync(buffer);
+
+      expect(resultado[0].data).toBe("2026-07-31");
+    });
+
     it("Deve detectar operacao como Venda quando texto contem venda", () => {
       const buffer = criarBufferExcel([
         {
@@ -185,10 +217,47 @@ describe("SpreadsheetParserService", () => {
       expect(resultado.validRows).toHaveLength(1);
       expect(resultado.invalidLineNumbers).toEqual([]);
       expect(resultado.validRows[0].codigo).toBe("VALE3");
+      expect(resultado.validRows[0].data).toBe("2024-01-15");
       expect(resultado.validRows[0].tipo).toBe("Dividendo");
       expect(resultado.validRows[0].quantidade).toBe(100);
       expect(resultado.validRows[0].precoUnitario).toBe(1.5);
       expect(resultado.validRows[0].valorLiquido).toBe(150);
+    });
+
+    it("Deve retornar data em formato ISO quando pagamento em formato BR com hifens", () => {
+      const buffer = criarBufferExcel([
+        {
+          Produto: "VALE3",
+          Pagamento: "15-01-2024",
+          "Tipo de Evento": "Dividendo",
+          Instituição: "BB",
+          Quantidade: "100",
+          "Preço unitário": "1,50",
+          "Valor líquido": "150,00",
+        },
+      ]);
+
+      const resultado = service.parseProventoRowsAsync(buffer);
+
+      expect(resultado.validRows[0].data).toBe("2024-01-15");
+    });
+
+    it("Deve retornar data em formato ISO quando pagamento em formato BR com barras", () => {
+      const buffer = criarBufferExcel([
+        {
+          Produto: "BBDC3",
+          Pagamento: "31/07/2026",
+          "Tipo de Evento": "Juros Sobre Capital Próprio",
+          Instituição: "XP INVESTIMENTOS",
+          Quantidade: "32",
+          "Preço unitário": "0,35",
+          "Valor líquido": "9,55",
+        },
+      ]);
+
+      const resultado = service.parseProventoRowsAsync(buffer);
+
+      expect(resultado.validRows[0].data).toBe("2026-07-31");
     });
 
     it("Deve ignorar linhas de cabecalho", () => {

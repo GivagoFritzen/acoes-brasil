@@ -62,15 +62,15 @@ describe("googleFinanceRoutes", () => {
       expect(response.status).toBe(404);
     });
 
-    it("deve retornar 200 com erro no body quando servico falha", async () => {
+    it("deve retornar 500 com erro generico quando servico falha", async () => {
       mockGetDataAsync.mockRejectedValue(new Error("API error"));
 
       const response = await request(app).get("/google-finance/PETR4");
 
-      expect(response.status).toBe(200);
+      expect(response.status).toBe(500);
       expect(response.body.quote).toBeNull();
       expect(response.body.chart).toBeNull();
-      expect(response.body.error).toBe("API error");
+      expect(response.body.error).toBe("Erro ao buscar dados do ativo");
     });
   });
 });

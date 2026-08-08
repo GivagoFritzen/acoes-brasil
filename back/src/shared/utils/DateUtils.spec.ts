@@ -1,38 +1,6 @@
 import { DateUtils } from "./DateUtils";
 
 describe("DateUtils", () => {
-  describe("normalizeToBrDateString", () => {
-    it("Deve retornar string vazia quando valor null", () => {
-      expect(DateUtils.normalizeToBrDateString(null)).toBe("");
-    });
-
-    it("Deve retornar string vazia quando valor undefined", () => {
-      expect(DateUtils.normalizeToBrDateString(undefined)).toBe("");
-    });
-
-    it("Deve retornar mesmo valor quando ja estiver no formato BR", () => {
-      expect(DateUtils.normalizeToBrDateString("01-02-2024")).toBe(
-        "01-02-2024"
-      );
-    });
-
-    it("Deve converter ISO para BR quando formato yyyy-MM-dd", () => {
-      expect(DateUtils.normalizeToBrDateString("2024-02-01")).toBe(
-        "01-02-2024"
-      );
-    });
-
-    it("Deve converter ISO completo para BR quando formato ISO com T", () => {
-      expect(DateUtils.normalizeToBrDateString("2024-02-01T10:00:00")).toBe(
-        "01-02-2024"
-      );
-    });
-
-    it("Deve retornar string original quando formato desconhecido", () => {
-      expect(DateUtils.normalizeToBrDateString("invalido")).toBe("invalido");
-    });
-  });
-
   describe("normalizeToIsoDate", () => {
     it("Deve retornar null quando valor nao for string", () => {
       expect(DateUtils.normalizeToIsoDate(123)).toBeNull();
@@ -112,12 +80,6 @@ describe("DateUtils", () => {
       const esperado = `${ano}-${mes}-${dia}`;
 
       expect(DateUtils.getCurrentDate()).toBe(esperado);
-    });
-  });
-
-  describe("isFutureBrDate", () => {
-    it("Deve delegar para isFutureDate e retornar false quando formato invalido", () => {
-      expect(DateUtils.isFutureBrDate("invalido")).toBe(false);
     });
   });
 

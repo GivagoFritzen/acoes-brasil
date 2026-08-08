@@ -3,16 +3,35 @@
 .action-button {
   width: 30px;
   height: 30px;
-  border: 1px solid $color-danger-border;
   border-radius: 999px;
-  background: rgba(239, 68, 68, 0.12);
-  color: $color-danger;
   font-size: 16px;
   font-weight: 700;
   cursor: pointer;
   line-height: 1;
-}
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid transparent;
+  background: transparent;
+  transition: background-color 0.2s, border-color 0.2s;
 
-.action-button:hover {
-  background: rgba(239, 68, 68, 0.25);
+  &--danger {
+    border-color: $color-danger-border;
+    background: $color-danger-opacity-12;
+    color: $color-danger;
+
+    &:hover {
+      background: $color-danger-opacity-25;
+    }
+  }
+
+  &--primary {
+    border-color: $color-blue-200;
+    background: $color-primary-opacity-15;
+    color: $color-blue-500;
+
+    &:hover {
+      background: $color-primary-opacity-25;
+    }
+  }
 }

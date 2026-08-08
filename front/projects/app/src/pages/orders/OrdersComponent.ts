@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component, OnInit, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, OnInit, inject, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { finalize } from 'rxjs';
 import { AlertsComponent } from '../../components/alerts/AlertsComponent';
 import {
@@ -14,18 +15,18 @@ import {
 import type { SelectOption } from '../../../../../../common/models/SelectOptionModel';
 import { Order, OrderOperacao, OrdersResponse } from '../../models';
 import { AlertItem } from '../../models/alert/AlertItemModel';
+import { filterAlert } from '../../utils/AlertUtils';
 import { CreateOrderPayload } from '../../models/CreateOrderPayloadModel';
+import { UpdateOrderPayload } from '../../models/UpdateOrderPayloadModel';
 import { OrdersService } from '../../services/OrdersService';
-import { formatDateForDisplay } from '../../utils/DateUtils';
+import { formatDateForDisplay, compareIsoDates } from '../../utils/DateUtils';
 import { OrdersFilters } from '../../models/OrdersFiltersModel';
 import { normalizeOrderCodigo } from '../../../../../../common/utils/OrderCodigoUtils';
 import { TranslatePipe } from '../../pipes/TranslatePipe';
+import { TranslationService } from '../../services/TranslationService';
 
 const DEFAULT_LIMIT = 10;
 const SELL_OPERATION: OrderOperacao = 'Venda';
-const LOAD_ORDERS_ERROR_MESSAGE = 'Não foi possível carregar as ordens.';
-const CREATE_ORDER_ERROR_MESSAGE = 'Não foi possível adicionar a ordem.';
-const DELETE_ORDER_ERROR_MESSAGE = 'Não foi possível deletar a ordem.';
 
 @Component({
   selector: 'app-orders',
@@ -48,6 +49,8 @@ const DELETE_ORDER_ERROR_MESSAGE = 'Não foi possível deletar a ordem.';
 })
 export class OrdersComponent implements OnInit {
   private readonly ordersService = inject(OrdersService);
+  private readonly destroyRef = inject(DestroyRef);
+  private readonly translationService = inject(TranslationService);
 
   readonly formatDateForDisplay = formatDateForDisplay;
   readonly orders = signal<Order[]>([]);
@@ -58,11 +61,13 @@ export class OrdersComponent implements OnInit {
   readonly alerts = signal<AlertItem[]>([]);
   readonly isDeleteModalOpen = signal(false);
   readonly isCreateModalOpen = signal(false);
+  readonly isEditModalOpen = signal(false);
   readonly orderToDelete = signal<Order | null>(null);
+  readonly orderToEdit = signal<Order | null>(null);
 
   readonly operacaoOptions: SelectOption<OrderOperacao>[] = [
-    { label: 'Compra', value: 'Compra' },
-    { label: 'Venda', value: 'Venda' },
+    { label: this.translationService.get('orders.filterBuy'), value: 'Compra' },
+    { label: this.translationService.get('orders.filterSell'), value: 'Venda' },
   ];
 
   readonly filtroCodigo = signal('');
@@ -85,6 +90,11 @@ export class OrdersComponent implements OnInit {
 
   handleFilterStartChange(value: string): void {
     this.filtroData.set(value);
+
+    const dataFinalAtual = this.filtroDataFinal();
+    if (value && dataFinalAtual && compareIsoDates(value, dataFinalAtual) > 0) {
+      this.filtroDataFinal.set(value);
+    }
   }
 
   handleFilterCodeChange(value: string): void {
@@ -97,6 +107,11 @@ export class OrdersComponent implements OnInit {
 
   handleFilterEndChange(value: string): void {
     this.filtroDataFinal.set(value);
+
+    const dataInicialAtual = this.filtroData();
+    if (value && dataInicialAtual && compareIsoDates(value, dataInicialAtual) < 0) {
+      this.filtroData.set(value);
+    }
   }
 
   applyFilter(): void {
@@ -131,15 +146,7 @@ export class OrdersComponent implements OnInit {
   }
 
   handleAlertDismiss(alert: AlertItem): void {
-    this.alerts.update((items: AlertItem[]) =>
-      items.filter(
-        (item: AlertItem) =>
-          item.variant !== alert.variant ||
-          item.title !== alert.title ||
-          item.message !== alert.message ||
-          item.icon !== alert.icon,
-      ),
-    );
+    this.alerts.update((items) => items.filter(filterAlert(alert)));
   }
 
   getOrderClass(item: Order): string {
@@ -180,6 +187,20 @@ export class OrdersComponent implements OnInit {
     this.isCreateModalOpen.set(false);
   }
 
+  openEditModal(order: Order): void {
+    this.orderToEdit.set(order);
+    this.isEditModalOpen.set(true);
+  }
+
+  closeEditModal(): void {
+    if (this.isCreating()) {
+      return;
+    }
+
+    this.isEditModalOpen.set(false);
+    this.orderToEdit.set(null);
+  }
+
   confirmCreateOrder(payload: CreateOrderPayload): void {
     this.isCreating.set(true);
 
@@ -190,21 +211,22 @@ export class OrdersComponent implements OnInit {
           this.isCreating.set(false);
           this.isCreateModalOpen.set(false);
         }),
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe({
         next: (order: Order) => {
           this.alerts.set([
             {
               variant: 'info',
-              title: 'Sucesso',
-              message: `Ordem ${order.codigo} adicionada com sucesso.`,
+              title: this.translationService.get('common.alerts.success'),
+              message: `${this.translationService.get('orders.alerts.orderCreated')} ${order.codigo}`,
               icon: '✓',
             },
           ]);
           this.loadOrders();
         },
         error: () => {
-          this.alerts.set([this.createErrorAlert(CREATE_ORDER_ERROR_MESSAGE)]);
+          this.alerts.set([this.createErrorAlert(this.translationService.get('orders.alerts.createFailed'))]);
         },
       });
   }
@@ -225,21 +247,58 @@ export class OrdersComponent implements OnInit {
           this.isDeleteModalOpen.set(false);
           this.orderToDelete.set(null);
         }),
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe({
         next: () => {
           this.alerts.set([
             {
               variant: 'info',
-              title: 'Sucesso',
-              message: `Ordem ${order.codigo} removida com sucesso.`,
+              title: this.translationService.get('common.alerts.success'),
+              message: `${this.translationService.get('orders.alerts.orderDeleted')} ${order.codigo}`,
               icon: '✓',
             },
           ]);
           this.loadOrders();
         },
         error: () => {
-          this.alerts.set([this.createErrorAlert(DELETE_ORDER_ERROR_MESSAGE)]);
+          this.alerts.set([this.createErrorAlert(this.translationService.get('orders.alerts.deleteFailed'))]);
+        },
+      });
+  }
+
+  confirmEditOrder(payload: UpdateOrderPayload): void {
+    const order = this.orderToEdit();
+    if (!order) {
+      return;
+    }
+
+    this.isCreating.set(true);
+
+    this.ordersService
+      .updateOrder(order.id, payload)
+      .pipe(
+        finalize(() => {
+          this.isCreating.set(false);
+          this.isEditModalOpen.set(false);
+          this.orderToEdit.set(null);
+        }),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe({
+        next: (updated: Order) => {
+          this.alerts.set([
+            {
+              variant: 'info',
+              title: this.translationService.get('common.alerts.success'),
+              message: `${this.translationService.get('orders.alerts.orderUpdated')} ${updated.codigo}`,
+              icon: '✓',
+            },
+          ]);
+          this.loadOrders();
+        },
+        error: () => {
+          this.alerts.set([this.createErrorAlert(this.translationService.get('orders.alerts.createFailed'))]);
         },
       });
   }
@@ -259,12 +318,15 @@ export class OrdersComponent implements OnInit {
         page: this.page(),
         limit: this.limit(),
       })
-      .pipe(finalize(() => this.isLoading.set(false)))
+      .pipe(
+        finalize(() => this.isLoading.set(false)),
+        takeUntilDestroyed(this.destroyRef),
+      )
       .subscribe({
         next: (response: OrdersResponse) => this.applyListResponse(response),
         error: () => {
-          this.errorMessage.set(LOAD_ORDERS_ERROR_MESSAGE);
-          this.alerts.set([this.createErrorAlert(LOAD_ORDERS_ERROR_MESSAGE)]);
+          this.errorMessage.set(this.translationService.get('orders.alerts.loadFailed'));
+          this.alerts.set([this.createErrorAlert(this.translationService.get('orders.alerts.loadFailed'))]);
         },
       });
   }
@@ -321,7 +383,7 @@ export class OrdersComponent implements OnInit {
   private createErrorAlert(message: string): AlertItem {
     return {
       variant: 'error',
-      title: 'Error!',
+      title: this.translationService.get('common.alerts.error'),
       message,
       icon: '✕',
     };

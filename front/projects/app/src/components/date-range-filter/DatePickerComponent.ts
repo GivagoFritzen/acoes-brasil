@@ -3,6 +3,7 @@ import { CommonModule, DatePipe, registerLocaleData } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import localePt from '@angular/common/locales/pt';
 import { CalendarDay } from '../../models/CalendarDayModel';
+import { isFutureDate } from '../../utils/DateUtils';
 
 registerLocaleData(localePt);
 
@@ -25,8 +26,10 @@ export class DatePickerComponent implements OnChanges {
     currentMonth: Date = new Date();
     inputValue: string = '';
 
-    weekDays = ['do', 'se', 'te', 'qu', 'qu', 'se', 'sá'];
+    weekDays = ['do', 'se', 'te', 'qa', 'qi', 'se', 'sá'];
     daysInMonth: CalendarDay[] = [];
+
+    readonly isFutureDate = isFutureDate;
 
     constructor(private eRef: ElementRef) {
         this.generateCalendar();
@@ -90,7 +93,7 @@ export class DatePickerComponent implements OnChanges {
     }
 
     selectTempDate(day: CalendarDay): void {
-        if (this.disableFutureDates && this.isFutureDate(day.date)) {
+        if (this.disableFutureDates && isFutureDate(day.date)) {
             return;
         }
 
@@ -158,7 +161,7 @@ export class DatePickerComponent implements OnChanges {
             const parsedDate = new Date(year, month, day);
 
             if (parsedDate.getFullYear() === year && parsedDate.getMonth() === month && parsedDate.getDate() === day) {
-                if (this.disableFutureDates && this.isFutureDate(parsedDate)) {
+                if (this.disableFutureDates && isFutureDate(parsedDate)) {
                     return;
                 }
                 this.tempSelectedDate = parsedDate;
@@ -178,7 +181,7 @@ export class DatePickerComponent implements OnChanges {
     }
 
     apply(): void {
-        if (this.tempSelectedDate && this.disableFutureDates && this.isFutureDate(this.tempSelectedDate)) {
+        if (this.tempSelectedDate && this.disableFutureDates && isFutureDate(this.tempSelectedDate)) {
             return;
         }
 
@@ -198,15 +201,6 @@ export class DatePickerComponent implements OnChanges {
     cancel(): void {
         this.isOpen = false;
         this.tempSelectedDate = this.selectedDate;
-    }
-
-    isFutureDate(date: Date): boolean {
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-
-        const candidate = new Date(date);
-        candidate.setHours(0, 0, 0, 0);
-        return candidate.getTime() > today.getTime();
     }
 
     private parseInitialValue(val: string): void {

@@ -3,8 +3,8 @@ import { Provento as ProventoModel } from "../../models/provento/Provento";
 import { ProventoEntity } from "../../domain/entities/ProventoEntity";
 import { IProventoRepository } from "../../domain/interfaces/IProventoRepository";
 import { IProventoFilters } from "../../domain/interfaces/IProventoFilters";
-import { DateUtils } from "../../shared/utils/DateUtils";
 import { normalizeOrderCodigo } from "../../../../common/utils/OrderCodigoUtils";
+import { buildDateWhereClause } from "../../shared/utils/BuildDateWhereClause";
 
 export class SequelizeProventoRepository implements IProventoRepository {
   async createAsync(
@@ -31,11 +31,20 @@ export class SequelizeProventoRepository implements IProventoRepository {
     proventos: Omit<ProventoEntity, "id" | "createdAt" | "updatedAt">[],
     tx?: object
   ): Promise<ProventoEntity[]> {
-    const results: ProventoEntity[] = [];
-    for (const provento of proventos) {
-      results.push(await this.createAsync(provento, tx));
-    }
-    return results;
+    const transaction = tx as Transaction | undefined;
+    const models = await ProventoModel.bulkCreate(
+      proventos.map((p) => ({
+        codigo: p.codigo,
+        data: p.data,
+        tipo: p.tipo,
+        instituicao: p.instituicao,
+        quantidade: p.quantidade,
+        precoUnitario: p.precoUnitario,
+        valorLiquido: p.valorLiquido,
+      })),
+      { transaction }
+    );
+    return models.map((m) => this.toEntity(m));
   }
 
   async findByIdAsync(id: string, tx?: object): Promise<ProventoEntity | null> {
@@ -50,6 +59,11 @@ export class SequelizeProventoRepository implements IProventoRepository {
     await ProventoModel.destroy({ where: { id }, transaction });
   }
 
+  async deleteByCodigoAsync(codigo: string, tx?: object): Promise<void> {
+    const transaction = tx as Transaction | undefined;
+    await ProventoModel.destroy({ where: { codigo }, transaction });
+  }
+
   async findAllAsync(filters: IProventoFilters): Promise<{ rows: ProventoEntity[]; count: number }> {
     const pageNumber = Math.max(filters.page ?? 1, 1);
     const limitNumber = Math.max(filters.limit ?? 20, 1);
@@ -58,19 +72,16 @@ export class SequelizeProventoRepository implements IProventoRepository {
     const where: Record<string | symbol, object | string | number | Date | boolean | null> = {};
     const andConditions: object[] = [];
 
-    const startDate = DateUtils.normalizeToIsoDate(filters.dataInicial) ?? DateUtils.normalizeToIsoDate(filters.data);
-    const endDate = DateUtils.normalizeToIsoDate(filters.dataFinal);
-
-    if (startDate && endDate) {
-      andConditions.push({ data: { [Op.between]: [startDate, endDate] } });
-    } else if (startDate) {
-      andConditions.push({ data: { [Op.gte]: startDate } });
-    } else if (endDate) {
-      andConditions.push({ data: { [Op.lte]: endDate } });
-    }
+    const dateClause = buildDateWhereClause("data", {
+      dataInicial: filters.dataInicial,
+      dataFinal: filters.dataFinal,
+      data: filters.data,
+    });
+    if (dateClause) andConditions.push(dateClause);
 
     if (filters.codigo) {
-      where.codigo = { [Op.like]: `%${normalizeOrderCodigo(filters.codigo)}%` };
+      const escaped = normalizeOrderCodigo(filters.codigo).replace(/[%_]/g, "\\$&");
+      where.codigo = { [Op.like]: `%${escaped}%` };
     }
 
     if (filters.tipo) {

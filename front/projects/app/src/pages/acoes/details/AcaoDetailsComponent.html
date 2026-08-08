@@ -28,10 +28,7 @@
         </button>
     </header>
 
-    <div *ngIf="isLoading()" class="acao-details__loading">
-        <div class="spinner"></div>
-        <span>{{ 'acaoDetails.loading' | translate }}</span>
-    </div>
+    <app-acao-details-skeleton *ngIf="isLoading()"></app-acao-details-skeleton>
 
     <div *ngIf="!isLoading()" class="acao-details__grid" data-tour="acaoDetails-cards">
         <app-fundamentus-details *ngIf="detailSource() === 'fundamentus'" [fundamentus]="fundamentus()">

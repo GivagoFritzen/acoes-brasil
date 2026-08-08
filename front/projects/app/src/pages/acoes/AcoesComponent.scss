@@ -21,7 +21,7 @@
     background: var(--color-surface);
     color: var(--color-text-muted);
     cursor: pointer;
-    box-shadow: 0 2px 8px rgba(15, 23, 42, 0.12);
+    box-shadow: 0 2px 8px $color-text-opacity-12;
     transition: all 0.2s ease;
 
     &:hover {
@@ -56,7 +56,7 @@
     border: 1px solid var(--color-border);
     border-radius: 8px;
     padding: 1rem;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+    box-shadow: 0 2px 4px $color-shadow-opacity-08;
     background-color: var(--color-surface);
 
     @media (max-width: 425px) {
@@ -201,6 +201,70 @@
     .acoes__actions {
       display: flex;
       justify-content: flex-end;
+    }
+
+    .acoes__dropdown-container {
+      position: relative;
+    }
+
+    .acoes__dropdown-trigger {
+      width: 30px;
+      height: 30px;
+      border: 1px solid $color-blue-200;
+      border-radius: 999px;
+      background: $color-primary-opacity-15;
+      color: $color-blue-500;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background-color 0.2s;
+
+      &:hover {
+        background: $color-primary-opacity-25;
+      }
+    }
+
+    .acoes__dropdown-menu {
+      position: absolute;
+      right: 0;
+      top: 100%;
+      margin-top: 4px;
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: 8px;
+      box-shadow: 0 4px 12px $color-shadow-opacity-15;
+      z-index: 10;
+      min-width: 120px;
+      overflow: hidden;
+    }
+
+    .acoes__dropdown-item {
+      display: block;
+      width: 100%;
+      padding: 8px 14px;
+      border: none;
+      background: none;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 600;
+      text-align: left;
+      color: var(--color-text);
+      transition: background-color 0.15s;
+
+      &:hover {
+        background: var(--color-border);
+      }
+
+      &--danger {
+        color: $color-danger;
+
+        &:hover {
+          background: $color-danger-opacity-08;
+        }
+      }
     }
   }
 
@@ -350,15 +414,15 @@
     .portfolios,
     .graphic,
     .chart-wrapper {
-      width: 100% !important;
-      max-width: none !important;
-      min-width: 0 !important;
+      width: 100%;
+      max-width: none;
+      min-width: 0;
       margin: 0 0 12px 0;
       box-shadow: none;
     }
 
     .acoes__header app-simple-button {
-      display: none !important;
+      display: none;
     }
 
     .graphic {

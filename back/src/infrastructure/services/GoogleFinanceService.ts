@@ -1,9 +1,9 @@
 import type { GoogleFinanceChartPoint, GoogleFinanceResponse } from "../../../../common/models/google-finance";
 import { logger } from "../../shared/logger/Logger";
 import type { JsonValue } from "../../models/JsonValue";
+import { fetchWithTimeout } from "../../shared/utils/FetchWithTimeout";
 
 const YAHOO_BASE = "https://query1.finance.yahoo.com/v8/finance/chart";
-const REQUEST_TIMEOUT_MS = 10_000;
 
 const RANGE_MAP: Record<string, string> = {
   "1D": "1d",
@@ -38,21 +38,12 @@ export class GoogleFinanceService {
 
     const url = `${YAHOO_BASE}/${encodeURIComponent(yahooTicker)}?range=${range}&interval=${interval}&includePrePost=false`;
 
-    const abortController = new AbortController();
-    const timeoutId = setTimeout(() => abortController.abort(), REQUEST_TIMEOUT_MS);
-
-    let response: Response;
-    try {
-      response = await fetch(url, {
-        signal: abortController.signal,
-        headers: {
-          "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
-          "Accept": "application/json",
-        },
-      });
-    } finally {
-      clearTimeout(timeoutId);
-    }
+    const response = await fetchWithTimeout(url, {
+      headers: {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+        "Accept": "application/json",
+      },
+    });
 
     if (!response.ok) {
       logger.error(`Yahoo Finance retornou ${response.status} para ${yahooTicker}`);

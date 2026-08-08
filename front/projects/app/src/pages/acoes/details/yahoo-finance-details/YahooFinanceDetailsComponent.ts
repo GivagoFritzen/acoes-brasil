@@ -1,9 +1,10 @@
-import { Component, Input, signal, ViewEncapsulation } from '@angular/core';
+import { ChangeDetectionStrategy, Component, Input, signal, ViewEncapsulation } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HelpTipComponent } from '../../../../components/help-tip/HelpTipComponent';
 import { TranslatePipe } from '../../../../pipes/TranslatePipe';
 import { TranslationService } from '../../../../services/TranslationService';
 import { YahooFinanceDetails } from '../../../../models';
+import { normalizeLabel } from '../../../../utils/LabelUtils';
 
 @Component({
     selector: 'app-yahoo-finance-details',
@@ -11,6 +12,7 @@ import { YahooFinanceDetails } from '../../../../models';
     imports: [CommonModule, HelpTipComponent, TranslatePipe],
     templateUrl: './YahooFinanceDetailsComponent.html',
     encapsulation: ViewEncapsulation.None,
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class YahooFinanceDetailsComponent {
     yahooFinanceValue = signal<YahooFinanceDetails | null>(null);
@@ -59,24 +61,12 @@ export class YahooFinanceDetailsComponent {
     }
 
     hasHelp(label: string): boolean {
-        const key = this.normalize(label);
+        const key = normalizeLabel(label);
         return this.translationService.has(`indicators.${key}`);
     }
 
     getHelp(label: string): string {
-        const key = this.normalize(label);
+        const key = normalizeLabel(label);
         return this.translationService.get(`indicators.${key}`);
-    }
-
-    private normalize(label: string): string {
-        return label
-            .normalize('NFD')
-            .replace(/[\u0300-\u036f]/g, '')
-            .replace(/[\/\s.()$º]/g, '')
-            .replace(/-/g, '')
-            .replace(/%/g, '')
-            .replace(/,/g, '')
-            .replace(/:/g, '')
-            .replace(/ /g, '');
     }
 }
