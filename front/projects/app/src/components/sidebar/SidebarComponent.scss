@@ -235,6 +235,11 @@ $sidebar-collapsed-width: 80px;
         background: $color-danger;
         box-shadow: 0 0 6px $color-danger;
       }
+
+      &--offline {
+        background: $color-text-opacity-40;
+        box-shadow: 0 0 6px $color-text-opacity-40;
+      }
     }
 
     .status-label {

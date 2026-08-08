@@ -320,7 +320,8 @@
         "configuracoes": "Configurações",
         "tour": "Tour Guiado",
         "marketOpen": "Mercado Aberto",
-        "marketClosed": "Mercado Fechado"
+        "marketClosed": "Mercado Fechado",
+        "marketOffline": "Offline"
     },
     "tour": {
         "next": "Próximo",

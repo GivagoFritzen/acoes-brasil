@@ -151,7 +151,8 @@
         "configuracoes": "Settings",
         "tour": "Guided Tour",
         "marketOpen": "Market Open",
-        "marketClosed": "Market Closed"
+        "marketClosed": "Market Closed",
+        "marketOffline": "Offline"
     },
     "tour": {
         "next": "Next",

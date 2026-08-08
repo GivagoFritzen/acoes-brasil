@@ -94,5 +94,14 @@ describe('TradingHoursService', () => {
       expect(response.success).toBe(false);
       expect(response.data.isOpen).toBe(false);
     });
+
+    it('deve retornar fallback quando resposta não possui data', async () => {
+      mockHttp.get.mockReturnValue(of({ success: true }));
+
+      const response = await firstValueFrom(service.getBvmfTradingHours());
+
+      expect(response.success).toBe(false);
+      expect(response.data.name).toBe('B3');
+    });
   });
 });

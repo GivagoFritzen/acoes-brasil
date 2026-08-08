@@ -19,19 +19,25 @@ export class TradingHoursService {
 
   getBvmfTradingHours(): Observable<TradingHoursResponse> {
     return this.http.get<TradingHoursResponse>(getApiUrl('tradingHours')).pipe(
-      map(response => ({
-        ...response,
-        data: {
-          ...response.data,
-          isOpen: TradingHoursCalculator.calculate(
-            response.data.openTime,
-            response.data.closeTime,
-            response.data.tradingDays,
-            response.data.timezone,
-            response.data.holidays,
-          ),
-        },
-      })),
+      map(response => {
+        if (!response?.data) {
+          throw new Error('Dados indisponíveis');
+        }
+
+        return {
+          ...response,
+          data: {
+            ...response.data,
+            isOpen: TradingHoursCalculator.calculate(
+              response.data.openTime,
+              response.data.closeTime,
+              response.data.tradingDays,
+              response.data.timezone,
+              response.data.holidays,
+            ),
+          },
+        };
+      }),
       catchError(() => of(this.buildFallbackResponse())),
     );
   }

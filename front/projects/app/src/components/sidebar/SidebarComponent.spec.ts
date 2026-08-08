@@ -93,6 +93,10 @@ describe('SidebarComponent', () => {
             expect(component.isMarketOpen).toBe(false);
         });
 
+        it('deve usar marketStatusOffline = true como padrão', () => {
+            expect(component.marketStatusOffline).toBe(true);
+        });
+
         it('deve renderizar sidebar expandido por padrão', () => {
             fixture.detectChanges();
             const sidebar = fixture.debugElement.query(By.css('.sidebar')).nativeElement;
@@ -118,6 +122,26 @@ describe('SidebarComponent', () => {
             component.ngOnInit();
             await flushMicrotasks();
             expect(component.isMarketOpen).toBe(false);
+        });
+
+        it('deve definir marketStatusOffline = true quando API retorna erro', async () => {
+            mockTradingHoursService.getBvmfTradingHours.mockReturnValue(throwError(() => new Error('API Error')));
+            component.ngOnInit();
+            await flushMicrotasks();
+            expect(component.marketStatusOffline).toBe(true);
+        });
+
+        it('deve definir marketStatusOffline = false quando API retorna sucesso', async () => {
+            component.ngOnInit();
+            await flushMicrotasks();
+            expect(component.marketStatusOffline).toBe(false);
+        });
+
+        it('deve definir marketStatusOffline = true quando resposta não possui data', async () => {
+            mockTradingHoursService.getBvmfTradingHours.mockReturnValue(of({ success: true }));
+            component.ngOnInit();
+            await flushMicrotasks();
+            expect(component.marketStatusOffline).toBe(true);
         });
     });
 
@@ -177,6 +201,18 @@ describe('SidebarComponent', () => {
             const dot = fixture.debugElement.query(By.css('.dot')).nativeElement;
             expect(dot.classList.contains('dot--closed')).toBe(true);
             expect(dot.classList.contains('dot--open')).toBe(false);
+            expect(dot.classList.contains('dot--offline')).toBe(false);
+        });
+
+        it('deve usar classe dot--offline quando mercado está indisponível', async () => {
+            mockTradingHoursService.getBvmfTradingHours.mockReturnValue(throwError(() => new Error('API Error')));
+            component.ngOnInit();
+            await flushMicrotasks();
+            fixture.detectChanges();
+            const dot = fixture.debugElement.query(By.css('.dot')).nativeElement;
+            expect(dot.classList.contains('dot--offline')).toBe(true);
+            expect(dot.classList.contains('dot--open')).toBe(false);
+            expect(dot.classList.contains('dot--closed')).toBe(false);
         });
 
         it('deve ocultar labels quando showSidebar = false', () => {
