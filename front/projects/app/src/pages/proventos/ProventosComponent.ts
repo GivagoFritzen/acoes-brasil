@@ -26,7 +26,7 @@ import { AlertItem } from '../../models/alert/AlertItemModel';
 import { filterAlert } from '../../utils/AlertUtils';
 import type { SelectOption } from '../../../../../../common/models/SelectOptionModel';
 import { ProventosService } from '../../services/ProventosService';
-import { formatDateForDisplay } from '../../utils/DateUtils';
+import { formatDateForDisplay, compareIsoDates } from '../../utils/DateUtils';
 import { ProventosFilters } from '../../models/ProventosFiltersModel';
 import { TranslatePipe } from '../../pipes/TranslatePipe';
 import { TranslationService } from '../../services/TranslationService';
@@ -99,6 +99,11 @@ export class ProventosComponent implements OnInit {
 
   handleFilterStartChange(value: string): void {
     this.filtroData.set(value);
+
+    const dataFinalAtual = this.filtroDataFinal();
+    if (value && dataFinalAtual && compareIsoDates(value, dataFinalAtual) > 0) {
+      this.filtroDataFinal.set(value);
+    }
   }
 
   handleFilterCodeChange(value: string): void {
@@ -111,6 +116,11 @@ export class ProventosComponent implements OnInit {
 
   handleFilterEndChange(value: string): void {
     this.filtroDataFinal.set(value);
+
+    const dataInicialAtual = this.filtroData();
+    if (value && dataInicialAtual && compareIsoDates(value, dataInicialAtual) < 0) {
+      this.filtroData.set(value);
+    }
   }
 
   handleJuntarPorCodigoChange(value: boolean): void {

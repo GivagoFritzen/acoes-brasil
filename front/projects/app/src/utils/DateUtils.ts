@@ -35,6 +35,10 @@ export function formatDateForDisplay(dateValue: string | Date | null | undefined
   return raw;
 }
 
+export function compareIsoDates(dataA: string, dataB: string): number {
+  return dataA.localeCompare(dataB);
+}
+
 export function isFutureDate(dateValue: string | Date): boolean {
   let candidate: Date;
 

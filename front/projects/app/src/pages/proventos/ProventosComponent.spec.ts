@@ -159,6 +159,58 @@ describe('ProventosComponent', () => {
     expect(component.filtroDataFinal()).toBe('2024-01-20');
   });
 
+  it('deve ajustar data final quando data inicial for maior', () => {
+    component.filtroDataFinal.set('2024-01-10');
+    component.handleFilterStartChange('2024-01-20');
+    expect(component.filtroData()).toBe('2024-01-20');
+    expect(component.filtroDataFinal()).toBe('2024-01-20');
+  });
+
+  it('deve ajustar data inicial quando data final for menor', () => {
+    component.filtroData.set('2024-01-20');
+    component.handleFilterEndChange('2024-01-10');
+    expect(component.filtroDataFinal()).toBe('2024-01-10');
+    expect(component.filtroData()).toBe('2024-01-10');
+  });
+
+  it('deve manter data final quando data inicial for menor ou igual', () => {
+    component.filtroDataFinal.set('2024-01-20');
+    component.handleFilterStartChange('2024-01-10');
+    expect(component.filtroData()).toBe('2024-01-10');
+    expect(component.filtroDataFinal()).toBe('2024-01-20');
+
+    component.filtroDataFinal.set('2024-01-20');
+    component.handleFilterStartChange('2024-01-20');
+    expect(component.filtroData()).toBe('2024-01-20');
+    expect(component.filtroDataFinal()).toBe('2024-01-20');
+  });
+
+  it('deve manter data inicial quando data final for maior ou igual', () => {
+    component.filtroData.set('2024-01-10');
+    component.handleFilterEndChange('2024-01-20');
+    expect(component.filtroDataFinal()).toBe('2024-01-20');
+    expect(component.filtroData()).toBe('2024-01-10');
+
+    component.filtroData.set('2024-01-10');
+    component.handleFilterEndChange('2024-01-10');
+    expect(component.filtroDataFinal()).toBe('2024-01-10');
+    expect(component.filtroData()).toBe('2024-01-10');
+  });
+
+  it('deve manter filtro final quando valor vazio', () => {
+    component.filtroDataFinal.set('2024-01-20');
+    component.handleFilterStartChange('');
+    expect(component.filtroData()).toBe('');
+    expect(component.filtroDataFinal()).toBe('2024-01-20');
+  });
+
+  it('deve manter filtro inicial quando valor vazio', () => {
+    component.filtroData.set('2024-01-20');
+    component.handleFilterEndChange('');
+    expect(component.filtroDataFinal()).toBe('');
+    expect(component.filtroData()).toBe('2024-01-20');
+  });
+
   it('deve alternar agrupamento por código e resetar página', () => {
     component.page.set(5);
     component.handleJuntarPorCodigoChange(true);

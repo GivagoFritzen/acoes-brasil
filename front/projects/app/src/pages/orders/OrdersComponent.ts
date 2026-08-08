@@ -19,7 +19,7 @@ import { filterAlert } from '../../utils/AlertUtils';
 import { CreateOrderPayload } from '../../models/CreateOrderPayloadModel';
 import { UpdateOrderPayload } from '../../models/UpdateOrderPayloadModel';
 import { OrdersService } from '../../services/OrdersService';
-import { formatDateForDisplay } from '../../utils/DateUtils';
+import { formatDateForDisplay, compareIsoDates } from '../../utils/DateUtils';
 import { OrdersFilters } from '../../models/OrdersFiltersModel';
 import { normalizeOrderCodigo } from '../../../../../../common/utils/OrderCodigoUtils';
 import { TranslatePipe } from '../../pipes/TranslatePipe';
@@ -90,6 +90,11 @@ export class OrdersComponent implements OnInit {
 
   handleFilterStartChange(value: string): void {
     this.filtroData.set(value);
+
+    const dataFinalAtual = this.filtroDataFinal();
+    if (value && dataFinalAtual && compareIsoDates(value, dataFinalAtual) > 0) {
+      this.filtroDataFinal.set(value);
+    }
   }
 
   handleFilterCodeChange(value: string): void {
@@ -102,6 +107,11 @@ export class OrdersComponent implements OnInit {
 
   handleFilterEndChange(value: string): void {
     this.filtroDataFinal.set(value);
+
+    const dataInicialAtual = this.filtroData();
+    if (value && dataInicialAtual && compareIsoDates(value, dataInicialAtual) < 0) {
+      this.filtroData.set(value);
+    }
   }
 
   applyFilter(): void {
