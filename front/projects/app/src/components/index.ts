@@ -9,3 +9,4 @@ export { ActionButtonComponent } from './action-button/ActionButtonComponent';
 export { AddProventoModalComponent } from './add-provento-modal/AddProventoModalComponent';
 export { AddOrderModalComponent } from './add-order-modal/AddOrderModalComponent';
 export { AddPortfolioModalComponent } from './add-portfolio-modal/AddPortfolioModalComponent';
+export { ImportConfirmationModalComponent } from './import-confirmation-modal/ImportConfirmationModalComponent';

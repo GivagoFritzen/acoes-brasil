@@ -77,3 +77,11 @@
     </article>
   </div>
 </section>
+
+<app-import-confirmation-modal
+  [isOpen]="isConfirmationModalOpen()"
+  [divergences]="pendingDivergences()"
+  [isLoading]="isConfirmingImport()"
+  (confirmed)="handleConfirmationConfirmed()"
+  (cancelled)="handleConfirmationCancelled()"
+></app-import-confirmation-modal>

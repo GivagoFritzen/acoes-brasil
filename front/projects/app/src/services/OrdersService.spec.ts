@@ -205,7 +205,7 @@ describe('OrdersService', () => {
   describe('importOrdersSpreadsheet', () => {
     it('deve importar planilha com FormData', () => {
       const file = new File(['content'], 'orders.xlsx', { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
-      const response = { success: true, imported: 10 } as ImportResponse;
+      const response = { success: true, imported: 10, warnings: [] } as ImportResponse;
 
       service.importOrdersSpreadsheet(file).subscribe(data => expect(data).toEqual(response));
 

@@ -4,6 +4,7 @@ import { UpdateOrderDto } from "../application/dto/UpdateOrderDto";
 import { CreateOrderService } from "../application/services/CreateOrderService";
 import { UpdateOrderService } from "../application/services/UpdateOrderService";
 import { DeleteOrderService } from "../application/services/DeleteOrderService";
+import { ValidateDeleteOrderService } from "../application/services/ValidateDeleteOrderService";
 import { ListOrdersService } from "../application/services/ListOrdersService";
 import { GetSellSnapshotsService } from "../application/services/GetSellSnapshotsService";
 import { ExportSellSnapshotsService } from "../application/services/ExportSellSnapshotsService";
@@ -17,6 +18,7 @@ export class OrderController {
     private createOrderService: CreateOrderService,
     private updateOrderService: UpdateOrderService,
     private deleteOrderService: DeleteOrderService,
+    private validateDeleteOrderService: ValidateDeleteOrderService,
     private listOrdersService: ListOrdersService,
     private getSellSnapshotsService: GetSellSnapshotsService,
     private exportSellSnapshotsService: ExportSellSnapshotsService
@@ -35,7 +37,19 @@ export class OrderController {
   async deleteAsync(req: Request, res: Response): Promise<Response> {
     try {
       const { id } = req.params;
-      await this.deleteOrderService.executeAsync(String(id));
+      const confirmado = req.query?.confirmado === 'true';
+
+      if (!confirmado) {
+        const validation = await this.validateDeleteOrderService.executeAsync(String(id));
+        if (validation.hasDivergence) {
+          return res.status(200).json({
+            divergencias: validation.divergences,
+            mensagem: "Existem divergências que precisam ser confirmadas.",
+          });
+        }
+      }
+
+      await this.deleteOrderService.executeAsync(String(id), true);
       return res.json({ message: "Ordem deletada com sucesso." });
     } catch (error) {
       return ErrorHandler.handle(error as Error, res);

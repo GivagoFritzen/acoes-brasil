@@ -8,7 +8,8 @@
         "button": {
             "cancel": "Cancel",
             "saving": "Saving...",
-            "save": "Save"
+            "save": "Save",
+            "processing": "Processing..."
         },
         "assetType": {
             "action": "Stock",
@@ -278,7 +279,14 @@
             "deleteFailed": "Could not delete order.",
             "orderCreated": "Order added successfully.",
             "orderDeleted": "Order removed successfully.",
-            "orderUpdated": "Order updated successfully."
+            "orderUpdated": "Order updated successfully.",
+            "deleteConfirmation": {
+                "title": "Confirm deletion",
+                "description": "There are divergences that need to be confirmed:",
+                "requested": "requested",
+                "available": "available",
+                "confirm": "Confirm deletion"
+            }
         }
     },
     "proventos": {
@@ -366,6 +374,13 @@
             "negociacaoImportFailed": "Could not import the trade spreadsheet.",
             "proventoImportFailed": "Could not import the dividend spreadsheet.",
             "portfolioImportFailed": "Could not import the portfolio spreadsheet."
+        },
+        "modal": {
+            "title": "Divergences Found",
+            "description": "Divergences were found during import. Review the operations below before confirming:",
+            "requested": "requested",
+            "available": "available",
+            "confirm": "Confirm Import"
         }
     },
     "configuracoes": {

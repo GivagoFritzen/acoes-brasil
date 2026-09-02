@@ -65,9 +65,10 @@ describe("ImportOrdersService", () => {
       { codigo: "VALE3", quantidade: 100, valor: 50.0, data: "01-01-2024", tipo: "ACAO", operacao: "Compra" },
     ];
 
-    const resultado = await service.executeAsync(orders);
+    const resultado = await service.executeAsync(orders, true);
 
-    expect(resultado).toBe(1);
+    expect(resultado.imported).toBe(1);
+    expect(resultado.warnings).toHaveLength(0);
     expect(orderRepositoryMock.createAsync).toHaveBeenCalled();
   });
 
@@ -81,5 +82,116 @@ describe("ImportOrdersService", () => {
     ];
 
     await expect(service.executeAsync(orders)).rejects.toThrow();
+  });
+
+  it("Deve retornar warning sem criar portfolio quando vender ativo que nao existe no portfolio", async () => {
+    orderRepositoryMock.createAsync.mockImplementation(async (data) => {
+      return new OrderEntity("1", data.codigo, data.valor, data.quantidade, data.data, data.tipo, data.operacao);
+    });
+
+    const orders: CreateOrderDto[] = [
+      { codigo: "BBDC1", quantidade: 1, valor: 0.07, data: "13-08-2026", tipo: "FRACIONARIO", operacao: "Venda" },
+    ];
+
+    const resultado = await service.executeAsync(orders, true);
+
+    expect(resultado.imported).toBe(1);
+    expect(resultado.warnings).toHaveLength(1);
+    expect(resultado.warnings[0]).toContain("BBDC1");
+    expect(portfolioRepositoryMock.createAsync).not.toHaveBeenCalled();
+  });
+
+  describe("validateAsync", () => {
+    it("Deve retornar divergencias quando venda de ativo inexistente", async () => {
+      orderRepositoryMock.createAsync.mockImplementation(async (data) => {
+        return new OrderEntity("1", data.codigo, data.valor, data.quantidade, data.data, data.tipo, data.operacao);
+      });
+
+      const orders: CreateOrderDto[] = [
+        { codigo: "BBDC1", quantidade: 1, valor: 0.07, data: "13-08-2026", tipo: "FRACIONARIO", operacao: "Venda" },
+      ];
+
+      const resultado = await service.validateAsync(orders);
+
+      expect(resultado.hasDivergences).toBe(true);
+      expect(resultado.divergences).toHaveLength(1);
+      expect(resultado.divergences[0].codigo).toBe("BBDC1");
+      expect(resultado.divergences[0].quantidadeDisponivel).toBe(0);
+    });
+
+    it("Deve retornar divergencias quando quantidade resultaria em menos de 1", async () => {
+      const portfolio = new PortfolioEntity("1", "VALE3", 50, 40.0);
+      portfolioRepositoryMock.findByCodigoAsync.mockResolvedValue(portfolio);
+
+      const orders: CreateOrderDto[] = [
+        { codigo: "VALE3", quantidade: 100, valor: 50.0, data: "01-01-2024", tipo: "ACAO", operacao: "Venda" },
+      ];
+
+      const resultado = await service.validateAsync(orders);
+
+      expect(resultado.hasDivergences).toBe(true);
+      expect(resultado.divergences).toHaveLength(1);
+      expect(resultado.divergences[0].quantidadeDisponivel).toBe(50);
+    });
+
+    it("Deve retornar sem divergencias quando operaacao e valida", async () => {
+      const portfolio = new PortfolioEntity("1", "VALE3", 200, 40.0);
+      portfolioRepositoryMock.findByCodigoAsync.mockResolvedValue(portfolio);
+
+      const orders: CreateOrderDto[] = [
+        { codigo: "VALE3", quantidade: 100, valor: 50.0, data: "01-01-2024", tipo: "ACAO", operacao: "Venda" },
+      ];
+
+      const resultado = await service.validateAsync(orders);
+
+      expect(resultado.hasDivergences).toBe(false);
+      expect(resultado.divergences).toHaveLength(0);
+    });
+
+    it("Deve ignorar compras na validacao de divergencias", async () => {
+      const orders: CreateOrderDto[] = [
+        { codigo: "VALE3", quantidade: 100, valor: 50.0, data: "01-01-2024", tipo: "ACAO", operacao: "Compra" },
+      ];
+
+      const resultado = await service.validateAsync(orders);
+
+      expect(resultado.hasDivergences).toBe(false);
+      expect(resultado.divergences).toHaveLength(0);
+    });
+  });
+
+  describe("executeAsync com confirmado", () => {
+    it("Deve lancar erro quando existem divergencias e confirmado=false", async () => {
+      const orders: CreateOrderDto[] = [
+        { codigo: "BBDC1", quantidade: 1, valor: 0.07, data: "13-08-2026", tipo: "FRACIONARIO", operacao: "Venda" },
+      ];
+
+      await expect(service.executeAsync(orders, false)).rejects.toThrow();
+    });
+
+    it("Deve processar quando confirmado=true e existem divergencias", async () => {
+      orderRepositoryMock.createAsync.mockImplementation(async (data) => {
+        return new OrderEntity("1", data.codigo, data.valor, data.quantidade, data.data, data.tipo, data.operacao);
+      });
+
+      const orders: CreateOrderDto[] = [
+        { codigo: "BBDC1", quantidade: 1, valor: 0.07, data: "13-08-2026", tipo: "FRACIONARIO", operacao: "Venda" },
+      ];
+
+      const resultado = await service.executeAsync(orders, true);
+
+      expect(resultado.imported).toBe(1);
+      expect(resultado.warnings).toHaveLength(1);
+    });
+
+    it("Deve processar quando nao ha divergencias e confirmado=false", async () => {
+      const orders: CreateOrderDto[] = [
+        { codigo: "VALE3", quantidade: 100, valor: 50.0, data: "01-01-2024", tipo: "ACAO", operacao: "Compra" },
+      ];
+
+      const resultado = await service.executeAsync(orders, false);
+
+      expect(resultado.imported).toBe(1);
+    });
   });
 });

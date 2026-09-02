@@ -1,11 +1,11 @@
 import { IOrderRepository } from "../../domain/interfaces/IOrderRepository";
 import { IPortfolioRepository } from "../../domain/interfaces/IPortfolioRepository";
 import { ITransactionManager } from "../../domain/interfaces/ITransactionManager";
+import { DeleteOrderValidationResult } from "../dto/DeleteOrderValidationResult";
 import { PortfolioDomainService } from "../../domain/services/PortfolioDomainService";
 import { NotFoundException } from "../../shared/exceptions/NotFoundException";
-import { ValidationException } from "../../shared/exceptions/ValidationException";
 
-export class DeleteOrderService {
+export class ValidateDeleteOrderService {
   constructor(
     private orderRepository: IOrderRepository,
     private portfolioRepository: IPortfolioRepository,
@@ -13,7 +13,7 @@ export class DeleteOrderService {
     private portfolioDomainService: PortfolioDomainService
   ) {}
 
-  public async executeAsync(orderId: string, confirmado: boolean = false): Promise<void> {
+  public async executeAsync(orderId: string): Promise<DeleteOrderValidationResult> {
     return await this.transactionManager.executeAsync(async (tx) => {
       const order = await this.orderRepository.findByIdAsync(orderId, tx);
 
@@ -21,24 +21,12 @@ export class DeleteOrderService {
         throw new NotFoundException("Ordem não encontrada.");
       }
 
-      if (!confirmado) {
-        const validation = await this.portfolioDomainService.validateDeleteOrderAsync(
-          orderId,
-          tx,
-          this.orderRepository,
-          this.portfolioRepository
-        );
-
-        if (validation.hasDivergence) {
-          throw new ValidationException(
-            `Existem ${validation.divergences.length} divergência(s) que precisam ser confirmadas.`
-          );
-        }
-      }
-
-      const codigo = order.codigo;
-      await this.orderRepository.deleteAsync(orderId, tx);
-      await this.portfolioDomainService.rebuildPortfolioByCodigoAsync(codigo, tx, this.orderRepository, this.portfolioRepository);
+      return await this.portfolioDomainService.validateDeleteOrderAsync(
+        orderId,
+        tx,
+        this.orderRepository,
+        this.portfolioRepository
+      );
     });
   }
 }

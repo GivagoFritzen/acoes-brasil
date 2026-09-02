@@ -1,0 +1,30 @@
+<div class="import-confirmation-modal-backdrop" *ngIf="isOpen" (click)="handleBackdropClick()">
+  <div class="import-confirmation-modal" (click)="$event.stopPropagation()">
+    <h3>{{ 'importacao.modal.title' | translate }}</h3>
+    
+    <p class="import-confirmation-modal__description">
+      {{ 'importacao.modal.description' | translate }}
+    </p>
+
+    <div class="import-confirmation-modal__list">
+      <div class="import-confirmation-modal__item" *ngFor="let divergence of divergences">
+        <span class="import-confirmation-modal__item-codigo">{{ divergence.codigo }}</span>
+        <span class="import-confirmation-modal__item-operacao">{{ divergence.operacao }}</span>
+        <span class="import-confirmation-modal__item-quantidade">
+          {{ divergence.quantidade }} {{ 'importacao.modal.requested' | translate }}
+          ({{ divergence.quantidadeDisponivel }} {{ 'importacao.modal.available' | translate }})
+        </span>
+        <span class="import-confirmation-modal__item-mensagem">{{ divergence.mensagem }}</span>
+      </div>
+    </div>
+
+    <div class="import-confirmation-modal__actions">
+      <app-simple-button variant="cancelar" [disabled]="isLoading" (btnClick)="cancel()">
+        {{ 'common.button.cancel' | translate }}
+      </app-simple-button>
+      <app-simple-button [disabled]="isLoading" (btnClick)="confirm()">
+        {{ isLoading ? ('common.button.processing' | translate) : ('importacao.modal.confirm' | translate) }}
+      </app-simple-button>
+    </div>
+  </div>
+</div>

@@ -48,7 +48,7 @@ describe("DeleteOrderService", () => {
     orderRepositoryMock.findAllByCodigoAsync.mockResolvedValue([]);
     orderRepositoryMock.deleteAsync.mockResolvedValue();
 
-    await service.executeAsync("1");
+    await service.executeAsync("1", true);
 
     expect(orderRepositoryMock.deleteAsync).toHaveBeenCalledWith("1", undefined);
   });
@@ -56,7 +56,7 @@ describe("DeleteOrderService", () => {
   it("Deve lancar erro quando ordem nao existe", async () => {
     orderRepositoryMock.findByIdAsync.mockResolvedValue(null);
 
-    await expect(service.executeAsync("999")).rejects.toThrow("Ordem não encontrada.");
+    await expect(service.executeAsync("999", true)).rejects.toThrow("Ordem não encontrada.");
   });
 
   it("Deve deletar portfolio quando ultima ordem for removida", async () => {
@@ -67,7 +67,7 @@ describe("DeleteOrderService", () => {
     portfolioRepositoryMock.findByCodigoAsync.mockResolvedValue(new PortfolioEntity("1", "VALE3", 100, 50));
     portfolioRepositoryMock.deleteByCodigoAsync.mockResolvedValue();
 
-    await service.executeAsync("1");
+    await service.executeAsync("1", true);
 
     expect(portfolioRepositoryMock.deleteByCodigoAsync).toHaveBeenCalled();
   });

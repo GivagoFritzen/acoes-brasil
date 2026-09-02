@@ -1,4 +1,7 @@
 export type { FundamentusAcaoDetails, FundamentusIndicator, FundamentusProventosResponse } from './FundamentusModel';
+export type { ImportDivergence } from './ImportDivergenceModel';
+export type { ImportResponse } from './ImportResponseModel';
+export type { ImportValidationResponse } from './ImportValidationResponseModel';
 export type { Investidor10AcaoDetails, Investidor10FiiDetails, Investidor10ProventosResponse, Investidor10HistoricoIndicador, Investidor10ValorHistorico, Investidor10FiiIndicadorFundamentalista, Investidor10ValorPorPeriodo } from './Investidor10Model';
 export type { Order, OrderOperacao, OrderTipo } from './OrderModel';
 export type { OrdersResponse } from './OrdersResponseModel';

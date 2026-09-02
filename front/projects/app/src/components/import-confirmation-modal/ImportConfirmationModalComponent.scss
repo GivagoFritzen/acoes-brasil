@@ -1,0 +1,84 @@
+@use '../../colors.scss' as *;
+
+.import-confirmation-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: $color-overlay;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 50;
+  padding: 16px;
+}
+
+.import-confirmation-modal {
+  width: min(100%, 600px);
+  max-height: 80vh;
+  background: var(--color-surface);
+  border-radius: 14px;
+  padding: 20px;
+  box-shadow: 0 20px 45px $color-modal-shadow;
+  display: flex;
+  flex-direction: column;
+
+  h3 {
+    margin: 0 0 10px;
+    font-size: 18px;
+    color: var(--color-text);
+  }
+}
+
+.import-confirmation-modal__description {
+  margin: 0 0 16px;
+  font-size: 14px;
+  color: var(--color-text-muted);
+}
+
+.import-confirmation-modal__list {
+  flex: 1;
+  overflow-y: auto;
+  max-height: 400px;
+  border: 1px solid var(--color-card-border);
+  border-radius: 8px;
+}
+
+.import-confirmation-modal__item {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 8px;
+  padding: 12px;
+  border-bottom: 1px solid var(--color-card-border);
+
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.import-confirmation-modal__item-codigo {
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.import-confirmation-modal__item-operacao {
+  color: $color-danger;
+  font-weight: 500;
+}
+
+.import-confirmation-modal__item-quantidade {
+  grid-column: 1 / -1;
+  font-size: 13px;
+  color: var(--color-text-muted);
+}
+
+.import-confirmation-modal__item-mensagem {
+  grid-column: 1 / -1;
+  font-size: 12px;
+  color: $color-warning;
+}
+
+.import-confirmation-modal__actions {
+  margin-top: 18px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}

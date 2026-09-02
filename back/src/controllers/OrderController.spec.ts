@@ -5,6 +5,7 @@ import { NotFoundException } from "../shared/exceptions/NotFoundException";
 const mockCreateService = { executeAsync: jest.fn() };
 const mockUpdateService = { executeAsync: jest.fn() };
 const mockDeleteService = { executeAsync: jest.fn() };
+const mockValidateDeleteService = { executeAsync: jest.fn() };
 const mockListService = { executeAsync: jest.fn() };
 const mockGetSellSnapshotsService = { executeAsync: jest.fn() };
 const mockExportSellSnapshotsService = { executeAsync: jest.fn() };
@@ -36,6 +37,7 @@ describe("OrderController", () => {
       mockCreateService as any,
       mockUpdateService as any,
       mockDeleteService as any,
+      mockValidateDeleteService as any,
       mockListService as any,
       mockGetSellSnapshotsService as any,
       mockExportSellSnapshotsService as any
@@ -73,7 +75,8 @@ describe("OrderController", () => {
   });
 
   describe("deleteAsync", () => {
-    it("deve retornar json de sucesso ao deletar ordem", async () => {
+    it("deve retornar json de sucesso ao deletar ordem sem divergencia", async () => {
+      mockValidateDeleteService.executeAsync.mockResolvedValue({ hasDivergence: false, divergences: [] });
       mockDeleteService.executeAsync.mockResolvedValue({});
 
       const req = createMockReq({ params: { id: "550e8400-e29b-41d4-a716-446655440000" } });
@@ -84,8 +87,40 @@ describe("OrderController", () => {
       expect(res.json).toHaveBeenCalledWith({ message: "Ordem deletada com sucesso." });
     });
 
+    it("deve retornar divergencias quando ha problema na exclusao", async () => {
+      mockValidateDeleteService.executeAsync.mockResolvedValue({
+        hasDivergence: true,
+        divergences: [{ codigo: "VALE3", operacao: "Compra", quantidade: 100, quantidadeDisponivel: 0, mensagem: "Teste" }],
+      });
+
+      const req = createMockReq({ params: { id: "550e8400-e29b-41d4-a716-446655440000" } });
+      const res = createMockRes();
+
+      await controller.deleteAsync(req, res);
+
+      expect(res.json).toHaveBeenCalledWith(
+        expect.objectContaining({
+          divergencias: expect.any(Array),
+        })
+      );
+    });
+
+    it("deve deletar ordem quando confirmado=true mesmo com divergencias", async () => {
+      mockDeleteService.executeAsync.mockResolvedValue({});
+
+      const req = createMockReq({
+        params: { id: "550e8400-e29b-41d4-a716-446655440000" },
+        query: { confirmado: "true" },
+      });
+      const res = createMockRes();
+
+      await controller.deleteAsync(req, res);
+
+      expect(res.json).toHaveBeenCalledWith({ message: "Ordem deletada com sucesso." });
+    });
+
     it("deve retornar 404 quando ordem nao encontrada", async () => {
-      mockDeleteService.executeAsync.mockRejectedValue(new NotFoundException("Ordem não encontrada"));
+      mockValidateDeleteService.executeAsync.mockRejectedValue(new NotFoundException("Ordem não encontrada"));
 
       const req = createMockReq({ params: { id: "550e8400-e29b-41d4-a716-446655440001" } });
       const res = createMockRes();
@@ -96,7 +131,7 @@ describe("OrderController", () => {
     });
 
     it("deve retornar 500 quando ocorre erro", async () => {
-      mockDeleteService.executeAsync.mockRejectedValue(new Error("erro interno"));
+      mockValidateDeleteService.executeAsync.mockRejectedValue(new Error("erro interno"));
 
       const req = createMockReq({ params: { id: "550e8400-e29b-41d4-a716-446655440002" } });
       const res = createMockRes();

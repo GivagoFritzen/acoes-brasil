@@ -47,11 +47,24 @@ export class ImportController {
         return res.status(400).json({ message: "Planilha sem dados." });
       }
 
-      const importedCount = await this.importOrdersService.executeAsync(ordersToImport);
-      return res.status(201).json({ imported: importedCount });
+      const confirmado = req.query?.confirmado === 'true';
+
+      if (!confirmado) {
+        const validation = await this.importOrdersService.validateAsync(ordersToImport);
+        if (validation.hasDivergences) {
+          return res.status(200).json({
+            divergencias: validation.divergences,
+            mensagem: "Existem divergências que precisam ser confirmadas.",
+          });
+        }
+      }
+
+      const result = await this.importOrdersService.executeAsync(ordersToImport, true);
+      return res.status(201).json(result);
     } catch (error) {
+      console.error("[ImportController]", error);
       return res.status(400).json({
-        message: "Erro ao importar planilha de negociação",
+        message: error instanceof Error ? error.message : "Erro ao importar planilha de negociação",
       });
     } finally {
       if (file.path) await fs.promises.unlink(file.path).catch(() => {});

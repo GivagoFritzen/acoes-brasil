@@ -16,7 +16,7 @@ import * as fs from "fs";
 const fsMock = fs as { promises: { readFile: jest.Mock } };
 
 const mockParser = { parseOrderRowsAsync: jest.fn() };
-const mockImportService = { executeAsync: jest.fn() };
+const mockImportService = { executeAsync: jest.fn(), validateAsync: jest.fn() };
 
 function createMockReq(overrides: object = {}): object {
   return { params: {}, query: {}, body: {}, file: undefined, ...overrides };
@@ -40,7 +40,8 @@ describe("ImportController", () => {
   it("deve retornar 201 ao importar arquivo com dados", async () => {
     fsMock.promises.readFile.mockResolvedValue(Buffer.from([0x50, 0x4b, 0x03, 0x04, 0x00]));
     mockParser.parseOrderRowsAsync.mockReturnValue([{ codigo: "VALE3", quantidade: 100 }]);
-    mockImportService.executeAsync.mockResolvedValue(5);
+    mockImportService.validateAsync.mockResolvedValue({ hasDivergences: false, divergences: [] });
+    mockImportService.executeAsync.mockResolvedValue({ imported: 5, warnings: [] });
 
     const req = createMockReq({ file: { path: "/tmp/test.xlsx" } as Express.Multer.File });
     const res = createMockRes();
@@ -48,7 +49,7 @@ describe("ImportController", () => {
     await controller.importAsync(req, res);
 
     expect(res.status).toHaveBeenCalledWith(201);
-    expect(res.json).toHaveBeenCalledWith({ imported: 5 });
+    expect(res.json).toHaveBeenCalledWith({ imported: 5, warnings: [] });
   });
 
   it("deve retornar 400 quando arquivo nao enviado", async () => {
@@ -87,7 +88,56 @@ describe("ImportController", () => {
 
     expect(res.status).toHaveBeenCalledWith(400);
     expect(res.json).toHaveBeenCalledWith(
-      expect.objectContaining({ message: "Erro ao importar planilha de negociação" })
+      expect.objectContaining({ message: "Erro ao processar planilha" })
     );
+  });
+
+  it("deve retornar divergencias quando existem divergencias e confirmado nao informado", async () => {
+    fsMock.promises.readFile.mockResolvedValue(Buffer.from([0x50, 0x4b, 0x03, 0x04, 0x00]));
+    mockParser.parseOrderRowsAsync.mockReturnValue([{ codigo: "BBDC1", quantidade: 1, valor: 0.07 }]);
+    mockImportService.validateAsync.mockResolvedValue({
+      hasDivergences: true,
+      divergences: [
+        { codigo: "BBDC1", operacao: "Venda", quantidade: 1, quantidadeDisponivel: 0, mensagem: "Ativo BBDC1 vendido sem existir no portf�lio" },
+      ],
+    });
+
+    const req = createMockReq({ file: { path: "/tmp/test.xlsx" } as Express.Multer.File });
+    const res = createMockRes();
+
+    await controller.importAsync(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(200);
+    expect(res.json).toHaveBeenCalledWith(
+      expect.objectContaining({ divergencias: expect.any(Array) })
+    );
+  });
+
+  it("deve retornar 201 quando confirmado=true e existem divergencias", async () => {
+    fsMock.promises.readFile.mockResolvedValue(Buffer.from([0x50, 0x4b, 0x03, 0x04, 0x00]));
+    mockParser.parseOrderRowsAsync.mockReturnValue([{ codigo: "BBDC1", quantidade: 1, valor: 0.07 }]);
+    mockImportService.executeAsync.mockResolvedValue({ imported: 1, warnings: ["Ativo BBDC1 vendido sem existir no portfólio"] });
+
+    const req = createMockReq({ file: { path: "/tmp/test.xlsx" } as Express.Multer.File, query: { confirmado: "true" } });
+    const res = createMockRes();
+
+    await controller.importAsync(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(201);
+    expect(mockImportService.executeAsync).toHaveBeenCalledWith(expect.any(Array), true);
+  });
+
+  it("deve retornar 201 quando nao ha divergencias e confirmado nao informado", async () => {
+    fsMock.promises.readFile.mockResolvedValue(Buffer.from([0x50, 0x4b, 0x03, 0x04, 0x00]));
+    mockParser.parseOrderRowsAsync.mockReturnValue([{ codigo: "VALE3", quantidade: 100, valor: 50.0 }]);
+    mockImportService.validateAsync.mockResolvedValue({ hasDivergences: false, divergences: [] });
+    mockImportService.executeAsync.mockResolvedValue({ imported: 1, warnings: [] });
+
+    const req = createMockReq({ file: { path: "/tmp/test.xlsx" } as Express.Multer.File });
+    const res = createMockRes();
+
+    await controller.importAsync(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(201);
   });
 });

@@ -12,6 +12,7 @@ import {
   SimpleInputComponent,
   SimpleSelectComponent,
 } from '../../components';
+import { DeleteConfirmationModalComponent } from '../../components/delete-confirmation-modal/DeleteConfirmationModalComponent';
 import type { SelectOption } from '../../../../../../common/models/SelectOptionModel';
 import { Order, OrderOperacao, OrdersResponse } from '../../models';
 import { AlertItem } from '../../models/alert/AlertItemModel';
@@ -24,6 +25,7 @@ import { OrdersFilters } from '../../models/OrdersFiltersModel';
 import { normalizeOrderCodigo } from '../../../../../../common/utils/OrderCodigoUtils';
 import { TranslatePipe } from '../../pipes/TranslatePipe';
 import { TranslationService } from '../../services/TranslationService';
+import { ImportDivergence } from '../../models/ImportDivergenceModel';
 
 const DEFAULT_LIMIT = 10;
 const SELL_OPERATION: OrderOperacao = 'Venda';
@@ -41,7 +43,8 @@ const SELL_OPERATION: OrderOperacao = 'Venda';
     SimpleInputComponent,
     SimpleSelectComponent,
     SimpleButtonComponent,
-    TranslatePipe
+    TranslatePipe,
+    DeleteConfirmationModalComponent
   ],
   templateUrl: './OrdersComponent.html',
   styleUrls: ['./OrdersComponent.scss'],
@@ -64,6 +67,8 @@ export class OrdersComponent implements OnInit {
   readonly isEditModalOpen = signal(false);
   readonly orderToDelete = signal<Order | null>(null);
   readonly orderToEdit = signal<Order | null>(null);
+  readonly deleteDivergences = signal<ImportDivergence[]>([]);
+  readonly isDeleteDivergenceModalOpen = signal(false);
 
   readonly operacaoOptions: SelectOption<OrderOperacao>[] = [
     { label: this.translationService.get('orders.filterBuy'), value: 'Compra' },
@@ -244,8 +249,53 @@ export class OrdersComponent implements OnInit {
       .pipe(
         finalize(() => {
           this.isDeleting.set(false);
+        }),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe({
+        next: (response) => {
+          if ('divergencias' in response && response.divergencias.length > 0) {
+            this.deleteDivergences.set(response.divergencias);
+            this.isDeleteDivergenceModalOpen.set(true);
+          } else {
+            this.isDeleteModalOpen.set(false);
+            this.orderToDelete.set(null);
+            this.alerts.set([
+              {
+                variant: 'info',
+                title: this.translationService.get('common.alerts.success'),
+                message: `${this.translationService.get('orders.alerts.orderDeleted')} ${order.codigo}`,
+                icon: '✓',
+              },
+            ]);
+            this.loadOrders();
+          }
+        },
+        error: () => {
           this.isDeleteModalOpen.set(false);
           this.orderToDelete.set(null);
+          this.alerts.set([this.createErrorAlert(this.translationService.get('orders.alerts.deleteFailed'))]);
+        },
+      });
+  }
+
+  confirmDeleteWithDivergence(): void {
+    const order = this.orderToDelete();
+    if (!order) {
+      return;
+    }
+
+    this.isDeleting.set(true);
+
+    this.ordersService
+      .deleteOrder(order.id, true)
+      .pipe(
+        finalize(() => {
+          this.isDeleting.set(false);
+          this.isDeleteDivergenceModalOpen.set(false);
+          this.isDeleteModalOpen.set(false);
+          this.orderToDelete.set(null);
+          this.deleteDivergences.set([]);
         }),
         takeUntilDestroyed(this.destroyRef),
       )
@@ -265,6 +315,13 @@ export class OrdersComponent implements OnInit {
           this.alerts.set([this.createErrorAlert(this.translationService.get('orders.alerts.deleteFailed'))]);
         },
       });
+  }
+
+  cancelDeleteDivergence(): void {
+    this.isDeleteDivergenceModalOpen.set(false);
+    this.isDeleteModalOpen.set(false);
+    this.orderToDelete.set(null);
+    this.deleteDivergences.set([]);
   }
 
   confirmEditOrder(payload: UpdateOrderPayload): void {
