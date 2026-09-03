@@ -39,14 +39,12 @@ export class PortfolioProfitLossChartComponent implements OnInit {
   chartWidth = 600;
   chartHeight = 0;
 
-  // Desktop (horizontal bars)
   barHeight = 25;
   barLabelWidth = 80;
   valueLabelWidth = 80;
   verticalMargin = 15;
   yAxisX = 0;
 
-  // Mobile (vertical bars)
   mobileChartHeight = 320;
   mobileXAxisY = 150;
   mobileLeftPadding = 30;

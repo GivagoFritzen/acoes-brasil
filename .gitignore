@@ -13,6 +13,8 @@ release/
 electron/dist/
 electron/build/
 .out/
+/*.js
+/*.js.map
 
 # Electron packages
 *.asar

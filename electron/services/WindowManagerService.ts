@@ -109,12 +109,25 @@ export class WindowManagerService implements IWindowManager {
   }
 
   private async loadProductionRenderer(window: BrowserWindow): Promise<void> {
-    try {
-      await window.loadURL(`http://localhost:${this.config.backend.defaultPort}`);
-    } catch (error) {
-      const errorMessage = `Failed to load production renderer from http://localhost:${this.config.backend.defaultPort}`;
-      this.errorHandler.handleError(error as Error, errorMessage);
-      throw new Error(errorMessage);
+    const maxRetries = 5;
+    const retryDelay = 2000;
+    const url = `http://localhost:${this.config.backend.defaultPort}`;
+
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+      try {
+        await window.loadURL(url);
+        return;
+      } catch (error) {
+        console.error(`[WindowManager] Attempt ${attempt} failed:`, error);
+
+        if (attempt === maxRetries) {
+          const errorMessage = `Failed to load production renderer after ${maxRetries} attempts`;
+          this.errorHandler.handleError(error as Error, errorMessage);
+          throw new Error(errorMessage);
+        }
+
+        await new Promise(resolve => setTimeout(resolve, retryDelay));
+      }
     }
   }
 }

@@ -377,8 +377,6 @@ export class Investidor10ScraperService {
     return definicoes.map((ind) => this.buildFiiIndicador(ind, periodos, historicoPorNome));
   }
 
-  // --- MÉTODOS AUXILIARES FII INDICADORES ---
-
   private getInfoFii(informacoesFii: Investidor10InformacaoFii[], label: string): string | null {
     return informacoesFii.find((i) => i.label === label)?.value ?? null;
   }
@@ -473,8 +471,6 @@ export class Investidor10ScraperService {
 
     return historicoIndicadores.map((h) => this.buildIndicadorComHistorico(h, periodos, valorAtualMap));
   }
-
-  // --- MÉTODOS AUXILIARES INDICADORES COM HISTÓRICO ---
 
   private buildIndicadorComHistorico(
     h: Investidor10HistoricoIndicador,

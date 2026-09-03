@@ -7,6 +7,14 @@ import { BackendManagerService } from './services/BackendManagerService';
 import { AppLifecycleService } from './services/AppLifecycleService';
 import { AppConfig } from './interfaces/IAppConfig';
 
+process.on('uncaughtException', (error) => {
+  console.error('[Electron] Uncaught Exception:', error);
+});
+
+process.on('unhandledRejection', (reason) => {
+  console.error('[Electron] Unhandled Rejection:', reason);
+});
+
 class ElectronApplication {
   private config: AppConfig;
   private errorHandler: ErrorHandlerService;

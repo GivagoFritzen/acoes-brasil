@@ -216,7 +216,7 @@ export class TourService {
     this.currentStepIndex.set(0);
     try {
       localStorage.setItem(STORAGE_KEY, 'true');
-    } catch { /* noop */ }
+    } catch { }
   }
 
   private navigateToStep(index: number): void {

@@ -134,11 +134,9 @@ describe('HelpTipComponent', () => {
         it('deve alternar active ao clicar no botão help-tip', () => {
             fixture.detectChanges();
             
-            // Initially not active
             let tipContent = fixture.debugElement.query(By.css('.tip-content'));
             expect(tipContent.classes['active']).toBeFalsy();
 
-            // Click to show
             const button = fixture.debugElement.query(By.css('.help-tip'));
             button.triggerEventHandler('click', { stopPropagation: vi.fn() });
             fixture.detectChanges();
@@ -146,7 +144,6 @@ describe('HelpTipComponent', () => {
             tipContent = fixture.debugElement.query(By.css('.tip-content'));
             expect(tipContent.classes['active']).toBe(true);
 
-            // Click to hide
             button.triggerEventHandler('click', { stopPropagation: vi.fn() });
             fixture.detectChanges();
 

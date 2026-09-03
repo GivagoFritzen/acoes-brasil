@@ -1,3 +1,5 @@
+import { BusinessException } from "../../shared/exceptions/BusinessException";
+
 export class PortfolioEntity {
   constructor(
     public id: string,
@@ -21,7 +23,7 @@ export class PortfolioEntity {
 
   public registerVenda(quantidade: number): void {
     if (quantidade > this.quantidade) {
-      throw new Error("Quantidade de venda maior do que a posição atual no portfolio.");
+      throw new BusinessException("Quantidade de venda maior do que a posição atual no portfolio.");
     }
 
     this.quantidade -= quantidade;
