@@ -19,12 +19,12 @@ export class CreateOrderService {
     private portfolioDomainService: PortfolioDomainService
   ) { }
 
-  public async executeAsync(input: CreateOrderDto): Promise<OrderEntity> {
+  public async executeAsync(input: CreateOrderDto, lang?: string): Promise<OrderEntity> {
     const { quantidade, valor, operacao, data, tipo } = input;
     const codigoNormalizado = normalizeOrderCodigo(input.codigo);
 
-    OrderValidator.validateCreateOrderDto(input);
-    OrderValidator.validateOrderDate(data);
+    OrderValidator.validateCreateOrderDto(input, lang);
+    OrderValidator.validateOrderDate(data, lang);
 
     const quote = await this.quoteProvider.getQuoteAsync(codigoNormalizado);
 
@@ -55,6 +55,7 @@ export class CreateOrderService {
           operacao,
           data: order.data,
         },
+        lang ?? 'pt-BR',
         tx,
         this.portfolioRepository,
         this.orderSellSnapshotRepository,

@@ -8,6 +8,22 @@ import { CreateProventoPayload } from '../models/CreateProventoPayloadModel';
 import { ImportResponse } from '../models/ImportResponseModel';
 import { DeleteResponse } from '../models/DeleteResponseModel';
 import { firstValueFrom } from 'rxjs';
+import { TranslationService } from './TranslationService';
+
+const mockTranslationService = {
+  get: (key: string) => {
+    const translations: Record<string, string> = {
+      'common.errors.connection': 'Não foi possível conectar ao servidor. Verifique sua conexão.',
+      'common.errors.badRequest': 'Requisição inválida.',
+      'common.errors.unauthorized': 'Não autorizado.',
+      'common.errors.forbidden': 'Acesso negado.',
+      'common.errors.notFound': 'Recurso não encontrado.',
+      'common.errors.internalServer': 'Erro interno do servidor.',
+      'common.errors.unexpected': 'Ocorreu um erro inesperado. Tente novamente.',
+    };
+    return translations[key] || '';
+  },
+};
 
 describe('ProventosService', () => {
   let service: ProventosService;
@@ -17,7 +33,10 @@ describe('ProventosService', () => {
   beforeEach(() => {
     TestBed.configureTestingModule({
       imports: [HttpClientTestingModule],
-      providers: [ProventosService],
+      providers: [
+        ProventosService,
+        { provide: TranslationService, useValue: mockTranslationService },
+      ],
     });
 
     service = TestBed.inject(ProventosService);
@@ -209,7 +228,7 @@ describe('ProventosService', () => {
   describe('importProventosSpreadsheet', () => {
     it('deve importar planilha com FormData', () => {
       const file = new File(['content'], 'proventos.xlsx', { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
-      const response = { success: true, imported: 10 } as ImportResponse;
+      const response = { success: true, imported: 10, warnings: [] } as ImportResponse;
 
       service.importProventosSpreadsheet(file).subscribe(data => expect(data).toEqual(response));
 

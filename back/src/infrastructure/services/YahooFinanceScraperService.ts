@@ -20,6 +20,8 @@ import type {
 } from "../../models/yahoo";
 import type { JsonValue } from "../../models/JsonValue";
 import { fetchWithTimeout } from "../../shared/utils/FetchWithTimeout";
+import { translationService } from "../../shared/i18n/TranslationService";
+import { TranslationKeyError } from "../../models/TranslationKeyError";
 
 const CRUMB_URL = "https://query2.finance.yahoo.com/v1/test/getcrumb";
 const QUOTE_SUMMARY_URL = "https://query2.finance.yahoo.com/v10/finance/quoteSummary";
@@ -88,16 +90,20 @@ export class YahooFinanceScraperService {
   private cookie: string | null = null;
   private crumb: string | null = null;
 
-  async scrapeAsync(codigo: string): Promise<YahooFinanceDetails> {
+  async scrapeAsync(codigo: string, lang?: string): Promise<YahooFinanceDetails> {
     const codigoNormalized = codigo.trim().toUpperCase();
     const yahooTicker = codigoNormalized.endsWith(".SA") ? codigoNormalized : `${codigoNormalized}.SA`;
 
-    await this.ensureAuthenticatedAsync();
+    await this.ensureAuthenticatedAsync(lang);
 
-    const data = await this.fetchQuoteSummaryAsync(yahooTicker);
+    const data = await this.fetchQuoteSummaryAsync(yahooTicker, lang);
 
     if (!data?.quoteSummary?.result?.[0]) {
-      throw new Error(`Falha ao consultar Yahoo Finance para o ativo ${codigo}.`);
+      throw new TranslationKeyError(
+        translationService.translate('scraping.yahooFailed', lang, { codigo }),
+        'scraping.yahooFailed',
+        { codigo }
+      );
     }
 
     const result = data.quoteSummary.result[0];
@@ -162,12 +168,15 @@ export class YahooFinanceScraperService {
     };
   }
 
-  private async ensureAuthenticatedAsync(): Promise<void> {
+  private async ensureAuthenticatedAsync(lang?: string): Promise<void> {
     const crumb = await this.fetchCrumbAsync();
     if (!crumb) {
       const session = await this.fetchSessionAsync();
       if (!session) {
-        throw new Error("Falha ao autenticar no Yahoo Finance.");
+        throw new TranslationKeyError(
+          translationService.translate('scraping.yahooAuthFailed', lang),
+          'scraping.yahooAuthFailed'
+        );
       }
       this.cookie = session.cookie;
       this.crumb = session.crumb;
@@ -293,7 +302,7 @@ export class YahooFinanceScraperService {
     }
   }
 
-  private async fetchQuoteSummaryAsync(codigo: string): Promise<{ quoteSummary?: { result?: Record<string, JsonValue>[] } }> {
+  private async fetchQuoteSummaryAsync(codigo: string, lang?: string): Promise<{ quoteSummary?: { result?: Record<string, JsonValue>[] } }> {
     const url = `${QUOTE_SUMMARY_URL}/${encodeURIComponent(codigo)}?modules=${QUOTE_MODULES}&crumb=${this.crumb}`;
 
     const headers: Record<string, string> = {
@@ -306,7 +315,11 @@ export class YahooFinanceScraperService {
     const response = await fetchWithTimeout(url, { headers, timeoutMs: 15_000 });
 
     if (!response.ok) {
-      throw new Error(`Yahoo Finance retornou status ${response.status}.`);
+      throw new TranslationKeyError(
+        translationService.translate('scraping.yahooStatusError', lang, { status: response.status }),
+        'scraping.yahooStatusError',
+        { status: response.status }
+      );
     }
 
     return await response.json();

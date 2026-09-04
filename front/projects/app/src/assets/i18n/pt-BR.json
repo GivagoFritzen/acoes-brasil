@@ -8,12 +8,22 @@
         "button": {
             "cancel": "Cancelar",
             "saving": "Salvando...",
-            "save": "Salvar"
+            "save": "Salvar",
+            "processing": "Processando..."
         },
         "assetType": {
             "action": "Ação",
             "fii": "FII",
             "bdr": "BDR"
+        },
+        "errors": {
+            "connection": "Não foi possível conectar ao servidor. Verifique sua conexão.",
+            "badRequest": "Requisição inválida.",
+            "unauthorized": "Não autorizado.",
+            "forbidden": "Acesso negado.",
+            "notFound": "Recurso não encontrado.",
+            "internalServer": "Erro interno do servidor.",
+            "unexpected": "Ocorreu um erro inesperado. Tente novamente."
         }
     },
     "indicators": {
@@ -221,7 +231,14 @@
             "deleteFailed": "Não foi possível deletar a ordem.",
             "orderCreated": "Ordem adicionada com sucesso.",
             "orderDeleted": "Ordem removida com sucesso.",
-            "orderUpdated": "Ordem atualizada com sucesso."
+            "orderUpdated": "Ordem atualizada com sucesso.",
+            "deleteConfirmation": {
+                "title": "Confirmar exclusão",
+                "description": "Existem divergências que precisam ser confirmadas:",
+                "requested": "solicitado",
+                "available": "disponível",
+                "confirm": "Confirmar exclusão"
+            }
         }
     },
     "proventos": {
@@ -282,10 +299,10 @@
     "importacao": {
         "title": "Importação de Planilhas",
         "description": "Envie arquivos Excel (.xlsx/.xls) para importar Negociações e Proventos.",
-        "negociacaoTitle": "Negociação → Orders",
+        "negociacaoTitle": "Negociação → Ordens",
         "negociacaoHint": "Cabeçalhos esperados: Data do Negócio, Tipo de Movimentação, Mercado, Código de Negociação, Quantidade, Preço, Valor.",
         "negociacaoFileLabel": "Arquivo de negociação",
-        "browseFile": "Browse file",
+        "browseFile": "Procurar arquivo",
         "noFileSelected": "Nenhum arquivo selecionado",
         "importNegociacao": "Importar negociação",
         "importing": "Importando...",
@@ -309,6 +326,13 @@
             "negociacaoImportFailed": "Não foi possível importar a planilha de negociação.",
             "proventoImportFailed": "Não foi possível importar a planilha de proventos.",
             "portfolioImportFailed": "Não foi possível importar a planilha de portfólio."
+        },
+        "modal": {
+            "title": "Divergências Encontradas",
+            "description": "Foram encontradas divergências na importação. Revise as operações abaixo antes de confirmar:",
+            "requested": "solicitado(s)",
+            "available": "disponível(is)",
+            "confirm": "Confirmar Importação"
         }
     },
     "sidebar": {

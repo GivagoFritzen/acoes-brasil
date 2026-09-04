@@ -1,7 +1,7 @@
-import { Component, HostListener, Inject, OnInit, PLATFORM_ID } from '@angular/core';
+import { Component, HostListener, Inject, Input, OnInit, PLATFORM_ID } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { isPlatformBrowser } from '@angular/common';
-import { BehaviorSubject, Observable, combineLatest, forkJoin, of } from 'rxjs';
+import { BehaviorSubject, Observable, Subject, combineLatest, forkJoin, of } from 'rxjs';
 import { catchError, map, switchMap } from 'rxjs/operators';
 import { FundamentusAcaoDetails, PortfolioItem } from '../../models';
 import type { BarChartItem } from '../../models/graphics/BarChartItemModel';
@@ -25,19 +25,26 @@ const COR_NEGATIVO = '#A10A28';
 export class PortfolioProfitLossChartComponent implements OnInit {
   chartItems$!: Observable<BarChartItem[]>;
   private readonly isMobileLayout$ = new BehaviorSubject<boolean>(false);
+  private readonly refresh$ = new BehaviorSubject<void>(undefined);
   isMobileLayout = false;
+
+  private refreshCounter = 0;
+  @Input() set refreshTrigger(value: number) {
+    if (value !== this.refreshCounter) {
+      this.refreshCounter = value;
+      this.refresh$.next();
+    }
+  }
 
   chartWidth = 600;
   chartHeight = 0;
 
-  // Desktop (horizontal bars)
   barHeight = 25;
   barLabelWidth = 80;
   valueLabelWidth = 80;
   verticalMargin = 15;
   yAxisX = 0;
 
-  // Mobile (vertical bars)
   mobileChartHeight = 320;
   mobileXAxisY = 150;
   mobileLeftPadding = 30;
@@ -57,7 +64,9 @@ export class PortfolioProfitLossChartComponent implements OnInit {
     this.updateLayout();
 
     this.chartItems$ = combineLatest([
-      this.getProfitLossChartData(),
+      this.refresh$.pipe(
+        switchMap(() => this.getProfitLossChartData())
+      ),
       this.isMobileLayout$,
     ]).pipe(
       map(([data, isMobileLayout]) => {

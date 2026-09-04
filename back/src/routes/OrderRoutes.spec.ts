@@ -7,10 +7,14 @@ import { ImportController } from "../controllers/ImportController";
 const mockCreateService = { executeAsync: jest.fn().mockResolvedValue({ id: "1" }) };
 const mockUpdateService = { executeAsync: jest.fn().mockResolvedValue({ id: "1" }) };
 const mockDeleteService = { executeAsync: jest.fn().mockResolvedValue({}) };
+const mockValidateDeleteService = { executeAsync: jest.fn().mockResolvedValue({ hasDivergence: false, divergences: [] }) };
 const mockListService = { executeAsync: jest.fn().mockResolvedValue({ items: [], total: 0 }) };
 const mockGetSellSnapshotsService = { executeAsync: jest.fn().mockResolvedValue([]) };
 const mockExportSellSnapshotsService = { executeAsync: jest.fn().mockResolvedValue({ buffer: Buffer.from("test"), fileName: "test.xlsx" }) };
-const mockImportOrdersService = { executeAsync: jest.fn().mockResolvedValue(5) };
+const mockImportOrdersService = { 
+  executeAsync: jest.fn().mockResolvedValue(5),
+  validateAsync: jest.fn().mockResolvedValue({ hasDivergences: false, divergences: [] }),
+};
 const mockParser = { parseOrderRowsAsync: jest.fn().mockReturnValue([{ codigo: "VALE3" }]) };
 
 jest.mock("../../shared/dependency-injection/Container", () => ({
@@ -21,6 +25,7 @@ jest.mock("../../shared/dependency-injection/Container", () => ({
           mockCreateService as any,
           mockUpdateService as any,
           mockDeleteService as any,
+          mockValidateDeleteService as any,
           mockListService as any,
           mockGetSellSnapshotsService as any,
           mockExportSellSnapshotsService as any

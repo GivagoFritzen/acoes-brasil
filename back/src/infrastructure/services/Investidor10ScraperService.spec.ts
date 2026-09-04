@@ -591,7 +591,6 @@ describe("Investidor10ScraperService", () => {
       expect(resultado.historicoIndicadores[0].valores[0].tipo).toBe("numeric");
       expect(resultado.historicoIndicadores[1].valores[0].tipo).toBe("percent");
 
-      // Verifica novo campo com Atual + historico
       expect(resultado.indicadoresFundamentalistasComHistorico).toHaveLength(2);
       expect(resultado.indicadoresFundamentalistasComHistorico[0].nome).toBe("P/L");
       expect(resultado.indicadoresFundamentalistasComHistorico[0].valores).toHaveLength(3);

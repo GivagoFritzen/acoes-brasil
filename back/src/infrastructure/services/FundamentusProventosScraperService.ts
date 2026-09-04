@@ -2,13 +2,15 @@ import type { FundamentusProvento, FundamentusProventosResponse } from "../../..
 import { normalizeCodigoForFundamentus, stripHtml } from "../../shared/utils/FundamentusUtils";
 import { MAX_REGEX_ITERATIONS } from "../../shared/constants/ProjectConstants";
 import { fetchWithTimeout } from "../../shared/utils/FetchWithTimeout";
+import { translationService } from "../../shared/i18n/TranslationService";
+import { TranslationKeyError } from "../../models/TranslationKeyError";
 
 const BASE_URL = "https://www.fundamentus.com.br/proventos.php";
 
 export class FundamentusProventosScraperService {
-  async scrapeAsync(codigo: string): Promise<FundamentusProventosResponse> {
+  async scrapeAsync(codigo: string, lang?: string): Promise<FundamentusProventosResponse> {
     const codigoFundamentus = normalizeCodigoForFundamentus(codigo);
-    const html = await this.fetchHtmlAsync(codigoFundamentus);
+    const html = await this.fetchHtmlAsync(codigoFundamentus, lang);
 
     const proventos = this.parseProventos(html);
 
@@ -19,7 +21,7 @@ export class FundamentusProventosScraperService {
     };
   }
 
-  private async fetchHtmlAsync(codigo: string): Promise<string> {
+  private async fetchHtmlAsync(codigo: string, lang?: string): Promise<string> {
     const url = `${BASE_URL}?papel=${encodeURIComponent(codigo)}&tipo=2`;
 
     const response = await fetchWithTimeout(url, {
@@ -30,7 +32,11 @@ export class FundamentusProventosScraperService {
     });
 
     if (!response.ok) {
-      throw new Error(`Falha ao consultar Fundamentus proventos para o ativo ${codigo}.`);
+      throw new TranslationKeyError(
+        translationService.translate('scraping.fundamentusProventosFailed', lang, { codigo }),
+        'scraping.fundamentusProventosFailed',
+        { codigo }
+      );
     }
 
     const buffer = await response.arrayBuffer();

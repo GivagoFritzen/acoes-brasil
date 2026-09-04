@@ -1,0 +1,69 @@
+{
+  "portfolio": {
+    "assetSoldNotInPortfolio": "Ativo {{codigo}} vendido sem existir no portfólio",
+    "sellWouldLeaveNegativeQuantity": "Ativo {{codigo}} vendido deixaria portfólio com quantidade {{quantidade}} (mínimo 1)",
+    "deleteWouldLeaveNegativeQuantity": "Remover esta ordem deixaria o portfólio com quantidade {{quantidade}} (mínimo 1)",
+    "assetNotInPortfolio": "Ativo {{codigo}} não existe no portfólio",
+    "couldNotCalculateGains": "Não foi possível calcular lucro/prejuízo da venda.",
+    "sellQuantityExceedsPosition": "Quantidade de venda maior do que a posição atual no portfolio.",
+    "portfolioNotFound": "Portfolio não encontrado.",
+    "assetNotFound": "Ativo do portfólio não encontrado.",
+    "assetDeleted": "Ativo do portfólio deletado com sucesso.",
+    "requiredFields": "Campos obrigatórios: codigo, quantidade, precoMedio.",
+    "invalidData": "Dados inválidos para criar/atualizar portfolio.",
+    "invalidCode": "Código inválido. Use 4 letras + 2 dígitos (máx. 7), com sufixo F apenas para ações.",
+    "invalidFile": "Tipo de arquivo inválido. Envie um arquivo .xlsx válido.",
+    "noData": "Planilha sem dados.",
+    "importError": "Erro ao importar planilha de portfólio",
+    "fileNotSent": "Arquivo não enviado. Use o campo 'file'.",
+    "noRowsToImport": "Nenhuma linha para importar."
+  },
+  "order": {
+    "notFound": "Ordem não encontrada.",
+    "divergencesPending": "Existem {{count}} divergência(s) que precisam ser confirmadas.",
+    "deleted": "Ordem deletada com sucesso.",
+    "divergencesNeedConfirmation": "Existem divergências que precisam ser confirmadas.",
+    "invalidData": "Dados inválidos para criar order. Informe código, quantidade, valor e data.",
+    "quantityMustBePositive": "Quantidade deve ser maior que zero.",
+    "valueMustBePositive": "Valor deve ser maior que zero.",
+    "invalidOperation": "Operação inválida para portfolio. Use Compra ou Venda.",
+    "futureDateNotAllowed": "A data da ordem não pode ser futura.",
+    "invalidOperationType": "Operação inválida. Use Compra ou Venda.",
+    "invalidCode": "Código inválido. Use 4 letras + 2 dígitos (máx. 7), com sufixo F apenas para ações.",
+    "couldNotDetectAssetType": "Não foi possível detectar o tipo do ativo pelo código informado."
+  },
+  "provento": {
+    "notFound": "provento não encontrado.",
+    "deleted": "provento deletado com sucesso.",
+    "deletedAll": "Proventos deletados com sucesso.",
+    "invalidData": "Dados inválidos para criar provento.",
+    "invalidCode": "Código inválido. Use 4 letras + 2 dígitos (máx. 7), com sufixo F apenas para ações.",
+    "invalidDate": "Data inválida para provento.",
+    "futureDateNotAllowed": "A data do provento não pode ser futura.",
+    "requiredFields": "Campos obrigatórios: codigo, data."
+  },
+  "import": {
+    "sheetWithoutData": "Planilha sem dados.",
+    "divergencesPending": "Existem {{count}} divergência(s) que precisam ser confirmadas.",
+    "invalidRequiredFields": "Dados obrigatórios inválidos para importação de negociação.",
+    "futureDateNotAllowed": "Data futura não é permitida para negociação.",
+    "noValidLines": "Nenhuma linha válida encontrada. Primeira linha inválida: {{line}}."
+  },
+  "scraping": {
+    "requiredCode": "Código do ativo é obrigatório.",
+    "fundamentusFailed": "Falha ao consultar Fundamentus para o ativo {{codigo}}.",
+    "fundamentusNoData": "Não foi possível extrair dados do Fundamentus.",
+    "fundamentusProventosFailed": "Falha ao consultar Fundamentus proventos para o ativo {{codigo}}.",
+    "investidor10Failed": "Falha ao consultar Investidor10 para o ativo {{codigo}}.",
+    "investidor10NoData": "Não foi possível extrair dados do Investidor10.",
+    "yahooFailed": "Falha ao consultar Yahoo Finance para o ativo {{codigo}}.",
+    "yahooAuthFailed": "Falha ao autenticar no Yahoo Finance.",
+    "yahooStatusError": "Yahoo Finance retornou status {{status}}.",
+    "spreadsheetLineError": "Linha {{line}}: dados obrigatórios inválidos para importação de negociação.",
+    "spreadsheetPortfolioLineError": "Linha {{line}}: dados obrigatórios inválidos para importação de portfólio."
+  },
+  "error": {
+    "database": "Erro de banco de dados",
+    "internal": "Erro interno do servidor"
+  }
+}

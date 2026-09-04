@@ -1,9 +1,12 @@
 import path from "path";
+import fs from "fs";
 import cors from "cors";
 import express from "express";
 import helmet from "helmet";
 import rateLimit from "express-rate-limit";
 import { env } from "./config/EnvConfig";
+import { errorMiddleware } from "./shared/error-handler/ErrorMiddleware";
+import { languageMiddleware } from "./shared/i18n/middleware";
 import { sequelize } from "./database";
 import { fundamentusRoutes } from "./routes/FundamentusRoutes";
 import { yahooFinanceRoutes } from "./routes/YahooFinanceRoutes";
@@ -33,7 +36,17 @@ const limiter = rateLimit({
 });
 app.use(limiter);
 
-const browserDir = path.resolve(__dirname, "../../../../front/dist/app/browser");
+const defaultBrowserDir = path.resolve(__dirname, "../../../../front/dist/app/browser");
+const fallbackBrowserDir = path.resolve(process.cwd(), "front/dist/app/browser");
+
+let browserDir: string;
+if (process.env.STATIC_DIR) {
+  browserDir = path.resolve(process.env.STATIC_DIR);
+} else if (fs.existsSync(defaultBrowserDir)) {
+  browserDir = defaultBrowserDir;
+} else {
+  browserDir = fallbackBrowserDir;
+}
 
 if (process.env.SERVE_STATIC === "true") {
   app.use(express.static(browserDir));
@@ -44,6 +57,8 @@ app.get("/health", (_req, res) => {
   res.json({ status: "ok" });
 });
 
+app.use(languageMiddleware);
+
 app.use("/orders", orderRoutes);
 app.use("/portfolios", portfolioRoutes);
 app.use("/proventos", proventoRoutes);
@@ -52,6 +67,8 @@ app.use("/investidor10", investidor10Routes);
 app.use("/google-finance", googleFinanceRoutes);
 app.use("/trading-hours", tradingHoursRoutes);
 app.use("/yahoo-finance", yahooFinanceRoutes);
+
+app.use(errorMiddleware);
 
 if (process.env.SERVE_STATIC === "true") {
   app.use((_req, res) => {

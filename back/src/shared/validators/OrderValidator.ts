@@ -3,46 +3,48 @@ import { CreateOrderDto } from "../../application/dto/CreateOrderDto";
 import { DateUtils } from "../utils/DateUtils";
 import { detectSupportedAssetTypeFromTicker } from "../../../../common/utils/AssetTypeUtils";
 import { ValidationError } from "../exceptions/ValidationError";
+import { translationService } from "../i18n/TranslationService";
+
 export class OrderValidator {
-  static validateCreateOrderDto(dto: CreateOrderDto): void {
+  static validateCreateOrderDto(dto: CreateOrderDto, lang?: string): void {
     if (!dto.codigo?.trim() || !dto.quantidade || !dto.valor || !dto.data?.trim()) {
-      throw new ValidationError("Dados inválidos para criar order. Informe código, quantidade, valor e data.");
+      throw new ValidationError(translationService.translate('order.invalidData', lang));
     }
 
     if (dto.quantidade <= 0) {
-      throw new ValidationError("Quantidade deve ser maior que zero.");
+      throw new ValidationError(translationService.translate('order.quantityMustBePositive', lang));
     }
 
     if (dto.valor <= 0) {
-      throw new ValidationError("Valor deve ser maior que zero.");
+      throw new ValidationError(translationService.translate('order.valueMustBePositive', lang));
     }
 
     if (dto.operacao !== "Compra" && dto.operacao !== "Venda") {
-      throw new ValidationError("Operação inválida para portfolio. Use Compra ou Venda.");
+      throw new ValidationError(translationService.translate('order.invalidOperation', lang));
     }
   }
 
-  static validateOrderDate(dateStr: string): void {
+  static validateOrderDate(dateStr: string, lang?: string): void {
     if (DateUtils.isFutureDate(dateStr)) {
-      throw new ValidationError("A data da ordem não pode ser futura.");
+      throw new ValidationError(translationService.translate('order.futureDateNotAllowed', lang));
     }
   }
 
-  static parseOperacao(value: string): orderOperacao {
+  static parseOperacao(value: string, lang?: string): orderOperacao {
     const operacaoValue = value.trim().toLowerCase();
     if (operacaoValue.includes("compra")) return "Compra";
     if (operacaoValue.includes("venda")) return "Venda";
-    throw new ValidationError("Operação inválida. Use Compra ou Venda.");
+    throw new ValidationError(translationService.translate('order.invalidOperationType', lang));
   }
 
-  static parseTipo(value: string, codigo?: string): orderTipo {
+  static parseTipo(value: string, lang?: string, codigo?: string): orderTipo {
     if (codigo) {
       const detectedFromCodigo = detectSupportedAssetTypeFromTicker(codigo);
       if (detectedFromCodigo) {
         return detectedFromCodigo;
       }
 
-      throw new ValidationError("Código inválido. Use 4 letras + 2 dígitos (máx. 7), com sufixo F apenas para ações.");
+      throw new ValidationError(translationService.translate('order.invalidCode', lang));
     }
 
     const tipoValue = value.trim().toLowerCase();
@@ -51,6 +53,6 @@ export class OrderValidator {
 
     if (tipoValue.includes("acao") || tipoValue.includes("ação")) return "ACAO";
 
-    throw new ValidationError("Não foi possível detectar o tipo do ativo pelo código informado.");
+    throw new ValidationError(translationService.translate('order.couldNotDetectAssetType', lang));
   }
 }

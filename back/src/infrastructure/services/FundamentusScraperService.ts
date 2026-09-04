@@ -6,22 +6,29 @@ import {
   DATA_CLASS,
   MAX_REGEX_ITERATIONS,
 } from "./shared/FundamentusHttpService";
+import { translationService } from "../../shared/i18n/TranslationService";
+import { TranslationKeyError } from "../../models/TranslationKeyError";
 
 export class FundamentusScraperService extends FundamentusHttpService {
-  async scrapeAsync(codigo: string): Promise<FundamentusAcaoDetails> {
+  async scrapeAsync(codigo: string, lang?: string): Promise<FundamentusAcaoDetails> {
     const codigoFundamentus = normalizeCodigoForFundamentus(codigo);
     const { html, found } = await this.fetchHtmlAsync(codigoFundamentus);
 
     if (!found) {
-      throw new Error(
-        `Falha ao consultar Fundamentus para o ativo ${codigo}.`
+      throw new TranslationKeyError(
+        translationService.translate('scraping.fundamentusFailed', lang, { codigo }),
+        'scraping.fundamentusFailed',
+        { codigo }
       );
     }
 
     const parsed = this.parseFundamentusDetails(codigo, html);
 
     if (!parsed.indicadores.length) {
-      throw new Error("Não foi possível extrair dados do Fundamentus.");
+      throw new TranslationKeyError(
+        translationService.translate('scraping.fundamentusNoData', lang),
+        'scraping.fundamentusNoData'
+      );
     }
 
     return parsed;

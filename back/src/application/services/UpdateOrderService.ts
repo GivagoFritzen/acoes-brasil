@@ -8,6 +8,7 @@ import { UpdateOrderDto } from "../dto/UpdateOrderDto";
 import { normalizeOrderCodigo } from "../../../../common/utils/OrderCodigoUtils";
 import { OrderValidator } from "../../shared/validators/OrderValidator";
 import { NotFoundException } from "../../shared/exceptions/NotFoundException";
+import { translationService } from "../../shared/i18n/TranslationService";
 
 export class UpdateOrderService {
   constructor(
@@ -19,17 +20,17 @@ export class UpdateOrderService {
     private portfolioDomainService: PortfolioDomainService
   ) { }
 
-  public async executeAsync(orderId: string, input: UpdateOrderDto) {
+  public async executeAsync(orderId: string, input: UpdateOrderDto, lang?: string) {
     const { quantidade, valor, operacao, data, tipo } = input;
     const codigoNormalizado = normalizeOrderCodigo(input.codigo);
 
-    OrderValidator.validateCreateOrderDto(input);
-    OrderValidator.validateOrderDate(data);
+    OrderValidator.validateCreateOrderDto(input, lang);
+    OrderValidator.validateOrderDate(data, lang);
 
     const existingOrder = await this.orderRepository.findByIdAsync(orderId);
 
     if (!existingOrder) {
-      throw new NotFoundException("Ordem não encontrada.");
+      throw new NotFoundException(translationService.translate('order.notFound', lang));
     }
 
     const quote = await this.quoteProvider.getQuoteAsync(codigoNormalizado);
@@ -60,6 +61,7 @@ export class UpdateOrderService {
           operacao,
           data: order.data,
         },
+        lang ?? 'pt-BR',
         tx,
         this.portfolioRepository,
         this.orderSellSnapshotRepository,

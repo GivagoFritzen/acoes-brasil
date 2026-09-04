@@ -103,12 +103,13 @@ export class BackendManagerService implements IBackendManager {
 
   private waitForBackend(): Promise<void> {
     return new Promise((resolve, reject) => {
-      const maxAttempts = 20;
+      const maxAttempts = 60;
       const delayMs = 500;
       let attempts = 0;
 
       const check = () => {
         attempts++;
+
         const req = http.get(`http://localhost:${this.config.backend.defaultPort}/health`, (res) => {
           if (res.statusCode === 200) {
             resolve();

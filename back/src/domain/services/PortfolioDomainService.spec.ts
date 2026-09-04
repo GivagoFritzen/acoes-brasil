@@ -141,15 +141,17 @@ describe("PortfolioDomainService", () => {
       expect(portfolioRepositoryMock.deleteByCodigoAsync).not.toHaveBeenCalled();
     });
 
-    it("Deve lancar erro quando venda deixaria portfolio inconsistente", async () => {
+    it("Deve deletar portfolio quando venda deixaria quantidade negativa", async () => {
       const ordens = [
         new OrderEntity("2", "VALE3", 55.0, 100, "2024-01-02", "ACAO", "Venda"),
       ];
       orderRepositoryMock.findAllByCodigoAsync.mockResolvedValue(ordens);
+      const portfolio = new PortfolioEntity("1", "VALE3", 100, 50);
+      portfolioRepositoryMock.findByCodigoAsync.mockResolvedValue(portfolio);
 
-      await expect(
-        service.rebuildPortfolioByCodigoAsync("VALE3", undefined, orderRepositoryMock, portfolioRepositoryMock)
-      ).rejects.toThrow(BusinessException);
+      await service.rebuildPortfolioByCodigoAsync("VALE3", undefined, orderRepositoryMock, portfolioRepositoryMock);
+
+      expect(portfolioRepositoryMock.deleteByCodigoAsync).toHaveBeenCalledWith("VALE3", undefined);
     });
 
     it("Deve deletar portfolio existente quando quantidade resulta em zero", async () => {
@@ -191,7 +193,7 @@ describe("PortfolioDomainService", () => {
       portfolioRepositoryMock.findByCodigoAsync.mockResolvedValue(null);
       portfolioRepositoryMock.createAsync.mockResolvedValue(new PortfolioEntity("1", "VALE3", 100, 50.0));
 
-      await service.updatePortfolioByOrderAsync(inputBase, undefined, portfolioRepositoryMock, orderSellSnapshotRepositoryMock);
+      await service.updatePortfolioByOrderAsync(inputBase, "pt-BR", undefined, portfolioRepositoryMock, orderSellSnapshotRepositoryMock);
 
       expect(portfolioRepositoryMock.createAsync).toHaveBeenCalledWith(
         expect.objectContaining({ codigo: "VALE3", quantidade: 100, precoMedio: 50.0 }),
@@ -199,20 +201,21 @@ describe("PortfolioDomainService", () => {
       );
     });
 
-    it("Deve lancar erro quando venda e portfolio nao existe", async () => {
+    it("Deve retornar warning sem criar portfolio quando venda e portfolio nao existe", async () => {
       const inputVenda = { ...inputBase, operacao: "Venda" as const };
       portfolioRepositoryMock.findByCodigoAsync.mockResolvedValue(null);
 
-      await expect(
-        service.updatePortfolioByOrderAsync(inputVenda, undefined, portfolioRepositoryMock, orderSellSnapshotRepositoryMock)
-      ).rejects.toThrow(BusinessException);
+      const resultado = await service.updatePortfolioByOrderAsync(inputVenda, "pt-BR", undefined, portfolioRepositoryMock, orderSellSnapshotRepositoryMock);
+
+      expect(resultado.warning).toContain("VALE3");
+      expect(portfolioRepositoryMock.createAsync).not.toHaveBeenCalled();
     });
 
     it("Deve atualizar portfolio quando compra e portfolio existe", async () => {
       const portfolio = new PortfolioEntity("1", "VALE3", 100, 40.0);
       portfolioRepositoryMock.findByCodigoAsync.mockResolvedValue(portfolio);
 
-      await service.updatePortfolioByOrderAsync(inputBase, undefined, portfolioRepositoryMock, orderSellSnapshotRepositoryMock);
+      await service.updatePortfolioByOrderAsync(inputBase, "pt-BR", undefined, portfolioRepositoryMock, orderSellSnapshotRepositoryMock);
 
       expect(portfolio.quantidade).toBe(200);
       expect(portfolioRepositoryMock.saveAsync).toHaveBeenCalled();
@@ -224,7 +227,7 @@ describe("PortfolioDomainService", () => {
       portfolioRepositoryMock.findByCodigoAsync.mockResolvedValue(portfolio);
       orderSellSnapshotRepositoryMock.createAsync.mockResolvedValue({} as any);
 
-      await service.updatePortfolioByOrderAsync(inputVenda, undefined, portfolioRepositoryMock, orderSellSnapshotRepositoryMock);
+      await service.updatePortfolioByOrderAsync(inputVenda, "pt-BR", undefined, portfolioRepositoryMock, orderSellSnapshotRepositoryMock);
 
       expect(portfolio.quantidade).toBe(100);
       expect(portfolioRepositoryMock.saveAsync).toHaveBeenCalled();
@@ -236,7 +239,7 @@ describe("PortfolioDomainService", () => {
       portfolioRepositoryMock.findByCodigoAsync.mockResolvedValue(portfolio);
       orderSellSnapshotRepositoryMock.createAsync.mockResolvedValue({} as any);
 
-      await service.updatePortfolioByOrderAsync(inputVenda, undefined, portfolioRepositoryMock, orderSellSnapshotRepositoryMock);
+      await service.updatePortfolioByOrderAsync(inputVenda, "pt-BR", undefined, portfolioRepositoryMock, orderSellSnapshotRepositoryMock);
 
       expect(orderSellSnapshotRepositoryMock.createAsync).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -253,7 +256,7 @@ describe("PortfolioDomainService", () => {
       portfolioRepositoryMock.findByCodigoAsync.mockResolvedValue(portfolio);
       orderSellSnapshotRepositoryMock.createAsync.mockResolvedValue({} as any);
 
-      await service.updatePortfolioByOrderAsync(inputVenda, undefined, portfolioRepositoryMock, orderSellSnapshotRepositoryMock);
+      await service.updatePortfolioByOrderAsync(inputVenda, "pt-BR", undefined, portfolioRepositoryMock, orderSellSnapshotRepositoryMock);
 
       expect(orderSellSnapshotRepositoryMock.createAsync).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -270,7 +273,7 @@ describe("PortfolioDomainService", () => {
       portfolioRepositoryMock.findByCodigoAsync.mockResolvedValue(portfolio);
       orderSellSnapshotRepositoryMock.createAsync.mockResolvedValue({} as any);
 
-      await service.updatePortfolioByOrderAsync(inputVenda, undefined, portfolioRepositoryMock, orderSellSnapshotRepositoryMock, 55.0);
+      await service.updatePortfolioByOrderAsync(inputVenda, "pt-BR", undefined, portfolioRepositoryMock, orderSellSnapshotRepositoryMock, 55.0);
 
       expect(orderSellSnapshotRepositoryMock.createAsync).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -287,8 +290,167 @@ describe("PortfolioDomainService", () => {
       portfolioRepositoryMock.findByCodigoAsync.mockResolvedValue(portfolio);
 
       await expect(
-        service.updatePortfolioByOrderAsync(inputVenda, undefined, portfolioRepositoryMock, orderSellSnapshotRepositoryMock)
+        service.updatePortfolioByOrderAsync(inputVenda, "pt-BR", undefined, portfolioRepositoryMock, orderSellSnapshotRepositoryMock)
       ).rejects.toThrow(BusinessException);
+    });
+  });
+
+  describe("validateSellAsync", () => {
+    it("Deve retornar divergencia quando portfolio nao existe", async () => {
+      portfolioRepositoryMock.findByCodigoAsync.mockResolvedValue(null);
+
+      const resultado = await service.validateSellAsync("VALE3", 100, "pt-BR", undefined, portfolioRepositoryMock);
+
+      expect(resultado.hasDivergence).toBe(true);
+      expect(resultado.divergence).toBeDefined();
+      expect(resultado.divergence?.codigo).toBe("VALE3");
+      expect(resultado.divergence?.quantidadeDisponivel).toBe(0);
+    });
+
+    it("Deve retornar divergencia quando quantidade resultaria em zero", async () => {
+      const portfolio = new PortfolioEntity("1", "VALE3", 50, 50.0);
+      portfolioRepositoryMock.findByCodigoAsync.mockResolvedValue(portfolio);
+
+      const resultado = await service.validateSellAsync("VALE3", 50, "pt-BR", undefined, portfolioRepositoryMock);
+
+      expect(resultado.hasDivergence).toBe(true);
+      expect(resultado.divergence).toBeDefined();
+      expect(resultado.divergence?.quantidadeDisponivel).toBe(50);
+    });
+
+    it("Deve retornar divergencia quando quantidade resultaria em negativo", async () => {
+      const portfolio = new PortfolioEntity("1", "VALE3", 50, 50.0);
+      portfolioRepositoryMock.findByCodigoAsync.mockResolvedValue(portfolio);
+
+      const resultado = await service.validateSellAsync("VALE3", 100, "pt-BR", undefined, portfolioRepositoryMock);
+
+      expect(resultado.hasDivergence).toBe(true);
+      expect(resultado.divergence).toBeDefined();
+      expect(resultado.divergence?.quantidadeDisponivel).toBe(50);
+    });
+
+    it("Deve retornar sem divergencia quando quantidade e suficiente", async () => {
+      const portfolio = new PortfolioEntity("1", "VALE3", 100, 50.0);
+      portfolioRepositoryMock.findByCodigoAsync.mockResolvedValue(portfolio);
+
+      const resultado = await service.validateSellAsync("VALE3", 50, "pt-BR", undefined, portfolioRepositoryMock);
+
+      expect(resultado.hasDivergence).toBe(false);
+      expect(resultado.divergence).toBeUndefined();
+    });
+
+    it("Deve retornar sem divergencia quando quantidade resulta em exatamente 1", async () => {
+      const portfolio = new PortfolioEntity("1", "VALE3", 100, 50.0);
+      portfolioRepositoryMock.findByCodigoAsync.mockResolvedValue(portfolio);
+
+      const resultado = await service.validateSellAsync("VALE3", 99, "pt-BR", undefined, portfolioRepositoryMock);
+
+      expect(resultado.hasDivergence).toBe(false);
+      expect(resultado.divergence).toBeUndefined();
+    });
+  });
+
+  describe("updatePortfolioByOrderAsync - skipSave", () => {
+    const inputBase = {
+      orderId: "order-1",
+      codigo: "VALE3",
+      quantidade: 100,
+      valor: 50.0,
+      operacao: "Compra" as const,
+      data: "2024-01-01",
+    };
+
+    it("Deve retornar warning sem salvar quando skipSave=true e venda sem portfolio", async () => {
+      const inputVenda = { ...inputBase, operacao: "Venda" as const };
+      portfolioRepositoryMock.findByCodigoAsync.mockResolvedValue(null);
+
+      const resultado = await service.updatePortfolioByOrderAsync(
+        inputVenda,
+        "pt-BR",
+        undefined,
+        portfolioRepositoryMock,
+        orderSellSnapshotRepositoryMock,
+        null,
+        true
+      );
+
+      expect(resultado.warning).toContain("VALE3");
+      expect(portfolioRepositoryMock.createAsync).not.toHaveBeenCalled();
+    });
+
+    it("Deve nao salvar quando skipSave=true e compra com portfolio existente", async () => {
+      const portfolio = new PortfolioEntity("1", "VALE3", 100, 40.0);
+      portfolioRepositoryMock.findByCodigoAsync.mockResolvedValue(portfolio);
+
+      await service.updatePortfolioByOrderAsync(
+        inputBase,
+        "pt-BR",
+        undefined,
+        portfolioRepositoryMock,
+        orderSellSnapshotRepositoryMock,
+        null,
+        true
+      );
+
+      expect(portfolio.quantidade).toBe(100);
+      expect(portfolioRepositoryMock.saveAsync).not.toHaveBeenCalled();
+    });
+
+    it("Deve nao salvar quando skipSave=true e venda com portfolio existente", async () => {
+      const portfolio = new PortfolioEntity("1", "VALE3", 200, 50.0);
+      const inputVenda = { ...inputBase, operacao: "Venda" as const };
+      portfolioRepositoryMock.findByCodigoAsync.mockResolvedValue(portfolio);
+
+      await service.updatePortfolioByOrderAsync(
+        inputVenda,
+        "pt-BR",
+        undefined,
+        portfolioRepositoryMock,
+        orderSellSnapshotRepositoryMock,
+        null,
+        true
+      );
+
+      expect(portfolio.quantidade).toBe(200);
+      expect(portfolioRepositoryMock.saveAsync).not.toHaveBeenCalled();
+      expect(orderSellSnapshotRepositoryMock.createAsync).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("validateDeleteOrderAsync", () => {
+    it("Deve retornar sem divergencia quando remocao nao causa problema", async () => {
+      const ordem = new OrderEntity("1", "VALE3", 50.0, 100, "2024-01-01", "ACAO", "Compra");
+      orderRepositoryMock.findByIdAsync.mockResolvedValue(ordem);
+      orderRepositoryMock.findAllByCodigoAsync.mockResolvedValue([ordem]);
+      portfolioRepositoryMock.findByCodigoAsync.mockResolvedValue(new PortfolioEntity("1", "VALE3", 100, 50));
+
+      const resultado = await service.validateDeleteOrderAsync("1", "pt-BR", undefined, orderRepositoryMock, portfolioRepositoryMock);
+
+      expect(resultado.hasDivergence).toBe(false);
+      expect(resultado.divergences).toHaveLength(0);
+    });
+
+    it("Deve retornar divergencia quando remocao deixaria quantidade negativa", async () => {
+      const compra = new OrderEntity("1", "VALE3", 50.0, 100, "2024-01-01", "ACAO", "Compra");
+      const venda = new OrderEntity("2", "VALE3", 60.0, 150, "2024-01-02", "ACAO", "Venda");
+      orderRepositoryMock.findByIdAsync.mockResolvedValue(compra);
+      orderRepositoryMock.findAllByCodigoAsync.mockResolvedValue([compra, venda]);
+      portfolioRepositoryMock.findByCodigoAsync.mockResolvedValue(null);
+
+      const resultado = await service.validateDeleteOrderAsync("1", "pt-BR", undefined, orderRepositoryMock, portfolioRepositoryMock);
+
+      expect(resultado.hasDivergence).toBe(true);
+      expect(resultado.divergences).toHaveLength(1);
+      expect(resultado.divergences[0].mensagem).toContain("quantidade");
+    });
+
+    it("Deve retornar sem divergencia quando ordem nao existe", async () => {
+      orderRepositoryMock.findByIdAsync.mockResolvedValue(null);
+
+      const resultado = await service.validateDeleteOrderAsync("999", "pt-BR", orderRepositoryMock, portfolioRepositoryMock);
+
+      expect(resultado.hasDivergence).toBe(false);
+      expect(resultado.divergences).toHaveLength(0);
     });
   });
 });

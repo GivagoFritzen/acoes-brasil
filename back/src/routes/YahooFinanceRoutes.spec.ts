@@ -1,6 +1,7 @@
 import request from "supertest";
 import express from "express";
 import { yahooFinanceRoutes } from "./YahooFinanceRoutes";
+import { TranslationKeyError } from "../models/TranslationKeyError";
 
 const mockScrapeAsync = jest.fn();
 
@@ -64,7 +65,7 @@ describe("yahooFinanceRoutes", () => {
 
     it("Deve responder com status 502 quando consulta falha", async () => {
       mockScrapeAsync.mockRejectedValue(
-        new Error("Falha ao consultar Yahoo Finance para o ativo VALE3.")
+        new TranslationKeyError("Falha ao consultar Yahoo Finance para o ativo VALE3.", "scraping.yahooFailed", { codigo: "VALE3" })
       );
 
       const response = await request(app).get("/yahoo-finance/VALE3");

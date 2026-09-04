@@ -37,6 +37,7 @@ import { mesclarPorCodigo, removerSufixoF } from '../../../../../../common/utils
 export class AcoesComponent implements OnInit {
     private readonly destroyRef = inject(DestroyRef);
     readonly portfolios = signal<PortfolioItem[]>([]);
+    readonly portfolioRefreshTrigger = signal(0);
     readonly isLoading = signal(false);
     readonly isDeleting = signal(false);
     readonly isCreating = signal(false);
@@ -86,6 +87,7 @@ export class AcoesComponent implements OnInit {
                 next: (portfolios) => {
                     const portfolioItems = portfolios ?? [];
                     this.portfolios.set(this.mergePortfolios(portfolioItems));
+                    this.portfolioRefreshTrigger.update(v => v + 1);
                 },
                 error: () => {
                     const message = this.translationService.get('acoes.alerts.loadPortfoliosFailed');

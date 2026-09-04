@@ -5,6 +5,7 @@ import { ImportProventosResult } from "../dto/ImportProventosResult";
 import { DateUtils } from "../../shared/utils/DateUtils";
 import { isSupportedB3Ticker } from "../../../../common/utils/AssetTypeUtils";
 import { BusinessException } from "../../shared/exceptions/BusinessException";
+import { translationService } from "../../shared/i18n/TranslationService";
 
 export class ImportProventosService {
   constructor(
@@ -12,7 +13,7 @@ export class ImportProventosService {
     private transactionManager: ITransactionManager
   ) {}
 
-  public async executeAsync(linhas: CreateProventoDto[]): Promise<ImportProventosResult> {
+  public async executeAsync(linhas: CreateProventoDto[], lang?: string): Promise<ImportProventosResult> {
     return this.transactionManager.executeAsync(async (tx) => {
       const invalidLines: number[] = [];
       const validLinhas: CreateProventoDto[] = [];
@@ -38,7 +39,7 @@ export class ImportProventosService {
       }
 
       if (validLinhas.length === 0 && invalidLines.length > 0) {
-        throw new BusinessException(`Nenhuma linha válida encontrada. Primeira linha inválida: ${invalidLines[0]}.`);
+        throw new BusinessException(translationService.translate('import.noValidLines', lang, { line: invalidLines[0] }));
       }
 
       if (validLinhas.length > 0) {

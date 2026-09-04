@@ -1,7 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component, DestroyRef, OnInit, inject, signal } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { finalize } from 'rxjs';
+import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
 import { AlertsComponent } from '../../components/alerts/AlertsComponent';
 import {
   AddOrderModalComponent,
@@ -12,20 +10,19 @@ import {
   SimpleInputComponent,
   SimpleSelectComponent,
 } from '../../components';
+import { DeleteConfirmationModalComponent } from '../../components/delete-confirmation-modal/DeleteConfirmationModalComponent';
 import type { SelectOption } from '../../../../../../common/models/SelectOptionModel';
-import { Order, OrderOperacao, OrdersResponse } from '../../models';
+import { Order, OrderOperacao } from '../../models';
 import { AlertItem } from '../../models/alert/AlertItemModel';
-import { filterAlert } from '../../utils/AlertUtils';
 import { CreateOrderPayload } from '../../models/CreateOrderPayloadModel';
 import { UpdateOrderPayload } from '../../models/UpdateOrderPayloadModel';
-import { OrdersService } from '../../services/OrdersService';
 import { formatDateForDisplay, compareIsoDates } from '../../utils/DateUtils';
-import { OrdersFilters } from '../../models/OrdersFiltersModel';
 import { normalizeOrderCodigo } from '../../../../../../common/utils/OrderCodigoUtils';
 import { TranslatePipe } from '../../pipes/TranslatePipe';
 import { TranslationService } from '../../services/TranslationService';
+import { NotificationService } from '../../services/NotificationService';
+import { OrdersStore } from './OrdersStore';
 
-const DEFAULT_LIMIT = 10;
 const SELL_OPERATION: OrderOperacao = 'Venda';
 
 @Component({
@@ -41,27 +38,35 @@ const SELL_OPERATION: OrderOperacao = 'Venda';
     SimpleInputComponent,
     SimpleSelectComponent,
     SimpleButtonComponent,
-    TranslatePipe
+    TranslatePipe,
+    DeleteConfirmationModalComponent,
   ],
   templateUrl: './OrdersComponent.html',
   styleUrls: ['./OrdersComponent.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class OrdersComponent implements OnInit {
-  private readonly ordersService = inject(OrdersService);
-  private readonly destroyRef = inject(DestroyRef);
+  private readonly ordersStore = inject(OrdersStore);
+  private readonly notificationService = inject(NotificationService);
   private readonly translationService = inject(TranslationService);
 
   readonly formatDateForDisplay = formatDateForDisplay;
-  readonly orders = signal<Order[]>([]);
-  readonly isLoading = signal(false);
-  readonly isDeleting = signal(false);
-  readonly isCreating = signal(false);
-  readonly errorMessage = signal('');
-  readonly alerts = signal<AlertItem[]>([]);
+
+  readonly orders = this.ordersStore.orders;
+  readonly isLoading = this.ordersStore.isLoading;
+  readonly isDeleting = this.ordersStore.isDeleting;
+  readonly isCreating = this.ordersStore.isCreating;
+  readonly errorMessage = this.ordersStore.errorMessage;
+  readonly page = this.ordersStore.page;
+  readonly limit = this.ordersStore.limit;
+  readonly totalPages = this.ordersStore.totalPages;
+  readonly deleteDivergences = this.ordersStore.deleteDivergences;
+  readonly alerts = this.notificationService.alerts;
+
   readonly isDeleteModalOpen = signal(false);
   readonly isCreateModalOpen = signal(false);
   readonly isEditModalOpen = signal(false);
+  readonly isDeleteDivergenceModalOpen = signal(false);
   readonly orderToDelete = signal<Order | null>(null);
   readonly orderToEdit = signal<Order | null>(null);
 
@@ -75,22 +80,17 @@ export class OrdersComponent implements OnInit {
   readonly filtroData = signal('');
   readonly filtroDataFinal = signal('');
 
-  readonly filtroCodigoAplicado = signal('');
-  readonly filtroOperacaoAplicado = signal<OrderOperacao | ''>('');
-  readonly filtroDataAplicado = signal('');
-  readonly filtroDataFinalAplicado = signal('');
-
-  readonly page = signal(1);
-  readonly limit = signal(DEFAULT_LIMIT);
-  readonly totalPages = signal(1);
+  readonly filtroCodigoAplicado = computed(() => this.ordersStore.appliedFilters().codigo);
+  readonly filtroOperacaoAplicado = computed(() => this.ordersStore.appliedFilters().operacao);
+  readonly filtroDataAplicado = computed(() => this.ordersStore.appliedFilters().dataInicial);
+  readonly filtroDataFinalAplicado = computed(() => this.ordersStore.appliedFilters().dataFinal);
 
   ngOnInit(): void {
-    this.loadOrders();
+    this.ordersStore.loadOrders();
   }
 
   handleFilterStartChange(value: string): void {
     this.filtroData.set(value);
-
     const dataFinalAtual = this.filtroDataFinal();
     if (value && dataFinalAtual && compareIsoDates(value, dataFinalAtual) > 0) {
       this.filtroDataFinal.set(value);
@@ -107,7 +107,6 @@ export class OrdersComponent implements OnInit {
 
   handleFilterEndChange(value: string): void {
     this.filtroDataFinal.set(value);
-
     const dataInicialAtual = this.filtroData();
     if (value && dataInicialAtual && compareIsoDates(value, dataInicialAtual) < 0) {
       this.filtroData.set(value);
@@ -115,46 +114,36 @@ export class OrdersComponent implements OnInit {
   }
 
   applyFilter(): void {
-    this.setAppliedFiltersFromCurrent();
-    this.page.set(1);
-    this.loadOrders();
+    this.ordersStore.setAppliedFilters({
+      codigo: this.filtroCodigo(),
+      operacao: this.filtroOperacao(),
+      dataInicial: this.filtroData(),
+      dataFinal: this.filtroDataFinal(),
+    });
   }
 
   clearFilter(): void {
-    this.resetCurrentFilters();
-    this.resetAppliedFilters();
-    this.page.set(1);
-    this.loadOrders();
+    this.filtroCodigo.set('');
+    this.filtroOperacao.set('');
+    this.filtroData.set('');
+    this.filtroDataFinal.set('');
+    this.ordersStore.clearFilters();
   }
 
   previousPage(): void {
-    if (this.page() <= 1) {
-      return;
-    }
-
-    this.page.set(this.page() - 1);
-    this.loadOrders();
+    this.ordersStore.previousPage();
   }
 
   nextPage(): void {
-    if (this.page() >= this.totalPages()) {
-      return;
-    }
-
-    this.page.set(this.page() + 1);
-    this.loadOrders();
+    this.ordersStore.nextPage();
   }
 
   handleAlertDismiss(alert: AlertItem): void {
-    this.alerts.update((items) => items.filter(filterAlert(alert)));
+    this.notificationService.dismiss(alert);
   }
 
   getOrderClass(item: Order): string {
-    if (item.operacao === SELL_OPERATION) {
-      return 'orders__row--red';
-    }
-
-    return '';
+    return item.operacao === SELL_OPERATION ? 'orders__row--red' : '';
   }
 
   trackByOrderId(_: number, item: Order): string {
@@ -171,19 +160,13 @@ export class OrdersComponent implements OnInit {
   }
 
   closeDeleteModal(): void {
-    if (this.isDeleting()) {
-      return;
-    }
-
+    if (this.isDeleting()) return;
     this.isDeleteModalOpen.set(false);
     this.orderToDelete.set(null);
   }
 
   closeCreateModal(): void {
-    if (this.isCreating()) {
-      return;
-    }
-
+    if (this.isCreating()) return;
     this.isCreateModalOpen.set(false);
   }
 
@@ -193,199 +176,77 @@ export class OrdersComponent implements OnInit {
   }
 
   closeEditModal(): void {
-    if (this.isCreating()) {
-      return;
-    }
-
+    if (this.isCreating()) return;
     this.isEditModalOpen.set(false);
     this.orderToEdit.set(null);
   }
 
   confirmCreateOrder(payload: CreateOrderPayload): void {
-    this.isCreating.set(true);
-
-    this.ordersService
-      .createOrder(payload)
-      .pipe(
-        finalize(() => {
-          this.isCreating.set(false);
-          this.isCreateModalOpen.set(false);
-        }),
-        takeUntilDestroyed(this.destroyRef),
-      )
-      .subscribe({
-        next: (order: Order) => {
-          this.alerts.set([
-            {
-              variant: 'info',
-              title: this.translationService.get('common.alerts.success'),
-              message: `${this.translationService.get('orders.alerts.orderCreated')} ${order.codigo}`,
-              icon: '✓',
-            },
-          ]);
-          this.loadOrders();
-        },
-        error: () => {
-          this.alerts.set([this.createErrorAlert(this.translationService.get('orders.alerts.createFailed'))]);
-        },
-      });
-  }
-
-  confirmDeleteOrder(): void {
-    const order = this.orderToDelete();
-    if (!order) {
-      return;
-    }
-
-    this.isDeleting.set(true);
-
-    this.ordersService
-      .deleteOrder(order.id)
-      .pipe(
-        finalize(() => {
-          this.isDeleting.set(false);
-          this.isDeleteModalOpen.set(false);
-          this.orderToDelete.set(null);
-        }),
-        takeUntilDestroyed(this.destroyRef),
-      )
-      .subscribe({
-        next: () => {
-          this.alerts.set([
-            {
-              variant: 'info',
-              title: this.translationService.get('common.alerts.success'),
-              message: `${this.translationService.get('orders.alerts.orderDeleted')} ${order.codigo}`,
-              icon: '✓',
-            },
-          ]);
-          this.loadOrders();
-        },
-        error: () => {
-          this.alerts.set([this.createErrorAlert(this.translationService.get('orders.alerts.deleteFailed'))]);
-        },
-      });
+    this.ordersStore.createOrder(payload, () => {
+      this.isCreateModalOpen.set(false);
+    });
   }
 
   confirmEditOrder(payload: UpdateOrderPayload): void {
     const order = this.orderToEdit();
-    if (!order) {
-      return;
-    }
+    if (!order) return;
 
-    this.isCreating.set(true);
-
-    this.ordersService
-      .updateOrder(order.id, payload)
-      .pipe(
-        finalize(() => {
-          this.isCreating.set(false);
-          this.isEditModalOpen.set(false);
-          this.orderToEdit.set(null);
-        }),
-        takeUntilDestroyed(this.destroyRef),
-      )
-      .subscribe({
-        next: (updated: Order) => {
-          this.alerts.set([
-            {
-              variant: 'info',
-              title: this.translationService.get('common.alerts.success'),
-              message: `${this.translationService.get('orders.alerts.orderUpdated')} ${updated.codigo}`,
-              icon: '✓',
-            },
-          ]);
-          this.loadOrders();
-        },
-        error: () => {
-          this.alerts.set([this.createErrorAlert(this.translationService.get('orders.alerts.createFailed'))]);
-        },
-      });
+    this.ordersStore.updateOrder(order.id, payload, () => {
+      this.isEditModalOpen.set(false);
+      this.orderToEdit.set(null);
+    });
   }
 
-  private loadOrders(): void {
-    this.isLoading.set(true);
-    this.errorMessage.set('');
-    this.alerts.set([]);
-    const appliedFilters = this.getAppliedFilters();
+  confirmDeleteOrder(): void {
+    const order = this.orderToDelete();
+    if (!order) return;
 
-    this.ordersService
-      .getOrders({
-        codigo: appliedFilters.codigo || undefined,
-        operacao: appliedFilters.operacao || undefined,
-        dataInicial: appliedFilters.dataInicial || undefined,
-        dataFinal: appliedFilters.dataFinal || undefined,
-        page: this.page(),
-        limit: this.limit(),
-      })
-      .pipe(
-        finalize(() => this.isLoading.set(false)),
-        takeUntilDestroyed(this.destroyRef),
-      )
-      .subscribe({
-        next: (response: OrdersResponse) => this.applyListResponse(response),
-        error: () => {
-          this.errorMessage.set(this.translationService.get('orders.alerts.loadFailed'));
-          this.alerts.set([this.createErrorAlert(this.translationService.get('orders.alerts.loadFailed'))]);
-        },
-      });
+    this.ordersStore.deleteOrder(order, false, {
+      onSuccess: () => {
+        this.isDeleteModalOpen.set(false);
+        this.orderToDelete.set(null);
+      },
+      onDivergence: () => {
+        this.isDeleteDivergenceModalOpen.set(true);
+      },
+      onError: () => {
+        this.isDeleteModalOpen.set(false);
+        this.orderToDelete.set(null);
+      },
+    });
   }
 
-  private getAppliedFilters(): OrdersFilters {
-    return {
-      codigo: this.filtroCodigoAplicado(),
-      operacao: this.filtroOperacaoAplicado(),
-      dataInicial: this.filtroDataAplicado(),
-      dataFinal: this.filtroDataFinalAplicado(),
-    };
+  confirmDeleteWithDivergence(): void {
+    const order = this.orderToDelete();
+    if (!order) return;
+
+    this.ordersStore.deleteOrder(order, true, {
+      onSuccess: () => {
+        this.isDeleteDivergenceModalOpen.set(false);
+        this.isDeleteModalOpen.set(false);
+        this.orderToDelete.set(null);
+      },
+      onError: () => {
+        this.isDeleteDivergenceModalOpen.set(false);
+        this.isDeleteModalOpen.set(false);
+        this.orderToDelete.set(null);
+      },
+    });
   }
 
-  private setAppliedFiltersFromCurrent(): void {
-    this.filtroCodigoAplicado.set(this.filtroCodigo());
-    this.filtroOperacaoAplicado.set(this.filtroOperacao());
-    this.filtroDataAplicado.set(this.filtroData());
-    this.filtroDataFinalAplicado.set(this.filtroDataFinal());
-  }
-
-  private resetCurrentFilters(): void {
-    this.filtroCodigo.set('');
-    this.filtroOperacao.set('');
-    this.filtroData.set('');
-    this.filtroDataFinal.set('');
-  }
-
-  private resetAppliedFilters(): void {
-    this.filtroCodigoAplicado.set('');
-    this.filtroOperacaoAplicado.set('');
-    this.filtroDataAplicado.set('');
-    this.filtroDataFinalAplicado.set('');
+  cancelDeleteDivergence(): void {
+    this.isDeleteDivergenceModalOpen.set(false);
+    this.isDeleteModalOpen.set(false);
+    this.orderToDelete.set(null);
+    this.ordersStore.deleteDivergences.set([]);
   }
 
   private toOrderOperacao(value: string): OrderOperacao | '' {
-    if (value === '') {
-      return '';
-    }
-
+    if (value === '') return '';
     return this.isOrderOperacao(value) ? value : '';
   }
 
   private isOrderOperacao(value: string): value is OrderOperacao {
     return this.operacaoOptions.some((option) => option.value === value);
-  }
-
-  private applyListResponse(response: OrdersResponse): void {
-    this.orders.set(response.data ?? []);
-    this.page.set(response.page);
-    this.limit.set(response.limit);
-    this.totalPages.set(response.totalPages);
-  }
-
-  private createErrorAlert(message: string): AlertItem {
-    return {
-      variant: 'error',
-      title: this.translationService.get('common.alerts.error'),
-      message,
-      icon: '✕',
-    };
   }
 }

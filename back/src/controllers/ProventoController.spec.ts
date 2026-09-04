@@ -24,7 +24,7 @@ const mockListService = { executeAsync: jest.fn() };
 const mockSpreadsheetParser = { parseProventoRowsAsync: jest.fn() };
 
 function createMockReq(overrides: object = {}): object {
-  return { params: {}, query: {}, body: {}, file: undefined, ...overrides };
+  return { params: {}, query: {}, body: {}, file: undefined, language: 'pt-BR', ...overrides };
 }
 
 function createMockRes(): Response {
@@ -76,7 +76,8 @@ describe("ProventoController", () => {
       await controller.createAsync(req, res);
 
       expect(mockCreateService.executeAsync).toHaveBeenCalledWith(
-        expect.objectContaining({ data: "2026-07-31" })
+        expect.objectContaining({ data: "2026-07-31" }),
+        "pt-BR"
       );
     });
 
@@ -253,7 +254,8 @@ describe("ProventoController", () => {
 
       expect(mockUpdateService.executeAsync).toHaveBeenCalledWith(
         "550e8400-e29b-41d4-a716-446655440000",
-        expect.objectContaining({ data: "2026-07-31" })
+        expect.objectContaining({ data: "2026-07-31" }),
+        "pt-BR"
       );
     });
 

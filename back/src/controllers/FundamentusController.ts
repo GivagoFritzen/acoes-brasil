@@ -16,15 +16,14 @@ export class FundamentusController extends BaseScrapingController {
 
   async getAsync(req: Request, res: Response): Promise<Response> {
     return this.executeAsync(req, res, (codigo) => this.fundamentusScraper.scrapeAsync(codigo), [
-      { match: "não encontrado no Fundamentus", httpStatus: 404 },
-      { match: "Falha ao consultar Fundamentus", httpStatus: 502 },
-      { match: "Não foi possível extrair dados", httpStatus: 502 },
+      { translationKey: "scraping.fundamentusFailed", httpStatus: 404 },
+      { translationKey: "scraping.fundamentusNoData", httpStatus: 502 },
     ]);
   }
 
   async getProventosAsync(req: Request, res: Response): Promise<Response> {
     return this.executeAsync(req, res, (codigo) => this.fundamentusProventosScraper.scrapeAsync(codigo), [
-      { match: "Falha ao consultar Fundamentus", httpStatus: 502 },
+      { translationKey: "scraping.fundamentusFailed", httpStatus: 502 },
     ]);
   }
 }

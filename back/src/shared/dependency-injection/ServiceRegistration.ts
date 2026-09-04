@@ -16,6 +16,7 @@ import { PortfolioDomainService } from "../../domain/services/PortfolioDomainSer
 import { CreateOrderService } from "../../application/services/CreateOrderService";
 import { UpdateOrderService } from "../../application/services/UpdateOrderService";
 import { DeleteOrderService } from "../../application/services/DeleteOrderService";
+import { ValidateDeleteOrderService } from "../../application/services/ValidateDeleteOrderService";
 import { ListOrdersService } from "../../application/services/ListOrdersService";
 import { ImportOrdersService } from "../../application/services/ImportOrdersService";
 import { GetSellSnapshotsService } from "../../application/services/GetSellSnapshotsService";
@@ -93,6 +94,13 @@ function registerOrderServices(): void {
   ));
 
   Container.register('DeleteOrderService', () => new DeleteOrderService(
+    Container.get('orderRepository'),
+    Container.get('portfolioRepository'),
+    Container.get('transactionManager'),
+    Container.get('portfolioDomainService')
+  ));
+
+  Container.register('ValidateDeleteOrderService', () => new ValidateDeleteOrderService(
     Container.get('orderRepository'),
     Container.get('portfolioRepository'),
     Container.get('transactionManager'),
@@ -178,6 +186,7 @@ function registerControllers(): void {
     Container.get('CreateOrderService'),
     Container.get('UpdateOrderService'),
     Container.get('DeleteOrderService'),
+    Container.get('ValidateDeleteOrderService'),
     Container.get('ListOrdersService'),
     Container.get('GetSellSnapshotsService'),
     Container.get('ExportSellSnapshotsService')

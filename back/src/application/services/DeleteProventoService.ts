@@ -1,14 +1,15 @@
 import { IProventoRepository } from "../../domain/interfaces/IProventoRepository";
 import { ProventoEntity } from "../../domain/entities/ProventoEntity";
 import { BaseDeleteService } from "./BaseDeleteService";
+import { translationService } from "../../shared/i18n/TranslationService";
 
 export class DeleteProventoService extends BaseDeleteService<ProventoEntity> {
   constructor(private proventoRepository: IProventoRepository) {
     super();
   }
 
-  protected getNotFoundMessage(): string {
-    return "provento não encontrado.";
+  protected getNotFoundMessage(lang?: string): string {
+    return translationService.translate('provento.notFound', lang);
   }
 
   protected async findEntityAsync(id: string): Promise<ProventoEntity | null> {

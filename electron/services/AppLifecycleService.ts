@@ -13,15 +13,18 @@ export class AppLifecycleService implements IAppLifecycle {
     await app.whenReady();
 
     await this.windowManager.createWindow();
+
     this.windowManager.showLoadingScreen();
 
     if (app.isPackaged) {
-      this.backendManager.startBackend().then(() => {
-        this.windowManager.loadApp();
-      });
-    } else {
-      this.windowManager.loadApp();
+      try {
+        await this.backendManager.startBackend();
+      } catch (error) {
+        console.error('[AppLifecycle] Failed to start backend:', error);
+      }
     }
+
+    await this.windowManager.loadApp();
 
     this.setupAppEventHandlers();
   }

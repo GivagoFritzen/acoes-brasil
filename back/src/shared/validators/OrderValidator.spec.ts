@@ -145,25 +145,25 @@ describe("OrderValidator", () => {
 
   describe("parseTipo", () => {
     it("Deve detectar tipo ACAO pelo codigo quando ticker valido", () => {
-      const resultado = OrderValidator.parseTipo("", "VALE3");
+      const resultado = OrderValidator.parseTipo("", undefined, "VALE3");
 
       expect(resultado).toBe("ACAO");
     });
 
     it("Deve detectar tipo FII pelo codigo quando ticker FII valido", () => {
-      const resultado = OrderValidator.parseTipo("", "KNRI11");
+      const resultado = OrderValidator.parseTipo("", undefined, "KNRI11");
 
       expect(resultado).toBe("FII");
     });
 
     it("Deve detectar tipo BDR pelo codigo quando ticker BDR valido", () => {
-      const resultado = OrderValidator.parseTipo("", "XPLG32");
+      const resultado = OrderValidator.parseTipo("", undefined, "XPLG32");
 
       expect(resultado).toBe("BDR");
     });
 
     it("Deve lancar ValidationError quando codigo invalido", () => {
-      expect(() => OrderValidator.parseTipo("", "INVALIDO")).toThrow(
+      expect(() => OrderValidator.parseTipo("", undefined, "INVALIDO")).toThrow(
         ValidationError
       );
     });

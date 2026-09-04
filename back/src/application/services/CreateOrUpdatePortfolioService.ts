@@ -6,8 +6,8 @@ import { PortfolioValidator } from "../../shared/validators/PortfolioValidator";
 export class CreateOrUpdatePortfolioService {
   constructor(private portfolioRepository: IPortfolioRepository) {}
 
-  public async executeAsync(dto: CreateOrUpdatePortfolioDto): Promise<CreateOrUpdatePortfolioResult> {
-    const codigo = PortfolioValidator.validate(dto);
+  public async executeAsync(dto: CreateOrUpdatePortfolioDto, lang?: string): Promise<CreateOrUpdatePortfolioResult> {
+    const codigo = PortfolioValidator.validate(dto, lang);
 
     const existing = await this.portfolioRepository.findByCodigoAsync(codigo);
 

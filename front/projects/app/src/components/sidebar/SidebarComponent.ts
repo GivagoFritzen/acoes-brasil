@@ -54,9 +54,7 @@ export class SidebarComponent implements OnInit {
         });
     }
 
-    private setMarketStatus(isOpen: boolean): void {
-        Promise.resolve().then(() => {
-            this.isMarketOpen = isOpen;
-        });
-    }
+  private setMarketStatus(isOpen: boolean): void {
+    this.isMarketOpen = isOpen;
+  }
 }

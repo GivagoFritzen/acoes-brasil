@@ -15,7 +15,7 @@
 | Tipo | Padrão | Exemplo |
 |---|---|---|
 | Classe | `Nome.ts` | `CreateOrderService.ts` |
-| Interface | `INome.ts` | `IOrderRepository.ts` |
+| Interface | `INomeService.ts` | `IOrderRepository.ts` |
 | Type / DTO | `NomeTipo.ts` | `OrderAttributes.ts`, `CreateOrderDto.ts` |
 | Controller | `NomeController.ts` | `OrderController.ts` |
 | Service | `NomeService.ts` | `OrderService.ts` |
@@ -32,9 +32,21 @@
 | Constantes | `NomeConstants.ts` | `OrderConstants.ts` |
 | Enum | `NomeEnum.ts` | `OrderStatusEnum.ts` |
 | Validação | `NomeValidator.ts` | `CreateOrderValidator.ts` |
-| Hook | `useNome.ts` | `useAuth.ts` |
-| Componente React | `Nome.tsx` | `OrderCard.tsx` |
-| Página | `NomePage.tsx` | `OrdersPage.tsx` |
+| Componente Angular | `NomeComponent.ts` | `OrderCardComponent.ts` |
+| Template Componente | `NomeComponent.html` | `OrderCardComponent.html` |
+| Estilo Componente | `NomeComponent.scss` | `OrderCardComponent.scss` |
+| Página | `NomeComponent.ts` | `OrdersComponent.ts` |
+| Store / Estado | `NomeStore.ts` | `OrdersStore.ts` |
+| Pipe | `NomePipe.ts` | `TranslatePipe.ts` |
+| Interceptor | `NomeInterceptor.ts` | `AuthInterceptor.ts` |
+
+---
+
+## Exceções Permitidas
+
+- Arquivos de entrada e barrel export do ecossistema: `index.ts`, `server.ts`, `main.ts`, `test-setup.ts`
+- Arquivos de configuração de ferramentas: `angular.json`, `package.json`, `tsconfig*.json`, `vitest.config.ts`, `sonar-project.properties`
+- Estilos globais de base: `styles.scss`, `colors.scss`, `fonts.scss`
 
 ---
 

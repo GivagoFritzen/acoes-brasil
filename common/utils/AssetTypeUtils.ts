@@ -2,7 +2,7 @@ import type { DetectedAssetType } from '../models/asset-type/DetectedAssetType';
 import type { SupportedAssetType } from '../models/asset-type/SupportedAssetType';
 import { isCodigoFormatoValido, normalizeOrderCodigo } from './OrderCodigoUtils';
 
-const ACAO_REGEX = /^[A-Z]{4}(3|4|5|6|11)F?$/;
+const ACAO_REGEX = /^[A-Z]{4}(1|3|4|5|6|11)F?$/;
 const FII_REGEX = /^[A-Z]{4}11$/;
 const BDR_REGEX = /^[A-Z]{4}(31|32|33|34|35|39)$/;
 

@@ -9,6 +9,22 @@ import { CreatePortfolioPayload } from '../models/CreatePortfolioPayloadModel';
 import { UpdatePortfolioPayload } from '../models/UpdatePortfolioPayloadModel';
 import { ImportResponse } from '../models/ImportResponseModel';
 import { firstValueFrom } from 'rxjs';
+import { TranslationService } from './TranslationService';
+
+const mockTranslationService = {
+  get: (key: string) => {
+    const translations: Record<string, string> = {
+      'common.errors.connection': 'Não foi possível conectar ao servidor. Verifique sua conexão.',
+      'common.errors.badRequest': 'Requisição inválida.',
+      'common.errors.unauthorized': 'Não autorizado.',
+      'common.errors.forbidden': 'Acesso negado.',
+      'common.errors.notFound': 'Recurso não encontrado.',
+      'common.errors.internalServer': 'Erro interno do servidor.',
+      'common.errors.unexpected': 'Ocorreu um erro inesperado. Tente novamente.',
+    };
+    return translations[key] || '';
+  },
+};
 
 describe('PortfolioService', () => {
   let service: PortfolioService;
@@ -18,7 +34,10 @@ describe('PortfolioService', () => {
   beforeEach(() => {
     TestBed.configureTestingModule({
       imports: [HttpClientTestingModule],
-      providers: [PortfolioService],
+      providers: [
+        PortfolioService,
+        { provide: TranslationService, useValue: mockTranslationService },
+      ],
     });
 
     service = TestBed.inject(PortfolioService);

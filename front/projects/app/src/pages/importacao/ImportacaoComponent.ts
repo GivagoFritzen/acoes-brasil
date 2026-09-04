@@ -3,20 +3,21 @@ import { ChangeDetectionStrategy, Component, DestroyRef, inject, signal } from '
 import { HttpErrorResponse } from '@angular/common/http';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { AlertsComponent } from '../../components/alerts/AlertsComponent';
-import { FileInputComponent, SimpleButtonComponent } from '../../components';
+import { FileInputComponent, SimpleButtonComponent, ImportConfirmationModalComponent } from '../../components';
 import { OrdersService } from '../../services/OrdersService';
 import { PortfolioService } from '../../services/PortfolioService';
 import { ProventosService } from '../../services/ProventosService';
 import { AlertItem } from '../../models/alert/AlertItemModel';
 import { filterAlert } from '../../utils/AlertUtils';
 import { ImportResponse } from '../../models/ImportResponseModel';
+import { ImportDivergence } from '../../models/ImportDivergenceModel';
 import { TranslatePipe } from '../../pipes/TranslatePipe';
 import { TranslationService } from '../../services/TranslationService';
 
 @Component({
   selector: 'app-importacao',
   standalone: true,
-  imports: [CommonModule, AlertsComponent, SimpleButtonComponent, FileInputComponent, TranslatePipe],
+  imports: [CommonModule, AlertsComponent, SimpleButtonComponent, FileInputComponent, ImportConfirmationModalComponent, TranslatePipe],
   templateUrl: './ImportacaoComponent.html',
   styleUrls: ['./ImportacaoComponent.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -30,6 +31,9 @@ export class ImportacaoComponent {
   isImportingProvento = signal(false);
   isImportingPortfolio = signal(false);
   alerts = signal<AlertItem[]>([]);
+  isConfirmationModalOpen = signal(false);
+  isConfirmingImport = signal(false);
+  pendingDivergences = signal<ImportDivergence[]>([]);
 
   constructor(
     private readonly ordersService: OrdersService,
@@ -58,13 +62,20 @@ export class ImportacaoComponent {
     }
 
     this.isImportingNegociacao.set(true);
-    this.ordersService.importOrdersSpreadsheet(file)
+    this.ordersService.importOrdersSpreadsheet(file, false)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-        next: (response: ImportResponse) => {
-          this.pushAlert('info', this.translationService.get('common.alerts.success'), `${response.imported}${this.translationService.get('importacao.alerts.negociacaoSuccess')}`, '✓');
-          this.negociacaoFile.set(null);
-          this.isImportingNegociacao.set(false);
+        next: (response) => {
+          if ('divergencias' in response && response.divergencias.length > 0) {
+            this.pendingDivergences.set(response.divergencias);
+            this.isConfirmationModalOpen.set(true);
+            this.isImportingNegociacao.set(false);
+          } else {
+            const importResponse = response as ImportResponse;
+            this.pushAlert('info', this.translationService.get('common.alerts.success'), `${importResponse.imported}${this.translationService.get('importacao.alerts.negociacaoSuccess')}`, '✓');
+            this.negociacaoFile.set(null);
+            this.isImportingNegociacao.set(false);
+          }
         },
         error: (error: HttpErrorResponse) => {
           const message = error?.error?.error ?? error?.error?.message ?? this.translationService.get('importacao.errors.negociacaoImportFailed');
@@ -72,6 +83,40 @@ export class ImportacaoComponent {
           this.isImportingNegociacao.set(false);
         },
       });
+  }
+
+  handleConfirmationConfirmed(): void {
+    const file = this.negociacaoFile();
+    if (!file) return;
+
+    this.isConfirmingImport.set(true);
+    this.ordersService.importOrdersSpreadsheet(file, true)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (response) => {
+          const importResponse = response as ImportResponse;
+          this.pushAlert('info', this.translationService.get('common.alerts.success'), `${importResponse.imported}${this.translationService.get('importacao.alerts.negociacaoSuccess')}`, '✓');
+          this.negociacaoFile.set(null);
+          this.isImportingNegociacao.set(false);
+          this.isConfirmingImport.set(false);
+          this.isConfirmationModalOpen.set(false);
+          this.pendingDivergences.set([]);
+        },
+        error: (error: HttpErrorResponse) => {
+          const message = error?.error?.error ?? error?.error?.message ?? this.translationService.get('importacao.errors.negociacaoImportFailed');
+          this.pushAlert('error', this.translationService.get('common.alerts.error'), message, '✕');
+          this.isImportingNegociacao.set(false);
+          this.isConfirmingImport.set(false);
+          this.isConfirmationModalOpen.set(false);
+          this.pendingDivergences.set([]);
+        },
+      });
+  }
+
+  handleConfirmationCancelled(): void {
+    this.isConfirmationModalOpen.set(false);
+    this.pendingDivergences.set([]);
+    this.isImportingNegociacao.set(false);
   }
 
   importarProventos(): void {

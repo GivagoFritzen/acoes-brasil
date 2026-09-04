@@ -112,4 +112,12 @@
   <app-add-order-modal [isOpen]="isEditModalOpen()" [isSaving]="isCreating()" [operacaoOptions]="operacaoOptions"
     [editingItem]="orderToEdit()" (closed)="closeEditModal()" (saved)="confirmEditOrder($event)">
   </app-add-order-modal>
+
+  <app-delete-confirmation-modal
+    [isOpen]="isDeleteDivergenceModalOpen()"
+    [divergences]="deleteDivergences()"
+    [isLoading]="isDeleting()"
+    (confirmed)="confirmDeleteWithDivergence()"
+    (cancelled)="cancelDeleteDivergence()">
+  </app-delete-confirmation-modal>
 </section>

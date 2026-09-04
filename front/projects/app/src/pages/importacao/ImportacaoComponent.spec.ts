@@ -78,13 +78,13 @@ describe('ImportacaoComponent', () => {
   });
 
   it('deve importar negociação com sucesso', () => {
-    const response = { imported: 10 };
+    const response = { imported: 10, warnings: [] };
     ordersServiceMock.importOrdersSpreadsheet.mockReturnValue(of(response));
     component.negociacaoFile.set(mockFile);
 
     component.importarNegociacao();
 
-    expect(ordersServiceMock.importOrdersSpreadsheet).toHaveBeenCalledWith(mockFile);
+    expect(ordersServiceMock.importOrdersSpreadsheet).toHaveBeenCalledWith(mockFile, false);
     expect(component.alerts().length).toBe(1);
     expect(component.alerts()[0].variant).toBe('info');
     expect(component.alerts()[0].message).toBe('10 negociações importadas com sucesso.');

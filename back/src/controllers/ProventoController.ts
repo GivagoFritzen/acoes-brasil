@@ -10,6 +10,7 @@ import { ListProventosService } from "../application/services/ListProventosServi
 import { SpreadsheetParserService } from "../infrastructure/services/SpreadsheetParserService";
 import { ErrorHandler } from "../shared/error-handler/ErrorHandler";
 import { DateUtils } from "../shared/utils/DateUtils";
+import { translationService } from "../shared/i18n/TranslationService";
 
 export class ProventoController {
   constructor(
@@ -28,7 +29,7 @@ export class ProventoController {
       const data = DateUtils.normalizeToIsoDate(dataRaw) ?? dataRaw;
 
       if (!codigo || !data) {
-        return res.status(400).json({ message: "Campos obrigatórios: codigo, data." });
+        return res.status(400).json({ message: translationService.translate('provento.requiredFields', req.language) });
       }
 
       const result = await this.createProventoService.executeAsync({
@@ -39,20 +40,20 @@ export class ProventoController {
         quantidade: Number(req.body?.quantidade),
         precoUnitario: Number(req.body?.precoUnitario),
         valorLiquido: Number(req.body?.valorLiquido),
-      });
+      }, req.language);
       return res.status(201).json(result);
     } catch (error) {
-      return ErrorHandler.handle(error as Error, res);
+      return ErrorHandler.handle(error as Error, res, req.language);
     }
   }
 
   async deleteAsync(req: Request, res: Response): Promise<Response> {
     try {
       const id = String(req.params.id);
-      await this.deleteProventoService.executeAsync(id);
-      return res.json({ message: "provento deletado com sucesso." });
+      await this.deleteProventoService.executeAsync(id, req.language);
+      return res.json({ message: translationService.translate('provento.deleted', req.language) });
     } catch (error) {
-      return ErrorHandler.handle(error as Error, res);
+      return ErrorHandler.handle(error as Error, res, req.language);
     }
   }
 
@@ -60,9 +61,9 @@ export class ProventoController {
     try {
       const codigo = String(req.params.codigo);
       await this.deleteProventoService.executeByCodigoAsync(codigo);
-      return res.json({ message: "Proventos deletados com sucesso." });
+      return res.json({ message: translationService.translate('provento.deletedAll', req.language) });
     } catch (error) {
-      return ErrorHandler.handle(error as Error, res);
+      return ErrorHandler.handle(error as Error, res, req.language);
     }
   }
 
@@ -74,7 +75,7 @@ export class ProventoController {
       const data = DateUtils.normalizeToIsoDate(dataRaw) ?? dataRaw;
 
       if (!codigo || !data) {
-        return res.status(400).json({ message: "Campos obrigatórios: codigo, data." });
+        return res.status(400).json({ message: translationService.translate('provento.requiredFields', req.language) });
       }
 
       const result = await this.updateProventoService.executeAsync(id, {
@@ -85,10 +86,10 @@ export class ProventoController {
         quantidade: Number(req.body?.quantidade),
         precoUnitario: Number(req.body?.precoUnitario),
         valorLiquido: Number(req.body?.valorLiquido),
-      });
+      }, req.language);
       return res.json(result);
     } catch (error) {
-      return ErrorHandler.handle(error as Error, res);
+      return ErrorHandler.handle(error as Error, res, req.language);
     }
   }
 
@@ -96,7 +97,7 @@ export class ProventoController {
     const file = (req as MulterRequest).file;
 
     if (!file) {
-      return res.status(400).json({ message: "Arquivo não enviado. Use o campo 'file'." });
+      return res.status(400).json({ message: translationService.translate('portfolio.fileNotSent', req.language) });
     }
 
     try {
@@ -104,13 +105,13 @@ export class ProventoController {
       const { validRows, invalidLineNumbers } = this.spreadsheetParserService.parseProventoRowsAsync(buffer);
 
       if (!validRows.length) {
-        return res.status(400).json({ message: "Planilha sem dados." });
+        return res.status(400).json({ message: translationService.translate('portfolio.noData', req.language) });
       }
 
-      const result = await this.importProventosService.executeAsync(validRows);
+      const result = await this.importProventosService.executeAsync(validRows, req.language);
       return res.status(201).json({ ...result, invalidLineNumbers });
     } catch (error) {
-      return ErrorHandler.handle(error as Error, res);
+      return ErrorHandler.handle(error as Error, res, req.language);
     } finally {
       if (file?.path) await fs.promises.unlink(file.path).catch(() => {});
     }
@@ -133,7 +134,7 @@ export class ProventoController {
       });
       return res.json(result);
     } catch (error) {
-      return ErrorHandler.handle(error as Error, res);
+      return ErrorHandler.handle(error as Error, res, req.language);
     }
   }
 }

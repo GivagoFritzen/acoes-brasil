@@ -3,25 +3,26 @@ import { CreateProventoDto } from "../../application/dto/CreateProventoDto";
 import { DateUtils } from "../utils/DateUtils";
 import { isSupportedB3Ticker } from "../../../../common/utils/AssetTypeUtils";
 import { normalizeOrderCodigo } from "../../../../common/utils/OrderCodigoUtils";
+import { translationService } from "../i18n/TranslationService";
 
 export class ProventoValidator {
-  static validate(dto: CreateProventoDto): string {
+  static validate(dto: CreateProventoDto, lang?: string): string {
     const codigo = normalizeOrderCodigo(dto.codigo);
 
     if (!codigo) {
-      throw new ValidationError("Dados inválidos para criar provento.");
+      throw new ValidationError(translationService.translate('provento.invalidData', lang));
     }
 
     if (!isSupportedB3Ticker(codigo)) {
-      throw new ValidationError("Código inválido. Use 4 letras + 2 dígitos (máx. 7), com sufixo F apenas para ações.");
+      throw new ValidationError(translationService.translate('provento.invalidCode', lang));
     }
 
     if (!dto.data) {
-      throw new ValidationError("Data inválida para provento.");
+      throw new ValidationError(translationService.translate('provento.invalidDate', lang));
     }
 
     if (DateUtils.isFutureDate(dto.data)) {
-      throw new ValidationError("A data do provento não pode ser futura.");
+      throw new ValidationError(translationService.translate('provento.futureDateNotAllowed', lang));
     }
 
     return codigo;
