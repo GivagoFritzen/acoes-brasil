@@ -12,6 +12,7 @@ import { DateUtils } from "../../shared/utils/DateUtils";
 import { normalizeOrderCodigo } from "../../../../common/utils/OrderCodigoUtils";
 import { BusinessException } from "../../shared/exceptions/BusinessException";
 import { ValidationException } from "../../shared/exceptions/ValidationException";
+import { translationService } from "../../shared/i18n/TranslationService";
 
 export class ImportOrdersService {
   constructor(
@@ -23,16 +24,16 @@ export class ImportOrdersService {
     private portfolioDomainService: PortfolioDomainService
   ) {}
 
-  public async validateAsync(orders: CreateOrderDto[]): Promise<ImportOrderValidationResult> {
+  public async validateAsync(orders: CreateOrderDto[], lang: string): Promise<ImportOrderValidationResult> {
     if (!orders.length) {
-      throw new BusinessException("Planilha sem dados.");
+      throw new BusinessException(translationService.translate('import.sheetWithoutData', lang));
     }
 
     const divergences: ImportOrderDivergence[] = [];
 
     await this.transactionManager.executeAsync(async (tx) => {
       for (const orderDto of orders) {
-        this.validateOrder(orderDto);
+        this.validateOrder(orderDto, lang);
 
         const codigoNormalizado = normalizeOrderCodigo(orderDto.codigo);
         const codigo = await this.portfolioDomainService.resolveCodigoForPortfolioAsync(codigoNormalizado, tx, this.portfolioRepository);
@@ -41,6 +42,7 @@ export class ImportOrdersService {
           const validationResult = await this.portfolioDomainService.validateSellAsync(
             codigo,
             orderDto.quantidade,
+            lang,
             tx,
             this.portfolioRepository
           );
@@ -58,16 +60,16 @@ export class ImportOrdersService {
     };
   }
 
-  public async executeAsync(orders: CreateOrderDto[], confirmado: boolean = false): Promise<ImportOrderResult> {
+  public async executeAsync(orders: CreateOrderDto[], lang: string, confirmado: boolean = false): Promise<ImportOrderResult> {
     if (!orders.length) {
-      throw new BusinessException("Planilha sem dados.");
+      throw new BusinessException(translationService.translate('import.sheetWithoutData', lang));
     }
 
     if (!confirmado) {
-      const validation = await this.validateAsync(orders);
+      const validation = await this.validateAsync(orders, lang);
       if (validation.hasDivergences) {
         throw new ValidationException(
-          `Existem ${validation.divergences.length} divergência(s) que precisam ser confirmadas.`
+          translationService.translate('import.divergencesPending', lang, { count: validation.divergences.length })
         );
       }
     }
@@ -79,7 +81,7 @@ export class ImportOrdersService {
       const warnings: string[] = [];
 
       for (const orderDto of orders) {
-        this.validateOrder(orderDto);
+        this.validateOrder(orderDto, lang);
 
         const codigoNormalizado = normalizeOrderCodigo(orderDto.codigo);
         const codigo = await this.portfolioDomainService.resolveCodigoForPortfolioAsync(codigoNormalizado, tx, this.portfolioRepository);
@@ -100,11 +102,12 @@ export class ImportOrdersService {
           {
             orderId: order.id,
             codigo,
-            quantidade: order.quantidade,
-            valor: order.valor,
-            operacao: order.operacao,
-            data: order.data,
+            quantidade: orderDto.quantidade,
+            valor: orderDto.valor,
+            operacao: orderDto.operacao,
+            data: orderDto.data,
           },
+          lang,
           tx,
           this.portfolioRepository,
           this.orderSellSnapshotRepository,
@@ -123,13 +126,13 @@ export class ImportOrdersService {
     });
   }
 
-  private validateOrder(orderDto: CreateOrderDto): void {
+  private validateOrder(orderDto: CreateOrderDto, lang?: string): void {
     if (!orderDto.codigo || !orderDto.quantidade || !orderDto.valor || !orderDto.data) {
-      throw new ValidationException("Dados obrigatórios inválidos para importação de negociação.");
+      throw new ValidationException(translationService.translate('import.invalidRequiredFields', lang));
     }
 
     if (DateUtils.isFutureDate(orderDto.data)) {
-      throw new ValidationException("Data futura não é permitida para negociação.");
+      throw new ValidationException(translationService.translate('import.futureDateNotAllowed', lang));
     }
   }
 

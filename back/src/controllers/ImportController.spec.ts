@@ -19,7 +19,7 @@ const mockParser = { parseOrderRowsAsync: jest.fn() };
 const mockImportService = { executeAsync: jest.fn(), validateAsync: jest.fn() };
 
 function createMockReq(overrides: object = {}): object {
-  return { params: {}, query: {}, body: {}, file: undefined, ...overrides };
+  return { params: {}, query: {}, body: {}, file: undefined, language: 'pt-BR', ...overrides };
 }
 
 function createMockRes(): Response {
@@ -124,7 +124,7 @@ describe("ImportController", () => {
     await controller.importAsync(req, res);
 
     expect(res.status).toHaveBeenCalledWith(201);
-    expect(mockImportService.executeAsync).toHaveBeenCalledWith(expect.any(Array), true);
+    expect(mockImportService.executeAsync).toHaveBeenCalledWith(expect.any(Array), "pt-BR", true);
   });
 
   it("deve retornar 201 quando nao ha divergencias e confirmado nao informado", async () => {

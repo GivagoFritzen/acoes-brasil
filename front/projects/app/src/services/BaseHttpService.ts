@@ -1,12 +1,15 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import type { ApiError } from '../models/ApiError';
+import { TranslationService } from './TranslationService';
 
 @Injectable({
   providedIn: 'root'
 })
 export abstract class BaseHttpService {
+  private readonly translationService = inject(TranslationService);
+
   protected constructor(protected readonly http: HttpClient) {}
 
   protected handleError(error: HttpErrorResponse): Observable<never> {
@@ -26,22 +29,22 @@ export abstract class BaseHttpService {
     }
     
     if (error.status === 0) {
-      return 'Não foi possível conectar ao servidor. Verifique sua conexão.';
+      return this.translationService.get('common.errors.connection');
     }
     
     switch (error.status) {
       case 400:
-        return 'Requisição inválida.';
+        return this.translationService.get('common.errors.badRequest');
       case 401:
-        return 'Não autorizado.';
+        return this.translationService.get('common.errors.unauthorized');
       case 403:
-        return 'Acesso negado.';
+        return this.translationService.get('common.errors.forbidden');
       case 404:
-        return 'Recurso não encontrado.';
+        return this.translationService.get('common.errors.notFound');
       case 500:
-        return 'Erro interno do servidor.';
+        return this.translationService.get('common.errors.internalServer');
       default:
-        return 'Ocorreu um erro inesperado. Tente novamente.';
+        return this.translationService.get('common.errors.unexpected');
     }
   }
 }

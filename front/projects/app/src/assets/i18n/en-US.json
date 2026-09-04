@@ -15,6 +15,15 @@
             "action": "Stock",
             "fii": "FII",
             "bdr": "BDR"
+        },
+        "errors": {
+            "connection": "Could not connect to server. Check your connection.",
+            "badRequest": "Invalid request.",
+            "unauthorized": "Unauthorized.",
+            "forbidden": "Access denied.",
+            "notFound": "Resource not found.",
+            "internalServer": "Internal server error.",
+            "unexpected": "An unexpected error occurred. Please try again."
         }
     },
     "indicators": {

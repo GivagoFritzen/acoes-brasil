@@ -12,6 +12,7 @@ import { IOrderFilters } from "../domain/interfaces/IOrderFilters";
 import { ErrorHandler } from "../shared/error-handler/ErrorHandler";
 import { normalizeOrderCodigo } from "../../../common/utils/OrderCodigoUtils";
 import { ValidatedRequest } from "../models/ValidatedRequest";
+import { translationService } from "../shared/i18n/TranslationService";
 
 export class OrderController {
   constructor(
@@ -27,10 +28,10 @@ export class OrderController {
   async createAsync(req: Request, res: Response): Promise<Response> {
     try {
       const dto = (req as ValidatedRequest<CreateOrderDto>).validatedBody;
-      const order = await this.createOrderService.executeAsync(dto);
+      const order = await this.createOrderService.executeAsync(dto, req.language);
       return res.status(201).json(order);
     } catch (error) {
-      return ErrorHandler.handle(error as Error, res);
+      return ErrorHandler.handle(error as Error, res, req.language);
     }
   }
 
@@ -40,19 +41,19 @@ export class OrderController {
       const confirmado = req.query?.confirmado === 'true';
 
       if (!confirmado) {
-        const validation = await this.validateDeleteOrderService.executeAsync(String(id));
+        const validation = await this.validateDeleteOrderService.executeAsync(String(id), req.language);
         if (validation.hasDivergence) {
           return res.status(200).json({
             divergencias: validation.divergences,
-            mensagem: "Existem divergências que precisam ser confirmadas.",
+            mensagem: translationService.translate('order.divergencesNeedConfirmation', req.language),
           });
         }
       }
 
-      await this.deleteOrderService.executeAsync(String(id), true);
-      return res.json({ message: "Ordem deletada com sucesso." });
+      await this.deleteOrderService.executeAsync(String(id), req.language, true);
+      return res.json({ message: translationService.translate('order.deleted', req.language) });
     } catch (error) {
-      return ErrorHandler.handle(error as Error, res);
+      return ErrorHandler.handle(error as Error, res, req.language);
     }
   }
 
@@ -63,7 +64,7 @@ export class OrderController {
       const order = await this.updateOrderService.executeAsync(String(id), dto);
       return res.json(order);
     } catch (error) {
-      return ErrorHandler.handle(error as Error, res);
+      return ErrorHandler.handle(error as Error, res, req.language);
     }
   }
 
@@ -82,7 +83,7 @@ export class OrderController {
       const result = await this.listOrdersService.executeAsync(filters, Number(page) || 1, Number(limit) || 20);
       return res.json(result);
     } catch (error) {
-      return ErrorHandler.handle(error as Error, res);
+      return ErrorHandler.handle(error as Error, res, req.language);
     }
   }
 
@@ -92,7 +93,7 @@ export class OrderController {
       const rows = await this.getSellSnapshotsService.executeAsync(ano);
       return res.json(rows);
     } catch (error) {
-      return ErrorHandler.handle(error as Error, res);
+      return ErrorHandler.handle(error as Error, res, req.language);
     }
   }
 
@@ -104,7 +105,7 @@ export class OrderController {
       res.setHeader("Content-Disposition", `attachment; filename="${fileName}"`);
       return res.send(buffer);
     } catch (error) {
-      return ErrorHandler.handle(error as Error, res);
+      return ErrorHandler.handle(error as Error, res, req.language);
     }
   }
 }

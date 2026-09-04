@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import { YahooFinanceController } from "./YahooFinanceController";
+import { TranslationKeyError } from "../models/TranslationKeyError";
 
 const mockScrapeAsync = jest.fn();
 
@@ -66,7 +67,7 @@ describe("YahooFinanceController", () => {
   });
 
   it("Deve retornar 502 quando falha ao consultar Yahoo Finance", async () => {
-    mockScrapeAsync.mockRejectedValue(new Error("Falha ao consultar Yahoo Finance para o ativo VALE3."));
+    mockScrapeAsync.mockRejectedValue(new TranslationKeyError("Falha ao consultar Yahoo Finance para o ativo VALE3.", "scraping.yahooFailed", { codigo: "VALE3" }));
 
     const req = { params: { codigo: "VALE3" } } as Request;
     const res = createMockRes();
@@ -78,7 +79,7 @@ describe("YahooFinanceController", () => {
   });
 
   it("Deve retornar 502 quando autenticacao falha", async () => {
-    mockScrapeAsync.mockRejectedValue(new Error("Falha ao autenticar no Yahoo Finance."));
+    mockScrapeAsync.mockRejectedValue(new TranslationKeyError("Falha ao autenticar no Yahoo Finance.", "scraping.yahooAuthFailed"));
 
     const req = { params: { codigo: "VALE3" } } as Request;
     const res = createMockRes();

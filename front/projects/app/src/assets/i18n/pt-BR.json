@@ -15,6 +15,15 @@
             "action": "Ação",
             "fii": "FII",
             "bdr": "BDR"
+        },
+        "errors": {
+            "connection": "Não foi possível conectar ao servidor. Verifique sua conexão.",
+            "badRequest": "Requisição inválida.",
+            "unauthorized": "Não autorizado.",
+            "forbidden": "Acesso negado.",
+            "notFound": "Recurso não encontrado.",
+            "internalServer": "Erro interno do servidor.",
+            "unexpected": "Ocorreu um erro inesperado. Tente novamente."
         }
     },
     "indicators": {

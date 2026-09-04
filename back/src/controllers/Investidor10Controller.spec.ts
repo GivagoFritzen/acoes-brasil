@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import { Investidor10Controller } from "./Investidor10Controller";
+import { TranslationKeyError } from "../models/TranslationKeyError";
 
 const mockScrapeAsync = jest.fn();
 
@@ -63,7 +64,7 @@ describe("Investidor10Controller", () => {
   });
 
   it("deve retornar 502 quando falha ao consultar Investidor10", async () => {
-    mockScrapeAsync.mockRejectedValue(new Error("Falha ao consultar Investidor10"));
+    mockScrapeAsync.mockRejectedValue(new TranslationKeyError("Falha ao consultar Investidor10", "scraping.investidor10Failed"));
 
     const req = { params: { codigo: "VIVT3" } } as Request;
     const res = createMockRes();
@@ -75,7 +76,7 @@ describe("Investidor10Controller", () => {
   });
 
   it("deve retornar 502 quando nao foi possivel extrair dados", async () => {
-    mockScrapeAsync.mockRejectedValue(new Error("Não foi possível extrair dados"));
+    mockScrapeAsync.mockRejectedValue(new TranslationKeyError("Não foi possível extrair dados", "scraping.investidor10NoData"));
 
     const req = { params: { codigo: "VIVT3" } } as Request;
     const res = createMockRes();
@@ -134,7 +135,7 @@ describe("Investidor10Controller", () => {
 
     it("deve retornar 502 quando falha ao consultar Investidor10", async () => {
       mockScrapeDividendosAsync.mockRejectedValue(
-        new Error("Falha ao consultar Investidor10 para o ativo VIVT3.")
+        new TranslationKeyError("Falha ao consultar Investidor10 para o ativo VIVT3.", "scraping.investidor10Failed", { codigo: "VIVT3" })
       );
 
       const req = { params: { codigo: "VIVT3" } } as Request;
@@ -148,7 +149,7 @@ describe("Investidor10Controller", () => {
 
     it("deve retornar 502 quando nao foi possivel extrair dados", async () => {
       mockScrapeDividendosAsync.mockRejectedValue(
-        new Error("Não foi possível extrair dados")
+        new TranslationKeyError("Não foi possível extrair dados", "scraping.investidor10NoData")
       );
 
       const req = { params: { codigo: "VIVT3" } } as Request;

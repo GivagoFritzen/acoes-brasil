@@ -16,7 +16,7 @@ const mockSpreadsheetParser = { parsePortfolioRowsAsync: jest.fn() };
 const XLSX_MAGIC = Buffer.from([0x50, 0x4b, 0x03, 0x04]);
 
 function createMockReq(overrides: object = {}): object {
-  return { params: {}, query: {}, body: {}, file: undefined, ...overrides };
+  return { params: {}, query: {}, body: {}, file: undefined, language: 'pt-BR', ...overrides };
 }
 
 function createMockRes(): Response {
@@ -171,7 +171,7 @@ describe("PortfolioController", () => {
 
       await controller.updateAsync(req, res);
 
-      expect(mockUpdateService.executeAsync).toHaveBeenCalledWith("1", { codigo: "VALE3", quantidade: 200, precoMedio: 55.0 });
+      expect(mockUpdateService.executeAsync).toHaveBeenCalledWith("1", { codigo: "VALE3", quantidade: 200, precoMedio: 55.0 }, "pt-BR");
       expect(res.json).toHaveBeenCalledWith({ id: "1", codigo: "VALE3", quantidade: 200 });
     });
 

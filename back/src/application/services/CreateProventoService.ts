@@ -6,8 +6,8 @@ import { ProventoValidator } from "../../shared/validators/ProventoValidator";
 export class CreateProventoService {
   constructor(private proventoRepository: IProventoRepository) {}
 
-  public async executeAsync(dto: CreateProventoDto): Promise<ProventoEntity> {
-    const codigo = ProventoValidator.validate(dto);
+  public async executeAsync(dto: CreateProventoDto, lang?: string): Promise<ProventoEntity> {
+    const codigo = ProventoValidator.validate(dto, lang);
 
     return this.proventoRepository.createAsync({
       codigo,

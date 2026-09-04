@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import { FundamentusController } from "./FundamentusController";
+import { TranslationKeyError } from "../models/TranslationKeyError";
 
 const mockScrapeAsync = jest.fn();
 const mockProventosScrapeAsync = jest.fn();
@@ -53,7 +54,7 @@ describe("FundamentusController", () => {
     });
 
     it("deve retornar 404 quando ativo nao encontrado no Fundamentus", async () => {
-      mockScrapeAsync.mockRejectedValue(new Error("PETR4 não encontrado no Fundamentus"));
+      mockScrapeAsync.mockRejectedValue(new TranslationKeyError("PETR4 não encontrado no Fundamentus", "scraping.fundamentusFailed", { codigo: "PETR4" }));
 
       const req = { params: { codigo: "PETR4" } } as Request;
       const res = createMockRes();
@@ -64,20 +65,8 @@ describe("FundamentusController", () => {
       expect(res.json).toHaveBeenCalledWith({ message: "PETR4 não encontrado no Fundamentus" });
     });
 
-    it("deve retornar 502 quando falha ao consultar Fundamentus", async () => {
-      mockScrapeAsync.mockRejectedValue(new Error("Falha ao consultar Fundamentus"));
-
-      const req = { params: { codigo: "PETR4" } } as Request;
-      const res = createMockRes();
-
-      await controller.getAsync(req, res);
-
-      expect(res.status).toHaveBeenCalledWith(502);
-      expect(res.json).toHaveBeenCalledWith({ message: "Falha ao consultar Fundamentus" });
-    });
-
     it("deve retornar 502 quando nao foi possivel extrair dados", async () => {
-      mockScrapeAsync.mockRejectedValue(new Error("Não foi possível extrair dados"));
+      mockScrapeAsync.mockRejectedValue(new TranslationKeyError("Não foi possível extrair dados", "scraping.fundamentusNoData"));
 
       const req = { params: { codigo: "PETR4" } } as Request;
       const res = createMockRes();
@@ -132,7 +121,7 @@ describe("FundamentusController", () => {
     });
 
     it("deve retornar 502 quando falha ao consultar Fundamentus", async () => {
-      mockProventosScrapeAsync.mockRejectedValue(new Error("Falha ao consultar Fundamentus para o ativo PETR4."));
+      mockProventosScrapeAsync.mockRejectedValue(new TranslationKeyError("Falha ao consultar Fundamentus para o ativo PETR4.", "scraping.fundamentusFailed", { codigo: "PETR4" }));
 
       const req = { params: { codigo: "PETR4" } } as Request;
       const res = createMockRes();

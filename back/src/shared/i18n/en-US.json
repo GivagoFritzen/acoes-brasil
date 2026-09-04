@@ -1,0 +1,69 @@
+{
+  "portfolio": {
+    "assetSoldNotInPortfolio": "Asset {{codigo}} sold but not in portfolio",
+    "sellWouldLeaveNegativeQuantity": "Selling {{codigo}} would leave portfolio with quantity {{quantidade}} (minimum 1)",
+    "deleteWouldLeaveNegativeQuantity": "Removing this order would leave portfolio with quantity {{quantidade}} (minimum 1)",
+    "assetNotInPortfolio": "Asset {{codigo}} is not in portfolio",
+    "couldNotCalculateGains": "Could not calculate sell gains/losses.",
+    "sellQuantityExceedsPosition": "Sell quantity exceeds current portfolio position.",
+    "portfolioNotFound": "Portfolio not found.",
+    "assetNotFound": "Portfolio asset not found.",
+    "assetDeleted": "Portfolio asset deleted successfully.",
+    "requiredFields": "Required fields: codigo, quantidade, precoMedio.",
+    "invalidData": "Invalid data to create/update portfolio.",
+    "invalidCode": "Invalid code. Use 4 letters + 2 digits (max. 7), with suffix F only for stocks.",
+    "invalidFile": "Invalid file type. Send a valid .xlsx file.",
+    "noData": "Spreadsheet without data.",
+    "importError": "Error importing portfolio spreadsheet",
+    "fileNotSent": "File not sent. Use the 'file' field.",
+    "noRowsToImport": "No rows to import."
+  },
+  "order": {
+    "notFound": "Order not found.",
+    "divergencesPending": "There are {{count}} divergence(s) that need to be confirmed.",
+    "deleted": "Order deleted successfully.",
+    "divergencesNeedConfirmation": "There are divergences that need to be confirmed.",
+    "invalidData": "Invalid data to create order. Provide code, quantity, value and date.",
+    "quantityMustBePositive": "Quantity must be greater than zero.",
+    "valueMustBePositive": "Value must be greater than zero.",
+    "invalidOperation": "Invalid operation for portfolio. Use Buy or Sell.",
+    "futureDateNotAllowed": "The order date cannot be in the future.",
+    "invalidOperationType": "Invalid operation. Use Buy or Sell.",
+    "invalidCode": "Invalid code. Use 4 letters + 2 digits (max. 7), with suffix F only for stocks.",
+    "couldNotDetectAssetType": "Could not detect asset type from the provided code."
+  },
+  "provento": {
+    "notFound": "Dividend not found.",
+    "deleted": "Dividend deleted successfully.",
+    "deletedAll": "Dividends deleted successfully.",
+    "invalidData": "Invalid data to create dividend.",
+    "invalidCode": "Invalid code. Use 4 letters + 2 digits (max. 7), with suffix F only for stocks.",
+    "invalidDate": "Invalid date for dividend.",
+    "futureDateNotAllowed": "The dividend date cannot be in the future.",
+    "requiredFields": "Required fields: codigo, data."
+  },
+  "import": {
+    "sheetWithoutData": "Spreadsheet without data.",
+    "divergencesPending": "There are {{count}} divergence(s) that need to be confirmed.",
+    "invalidRequiredFields": "Invalid required fields for trade import.",
+    "futureDateNotAllowed": "Future date is not allowed for trade.",
+    "noValidLines": "No valid lines found. First invalid line: {{line}}."
+  },
+  "scraping": {
+    "requiredCode": "Asset code is required.",
+    "fundamentusFailed": "Failed to query Fundamentus for asset {{codigo}}.",
+    "fundamentusNoData": "Could not extract data from Fundamentus.",
+    "fundamentusProventosFailed": "Failed to query Fundamentus dividends for asset {{codigo}}.",
+    "investidor10Failed": "Failed to query Investidor10 for asset {{codigo}}.",
+    "investidor10NoData": "Could not extract data from Investidor10.",
+    "yahooFailed": "Failed to query Yahoo Finance for asset {{codigo}}.",
+    "yahooAuthFailed": "Failed to authenticate with Yahoo Finance.",
+    "yahooStatusError": "Yahoo Finance returned status {{status}}.",
+    "spreadsheetLineError": "Line {{line}}: invalid required fields for trade import.",
+    "spreadsheetPortfolioLineError": "Line {{line}}: invalid required fields for portfolio import."
+  },
+  "error": {
+    "database": "Database error",
+    "internal": "Internal server error"
+  }
+}

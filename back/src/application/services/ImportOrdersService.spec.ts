@@ -65,7 +65,7 @@ describe("ImportOrdersService", () => {
       { codigo: "VALE3", quantidade: 100, valor: 50.0, data: "01-01-2024", tipo: "ACAO", operacao: "Compra" },
     ];
 
-    const resultado = await service.executeAsync(orders, true);
+    const resultado = await service.executeAsync(orders, "pt-BR", true);
 
     expect(resultado.imported).toBe(1);
     expect(resultado.warnings).toHaveLength(0);
@@ -73,7 +73,7 @@ describe("ImportOrdersService", () => {
   });
 
   it("Deve lancarr erro quando array vazio", async () => {
-    await expect(service.executeAsync([])).rejects.toThrow("Planilha sem dados.");
+    await expect(service.executeAsync([], "pt-BR")).rejects.toThrow("Planilha sem dados.");
   });
 
   it("Deve lancarr erro quando dado obrigatorio faltando", async () => {
@@ -81,7 +81,7 @@ describe("ImportOrdersService", () => {
       { codigo: "", quantidade: 100, valor: 50.0, data: "01-01-2024", tipo: "ACAO", operacao: "Compra" },
     ];
 
-    await expect(service.executeAsync(orders)).rejects.toThrow();
+    await expect(service.executeAsync(orders, "pt-BR")).rejects.toThrow();
   });
 
   it("Deve retornar warning sem criar portfolio quando vender ativo que nao existe no portfolio", async () => {
@@ -93,7 +93,7 @@ describe("ImportOrdersService", () => {
       { codigo: "BBDC1", quantidade: 1, valor: 0.07, data: "13-08-2026", tipo: "FRACIONARIO", operacao: "Venda" },
     ];
 
-    const resultado = await service.executeAsync(orders, true);
+    const resultado = await service.executeAsync(orders, "pt-BR", true);
 
     expect(resultado.imported).toBe(1);
     expect(resultado.warnings).toHaveLength(1);
@@ -111,7 +111,7 @@ describe("ImportOrdersService", () => {
         { codigo: "BBDC1", quantidade: 1, valor: 0.07, data: "13-08-2026", tipo: "FRACIONARIO", operacao: "Venda" },
       ];
 
-      const resultado = await service.validateAsync(orders);
+      const resultado = await service.validateAsync(orders, "pt-BR");
 
       expect(resultado.hasDivergences).toBe(true);
       expect(resultado.divergences).toHaveLength(1);
@@ -127,7 +127,7 @@ describe("ImportOrdersService", () => {
         { codigo: "VALE3", quantidade: 100, valor: 50.0, data: "01-01-2024", tipo: "ACAO", operacao: "Venda" },
       ];
 
-      const resultado = await service.validateAsync(orders);
+      const resultado = await service.validateAsync(orders, "pt-BR");
 
       expect(resultado.hasDivergences).toBe(true);
       expect(resultado.divergences).toHaveLength(1);
@@ -142,7 +142,7 @@ describe("ImportOrdersService", () => {
         { codigo: "VALE3", quantidade: 100, valor: 50.0, data: "01-01-2024", tipo: "ACAO", operacao: "Venda" },
       ];
 
-      const resultado = await service.validateAsync(orders);
+      const resultado = await service.validateAsync(orders, "pt-BR");
 
       expect(resultado.hasDivergences).toBe(false);
       expect(resultado.divergences).toHaveLength(0);
@@ -153,7 +153,7 @@ describe("ImportOrdersService", () => {
         { codigo: "VALE3", quantidade: 100, valor: 50.0, data: "01-01-2024", tipo: "ACAO", operacao: "Compra" },
       ];
 
-      const resultado = await service.validateAsync(orders);
+      const resultado = await service.validateAsync(orders, "pt-BR");
 
       expect(resultado.hasDivergences).toBe(false);
       expect(resultado.divergences).toHaveLength(0);
@@ -166,7 +166,7 @@ describe("ImportOrdersService", () => {
         { codigo: "BBDC1", quantidade: 1, valor: 0.07, data: "13-08-2026", tipo: "FRACIONARIO", operacao: "Venda" },
       ];
 
-      await expect(service.executeAsync(orders, false)).rejects.toThrow();
+      await expect(service.executeAsync(orders, "pt-BR", false)).rejects.toThrow();
     });
 
     it("Deve processar quando confirmado=true e existem divergencias", async () => {
@@ -178,7 +178,7 @@ describe("ImportOrdersService", () => {
         { codigo: "BBDC1", quantidade: 1, valor: 0.07, data: "13-08-2026", tipo: "FRACIONARIO", operacao: "Venda" },
       ];
 
-      const resultado = await service.executeAsync(orders, true);
+      const resultado = await service.executeAsync(orders, "pt-BR", true);
 
       expect(resultado.imported).toBe(1);
       expect(resultado.warnings).toHaveLength(1);
@@ -189,7 +189,7 @@ describe("ImportOrdersService", () => {
         { codigo: "VALE3", quantidade: 100, valor: 50.0, data: "01-01-2024", tipo: "ACAO", operacao: "Compra" },
       ];
 
-      const resultado = await service.executeAsync(orders, false);
+      const resultado = await service.executeAsync(orders, "pt-BR", false);
 
       expect(resultado.imported).toBe(1);
     });

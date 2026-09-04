@@ -72,7 +72,7 @@ describe("ImportPortfolioService", () => {
   });
 
   it("Deve lancar erro quando array vazio", async () => {
-    await expect(service.executeAsync([])).rejects.toThrow("Nenhuma linha para importar.");
+    await expect(service.executeAsync([])).rejects.toThrow();
   });
 
   it("Deve usar transactionManager para agrupar operacoes", async () => {

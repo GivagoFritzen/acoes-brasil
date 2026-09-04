@@ -2,13 +2,15 @@ import type { Investidor10AcaoDetails, Investidor10FiiDetails, Investidor10Histo
 import type { JsonValue } from "../../models/JsonValue";
 import { stripHtml } from "../../shared/utils/FundamentusUtils";
 import { fetchWithTimeout } from "../../shared/utils/FetchWithTimeout";
+import { translationService } from "../../shared/i18n/TranslationService";
+import { TranslationKeyError } from "../../models/TranslationKeyError";
 
 const MAX_HTML_LENGTH = 2_000_000;
 
 const API_BASE = "https://investidor10.com.br";
 
 export class Investidor10ScraperService {
-  async scrapeAsync(codigo: string): Promise<Investidor10AcaoDetails | Investidor10FiiDetails> {
+  async scrapeAsync(codigo: string, lang?: string): Promise<Investidor10AcaoDetails | Investidor10FiiDetails> {
     const codigoNormalized = codigo.trim().toUpperCase();
     const isFii = this.isFii(codigoNormalized);
     const url = `${this.getBaseUrl(codigoNormalized)}/${encodeURIComponent(codigoNormalized)}/`;
@@ -16,7 +18,11 @@ export class Investidor10ScraperService {
     const html = await this.fetchHtmlAsync(url);
 
     if (!html) {
-      throw new Error(`Falha ao consultar Investidor10 para o ativo ${codigo}.`);
+      throw new TranslationKeyError(
+        translationService.translate('scraping.investidor10Failed', lang, { codigo }),
+        'scraping.investidor10Failed',
+        { codigo }
+      );
     }
 
     const dadosSobreEmpresa = this.parseDadosSobreEmpresa(html);
@@ -26,7 +32,10 @@ export class Investidor10ScraperService {
     const empresa = this.extractEmpresa(dadosSobreEmpresa);
 
     if (!indicadoresFundamentalistas.length && !informacoesSobreEmpresa.length) {
-      throw new Error("Não foi possível extrair dados do Investidor10.");
+      throw new TranslationKeyError(
+        translationService.translate('scraping.investidor10NoData', lang),
+        'scraping.investidor10NoData'
+      );
     }
 
     const stockId = this.extractStockId(html);
@@ -69,14 +78,18 @@ export class Investidor10ScraperService {
     };
   }
 
-  async scrapeDividendosAsync(codigo: string): Promise<Investidor10ProventosResponse> {
+  async scrapeDividendosAsync(codigo: string, lang?: string): Promise<Investidor10ProventosResponse> {
     const codigoNormalized = codigo.trim().toUpperCase();
     const url = `${this.getBaseUrl(codigoNormalized)}/${encodeURIComponent(codigoNormalized)}/`;
 
     const html = await this.fetchHtmlAsync(url);
 
     if (!html) {
-      throw new Error(`Falha ao consultar Investidor10 para o ativo ${codigo}.`);
+      throw new TranslationKeyError(
+        translationService.translate('scraping.investidor10Failed', lang, { codigo }),
+        'scraping.investidor10Failed',
+        { codigo }
+      );
     }
 
     const proventos = this.parseDividendos(html);

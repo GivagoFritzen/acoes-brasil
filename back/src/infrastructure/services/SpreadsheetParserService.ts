@@ -10,9 +10,10 @@ import { detectSupportedAssetTypeFromTicker } from "../../../../common/utils/Ass
 import { ParseProventoResult } from "../../models/ParseProventoResult";
 import { DateUtils } from "../../shared/utils/DateUtils";
 import { parseDecimal } from "../../../../common/utils/parseDecimal";
+import { translationService } from "../../shared/i18n/TranslationService";
 
 export class SpreadsheetParserService {
-  parseOrderRowsAsync(buffer: Buffer): CreateOrderDto[] {
+  parseOrderRowsAsync(buffer: Buffer, lang?: string): CreateOrderDto[] {
     const rows = readSpreadsheetRows(buffer);
 
     if (!rows.length) {
@@ -35,7 +36,7 @@ export class SpreadsheetParserService {
       const quantidade = quantidadeRaw === null ? null : Math.trunc(quantidadeRaw);
 
       if (!codigo || !quantidade || !preco || !data || !operacao || !tipo) {
-        throw new Error(`Linha ${line}: dados obrigatórios inválidos para importação de negociação.`);
+        throw new Error(translationService.translate('scraping.spreadsheetLineError', lang, { line }));
       }
 
       ordersToImport.push({ codigo, quantidade, valor: preco, data, tipo, operacao });
@@ -97,7 +98,7 @@ export class SpreadsheetParserService {
     return { validRows, invalidLineNumbers };
   }
 
-  parsePortfolioRowsAsync(buffer: Buffer): PortfolioImportRowDto[] {
+  parsePortfolioRowsAsync(buffer: Buffer, lang?: string): PortfolioImportRowDto[] {
     const rows = readSpreadsheetRows(buffer);
     const portfolios: PortfolioImportRowDto[] = [];
 
@@ -112,7 +113,7 @@ export class SpreadsheetParserService {
       const quantidade = quantidadeRaw === null ? null : Math.trunc(quantidadeRaw);
 
       if (!codigo || !quantidade || quantidade <= 0 || !precoMedio) {
-        throw new Error(`Linha ${line}: dados obrigatórios inválidos para importação de portfólio.`);
+        throw new Error(translationService.translate('scraping.spreadsheetPortfolioLineError', lang, { line }));
       }
 
       portfolios.push({ codigo, quantidade, precoMedio });

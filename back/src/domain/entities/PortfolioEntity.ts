@@ -1,4 +1,5 @@
 import { BusinessException } from "../../shared/exceptions/BusinessException";
+import { translationService } from "../../shared/i18n/TranslationService";
 
 export class PortfolioEntity {
   constructor(
@@ -21,9 +22,9 @@ export class PortfolioEntity {
 
   }
 
-  public registerVenda(quantidade: number): void {
+  public registerVenda(quantidade: number, lang?: string): void {
     if (quantidade > this.quantidade) {
-      throw new BusinessException("Quantidade de venda maior do que a posição atual no portfolio.");
+      throw new BusinessException(translationService.translate('portfolio.sellQuantityExceedsPosition', lang));
     }
 
     this.quantidade -= quantidade;

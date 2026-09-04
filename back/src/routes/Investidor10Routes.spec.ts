@@ -1,6 +1,7 @@
 import request from "supertest";
 import express from "express";
 import { investidor10Routes } from "./Investidor10Routes";
+import { TranslationKeyError } from "../models/TranslationKeyError";
 
 const mockScrapeAsync = jest.fn();
 const mockScrapeDividendosAsync = jest.fn();
@@ -70,7 +71,7 @@ describe("investidor10Routes", () => {
 
     it("Deve retornar 502 quando consulta falha", async () => {
       mockScrapeDividendosAsync.mockRejectedValue(
-        new Error("Falha ao consultar Investidor10 para o ativo VIVT3.")
+        new TranslationKeyError("Falha ao consultar Investidor10 para o ativo VIVT3.", "scraping.investidor10Failed", { codigo: "VIVT3" })
       );
 
       const response = await request(app).get("/investidor10/VIVT3/proventos");

@@ -1,6 +1,7 @@
 import { Response } from "express";
 import { AppException } from "../exceptions/AppException";
 import { logger } from "../logger/Logger";
+import { translationService } from "../i18n/TranslationService";
 
 const SEQUELIZE_VALIDATION_ERRORS = [
   "SequelizeValidationError",
@@ -10,7 +11,7 @@ const SEQUELIZE_VALIDATION_ERRORS = [
 ];
 
 export class ErrorHandler {
-  static handle(error: Error, res: Response): Response {
+  static handle(error: Error, res: Response, lang?: string): Response {
     logger.error("Erro na requisição", { error: error.message });
 
     if (error instanceof AppException) {
@@ -22,9 +23,9 @@ export class ErrorHandler {
     }
 
     if (error.name === "SequelizeDatabaseError") {
-      return res.status(500).json({ message: "Erro de banco de dados" });
+      return res.status(500).json({ message: translationService.translate('error.database', lang) });
     }
 
-    return res.status(500).json({ message: "Erro interno do servidor" });
+    return res.status(500).json({ message: translationService.translate('error.internal', lang) });
   }
 }

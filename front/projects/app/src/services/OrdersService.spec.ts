@@ -9,6 +9,22 @@ import { ImportResponse } from '../models/ImportResponseModel';
 import { DeleteResponse } from '../models/DeleteResponseModel';
 import { SellSnapshotExportRow } from '../models/SellSnapshotExportRowModel';
 import { firstValueFrom } from 'rxjs';
+import { TranslationService } from './TranslationService';
+
+const mockTranslationService = {
+  get: (key: string) => {
+    const translations: Record<string, string> = {
+      'common.errors.connection': 'Não foi possível conectar ao servidor. Verifique sua conexão.',
+      'common.errors.badRequest': 'Requisição inválida.',
+      'common.errors.unauthorized': 'Não autorizado.',
+      'common.errors.forbidden': 'Acesso negado.',
+      'common.errors.notFound': 'Recurso não encontrado.',
+      'common.errors.internalServer': 'Erro interno do servidor.',
+      'common.errors.unexpected': 'Ocorreu um erro inesperado. Tente novamente.',
+    };
+    return translations[key] || '';
+  },
+};
 
 describe('OrdersService', () => {
   let service: OrdersService;
@@ -18,7 +34,10 @@ describe('OrdersService', () => {
   beforeEach(() => {
     TestBed.configureTestingModule({
       imports: [HttpClientTestingModule],
-      providers: [OrdersService],
+      providers: [
+        OrdersService,
+        { provide: TranslationService, useValue: mockTranslationService },
+      ],
     });
 
     service = TestBed.inject(OrdersService);

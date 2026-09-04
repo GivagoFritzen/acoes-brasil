@@ -1,4 +1,4 @@
 export interface ErrorRule {
-  match: string;
+  translationKey: string;
   httpStatus: number;
 }

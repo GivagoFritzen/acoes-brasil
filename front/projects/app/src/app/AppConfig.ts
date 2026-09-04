@@ -2,16 +2,17 @@ import { ApplicationConfig, provideAppInitializer, inject, provideBrowserGlobalE
 import { provideRouter } from '@angular/router';
 import { routes } from './AppRoutes';
 import { provideClientHydration, withEventReplay } from '@angular/platform-browser';
-import { provideHttpClient, withFetch } from '@angular/common/http';
+import { provideHttpClient, withFetch, withInterceptors } from '@angular/common/http';
 import { TranslationService } from '../services/TranslationService';
 import { SettingsService } from '../services/SettingsService';
+import { languageInterceptor } from '../interceptors/LanguageInterceptor';
 
 export const appConfig: ApplicationConfig = {
   providers: [
     provideBrowserGlobalErrorListeners(),
     provideRouter(routes),
     provideClientHydration(withEventReplay()),
-    provideHttpClient(withFetch()),
+    provideHttpClient(withFetch(), withInterceptors([languageInterceptor])),
     provideAppInitializer(() => {
       const translationService = inject(TranslationService);
       const settingsService = inject(SettingsService);

@@ -6,6 +6,7 @@ import { SellValidationResult } from "../../application/dto/SellValidationResult
 import { DeleteOrderValidationResult } from "../../application/dto/DeleteOrderValidationResult";
 import { normalizeOrderCodigo } from "../../../../common/utils/OrderCodigoUtils";
 import { BusinessException } from "../../shared/exceptions/BusinessException";
+import { translationService } from "../../shared/i18n/TranslationService";
 
 export class PortfolioDomainService {
   async resolveCodigoForPortfolioAsync(codigoBase: string, tx: object | undefined, portfolioRepository: IPortfolioRepository): Promise<string> {
@@ -80,6 +81,7 @@ export class PortfolioDomainService {
   async validateSellAsync(
     codigo: string,
     quantidade: number,
+    lang: string,
     tx: object | undefined,
     portfolioRepository: IPortfolioRepository
   ): Promise<SellValidationResult> {
@@ -93,7 +95,7 @@ export class PortfolioDomainService {
           operacao: "Venda",
           quantidade,
           quantidadeDisponivel: 0,
-          mensagem: `Ativo ${codigo} vendido sem existir no portfólio`,
+          mensagem: translationService.translate('portfolio.assetSoldNotInPortfolio', lang, { codigo }),
         },
       };
     }
@@ -108,7 +110,7 @@ export class PortfolioDomainService {
           operacao: "Venda",
           quantidade,
           quantidadeDisponivel: portfolio.quantidade,
-          mensagem: `Ativo ${codigo} vendido deixaria portfólio com quantidade ${quantidadeResultante} (mínimo 1)`,
+          mensagem: translationService.translate('portfolio.sellWouldLeaveNegativeQuantity', lang, { codigo, quantidade: quantidadeResultante }),
         },
       };
     }
@@ -118,6 +120,7 @@ export class PortfolioDomainService {
 
   async validateDeleteOrderAsync(
     orderId: string,
+    lang: string,
     tx: object | undefined,
     orderRepository: IOrderRepository,
     portfolioRepository: IPortfolioRepository
@@ -149,7 +152,7 @@ export class PortfolioDomainService {
         operacao: order.operacao,
         quantidade: order.quantidade,
         quantidadeDisponivel: portfolio?.quantidade ?? 0,
-        mensagem: `Remover esta ordem deixaria o portfólio com quantidade ${quantidadeAtual} (mínimo 1)`,
+        mensagem: translationService.translate('portfolio.deleteWouldLeaveNegativeQuantity', lang, { quantidade: quantidadeAtual }),
       });
     }
 
@@ -159,7 +162,7 @@ export class PortfolioDomainService {
         operacao: order.operacao,
         quantidade: order.quantidade,
         quantidadeDisponivel: 0,
-        mensagem: `Ativo ${codigo} não existe no portfólio`,
+        mensagem: translationService.translate('portfolio.assetNotInPortfolio', lang, { codigo }),
       });
     }
 
@@ -178,6 +181,7 @@ export class PortfolioDomainService {
       operacao: "Compra" | "Venda";
       data: string;
     },
+    lang: string,
     tx: object | undefined,
     portfolioRepository: IPortfolioRepository,
     orderSellSnapshotRepository: IOrderSellSnapshotRepository,
@@ -190,7 +194,7 @@ export class PortfolioDomainService {
 
     if (!portfolio) {
       if (operacao === "Venda") {
-        return { warning: `Ativo ${codigo} vendido sem existir no portfólio` };
+        return { warning: translationService.translate('portfolio.assetSoldNotInPortfolio', lang, { codigo }) };
       }
 
       if (!skipSave) {
@@ -210,7 +214,7 @@ export class PortfolioDomainService {
       await this.processCompra(portfolio, quantidade, valor, skipSave, portfolioRepository, tx);
     } else {
       await this.processVenda(
-        { orderId, codigo, quantidade, valor, data },
+        { orderId, codigo, quantidade, valor, data, lang },
         portfolio,
         skipSave,
         portfolioRepository,
@@ -239,14 +243,14 @@ export class PortfolioDomainService {
     await portfolioRepository.saveAsync(portfolio, tx);
   }
 
-  private calculateSellGains(precoMedioAtual: number, quantidade: number, valor: number, quote?: number | null): number {
+  private calculateSellGains(precoMedioAtual: number, quantidade: number, valor: number, lang: string, quote?: number | null): number {
     const valorReferencia = quote ?? valor;
     const custoMedioTotal = precoMedioAtual * quantidade;
     const valorReferenciaTotal = valorReferencia * quantidade;
     const ganhos = valorReferenciaTotal - custoMedioTotal;
 
     if (!Number.isFinite(ganhos)) {
-      throw new BusinessException("Não foi possível calcular lucro/prejuízo da venda.");
+      throw new BusinessException(translationService.translate('portfolio.couldNotCalculateGains', lang));
     }
 
     return ganhos;
@@ -259,22 +263,23 @@ export class PortfolioDomainService {
       quantidade: number;
       valor: number;
       data: string;
+      lang: string;
     },
     portfolio: any,
     skipSave: boolean,
     portfolioRepository: IPortfolioRepository,
     orderSellSnapshotRepository: IOrderSellSnapshotRepository,
-    quote?: number | null,
-    tx?: object | undefined
+    quote: number | null | undefined,
+    tx: object | undefined
   ): Promise<void> {
-    const { orderId, codigo, quantidade, valor, data } = input;
+    const { orderId, codigo, quantidade, valor, data, lang } = input;
     const precoMedioAtual = portfolio.precoMedio;
 
     if (!skipSave) {
       portfolio.registerVenda(quantidade);
     }
 
-    const ganhos = this.calculateSellGains(precoMedioAtual, quantidade, valor, quote);
+    const ganhos = this.calculateSellGains(precoMedioAtual, quantidade, valor, lang, quote);
     const valorReferencia = quote ?? valor;
     const teveLucro = ganhos >= 0;
 

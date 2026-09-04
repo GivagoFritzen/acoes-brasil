@@ -10,6 +10,7 @@ import { ListPortfolioService } from "../application/services/ListPortfolioServi
 import { SpreadsheetParserService } from "../infrastructure/services/SpreadsheetParserService";
 import { ErrorHandler } from "../shared/error-handler/ErrorHandler";
 import { XLSX_MAGIC_BYTES } from "../shared/constants/ProjectConstants";
+import { translationService } from "../shared/i18n/TranslationService";
 
 export class PortfolioController {
   constructor(
@@ -29,23 +30,23 @@ export class PortfolioController {
       const precoMedio = Number(req.body?.precoMedio);
 
       if (!codigo || !quantidade || !precoMedio) {
-        return res.status(400).json({ message: "Campos obrigatórios: codigo, quantidade, precoMedio." });
+        return res.status(400).json({ message: translationService.translate('portfolio.requiredFields', req.language) });
       }
 
-      const result = await this.createOrUpdatePortfolioService.executeAsync({ codigo, quantidade, precoMedio });
+      const result = await this.createOrUpdatePortfolioService.executeAsync({ codigo, quantidade, precoMedio }, req.language);
       return res.status(result.created ? 201 : 200).json(result.portfolio);
     } catch (error) {
-      return ErrorHandler.handle(error as Error, res);
+      return ErrorHandler.handle(error as Error, res, req.language);
     }
   }
 
   async deleteAsync(req: Request, res: Response): Promise<Response> {
     try {
       const id = String(req.params.id);
-      await this.deletePortfolioService.executeAsync(id);
-      return res.json({ message: "Ativo do portfólio deletado com sucesso." });
+      await this.deletePortfolioService.executeAsync(id, req.language);
+      return res.json({ message: translationService.translate('portfolio.assetDeleted', req.language) });
     } catch (error) {
-      return ErrorHandler.handle(error as Error, res);
+      return ErrorHandler.handle(error as Error, res, req.language);
     }
   }
 
@@ -57,13 +58,13 @@ export class PortfolioController {
       const precoMedio = Number(req.body?.precoMedio);
 
       if (!codigo || !quantidade || !precoMedio) {
-        return res.status(400).json({ message: "Campos obrigatórios: codigo, quantidade, precoMedio." });
+        return res.status(400).json({ message: translationService.translate('portfolio.requiredFields', req.language) });
       }
 
-      const result = await this.updatePortfolioService.executeAsync(id, { codigo, quantidade, precoMedio });
+      const result = await this.updatePortfolioService.executeAsync(id, { codigo, quantidade, precoMedio }, req.language);
       return res.json(result);
     } catch (error) {
-      return ErrorHandler.handle(error as Error, res);
+      return ErrorHandler.handle(error as Error, res, req.language);
     }
   }
 
@@ -91,26 +92,26 @@ export class PortfolioController {
     const file = (req as MulterRequest).file;
 
     if (!file) {
-      return res.status(400).json({ message: "Arquivo não enviado. Use o campo 'file'." });
+      return res.status(400).json({ message: translationService.translate('portfolio.fileNotSent', req.language) });
     }
 
     try {
       const buffer = await fs.promises.readFile(file.path);
       if (buffer.length < 4 || !XLSX_MAGIC_BYTES.every((byte, indice) => buffer[indice] === byte)) {
-        return res.status(400).json({ message: "Tipo de arquivo inválido. Envie um arquivo .xlsx válido." });
+        return res.status(400).json({ message: translationService.translate('portfolio.invalidFile', req.language) });
       }
 
       const rows = this.spreadsheetParser.parsePortfolioRowsAsync(buffer);
 
       if (!rows.length) {
-        return res.status(400).json({ message: "Planilha sem dados." });
+        return res.status(400).json({ message: translationService.translate('portfolio.noData', req.language) });
       }
 
-      const importedCount = await this.importPortfolioService.executeAsync(rows);
+      const importedCount = await this.importPortfolioService.executeAsync(rows, req.language);
       return res.status(201).json({ imported: importedCount });
     } catch (error) {
       return res.status(400).json({
-        message: "Erro ao importar planilha de portfólio",
+        message: translationService.translate('portfolio.importError', req.language),
       });
     } finally {
       if (file.path) await fs.promises.unlink(file.path).catch(() => {});

@@ -6,6 +6,7 @@ import helmet from "helmet";
 import rateLimit from "express-rate-limit";
 import { env } from "./config/EnvConfig";
 import { errorMiddleware } from "./shared/error-handler/ErrorMiddleware";
+import { languageMiddleware } from "./shared/i18n/middleware";
 import { sequelize } from "./database";
 import { fundamentusRoutes } from "./routes/FundamentusRoutes";
 import { yahooFinanceRoutes } from "./routes/YahooFinanceRoutes";
@@ -55,6 +56,8 @@ if (process.env.SERVE_STATIC === "true") {
 app.get("/health", (_req, res) => {
   res.json({ status: "ok" });
 });
+
+app.use(languageMiddleware);
 
 app.use("/orders", orderRoutes);
 app.use("/portfolios", portfolioRoutes);

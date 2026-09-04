@@ -193,7 +193,7 @@ describe("PortfolioDomainService", () => {
       portfolioRepositoryMock.findByCodigoAsync.mockResolvedValue(null);
       portfolioRepositoryMock.createAsync.mockResolvedValue(new PortfolioEntity("1", "VALE3", 100, 50.0));
 
-      await service.updatePortfolioByOrderAsync(inputBase, undefined, portfolioRepositoryMock, orderSellSnapshotRepositoryMock);
+      await service.updatePortfolioByOrderAsync(inputBase, "pt-BR", undefined, portfolioRepositoryMock, orderSellSnapshotRepositoryMock);
 
       expect(portfolioRepositoryMock.createAsync).toHaveBeenCalledWith(
         expect.objectContaining({ codigo: "VALE3", quantidade: 100, precoMedio: 50.0 }),
@@ -205,7 +205,7 @@ describe("PortfolioDomainService", () => {
       const inputVenda = { ...inputBase, operacao: "Venda" as const };
       portfolioRepositoryMock.findByCodigoAsync.mockResolvedValue(null);
 
-      const resultado = await service.updatePortfolioByOrderAsync(inputVenda, undefined, portfolioRepositoryMock, orderSellSnapshotRepositoryMock);
+      const resultado = await service.updatePortfolioByOrderAsync(inputVenda, "pt-BR", undefined, portfolioRepositoryMock, orderSellSnapshotRepositoryMock);
 
       expect(resultado.warning).toContain("VALE3");
       expect(portfolioRepositoryMock.createAsync).not.toHaveBeenCalled();
@@ -215,7 +215,7 @@ describe("PortfolioDomainService", () => {
       const portfolio = new PortfolioEntity("1", "VALE3", 100, 40.0);
       portfolioRepositoryMock.findByCodigoAsync.mockResolvedValue(portfolio);
 
-      await service.updatePortfolioByOrderAsync(inputBase, undefined, portfolioRepositoryMock, orderSellSnapshotRepositoryMock);
+      await service.updatePortfolioByOrderAsync(inputBase, "pt-BR", undefined, portfolioRepositoryMock, orderSellSnapshotRepositoryMock);
 
       expect(portfolio.quantidade).toBe(200);
       expect(portfolioRepositoryMock.saveAsync).toHaveBeenCalled();
@@ -227,7 +227,7 @@ describe("PortfolioDomainService", () => {
       portfolioRepositoryMock.findByCodigoAsync.mockResolvedValue(portfolio);
       orderSellSnapshotRepositoryMock.createAsync.mockResolvedValue({} as any);
 
-      await service.updatePortfolioByOrderAsync(inputVenda, undefined, portfolioRepositoryMock, orderSellSnapshotRepositoryMock);
+      await service.updatePortfolioByOrderAsync(inputVenda, "pt-BR", undefined, portfolioRepositoryMock, orderSellSnapshotRepositoryMock);
 
       expect(portfolio.quantidade).toBe(100);
       expect(portfolioRepositoryMock.saveAsync).toHaveBeenCalled();
@@ -239,7 +239,7 @@ describe("PortfolioDomainService", () => {
       portfolioRepositoryMock.findByCodigoAsync.mockResolvedValue(portfolio);
       orderSellSnapshotRepositoryMock.createAsync.mockResolvedValue({} as any);
 
-      await service.updatePortfolioByOrderAsync(inputVenda, undefined, portfolioRepositoryMock, orderSellSnapshotRepositoryMock);
+      await service.updatePortfolioByOrderAsync(inputVenda, "pt-BR", undefined, portfolioRepositoryMock, orderSellSnapshotRepositoryMock);
 
       expect(orderSellSnapshotRepositoryMock.createAsync).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -256,7 +256,7 @@ describe("PortfolioDomainService", () => {
       portfolioRepositoryMock.findByCodigoAsync.mockResolvedValue(portfolio);
       orderSellSnapshotRepositoryMock.createAsync.mockResolvedValue({} as any);
 
-      await service.updatePortfolioByOrderAsync(inputVenda, undefined, portfolioRepositoryMock, orderSellSnapshotRepositoryMock);
+      await service.updatePortfolioByOrderAsync(inputVenda, "pt-BR", undefined, portfolioRepositoryMock, orderSellSnapshotRepositoryMock);
 
       expect(orderSellSnapshotRepositoryMock.createAsync).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -273,7 +273,7 @@ describe("PortfolioDomainService", () => {
       portfolioRepositoryMock.findByCodigoAsync.mockResolvedValue(portfolio);
       orderSellSnapshotRepositoryMock.createAsync.mockResolvedValue({} as any);
 
-      await service.updatePortfolioByOrderAsync(inputVenda, undefined, portfolioRepositoryMock, orderSellSnapshotRepositoryMock, 55.0);
+      await service.updatePortfolioByOrderAsync(inputVenda, "pt-BR", undefined, portfolioRepositoryMock, orderSellSnapshotRepositoryMock, 55.0);
 
       expect(orderSellSnapshotRepositoryMock.createAsync).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -290,7 +290,7 @@ describe("PortfolioDomainService", () => {
       portfolioRepositoryMock.findByCodigoAsync.mockResolvedValue(portfolio);
 
       await expect(
-        service.updatePortfolioByOrderAsync(inputVenda, undefined, portfolioRepositoryMock, orderSellSnapshotRepositoryMock)
+        service.updatePortfolioByOrderAsync(inputVenda, "pt-BR", undefined, portfolioRepositoryMock, orderSellSnapshotRepositoryMock)
       ).rejects.toThrow(BusinessException);
     });
   });
@@ -299,7 +299,7 @@ describe("PortfolioDomainService", () => {
     it("Deve retornar divergencia quando portfolio nao existe", async () => {
       portfolioRepositoryMock.findByCodigoAsync.mockResolvedValue(null);
 
-      const resultado = await service.validateSellAsync("VALE3", 100, undefined, portfolioRepositoryMock);
+      const resultado = await service.validateSellAsync("VALE3", 100, "pt-BR", undefined, portfolioRepositoryMock);
 
       expect(resultado.hasDivergence).toBe(true);
       expect(resultado.divergence).toBeDefined();
@@ -311,7 +311,7 @@ describe("PortfolioDomainService", () => {
       const portfolio = new PortfolioEntity("1", "VALE3", 50, 50.0);
       portfolioRepositoryMock.findByCodigoAsync.mockResolvedValue(portfolio);
 
-      const resultado = await service.validateSellAsync("VALE3", 50, undefined, portfolioRepositoryMock);
+      const resultado = await service.validateSellAsync("VALE3", 50, "pt-BR", undefined, portfolioRepositoryMock);
 
       expect(resultado.hasDivergence).toBe(true);
       expect(resultado.divergence).toBeDefined();
@@ -322,7 +322,7 @@ describe("PortfolioDomainService", () => {
       const portfolio = new PortfolioEntity("1", "VALE3", 50, 50.0);
       portfolioRepositoryMock.findByCodigoAsync.mockResolvedValue(portfolio);
 
-      const resultado = await service.validateSellAsync("VALE3", 100, undefined, portfolioRepositoryMock);
+      const resultado = await service.validateSellAsync("VALE3", 100, "pt-BR", undefined, portfolioRepositoryMock);
 
       expect(resultado.hasDivergence).toBe(true);
       expect(resultado.divergence).toBeDefined();
@@ -333,7 +333,7 @@ describe("PortfolioDomainService", () => {
       const portfolio = new PortfolioEntity("1", "VALE3", 100, 50.0);
       portfolioRepositoryMock.findByCodigoAsync.mockResolvedValue(portfolio);
 
-      const resultado = await service.validateSellAsync("VALE3", 50, undefined, portfolioRepositoryMock);
+      const resultado = await service.validateSellAsync("VALE3", 50, "pt-BR", undefined, portfolioRepositoryMock);
 
       expect(resultado.hasDivergence).toBe(false);
       expect(resultado.divergence).toBeUndefined();
@@ -343,7 +343,7 @@ describe("PortfolioDomainService", () => {
       const portfolio = new PortfolioEntity("1", "VALE3", 100, 50.0);
       portfolioRepositoryMock.findByCodigoAsync.mockResolvedValue(portfolio);
 
-      const resultado = await service.validateSellAsync("VALE3", 99, undefined, portfolioRepositoryMock);
+      const resultado = await service.validateSellAsync("VALE3", 99, "pt-BR", undefined, portfolioRepositoryMock);
 
       expect(resultado.hasDivergence).toBe(false);
       expect(resultado.divergence).toBeUndefined();
@@ -366,6 +366,7 @@ describe("PortfolioDomainService", () => {
 
       const resultado = await service.updatePortfolioByOrderAsync(
         inputVenda,
+        "pt-BR",
         undefined,
         portfolioRepositoryMock,
         orderSellSnapshotRepositoryMock,
@@ -383,6 +384,7 @@ describe("PortfolioDomainService", () => {
 
       await service.updatePortfolioByOrderAsync(
         inputBase,
+        "pt-BR",
         undefined,
         portfolioRepositoryMock,
         orderSellSnapshotRepositoryMock,
@@ -401,6 +403,7 @@ describe("PortfolioDomainService", () => {
 
       await service.updatePortfolioByOrderAsync(
         inputVenda,
+        "pt-BR",
         undefined,
         portfolioRepositoryMock,
         orderSellSnapshotRepositoryMock,
@@ -421,7 +424,7 @@ describe("PortfolioDomainService", () => {
       orderRepositoryMock.findAllByCodigoAsync.mockResolvedValue([ordem]);
       portfolioRepositoryMock.findByCodigoAsync.mockResolvedValue(new PortfolioEntity("1", "VALE3", 100, 50));
 
-      const resultado = await service.validateDeleteOrderAsync("1", undefined, orderRepositoryMock, portfolioRepositoryMock);
+      const resultado = await service.validateDeleteOrderAsync("1", "pt-BR", undefined, orderRepositoryMock, portfolioRepositoryMock);
 
       expect(resultado.hasDivergence).toBe(false);
       expect(resultado.divergences).toHaveLength(0);
@@ -434,7 +437,7 @@ describe("PortfolioDomainService", () => {
       orderRepositoryMock.findAllByCodigoAsync.mockResolvedValue([compra, venda]);
       portfolioRepositoryMock.findByCodigoAsync.mockResolvedValue(null);
 
-      const resultado = await service.validateDeleteOrderAsync("1", undefined, orderRepositoryMock, portfolioRepositoryMock);
+      const resultado = await service.validateDeleteOrderAsync("1", "pt-BR", undefined, orderRepositoryMock, portfolioRepositoryMock);
 
       expect(resultado.hasDivergence).toBe(true);
       expect(resultado.divergences).toHaveLength(1);
@@ -444,7 +447,7 @@ describe("PortfolioDomainService", () => {
     it("Deve retornar sem divergencia quando ordem nao existe", async () => {
       orderRepositoryMock.findByIdAsync.mockResolvedValue(null);
 
-      const resultado = await service.validateDeleteOrderAsync("999", undefined, orderRepositoryMock, portfolioRepositoryMock);
+      const resultado = await service.validateDeleteOrderAsync("999", "pt-BR", orderRepositoryMock, portfolioRepositoryMock);
 
       expect(resultado.hasDivergence).toBe(false);
       expect(resultado.divergences).toHaveLength(0);
